@@ -2,95 +2,87 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* BIO Black Liquid Glass Design System */
+    --background: 240 33% 5%;
+    --foreground: 240 20% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 240 20% 8%;
+    --card-foreground: 240 20% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 240 20% 8%;
+    --popover-foreground: 240 20% 98%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 240 20% 12%;
+    --secondary-foreground: 240 20% 98%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 240 10% 15%;
+    --muted-foreground: 240 10% 60%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 239 84% 67%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 0 0% 100% / 0.08;
+    --input: 0 0% 100% / 0.08;
+    --ring: 239 84% 67%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* BIO Extended Tokens */
+    --bg-obsidian: 240 33% 5%;
+    --accent-indigo: 239 84% 67%;
+    --accent-indigo-light: 234 89% 74%;
+    --accent-teal: 168 76% 50%;
+    --accent-teal-light: 166 72% 64%;
+    --accent-coral: 350 96% 71%;
+    --accent-coral-light: 350 95% 82%;
+    --accent-amber: 45 93% 56%;
+    --accent-amber-light: 48 96% 77%;
+    --accent-violet: 263 70% 76%;
+    --accent-violet-light: 262 83% 85%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --text-primary: 240 100% 99%;
+    --text-secondary: 240 20% 98% / 0.6;
+    --text-tertiary: 240 20% 98% / 0.35;
 
-    --sidebar-primary: 240 5.9% 10%;
+    /* Glass surfaces */
+    --surface-1: 0 0% 100% / 0.04;
+    --surface-2: 0 0% 100% / 0.08;
+    --surface-3: 0 0% 100% / 0.12;
+    --border-glass: 0 0% 100% / 0.08;
+    --border-active: 239 84% 67% / 0.5;
 
-    --sidebar-primary-foreground: 0 0% 98%;
+    /* Shadows */
+    --shadow-card: 0 8px 32px rgba(0,0,0,0.45);
+    --shadow-hover: 0 16px 64px rgba(99,102,241,0.25);
+    --shadow-cta: 0 0 24px rgba(99,102,241,0.40);
 
-    --sidebar-accent: 240 4.8% 95.9%;
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-base: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+    --space-3xl: 64px;
 
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    /* Sidebar (unused but required) */
+    --sidebar-background: 240 33% 5%;
+    --sidebar-foreground: 240 20% 98%;
+    --sidebar-primary: 239 84% 67%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 240 20% 12%;
+    --sidebar-accent-foreground: 240 20% 98%;
+    --sidebar-border: 0 0% 100% / 0.08;
+    --sidebar-ring: 239 84% 67%;
   }
 }
 
@@ -100,6 +92,153 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  /* Glass surfaces */
+  .glass-1 {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-2 {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(60px) saturate(180%);
+    -webkit-backdrop-filter: blur(60px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .glass-3 {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(80px) saturate(180%);
+    -webkit-backdrop-filter: blur(80px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+  }
+
+  .glass-accent-indigo {
+    background: rgba(99, 102, 241, 0.12);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+  }
+
+  .glass-accent-teal {
+    background: rgba(45, 212, 191, 0.10);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(45, 212, 191, 0.20);
+  }
+
+  .glass-accent-amber {
+    background: rgba(251, 191, 36, 0.10);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(251, 191, 36, 0.20);
+  }
+
+  .glass-accent-coral {
+    background: rgba(251, 113, 133, 0.10);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(251, 113, 133, 0.20);
+  }
+
+  /* Gradients */
+  .gradient-indigo {
+    background: linear-gradient(135deg, #6366F1, #4F46E5);
+  }
+
+  .gradient-indigo-light {
+    background: linear-gradient(135deg, #6366F1, #818CF8);
+  }
+
+  .gradient-teal {
+    background: linear-gradient(135deg, #2DD4BF, #5EEAD4);
+  }
+
+  .gradient-coral {
+    background: linear-gradient(135deg, #FB7185, #FDA4AF);
+  }
+
+  .gradient-amber {
+    background: linear-gradient(135deg, #FBBF24, #FDE68A);
+  }
+
+  .gradient-violet {
+    background: linear-gradient(135deg, #A78BFA, #C4B5FD);
+  }
+
+  /* Shadow utilities */
+  .shadow-card {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  }
+
+  .shadow-hover {
+    box-shadow: 0 16px 64px rgba(99, 102, 241, 0.25);
+  }
+
+  .shadow-cta {
+    box-shadow: 0 0 24px rgba(99, 102, 241, 0.40);
+  }
+
+  .shadow-glow-indigo {
+    box-shadow: 0 0 32px rgba(99, 102, 241, 0.30);
+  }
+
+  .shadow-glow-teal {
+    box-shadow: 0 0 24px rgba(45, 212, 191, 0.25);
+  }
+
+  .shadow-glow-amber {
+    box-shadow: 0 0 24px rgba(251, 191, 36, 0.25);
+  }
+
+  /* Text utilities */
+  .text-gradient-indigo {
+    background: linear-gradient(135deg, #6366F1, #818CF8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-teal {
+    background: linear-gradient(135deg, #2DD4BF, #5EEAD4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-amber {
+    background: linear-gradient(135deg, #FBBF24, #FDE68A);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Font mono for data */
+  .font-data {
+    font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Scrollbar hiding */
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Radial glow background */
+  .bg-obsidian-glow {
+    background: radial-gradient(ellipse at 50% 30%, rgba(99,102,241,0.08) 0%, transparent 60%), #0A0A0F;
   }
 }
