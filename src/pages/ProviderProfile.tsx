@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
+import BookingSheet from "@/components/BookingSheet";
 import { ArrowLeft, Share2, Star, MapPin, Clock, ChevronDown, Play } from "lucide-react";
 
 import provider1 from "@/assets/provider-1.jpg";
@@ -104,6 +106,7 @@ const ProviderProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const provider = providersData[id || "lisa"];
+  const [bookingOpen, setBookingOpen] = useState(false);
 
   if (!provider) {
     return <div className="min-h-screen bg-obsidian flex items-center justify-center text-foreground">Provider not found</div>;
@@ -197,6 +200,7 @@ const ProviderProfile = () => {
         {/* Book Now CTA */}
         <motion.button
           whileTap={{ scale: 0.97 }}
+          onClick={() => setBookingOpen(true)}
           className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta"
         >
           Book a Session
@@ -276,12 +280,14 @@ const ProviderProfile = () => {
         </span>
         <motion.button
           whileTap={{ scale: 0.95 }}
+          onClick={() => setBookingOpen(true)}
           className="rounded-pill px-5 py-2 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta"
         >
           Book Now
         </motion.button>
       </motion.div>
 
+      <BookingSheet open={bookingOpen} onClose={() => setBookingOpen(false)} provider={provider} />
       <BottomNav />
     </div>
   );
