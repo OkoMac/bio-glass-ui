@@ -25,7 +25,7 @@ const ProviderCard = ({
   return (
     <GlassCard
       hover
-      className="w-[200px] shrink-0 p-3 cursor-pointer"
+      className="w-[200px] lg:w-full shrink-0 p-3 cursor-pointer"
       onClick={() => navigate(`/provider/${id}`)}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
