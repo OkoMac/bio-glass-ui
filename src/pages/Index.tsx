@@ -7,6 +7,8 @@ import ProviderCard from "@/components/ProviderCard";
 import BottomNav from "@/components/BottomNav";
 import GlassCard from "@/components/GlassCard";
 import { Sparkles } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 import provider1 from "@/assets/provider-1.jpg";
 import provider2 from "@/assets/provider-2.jpg";
@@ -18,26 +20,8 @@ import heroCover2 from "@/assets/hero-cover-2.jpg";
 const categories = ["All", "Fitness", "Medical", "Beauty", "Professional", "Free Sessions", "Available Now"];
 
 const heroProviders = [
-  {
-    id: "lisa",
-    name: "Lisa Dlamini",
-    specialty: "Personal Trainer",
-    rating: 4.9,
-    distance: "0.8 km",
-    image: provider1,
-    coverImage: heroCover1,
-    vertical: "teal" as const,
-  },
-  {
-    id: "sarah",
-    name: "Sarah Chen",
-    specialty: "Beauty & Skincare",
-    rating: 4.8,
-    distance: "1.5 km",
-    image: provider3,
-    coverImage: heroCover2,
-    vertical: "coral" as const,
-  },
+  { id: "lisa", name: "Lisa Dlamini", specialty: "Personal Trainer", rating: 4.9, distance: "0.8 km", image: provider1, coverImage: heroCover1, vertical: "teal" as const },
+  { id: "sarah", name: "Sarah Chen", specialty: "Beauty & Skincare", rating: 4.8, distance: "1.5 km", image: provider3, coverImage: heroCover2, vertical: "coral" as const },
 ];
 
 const forYouProviders = [
@@ -53,14 +37,10 @@ const freeProviders = [
   { id: "lisa", name: "Lisa Dlamini", specialty: "Free Intro — PT", rating: 4.9, reviews: 128, distance: "0.8 km", nextSlot: "Thu 4pm", image: provider1, vertical: "teal" as const, isFree: true },
 ];
 
-const stagger = {
-  container: { transition: { staggerChildren: 0.05 } },
-  item: { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } },
-};
-
 const Index = () => {
   const [activeCategory, setActiveCategory] = useState("All");
-  const [heroIndex, setHeroIndex] = useState(0);
+  const { user, profile, isProvider, isAdmin } = useAuth();
+  const navigate = useNavigate();
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -69,51 +49,58 @@ const Index = () => {
     return "Good evening";
   };
 
+  const userName = profile?.full_name?.split(" ")[0] || "there";
+
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-24">
-      <div className="mx-auto max-w-lg px-4 pt-12 space-y-6">
-        {/* Search */}
-        <SearchBar />
+      <div className="mx-auto max-w-lg lg:max-w-4xl xl:max-w-6xl px-4 pt-12 space-y-6">
+        {/* Top bar with auth/role shortcuts */}
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <SearchBar />
+          </div>
+          <div className="flex items-center gap-2 ml-3 shrink-0">
+            {!user && (
+              <motion.button whileTap={{ scale: 0.95 }} onClick={() => navigate("/auth")}
+                className="rounded-pill px-4 py-2 text-xs font-semibold gradient-indigo text-primary-foreground">
+                Sign In
+              </motion.button>
+            )}
+            {isProvider && (
+              <motion.button whileTap={{ scale: 0.95 }} onClick={() => navigate("/provider-dashboard")}
+                className="rounded-pill px-3 py-1.5 text-[10px] font-medium glass-accent-teal text-teal">
+                Provider Dashboard
+              </motion.button>
+            )}
+            {isAdmin && (
+              <motion.button whileTap={{ scale: 0.95 }} onClick={() => navigate("/admin")}
+                className="rounded-pill px-3 py-1.5 text-[10px] font-medium glass-accent-indigo text-indigo">
+                Admin Panel
+              </motion.button>
+            )}
+          </div>
+        </div>
 
         {/* Greeting */}
-        <motion.h1
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="text-[28px] font-bold text-foreground"
-        >
-          {getGreeting()}, Oko ☀️
+        <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+          className="text-[28px] lg:text-4xl font-bold text-foreground">
+          {getGreeting()}, {userName} ☀️
         </motion.h1>
 
         {/* Category Chips */}
         <div className="flex gap-2 overflow-x-auto scrollbar-none -mx-4 px-4">
           {categories.map((cat) => (
-            <CategoryChip
-              key={cat}
-              label={cat}
-              active={activeCategory === cat}
-              onClick={() => setActiveCategory(cat)}
-            />
+            <CategoryChip key={cat} label={cat} active={activeCategory === cat} onClick={() => setActiveCategory(cat)} />
           ))}
         </div>
 
-        {/* Hero Carousel */}
+        {/* Hero Carousel - responsive grid on desktop */}
         <div className="relative -mx-4 px-4">
-          <div className="flex gap-4 overflow-x-auto scrollbar-none snap-x snap-mandatory">
+          <div className="flex lg:grid lg:grid-cols-2 gap-4 overflow-x-auto lg:overflow-visible scrollbar-none snap-x snap-mandatory">
             {heroProviders.map((provider) => (
-              <div key={provider.id} className="snap-center shrink-0 w-[85%]">
+              <div key={provider.id} className="snap-center shrink-0 w-[85%] lg:w-full">
                 <HeroProviderCard {...provider} />
               </div>
-            ))}
-          </div>
-          <div className="flex justify-center gap-1.5 mt-3">
-            {heroProviders.map((_, i) => (
-              <div
-                key={i}
-                className={`w-1.5 h-1.5 rounded-full transition-all ${
-                  i === heroIndex ? "bg-indigo w-4" : "bg-foreground/20"
-                }`}
-              />
             ))}
           </div>
         </div>
@@ -125,14 +112,9 @@ const Index = () => {
             <h2 className="text-lg font-semibold text-foreground">For You</h2>
             <span className="text-xs text-violet">✦</span>
           </div>
-          <div className="flex gap-3 overflow-x-auto scrollbar-none -mx-4 px-4">
+          <div className="flex lg:grid lg:grid-cols-4 gap-3 overflow-x-auto lg:overflow-visible scrollbar-none -mx-4 px-4 lg:mx-0 lg:px-0">
             {forYouProviders.map((p, i) => (
-              <motion.div
-                key={p.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + i * 0.05 }}
-              >
+              <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.05 }}>
                 <ProviderCard {...p} />
               </motion.div>
             ))}
@@ -145,14 +127,9 @@ const Index = () => {
             <h2 className="text-lg font-semibold text-foreground">Free Sessions Near You</h2>
             <span className="text-xs text-teal">◦</span>
           </div>
-          <div className="flex gap-3 overflow-x-auto scrollbar-none -mx-4 px-4">
+          <div className="flex lg:grid lg:grid-cols-3 gap-3 overflow-x-auto lg:overflow-visible scrollbar-none -mx-4 px-4 lg:mx-0 lg:px-0">
             {freeProviders.map((p, i) => (
-              <motion.div
-                key={`${p.id}-free`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + i * 0.05 }}
-              >
+              <motion.div key={`${p.id}-free`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 + i * 0.05 }}>
                 <ProviderCard {...p} />
               </motion.div>
             ))}
@@ -167,9 +144,7 @@ const Index = () => {
             </div>
             <div>
               <p className="text-sm font-medium text-foreground">ServeAI Insight ✦</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Based on your goals, we recommend adding a yoga session to balance your training routine.
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Based on your goals, we recommend adding a yoga session to balance your training routine.</p>
               <button className="text-xs text-indigo-light font-medium mt-2">Explore →</button>
             </div>
           </div>
@@ -181,14 +156,9 @@ const Index = () => {
             <h2 className="text-lg font-semibold text-foreground">Open Today</h2>
             <span className="text-xs text-muted-foreground">→</span>
           </div>
-          <div className="flex gap-3 overflow-x-auto scrollbar-none -mx-4 px-4">
+          <div className="flex lg:grid lg:grid-cols-4 gap-3 overflow-x-auto lg:overflow-visible scrollbar-none -mx-4 px-4 lg:mx-0 lg:px-0">
             {forYouProviders.filter(p => p.nextSlot?.includes("Today")).map((p, i) => (
-              <motion.div
-                key={`${p.id}-today`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + i * 0.05 }}
-              >
+              <motion.div key={`${p.id}-today`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 + i * 0.05 }}>
                 <ProviderCard {...p} />
               </motion.div>
             ))}

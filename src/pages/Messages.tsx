@@ -156,7 +156,7 @@ const Messages = () => {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-24">
-      <div className="mx-auto max-w-lg px-4 pt-12 space-y-5">
+      <div className="mx-auto max-w-lg lg:max-w-3xl px-4 pt-12 space-y-5">
         <h1 className="text-2xl font-bold text-foreground">Messages</h1>
 
         <div className="space-y-1">
