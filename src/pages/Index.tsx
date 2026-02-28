@@ -53,7 +53,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-24">
-      <div className="mx-auto max-w-lg lg:max-w-4xl xl:max-w-6xl px-4 pt-12 space-y-6">
+      <div className="mx-auto max-w-lg lg:max-w-none px-4 lg:px-8 xl:px-12 pt-12 space-y-6">
         {/* Top bar with auth/role shortcuts */}
         <div className="flex items-center justify-between">
           <div className="flex-1">

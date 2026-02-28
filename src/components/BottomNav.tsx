@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 const tabs = [
   { icon: Compass, label: "Discover", path: "/" },
   { icon: Calendar, label: "Schedule", path: "/schedule" },
-  { label: "BIO", path: "/quick-book", isFab: true },
+  { label: "BION", path: "/quick-book", isFab: true },
   { icon: MessageCircle, label: "Messages", path: "/messages" },
   { icon: User, label: "Me", path: "/profile" },
 ];
@@ -32,9 +32,11 @@ const BottomNav = () => {
                 key="fab"
                 onClick={() => navigate(tab.path)}
                 whileTap={{ scale: 0.92 }}
-                className="relative -mt-6 flex items-center justify-center px-5 py-2.5 rounded-pill gradient-indigo shadow-cta"
+                className="flex flex-col items-center gap-1 py-1 px-3"
               >
-                <span className="text-sm font-bold tracking-wider text-primary-foreground">BIO</span>
+                <div className="flex items-center justify-center w-9 h-9 rounded-full gradient-indigo shadow-cta">
+                  <span className="text-[10px] font-bold tracking-wider text-primary-foreground">BION</span>
+                </div>
               </motion.button>
             );
           }
