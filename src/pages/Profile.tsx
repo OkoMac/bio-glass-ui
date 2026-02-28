@@ -65,7 +65,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-24">
-      <div className="mx-auto max-w-lg lg:max-w-none px-4 lg:px-8 xl:px-12 pt-12 space-y-5">
+      <div className="w-full px-4 md:px-8 xl:px-12 pt-12 space-y-5">
         {/* Profile Header */}
         <div className="flex items-center gap-4">
           <BioAvatar src={profile?.avatar_url || provider1} alt={profile?.full_name || "User"} size="xl" verticalColor="indigo" verified={!!user} />
