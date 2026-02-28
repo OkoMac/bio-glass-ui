@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      biopoints: {
+        Row: {
+          created_at: string
+          id: string
+          points: number
+          reason: string
+          source_id: string | null
+          source_type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          points: number
+          reason: string
+          source_id?: string | null
+          source_type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          points?: number
+          reason?: string
+          source_id?: string | null
+          source_type?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "biopoints_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           booking_date: string
@@ -113,6 +151,123 @@ export type Database = {
           sort_order?: number | null
         }
         Relationships: []
+      }
+      challenges: {
+        Row: {
+          category: string | null
+          challenge_type: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          max_participants: number | null
+          points_reward: number
+          provider_id: string | null
+          start_date: string | null
+          target_unit: string | null
+          target_value: number
+          title: string
+        }
+        Insert: {
+          category?: string | null
+          challenge_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_participants?: number | null
+          points_reward?: number
+          provider_id?: string | null
+          start_date?: string | null
+          target_unit?: string | null
+          target_value?: number
+          title: string
+        }
+        Update: {
+          category?: string | null
+          challenge_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_participants?: number | null
+          points_reward?: number
+          provider_id?: string | null
+          start_date?: string | null
+          target_unit?: string | null
+          target_value?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenges_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenges_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_notes: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          is_private: boolean | null
+          note: string
+          note_type: string | null
+          provider_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          is_private?: boolean | null
+          note: string
+          note_type?: string | null
+          provider_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          is_private?: boolean | null
+          note?: string
+          note_type?: string | null
+          provider_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_notes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_notes_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       featured_content: {
         Row: {
@@ -328,6 +483,60 @@ export type Database = {
           },
         ]
       }
+      provider_rewards: {
+        Row: {
+          client_id: string
+          created_at: string
+          description: string | null
+          id: string
+          is_redeemed: boolean | null
+          points_value: number | null
+          provider_id: string
+          redeemed_at: string | null
+          reward_type: string | null
+          title: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_redeemed?: boolean | null
+          points_value?: number | null
+          provider_id: string
+          redeemed_at?: string | null
+          reward_type?: string | null
+          title: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_redeemed?: boolean | null
+          points_value?: number | null
+          provider_id?: string
+          redeemed_at?: string | null
+          reward_type?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_rewards_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_rewards_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           category_id: string | null
@@ -385,6 +594,51 @@ export type Database = {
           },
         ]
       }
+      user_challenges: {
+        Row: {
+          challenge_id: string
+          completed_at: string | null
+          id: string
+          joined_at: string
+          progress: number
+          status: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed_at?: string | null
+          id?: string
+          joined_at?: string
+          progress?: number
+          status?: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed_at?: string | null
+          id?: string
+          joined_at?: string
+          progress?: number
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_challenges_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_challenges_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -402,6 +656,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_streaks: {
+        Row: {
+          current_streak: number
+          id: string
+          last_activity_date: string | null
+          longest_streak: number
+          streak_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number
+          streak_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number
+          streak_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_streaks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
