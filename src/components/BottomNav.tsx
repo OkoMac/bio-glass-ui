@@ -20,7 +20,7 @@ const BottomNav = () => {
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 120, damping: 16 }}
-      className="fixed bottom-3 left-4 right-4 z-50 glass-2 rounded-pill px-2 py-2 shadow-card"
+      className="fixed bottom-3 left-4 right-4 lg:left-8 lg:right-8 xl:left-12 xl:right-12 z-50 glass-2 rounded-pill px-2 py-2 shadow-card"
     >
       <div className="flex items-center justify-around">
         {tabs.map((tab) => {
@@ -37,6 +37,7 @@ const BottomNav = () => {
                 <div className="flex items-center justify-center w-9 h-9 rounded-full gradient-indigo shadow-cta">
                   <span className="text-[10px] font-bold tracking-wider text-primary-foreground">BION</span>
                 </div>
+                <span className="text-[10px] font-medium text-muted-foreground">Quick</span>
               </motion.button>
             );
           }

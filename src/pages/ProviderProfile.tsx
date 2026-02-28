@@ -90,7 +90,7 @@ const ProviderProfile = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-obsidian/20" />
 
         {/* Nav buttons */}
-        <div className="absolute top-12 left-4 right-4 flex justify-between max-w-3xl mx-auto">
+        <div className="absolute top-12 left-4 right-4 md:left-8 md:right-8 xl:left-12 xl:right-12 flex justify-between">
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => navigate(-1)}
             className="glass-2 rounded-full w-10 h-10 flex items-center justify-center">
             <ArrowLeft className="w-5 h-5 text-foreground" />
@@ -102,7 +102,7 @@ const ProviderProfile = () => {
         </div>
 
         {/* Identity */}
-        <div className="absolute bottom-6 left-4 right-4 flex items-end gap-4 max-w-3xl mx-auto">
+        <div className="absolute bottom-6 left-4 right-4 md:left-8 md:right-8 xl:left-12 xl:right-12 flex items-end gap-4">
           <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
             <BioAvatar src={provider.image} alt={provider.name} size="xl" verticalColor={provider.vertical} verified />
           </motion.div>
@@ -118,7 +118,7 @@ const ProviderProfile = () => {
         </div>
       </div>
 
-      <div className="px-4 space-y-4 mt-4 max-w-3xl mx-auto">
+      <div className="w-full px-4 md:px-8 xl:px-12 space-y-4 mt-4">
         {/* Quick Stats */}
         <GlassCard className="flex divide-x divide-foreground/10">
           {[
@@ -214,7 +214,7 @@ const ProviderProfile = () => {
 
       {/* Sticky bottom bar */}
       <motion.div initial={{ y: 100 }} animate={{ y: 0 }}
-        className="fixed bottom-20 left-4 right-4 z-40 glass-2 rounded-pill px-4 py-3 flex items-center justify-between max-w-3xl mx-auto">
+        className="fixed bottom-20 left-4 right-4 md:left-8 md:right-8 xl:left-12 xl:right-12 z-40 glass-2 rounded-pill px-4 py-3 flex items-center justify-between">
         <span className="text-sm text-muted-foreground">
           From <span className="font-data text-foreground">{provider.services[0]?.price}</span>
         </span>

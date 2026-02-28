@@ -40,7 +40,7 @@ const Schedule = () => {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-24">
-      <div className="mx-auto max-w-lg lg:max-w-none px-4 lg:px-8 xl:px-12 pt-12 space-y-5">
+      <div className="w-full px-4 md:px-8 xl:px-12 pt-12 space-y-5">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-foreground">My Schedule</h1>
           <Calendar className="w-5 h-5 text-muted-foreground" />
