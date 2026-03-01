@@ -2,8 +2,10 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
+import { ImagePickerOverlay } from "@/components/ImagePickerOverlay";
+import { useAuth } from "@/contexts/AuthContext";
 import {
-  User, Bell, CreditCard, Shield, ChevronRight, Camera,
+  User, Bell, CreditCard, Shield, ChevronRight,
   CheckCircle, Globe, Clock, Percent, MessageSquare, Sparkles,
 } from "lucide-react";
 
@@ -19,6 +21,7 @@ const CANCEL_POLICIES = [
 ];
 
 export default function ProviderSettings() {
+  const { user, updateAvatar } = useAuth();
   const [tab, setTab] = useState<Tab>("profile");
   const [saved, setSaved] = useState(false);
 
@@ -112,12 +115,13 @@ export default function ProviderSettings() {
 
               {/* Avatar */}
               <GlassCard className="p-4 flex items-center gap-4">
-                <div className="relative shrink-0">
-                  <img src={provider1} alt="Profile" className="w-16 h-16 rounded-2xl object-cover" />
-                  <button className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full gradient-indigo flex items-center justify-center">
-                    <Camera className="w-3 h-3 text-white" />
-                  </button>
-                </div>
+                <ImagePickerOverlay onChange={updateAvatar} className="shrink-0">
+                  <img
+                    src={user?.avatar ?? provider1}
+                    alt="Profile"
+                    className="w-16 h-16 rounded-2xl object-cover"
+                  />
+                </ImagePickerOverlay>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-foreground">{displayName}</p>
                   <p className="text-[11px] text-muted-foreground truncate">{tagline}</p>

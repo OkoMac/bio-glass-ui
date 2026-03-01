@@ -14,6 +14,7 @@ import {
   ChevronRight, Download, Lock, Heart, Settings,
   LogOut, CreditCard, Bell, Eye, Activity, Trophy
 } from "lucide-react";
+import { ImagePickerOverlay } from "@/components/ImagePickerOverlay";
 
 import provider1 from "@/assets/provider-1.jpg";
 import provider2 from "@/assets/provider-2.jpg";
@@ -62,7 +63,7 @@ const rewardItems = [
 const Profile = () => {
   const [activeTab, setActiveTab] = useState<"passport" | "rewards">("passport");
   const navigate = useNavigate();
-  const { user, logout, switchRole } = useAuth();
+  const { user, logout, switchRole, updateAvatar } = useAuth();
   const { bookings } = useBookings();
   const { balance: bioPoints } = useBioPoints();
   const { streak } = useStreaks("booking");
@@ -80,13 +81,15 @@ const Profile = () => {
       <div className="w-full px-4 md:px-8 xl:px-12 pt-12 space-y-5">
         {/* Profile Header */}
         <div className="flex items-center gap-4">
-          <BioAvatar
-            src={provider1}
-            alt="Oko"
-            size="xl"
-            verticalColor="indigo"
-            verified
-          />
+          <ImagePickerOverlay onChange={updateAvatar}>
+            <BioAvatar
+              src={user?.avatar ?? provider1}
+              alt="Oko"
+              size="xl"
+              verticalColor="indigo"
+              verified
+            />
+          </ImagePickerOverlay>
           <div>
             <h1 className="text-xl font-bold text-foreground">{user?.name ?? "Oko Mthembu"}</h1>
             <p className="text-xs text-muted-foreground">Member since Jan 2026</p>

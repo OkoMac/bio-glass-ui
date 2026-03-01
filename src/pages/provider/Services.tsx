@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import CoachAI from "@/components/CoachAI";
+import { ServiceCoverPicker } from "@/components/ImagePickerOverlay";
 import { Plus, Pencil, Trash2, Check, X, Star, Clock, Zap } from "lucide-react";
 import { useBookings } from "@/contexts/BookingsContext";
 
@@ -13,6 +14,7 @@ type Service = {
   price: number;
   description: string;
   popular: boolean;
+  coverImage?: string;
 };
 
 const DURATIONS = [15, 30, 45, 60, 75, 90, 120];
@@ -31,7 +33,7 @@ const BASE_STATS: Record<string, { bookings: number; revenue: number }> = {
   s4: { bookings: 9,  revenue: 0     },
 };
 
-const emptyForm = { name: "", duration: 60, price: 0, description: "", popular: false };
+const emptyForm = { name: "", duration: 60, price: 0, description: "", popular: false, coverImage: "" };
 
 export default function ProviderServices() {
   const { bookings } = useBookings();
@@ -74,14 +76,14 @@ export default function ProviderServices() {
   const totalBookings = services.reduce((s, svc) => s + (serviceStats[svc.id]?.bookings ?? 0), 0);
 
   const openEdit = (svc: Service) => {
-    setForm({ name: svc.name, duration: svc.duration, price: svc.price, description: svc.description, popular: svc.popular });
+    setForm({ name: svc.name, duration: svc.duration, price: svc.price, description: svc.description, popular: svc.popular, coverImage: svc.coverImage ?? "" });
     setEditId(svc.id);
     setAddOpen(false);
   };
 
   const saveEdit = () => {
     setServices(prev => prev.map(s =>
-      s.id === editId ? { ...s, ...form } : s
+      s.id === editId ? { ...s, ...form, coverImage: form.coverImage || s.coverImage } : s
     ));
     setSavedId(editId);
     setTimeout(() => { setSavedId(null); setEditId(null); }, 1200);
@@ -150,7 +152,7 @@ export default function ProviderServices() {
                     <X className="w-3.5 h-3.5 text-muted-foreground" />
                   </button>
                 </div>
-                <ServiceForm form={form} setForm={setForm} />
+                <ServiceForm form={form} setForm={setForm} onCoverChange={(url) => setForm(p => ({ ...p, coverImage: url }))} />
                 <div className="flex gap-2">
                   <button onClick={() => setAddOpen(false)} className="flex-1 py-2 glass-1 rounded-pill text-xs text-muted-foreground">Cancel</button>
                   <motion.button whileTap={{ scale: 0.97 }}
@@ -185,7 +187,7 @@ export default function ProviderServices() {
                   {isEditing ? (
                     <div className="p-4 space-y-4">
                       <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Editing: {svc.name}</p>
-                      <ServiceForm form={form} setForm={setForm} />
+                      <ServiceForm form={form} setForm={setForm} onCoverChange={(url) => setForm(p => ({ ...p, coverImage: url }))} />
                       <div className="flex gap-2">
                         <button onClick={() => setEditId(null)} className="flex-1 py-2 glass-1 rounded-pill text-xs text-muted-foreground">Cancel</button>
                         <motion.button whileTap={{ scale: 0.97 }}
@@ -196,6 +198,16 @@ export default function ProviderServices() {
                       </div>
                     </div>
                   ) : (
+                    <div>
+                      {/* Cover image wallpaper */}
+                      {svc.coverImage && (
+                        <div
+                          className="w-full h-24 bg-cover bg-center relative"
+                          style={{ backgroundImage: `url(${svc.coverImage})` }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60" />
+                        </div>
+                      )}
                     <div className="p-4">
                       <div className="flex items-start gap-3">
                         <div className="flex-1 min-w-0">
@@ -266,6 +278,7 @@ export default function ProviderServices() {
                         )}
                       </AnimatePresence>
                     </div>
+                    </div>
                   )}
                 </GlassCard>
               </motion.div>
@@ -294,12 +307,14 @@ export default function ProviderServices() {
   );
 }
 
-function ServiceForm({ form, setForm }: {
+function ServiceForm({ form, setForm, onCoverChange }: {
   form: typeof emptyForm;
   setForm: React.Dispatch<React.SetStateAction<typeof emptyForm>>;
+  onCoverChange: (url: string) => void;
 }) {
   return (
     <div className="space-y-3">
+      <ServiceCoverPicker coverImage={form.coverImage || undefined} onChange={onCoverChange} />
       <div>
         <label className="text-[10px] text-muted-foreground uppercase tracking-wider block mb-1">Service name</label>
         <input

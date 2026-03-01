@@ -12,6 +12,7 @@ interface AuthContextType {
   login: (user: BioUser) => void;           // demo / direct set
   logout: () => void;
   switchRole: (role: UserRole) => void;     // dev/demo only
+  updateAvatar: (url: string) => void;      // profile photo update
   isClient:    boolean;
   isProvider:  boolean;
   isAdmin:     boolean;
@@ -70,6 +71,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(updated);
   }, [user]);
 
+  // ── Avatar update — persists to localStorage (+ Supabase in prod) ──
+  const updateAvatar = useCallback((url: string) => {
+    if (!user) return;
+    const updated = { ...user, avatar: url };
+    storeUser(updated);
+    setUser(updated);
+  }, [user]);
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -77,6 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       logout,
       switchRole,
+      updateAvatar,
       isClient:    user?.role === "client",
       isProvider:  user?.role === "provider",
       isAdmin:     user?.role === "admin",
