@@ -1,0 +1,391 @@
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import GlassCard from "@/components/GlassCard";
+import ProviderNav from "@/components/ProviderNav";
+import {
+  User, Bell, CreditCard, Shield, ChevronRight, Camera,
+  CheckCircle, Globe, Clock, Percent, MessageSquare, Sparkles,
+} from "lucide-react";
+
+import provider1 from "@/assets/provider-1.jpg";
+
+type Tab = "profile" | "billing" | "notifications" | "privacy";
+
+const VERTICALS = ["Fitness", "Medical", "Beauty", "Wellness", "Professional", "Vet"];
+const CANCEL_POLICIES = [
+  { id: "flexible", label: "Flexible", desc: "Full refund up to 24h before" },
+  { id: "moderate", label: "Moderate", desc: "Full refund up to 48h before" },
+  { id: "strict",   label: "Strict",   desc: "50% refund up to 72h before" },
+];
+
+export default function ProviderSettings() {
+  const [tab, setTab] = useState<Tab>("profile");
+  const [saved, setSaved] = useState(false);
+
+  // Profile state
+  const [displayName, setDisplayName] = useState("James Okafor");
+  const [tagline, setTagline]         = useState("Personal Trainer · NASM Certified · 8 yrs exp.");
+  const [bio, setBio]                 = useState("Helping Joburg professionals build lean strength, balance and sustainable performance.");
+  const [vertical, setVertical]       = useState("Fitness");
+  const [location, setLocation]       = useState("Sandton, Gauteng");
+  const [sessionLength, setSessionLength] = useState("60");
+  const [cancelPolicy, setCancelPolicy]   = useState("moderate");
+  const [miniSiteUrl, setMiniSiteUrl]     = useState("bio.app/james-okafor");
+
+  // Billing
+  const [plan] = useState("Growth");
+  const [nextBilling] = useState("15 Mar 2026");
+  const payouts = [
+    { month: "Feb 2026", amount: "R7 840", status: "paid" },
+    { month: "Jan 2026", amount: "R6 210", status: "paid" },
+    { month: "Dec 2025", amount: "R9 120", status: "paid" },
+  ];
+
+  // Notifications
+  const [notifs, setNotifs] = useState({
+    newBooking:    true,
+    cancellation:  true,
+    reminder:      true,
+    payment:       true,
+    serveAI:       false,
+    marketing:     false,
+  });
+
+  const toggleNotif = (key: keyof typeof notifs) =>
+    setNotifs(n => ({ ...n, [key]: !n[key] }));
+
+  const save = () => {
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  };
+
+  const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
+    { id: "profile",       label: "Profile",       icon: <User className="w-3.5 h-3.5" /> },
+    { id: "billing",       label: "Billing",        icon: <CreditCard className="w-3.5 h-3.5" /> },
+    { id: "notifications", label: "Notifications",  icon: <Bell className="w-3.5 h-3.5" /> },
+    { id: "privacy",       label: "Privacy",        icon: <Shield className="w-3.5 h-3.5" /> },
+  ];
+
+  return (
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+      <div className="mx-auto max-w-2xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
+
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+            <p className="text-xs text-muted-foreground">Manage your provider account</p>
+          </div>
+          {tab === "profile" && (
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={save}
+              className={`px-4 py-2 rounded-pill text-sm font-semibold transition-all flex items-center gap-1.5 ${
+                saved ? "bg-teal/20 text-teal" : "gradient-indigo text-primary-foreground"
+              }`}
+            >
+              {saved ? <><CheckCircle className="w-3.5 h-3.5" /> Saved</> : "Save changes"}
+            </motion.button>
+          )}
+        </div>
+
+        {/* Tab bar */}
+        <div className="glass-1 rounded-pill p-1 flex gap-1 overflow-x-auto no-scrollbar">
+          {tabs.map(t => (
+            <motion.button
+              key={t.id}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setTab(t.id)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-pill text-xs font-medium whitespace-nowrap transition-all ${
+                tab === t.id ? "gradient-indigo text-primary-foreground" : "text-muted-foreground"
+              }`}
+            >
+              {t.icon} {t.label}
+            </motion.button>
+          ))}
+        </div>
+
+        <AnimatePresence mode="wait">
+          {/* ── PROFILE ── */}
+          {tab === "profile" && (
+            <motion.div key="profile" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-4">
+
+              {/* Avatar */}
+              <GlassCard className="p-4 flex items-center gap-4">
+                <div className="relative shrink-0">
+                  <img src={provider1} alt="Profile" className="w-16 h-16 rounded-2xl object-cover" />
+                  <button className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full gradient-indigo flex items-center justify-center">
+                    <Camera className="w-3 h-3 text-white" />
+                  </button>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground">{displayName}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">{tagline}</p>
+                  <div className="flex gap-1.5 mt-1.5">
+                    <span className="text-[9px] px-2 py-0.5 glass-accent-teal text-teal rounded-pill">NASM Certified</span>
+                    <span className="text-[9px] px-2 py-0.5 glass-1 text-muted-foreground rounded-pill">Verified</span>
+                  </div>
+                </div>
+              </GlassCard>
+
+              {/* Public profile fields */}
+              <GlassCard className="p-4 space-y-4">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Public Profile</p>
+
+                <div>
+                  <p className="text-[11px] text-muted-foreground mb-1">Display name</p>
+                  <input
+                    value={displayName}
+                    onChange={e => setDisplayName(e.target.value)}
+                    className="w-full bg-white/5 text-foreground text-sm rounded-xl px-3 py-2.5 outline-none border border-white/10 focus:border-indigo/50 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <p className="text-[11px] text-muted-foreground mb-1">Tagline</p>
+                  <input
+                    value={tagline}
+                    onChange={e => setTagline(e.target.value)}
+                    className="w-full bg-white/5 text-foreground text-sm rounded-xl px-3 py-2.5 outline-none border border-white/10 focus:border-indigo/50 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <p className="text-[11px] text-muted-foreground mb-1">Bio</p>
+                  <textarea
+                    value={bio}
+                    onChange={e => setBio(e.target.value)}
+                    rows={3}
+                    className="w-full bg-white/5 text-foreground text-sm rounded-xl px-3 py-2.5 outline-none border border-white/10 focus:border-indigo/50 transition-colors resize-none"
+                  />
+                </div>
+
+                <div>
+                  <p className="text-[11px] text-muted-foreground mb-1.5">Service vertical</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {VERTICALS.map(v => (
+                      <button
+                        key={v}
+                        onClick={() => setVertical(v)}
+                        className={`text-[10px] px-2.5 py-1 rounded-pill transition-all ${
+                          vertical === v ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
+                        }`}
+                      >
+                        {v}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-[11px] text-muted-foreground mb-1 flex items-center gap-1"><Globe className="w-3 h-3" /> Location</p>
+                  <input
+                    value={location}
+                    onChange={e => setLocation(e.target.value)}
+                    className="w-full bg-white/5 text-foreground text-sm rounded-xl px-3 py-2.5 outline-none border border-white/10 focus:border-indigo/50 transition-colors"
+                  />
+                </div>
+              </GlassCard>
+
+              {/* Business rules */}
+              <GlassCard className="p-4 space-y-4">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Business Rules</p>
+
+                <div>
+                  <p className="text-[11px] text-muted-foreground mb-1 flex items-center gap-1"><Clock className="w-3 h-3" /> Default session length (minutes)</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {["30","45","60","90","120"].map(l => (
+                      <button
+                        key={l}
+                        onClick={() => setSessionLength(l)}
+                        className={`text-[10px] px-2.5 py-1 rounded-pill transition-all ${
+                          sessionLength === l ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
+                        }`}
+                      >
+                        {l} min
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-[11px] text-muted-foreground mb-1.5 flex items-center gap-1"><Percent className="w-3 h-3" /> Cancellation policy</p>
+                  <div className="space-y-2">
+                    {CANCEL_POLICIES.map(p => (
+                      <button
+                        key={p.id}
+                        onClick={() => setCancelPolicy(p.id)}
+                        className={`w-full text-left p-3 rounded-xl border transition-all ${
+                          cancelPolicy === p.id ? "border-indigo/40 glass-accent-indigo" : "border-white/5 glass-1"
+                        }`}
+                      >
+                        <p className="text-sm font-medium text-foreground">{p.label}</p>
+                        <p className="text-[11px] text-muted-foreground">{p.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </GlassCard>
+
+              {/* Mini-site URL */}
+              <GlassCard className="p-4 space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5"><Globe className="w-3.5 h-3.5" /> Your BIO mini-site</p>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 bg-white/5 rounded-xl px-3 py-2.5 border border-white/10">
+                    <p className="text-[10px] text-muted-foreground">Public URL</p>
+                    <p className="text-sm font-medium text-foreground">{miniSiteUrl}</p>
+                  </div>
+                  <button className="glass-1 rounded-xl p-2.5" onClick={() => navigator.clipboard?.writeText(`https://${miniSiteUrl}`)}>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+              </GlassCard>
+
+              {/* ServeAI toggle */}
+              <GlassCard className="p-4 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl glass-accent-indigo flex items-center justify-center shrink-0">
+                  <Sparkles className="w-5 h-5 text-indigo" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">ServeAI booking assistant</p>
+                  <p className="text-[11px] text-muted-foreground">Let ServeAI handle client enquiries and bookings</p>
+                </div>
+                <button className="w-9 h-5 rounded-full bg-indigo-500 flex items-center px-0.5">
+                  <motion.div animate={{ x: 16 }} className="w-4 h-4 rounded-full bg-white shadow-sm" />
+                </button>
+              </GlassCard>
+            </motion.div>
+          )}
+
+          {/* ── BILLING ── */}
+          {tab === "billing" && (
+            <motion.div key="billing" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-4">
+              {/* Current plan */}
+              <GlassCard className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Current plan</p>
+                    <p className="text-xl font-bold text-foreground mt-0.5">{plan}</p>
+                  </div>
+                  <span className="text-[10px] px-2 py-1 glass-accent-teal text-teal rounded-pill">Active</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  {[
+                    { label: "Commission", value: "8%" },
+                    { label: "Clients",    value: "Unlimited" },
+                    { label: "Next bill",  value: nextBilling },
+                  ].map(i => (
+                    <div key={i.label} className="glass-1 rounded-xl p-2.5 text-center">
+                      <p className="text-xs font-bold text-foreground">{i.value}</p>
+                      <p className="text-[10px] text-muted-foreground">{i.label}</p>
+                    </div>
+                  ))}
+                </div>
+                <button className="w-full py-2.5 glass-1 rounded-pill text-sm text-muted-foreground font-medium">
+                  Upgrade to Pro →
+                </button>
+              </GlassCard>
+
+              {/* Payout history */}
+              <GlassCard className="p-4">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Payout History</p>
+                <div className="space-y-2">
+                  {payouts.map(p => (
+                    <div key={p.month} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{p.month}</p>
+                        <p className="text-[10px] text-teal capitalize">{p.status}</p>
+                      </div>
+                      <p className="text-sm font-bold font-data text-foreground">{p.amount}</p>
+                    </div>
+                  ))}
+                </div>
+              </GlassCard>
+
+              {/* Payment method */}
+              <GlassCard className="p-4 flex items-center gap-3">
+                <div className="w-10 h-6 bg-white/10 rounded flex items-center justify-center">
+                  <CreditCard className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">•••• •••• •••• 4242</p>
+                  <p className="text-[11px] text-muted-foreground">Expires 09/27</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </GlassCard>
+            </motion.div>
+          )}
+
+          {/* ── NOTIFICATIONS ── */}
+          {tab === "notifications" && (
+            <motion.div key="notifs" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+              <GlassCard className="p-4 space-y-1">
+                {[
+                  { key: "newBooking",   label: "New booking request",   desc: "When a client books a session" },
+                  { key: "cancellation", label: "Cancellation",           desc: "When a client cancels" },
+                  { key: "reminder",     label: "Session reminders",      desc: "1 hour before each session" },
+                  { key: "payment",      label: "Payout processed",       desc: "When funds are transferred" },
+                  { key: "serveAI",      label: "ServeAI activity",       desc: "AI handled a booking for you" },
+                  { key: "marketing",    label: "Tips & promotions",       desc: "Platform updates and offers" },
+                ] .map((item, i) => (
+                  <div key={item.key} className={`flex items-center justify-between py-3 ${i > 0 ? "border-t border-white/5" : ""}`}>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{item.label}</p>
+                      <p className="text-[11px] text-muted-foreground">{item.desc}</p>
+                    </div>
+                    <button
+                      onClick={() => toggleNotif(item.key as keyof typeof notifs)}
+                      className={`w-9 h-5 rounded-full transition-all flex items-center px-0.5 shrink-0 ${
+                        notifs[item.key as keyof typeof notifs] ? "bg-indigo-500" : "bg-white/10"
+                      }`}
+                    >
+                      <motion.div
+                        animate={{ x: notifs[item.key as keyof typeof notifs] ? 16 : 0 }}
+                        className="w-4 h-4 rounded-full bg-white shadow-sm"
+                      />
+                    </button>
+                  </div>
+                ))}
+              </GlassCard>
+            </motion.div>
+          )}
+
+          {/* ── PRIVACY ── */}
+          {tab === "privacy" && (
+            <motion.div key="privacy" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-4">
+              <GlassCard className="p-4 space-y-3">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Data & Privacy</p>
+                {[
+                  { label: "Download my data", desc: "Export all your data as JSON" },
+                  { label: "Delete my account", desc: "Permanently remove your account and data" },
+                  { label: "POPIA compliance report", desc: "View data processing log" },
+                ].map(item => (
+                  <div key={item.label} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{item.label}</p>
+                      <p className="text-[11px] text-muted-foreground">{item.desc}</p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                ))}
+              </GlassCard>
+
+              <GlassCard className="p-4 space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5"><MessageSquare className="w-3.5 h-3.5" /> WhatsApp Integration</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-foreground">+27 82 000 0000</p>
+                    <p className="text-[11px] text-teal">Connected</p>
+                  </div>
+                  <button className="glass-1 rounded-pill px-3 py-1.5 text-xs text-muted-foreground">Disconnect</button>
+                </div>
+              </GlassCard>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <ProviderNav />
+    </div>
+  );
+}
