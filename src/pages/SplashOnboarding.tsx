@@ -8,11 +8,47 @@ import {
 } from "@/lib/auth";
 import { ShieldCheck, Briefcase, User, Building2, Eye, EyeOff, Loader2 } from "lucide-react";
 
-const onboardingSteps = [
-  { headline: "Every service you need.",         sub: "Health. Beauty. Medical. Professional. All in one place.", emoji: "🌍" },
-  { headline: "Starts in WhatsApp.",             sub: "Book anything, anywhere. No app required.",               emoji: "💬" },
-  { headline: "Your providers, in your pocket.", sub: "Routines, meal plans, reminders, progress. All connected.", emoji: "🤝" },
-  { headline: "One profile. Every provider.",    sub: "Your BION Passport travels with you — across health, beauty, and beyond.", emoji: "🛂" },
+type OnboardingStep = {
+  type: "default" | "flow";
+  headline: string;
+  sub: string;
+  emoji?: string;
+  flow?: Array<{ icon: string; label: string; desc: string }>;
+};
+
+const onboardingSteps: OnboardingStep[] = [
+  {
+    type: "default",
+    headline: "All your health &\nwellness needs.",
+    sub: "Health. Beauty. Medical. Professional. All in one place — for individuals, teams, and providers.",
+    emoji: "🌟",
+  },
+  {
+    type: "flow",
+    headline: "Companies fund\nyour wellness.",
+    sub: "Your employer loads your BIONWallet. You choose where to spend it across any service on BION.",
+    flow: [
+      { icon: "🏢", label: "Corporate", desc: "Funds BIONWallet" },
+      { icon: "👤", label: "Employee", desc: "Books services" },
+      { icon: "🩺", label: "Provider", desc: "Delivers care" },
+    ],
+  },
+  {
+    type: "default",
+    headline: "Book any certified\nwellness provider.",
+    sub: "Doctors, trainers, therapists, nutritionists — browse, book, and track progress all in one place.",
+    emoji: "🤝",
+  },
+  {
+    type: "flow",
+    headline: "One network.\nEveryone wins.",
+    sub: "Providers grow their practice. Companies cut sick days. Employees thrive.",
+    flow: [
+      { icon: "🏢", label: "Corporate", desc: "Reduces sick days" },
+      { icon: "👤", label: "Employee", desc: "Thrives & performs" },
+      { icon: "🩺", label: "Provider", desc: "Grows practice" },
+    ],
+  },
 ];
 
 type Phase = "splash" | "onboarding" | "role" | "auth";
@@ -110,14 +146,52 @@ export default function SplashOnboarding() {
         style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(99,102,241,0.06) 0%, #0A0A0F 65%)" }}>
         <div className="flex-1 flex flex-col items-center justify-center px-8">
           <AnimatePresence mode="wait">
-            <motion.div key={currentStep} initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -50 }} transition={{ duration: 0.3 }} className="text-center space-y-6">
-              <motion.span initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="text-7xl block">
-                {onboardingSteps[currentStep].emoji}
-              </motion.span>
-              <h1 className="text-3xl font-bold text-foreground leading-tight">{onboardingSteps[currentStep].headline}</h1>
-              <p className="text-base text-muted-foreground leading-relaxed max-w-xs mx-auto">{onboardingSteps[currentStep].sub}</p>
-            </motion.div>
+            {(() => {
+              const step = onboardingSteps[currentStep];
+              return (
+                <motion.div key={currentStep} initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }} transition={{ duration: 0.3 }} className="text-center space-y-6 w-full">
+                  {step.type === "flow" && step.flow ? (
+                    <>
+                      <div className="flex items-start justify-center gap-1">
+                        {step.flow.map((node, i) => (
+                          <div key={i} className="flex items-start gap-1">
+                            <motion.div
+                              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: i * 0.12 }}
+                              className="flex flex-col items-center gap-2 w-20"
+                            >
+                              <div className="w-14 h-14 glass-1 rounded-2xl flex items-center justify-center text-2xl border border-white/8">
+                                {node.icon}
+                              </div>
+                              <p className="text-xs font-semibold text-foreground">{node.label}</p>
+                              <p className="text-[10px] text-muted-foreground leading-tight">{node.desc}</p>
+                            </motion.div>
+                            {i < step.flow!.length - 1 && (
+                              <span className="text-indigo text-lg font-bold mt-4 px-0.5">→</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      <h1 className="text-3xl font-bold text-foreground leading-tight whitespace-pre-line">
+                        {step.headline}
+                      </h1>
+                      <p className="text-base text-muted-foreground leading-relaxed max-w-xs mx-auto">{step.sub}</p>
+                    </>
+                  ) : (
+                    <>
+                      <motion.span initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="text-7xl block">
+                        {step.emoji}
+                      </motion.span>
+                      <h1 className="text-3xl font-bold text-foreground leading-tight whitespace-pre-line">
+                        {step.headline}
+                      </h1>
+                      <p className="text-base text-muted-foreground leading-relaxed max-w-xs mx-auto">{step.sub}</p>
+                    </>
+                  )}
+                </motion.div>
+              );
+            })()}
           </AnimatePresence>
         </div>
         <div className="px-8 pb-12 space-y-6">
