@@ -39,7 +39,10 @@ const STEPS: OnboardingStep[] = [
       { id: "hrContactName", label: "HR / Wellness Contact Name", type: "text", placeholder: "Full name", required: true },
       { id: "hrContactEmail", label: "HR Contact Email", type: "email", placeholder: "hr@company.co.za", required: true },
       { id: "hrContactPhone", label: "HR Contact Phone", type: "tel", placeholder: "+27 11 123 4567", required: false },
-      { id: "companyWebsite", label: "Company Website", type: "url", placeholder: "https://company.co.za", required: false, aiHint: "url" },
+      { id: "companyWebsite", label: "Company Website",   type: "url",  placeholder: "https://company.co.za",            required: false, aiHint: "url" },
+      { id: "linkedin",       label: "Company LinkedIn",  type: "text", placeholder: "linkedin.com/company/yourcompany",  required: false },
+      { id: "instagram",      label: "Company Instagram", type: "text", placeholder: "@yourcompany",                      required: false },
+      { id: "facebook",       label: "Company Facebook",  type: "text", placeholder: "facebook.com/yourcompany",          required: false },
     ],
   },
   {

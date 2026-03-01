@@ -38,7 +38,11 @@ const STEPS: OnboardingStep[] = [
       { id: "location", label: "Business Location / City", type: "text", placeholder: "e.g. Sandton, Johannesburg", required: true, aiHint: "location" },
       { id: "phone", label: "Business Phone", type: "tel", placeholder: "+27 11 123 4567", required: false, aiHint: "phone" },
       { id: "email", label: "Business Email", type: "email", placeholder: "bookings@yourpractice.co.za", required: false, aiHint: "email" },
-      { id: "bio", label: "Short Bio / Introduction", type: "textarea", placeholder: "Tell clients about your experience and approach…", required: false, aiHint: "description" },
+      { id: "bio",       label: "Short Bio / Introduction", type: "textarea", placeholder: "Tell clients about your experience and approach…", required: false, aiHint: "description" },
+      { id: "website",   label: "Business Website",         type: "text",     placeholder: "https://yourpractice.co.za",                  required: false, aiHint: "url" },
+      { id: "instagram", label: "Instagram Handle",         type: "text",     placeholder: "@yourpractice",                               required: false },
+      { id: "linkedin",  label: "LinkedIn Profile",         type: "text",     placeholder: "linkedin.com/in/yourname",                    required: false },
+      { id: "facebook",  label: "Facebook Page",            type: "text",     placeholder: "facebook.com/yourpractice",                   required: false },
     ],
   },
   {

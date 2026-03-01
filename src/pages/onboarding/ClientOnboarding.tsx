@@ -85,6 +85,19 @@ const STEPS: OnboardingStep[] = [
     ],
   },
   {
+    id: "social_presence",
+    type: "form",
+    title: "Your Social Presence",
+    subtitle: "Optional — helps providers connect with you and personalise your experience.",
+    canSkip: true,
+    fields: [
+      { id: "website",   label: "Personal Website",  type: "text", placeholder: "https://yoursite.co.za", required: false },
+      { id: "instagram", label: "Instagram Handle",  type: "text", placeholder: "@yourhandle",            required: false },
+      { id: "linkedin",  label: "LinkedIn Profile",  type: "text", placeholder: "linkedin.com/in/you",   required: false },
+      { id: "facebook",  label: "Facebook Profile",  type: "text", placeholder: "facebook.com/you",      required: false },
+    ],
+  },
+  {
     id: "how_bion_works",
     type: "info",
     title: "How BION Works",

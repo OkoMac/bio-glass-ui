@@ -9,6 +9,12 @@ export interface BioUser {
   email: string;
   role: UserRole;
   avatar?: string;
+  socialLinks?: {
+    website?: string;
+    linkedin?: string;
+    instagram?: string;
+    facebook?: string;
+  };
 }
 
 const KEY = "bio_user";
@@ -99,6 +105,17 @@ export async function signUpWithEmail(
     .from("profiles").select("id").eq("user_id", uid).maybeSingle();
 
   return { user: { id: uid, profileId: profileData?.id, name, email, role }, error: null };
+}
+
+/** Sign in / sign up with Google OAuth — Supabase handles the redirect */
+export async function signInWithGoogle(): Promise<void> {
+  await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${window.location.origin}/`,
+      queryParams: { prompt: "select_account" },
+    },
+  });
 }
 
 /** Sign out from Supabase */

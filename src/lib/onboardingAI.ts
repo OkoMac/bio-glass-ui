@@ -70,6 +70,28 @@ const KB: Record<string, string> = {
   "can i restrict services":
     "Yes. Under Programme Settings, choose allowed categories (e.g., only Fitness and Mental Health). Employees can only spend their wallet on those categories.",
 
+  // Social media & Google sign-in
+  "how do i sign in with google":
+    "On the login screen, tap 'Continue with Google'. BION will redirect you to Google to select your account, then bring you straight back — no password needed. Your Google profile name and photo will pre-fill your BION account.",
+
+  "why add social media":
+    "Adding your social handles lets providers learn more about you before your session, helps the AI recommend the right services based on your industry or lifestyle, and makes your public profile (for providers) look more credible to potential clients.",
+
+  "what social media can i link":
+    "You can add your Instagram, LinkedIn, Facebook and personal website during onboarding. These are optional and you can update them later in Settings → Profile. Providers can also link their business Instagram and LinkedIn to their public BION mini-site.",
+
+  "how do i add my instagram":
+    "On the Social Presence step during onboarding, enter your Instagram handle (e.g. @yourhandle). You can also update it after onboarding in Settings → Profile → Social Links. Your Instagram will appear on your public profile if you're a provider.",
+
+  "how do i add my linkedin":
+    "On the Social Presence or Business Details step, enter your LinkedIn URL (e.g. linkedin.com/in/yourname). For providers, this appears on your BION mini-site and helps corporate clients verify your credentials.",
+
+  "how do i update my social links":
+    "Go to Settings → Profile and scroll to Social Links. You can add or update your website, Instagram, LinkedIn and Facebook at any time. Changes reflect on your public profile immediately.",
+
+  "what is a bion mini site":
+    "Every provider gets a free public mini-site at bion.app/yourname. It shows your services, pricing, reviews, social links and a booking button. Share your mini-site URL on your social profiles to drive bookings.",
+
   // Compliance & Privacy
   "is bion popia compliant":
     "Yes. BION is fully POPIA (Protection of Personal Information Act) compliant. Data is stored in South Africa, encrypted at rest and in transit. Users control their own data and can request deletion at any time. Medical data requires explicit consent and is only visible to the treating provider.",
@@ -153,6 +175,39 @@ function fallbackResponse(query: string, role: string): string {
   return "Great question! I'm not sure I have the exact answer for that. Could you rephrase, or check our Help Centre at help.bion.app for detailed guides? You can also reach our team at help@bion.app.";
 }
 
+// ─── RAG: User-Account Retrieval ──────────────────────────────────────────────
+// When the user asks about their own form data (social links, bio, business name,
+// etc.) we retrieve directly from formData rather than the static KB.
+
+type RAGField = { label: string; patterns: RegExp[] };
+
+const RAG_FIELDS: RAGField[] = [
+  { label: "website",          patterns: [/my website/i, /my site/i, /my url/i] },
+  { label: "instagram",        patterns: [/my instagram/i, /my ig/i, /@/] },
+  { label: "linkedin",         patterns: [/my linkedin/i, /my linked in/i] },
+  { label: "facebook",         patterns: [/my facebook/i, /my fb/i] },
+  { label: "bio",              patterns: [/my bio/i, /my introduction/i, /my description/i] },
+  { label: "businessName",     patterns: [/my business name/i, /my practice name/i, /my company name/i] },
+  { label: "companyName",      patterns: [/my company/i, /my organisation/i, /my org/i] },
+  { label: "displayName",      patterns: [/my name/i, /my display name/i] },
+  { label: "location",         patterns: [/my location/i, /my city/i, /where am i/i] },
+  { label: "companyWebsite",   patterns: [/company website/i, /company url/i, /our site/i] },
+];
+
+function retrieveFromFormData(query: string, formData: Record<string, string>): string | null {
+  for (const field of RAG_FIELDS) {
+    if (field.patterns.some((p) => p.test(query))) {
+      const value = formData[field.label];
+      if (value) {
+        return `Based on what you entered during onboarding, your **${field.label.replace(/([A-Z])/g, " $1").toLowerCase()}** is: **${value}**. You can update this in Settings at any time.`;
+      } else {
+        return `I don't see a **${field.label.replace(/([A-Z])/g, " $1").toLowerCase()}** saved yet. You can add it on the current step or update it later in Settings → Profile.`;
+      }
+    }
+  }
+  return null;
+}
+
 // ─── Context-Aware Responses ──────────────────────────────────────────────────
 
 export function getCrawlInsightMessage(crawl: CrawlResult, recommendations: ServiceRecommendation[]): string {
@@ -184,6 +239,12 @@ export function getAIResponse(
   const kbAnswer = findBestMatch(userMessage);
   if (kbAnswer) return kbAnswer;
 
+  // RAG: retrieve from user's own account data
+  if (context?.formData) {
+    const ragAnswer = retrieveFromFormData(userMessage, context.formData);
+    if (ragAnswer) return ragAnswer;
+  }
+
   // Context-aware: crawl step help
   if (context?.crawlData && /recommend|service|price|offer/i.test(userMessage)) {
     const { crawlData } = context;
@@ -204,6 +265,9 @@ export function getAIResponse(
     }
     if (step.includes("employee") || step.includes("batch") || step.includes("upload")) {
       return "Download the CSV template, fill in your employees' names and email addresses. Optionally add department and a monthly wellness budget. Upload the file and I'll validate each row, then send invitation emails to all employees automatically.";
+    }
+    if (step.includes("social") || step.includes("presence") || step.includes("linkedin") || step.includes("instagram")) {
+      return "Add your social media handles so providers and clients can connect with you. Instagram and LinkedIn are most useful — providers check these before sessions to personalise your experience. All fields are optional and your data is never shared without your consent.";
     }
   }
 

@@ -40,13 +40,16 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
   );
 }
 
-// Quick-start prompts per role
+// Quick-start prompts per role — also used as step-specific suggestions
 const QUICK_PROMPTS: Record<string, string[]> = {
-  client: ["How do I book a session?", "What is BIONWallet?", "What are BIONPoints?", "Who can see my data?"],
-  provider: ["How do I get paid?", "What is the BION fee?", "How do clients find me?", "Can AI set up my account?"],
-  corporate: ["How do I add employees?", "How does the wellness budget work?", "Can I restrict service categories?", "What's the ROI of wellness?"],
+  client: ["How do I book a session?", "What is BIONWallet?", "Why add my Instagram?", "Who can see my data?"],
+  provider: ["How do I get paid?", "What is the BION fee?", "Why add my social links?", "Can AI set up my account?"],
+  corporate: ["How do I add employees?", "Why add our LinkedIn?", "Can I restrict categories?", "What's the ROI of wellness?"],
   admin: ["How does provider verification work?", "How do I set commission rates?", "What data can I access?", "How do I handle disputes?"],
 };
+
+// Step-specific quick prompts shown when user is on the social step
+const SOCIAL_PROMPTS = ["Why add my Instagram?", "What is my LinkedIn used for?", "What is a BION mini-site?", "Who can see my social links?"];
 
 export function OnboardingChat({ role, stepTitle, crawlData, formData, onClose }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>(() =>
@@ -89,7 +92,8 @@ export function OnboardingChat({ role, stepTitle, crawlData, formData, onClose }
     setTyping(false);
   };
 
-  const quickPrompts = QUICK_PROMPTS[role] ?? QUICK_PROMPTS.client;
+  const isSocialStep = /social|presence|instagram|linkedin|facebook/i.test(stepTitle ?? "");
+  const quickPrompts = isSocialStep ? SOCIAL_PROMPTS : (QUICK_PROMPTS[role] ?? QUICK_PROMPTS.client);
   const showPrompts = messages.length <= 1;
 
   return (
