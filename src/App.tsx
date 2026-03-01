@@ -24,6 +24,12 @@ import Notifications   from "./pages/Notifications";
 import SplashOnboarding from "./pages/SplashOnboarding";
 import NotFound        from "./pages/NotFound";
 
+// Role onboarding
+import ClientOnboarding    from "./pages/onboarding/ClientOnboarding";
+import ProviderOnboarding  from "./pages/onboarding/ProviderOnboarding";
+import CorporateOnboarding from "./pages/onboarding/CorporateOnboarding";
+import AdminOnboarding     from "./pages/onboarding/AdminOnboarding";
+
 // Provider portal
 import ProviderClientDetail from "./pages/provider/ClientDetail";
 import ProviderDashboard    from "./pages/provider/Dashboard";
@@ -55,12 +61,38 @@ import CorporateSettings   from "./pages/corporate/Settings";
 
 const queryClient = new QueryClient();
 
-// Auth guard — redirects unauthenticated users to /welcome
-function RequireAuth({ children, allowedRoles }: { children: ReactNode; allowedRoles?: string[] }) {
+// ─── Onboarding check ─────────────────────────────────────────────────────────
+
+const ONBOARDING_ROUTES: Record<string, string> = {
+  client: "/onboarding/client",
+  provider: "/onboarding/provider",
+  corporate: "/onboarding/corporate",
+  admin: "/onboarding/admin",
+};
+
+function isOnboardingComplete(userId: string, role: string): boolean {
+  try {
+    const key = `bion_onboarding_${userId}_${role}`;
+    const raw = localStorage.getItem(key);
+    if (!raw) return false;
+    const data = JSON.parse(raw) as { scorm?: { lessonStatus?: string } };
+    return data?.scorm?.lessonStatus === "passed";
+  } catch {
+    return false;
+  }
+}
+
+// ─── Auth guard — redirects unauthenticated users to /welcome ─────────────────
+
+function RequireAuth({ children, allowedRoles, skipOnboardingCheck }: {
+  children: ReactNode;
+  allowedRoles?: string[];
+  skipOnboardingCheck?: boolean;
+}) {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  // While Supabase is restoring the session, render nothing to avoid flash-to-welcome
+  // While Supabase is restoring the session, render a spinner to avoid flash-to-welcome
   if (loading) return (
     <div className="min-h-screen bg-obsidian flex items-center justify-center">
       <div className="w-8 h-8 rounded-full border-2 border-indigo border-t-transparent animate-spin" />
@@ -68,6 +100,7 @@ function RequireAuth({ children, allowedRoles }: { children: ReactNode; allowedR
   );
 
   if (!user) return <Navigate to="/welcome" state={{ from: location }} replace />;
+
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     const home =
       user.role === "admin"      ? "/admin/dashboard"     :
@@ -75,6 +108,18 @@ function RequireAuth({ children, allowedRoles }: { children: ReactNode; allowedR
       user.role === "corporate"  ? "/corporate/dashboard"  : "/";
     return <Navigate to={home} replace />;
   }
+
+  // Redirect new users to onboarding on first login
+  if (!skipOnboardingCheck) {
+    const userId = user.id ?? user.email;
+    if (!isOnboardingComplete(userId, user.role)) {
+      const onboardingRoute = ONBOARDING_ROUTES[user.role];
+      if (onboardingRoute && !location.pathname.startsWith("/onboarding")) {
+        return <Navigate to={onboardingRoute} replace />;
+      }
+    }
+  }
+
   return <>{children}</>;
 }
 
@@ -85,6 +130,12 @@ function AppRoutes() {
     <Routes>
       {/* Public */}
       <Route path="/welcome" element={<SplashOnboarding />} />
+
+      {/* Onboarding routes — no role guard, but must be authenticated */}
+      <Route path="/onboarding/client"    element={<RequireAuth skipOnboardingCheck><ClientOnboarding /></RequireAuth>} />
+      <Route path="/onboarding/provider"  element={<RequireAuth skipOnboardingCheck><ProviderOnboarding /></RequireAuth>} />
+      <Route path="/onboarding/corporate" element={<RequireAuth skipOnboardingCheck><CorporateOnboarding /></RequireAuth>} />
+      <Route path="/onboarding/admin"     element={<RequireAuth skipOnboardingCheck><AdminOnboarding /></RequireAuth>} />
 
       {/* Root redirect based on role */}
       <Route path="/" element={
