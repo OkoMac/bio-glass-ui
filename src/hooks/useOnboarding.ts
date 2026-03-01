@@ -64,7 +64,10 @@ function calculateScore(answers: Record<string, unknown>, steps: OnboardingStep[
     for (const q of step.questions) {
       if (!q.isKnowledgeCheck || !q.options) continue;
       const correctOptions = q.options.filter((o) => o.isCorrect).map((o) => o.id);
-      if (!correctOptions.length) continue;
+      if (!correctOptions.length) {
+        if (import.meta.env.DEV) console.warn(`[useOnboarding] Quiz question "${q.id}" has no correct option marked — skipped from score.`);
+        continue;
+      }
       total++;
       const userAnswer = answers[q.id];
       if (Array.isArray(userAnswer)) {
@@ -122,10 +125,13 @@ export function useOnboarding(userId: string, role: string, steps: OnboardingSte
 
   const nextStep = useCallback(() => {
     setProgress((p) => {
+      // Derive current step id from state (not closure) to avoid stale-capture bugs
+      const currentId = steps[p.currentStep]?.id;
       const nextIndex = Math.min(p.currentStep + 1, steps.length - 1);
-      const completedSteps = p.completedSteps.includes(currentStepData.id)
-        ? p.completedSteps
-        : [...p.completedSteps, currentStepData.id];
+      const completedSteps =
+        currentId && !p.completedSteps.includes(currentId)
+          ? [...p.completedSteps, currentId]
+          : p.completedSteps;
 
       const newStatus: SCORMState["lessonStatus"] =
         nextIndex === steps.length - 1 ? "completed" : "incomplete";
@@ -141,7 +147,7 @@ export function useOnboarding(userId: string, role: string, steps: OnboardingSte
         },
       };
     });
-  }, [steps, currentStepData]);
+  }, [steps]);
 
   const prevStep = useCallback(() => {
     setProgress((p) => ({

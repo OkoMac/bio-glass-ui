@@ -12,14 +12,40 @@ interface Props {
 
 // ─── CSV Parser ───────────────────────────────────────────────────────────────
 
+/** RFC-4180 compliant CSV split — handles commas inside quoted fields */
+function splitCSVLine(line: string): string[] {
+  const result: string[] = [];
+  let current = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      // Escaped quote: "" inside a quoted field
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === "," && !inQuotes) {
+      result.push(current.trim());
+      current = "";
+    } else {
+      current += ch;
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
 function parseCSV(text: string): Array<Record<string, string>> {
   const lines = text.trim().split(/\r?\n/);
   if (lines.length < 2) return [];
-  const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, "").toLowerCase());
+  const headers = splitCSVLine(lines[0]).map((h) => h.replace(/^"|"$/g, "").toLowerCase());
   return lines.slice(1)
     .filter((l) => l.trim())
     .map((line) => {
-      const values = line.match(/("([^"]*)"|[^,]*)/g)?.map((v) => v.replace(/^"|"$/g, "").trim()) ?? [];
+      const values = splitCSVLine(line).map((v) => v.replace(/^"|"$/g, ""));
       return headers.reduce((obj, header, i) => ({ ...obj, [header]: values[i] ?? "" }), {} as Record<string, string>);
     });
 }

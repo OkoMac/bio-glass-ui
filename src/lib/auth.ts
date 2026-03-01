@@ -107,9 +107,10 @@ export async function signOutSupabase(): Promise<void> {
 }
 
 // ── Demo accounts (localStorage-only, no Supabase session) ─────────
+// id prefixed "demo_" so isOnboardingComplete() can skip the redirect for them.
 export const DEMO_ACCOUNTS: BioUser[] = [
-  { name: "Oko Mthembu",    email: "client@bion.app",    role: "client"    },
-  { name: "James Okafor",   email: "provider@bion.app",  role: "provider"  },
-  { name: "Admin",          email: "admin@bion.app",     role: "admin"     },
-  { name: "Capitec HR",     email: "corporate@bion.app", role: "corporate" },
+  { id: "demo_client",    name: "Oko Mthembu",  email: "client@bion.app",    role: "client"    },
+  { id: "demo_provider",  name: "James Okafor", email: "provider@bion.app",  role: "provider"  },
+  { id: "demo_admin",     name: "Admin",         email: "admin@bion.app",     role: "admin"     },
+  { id: "demo_corporate", name: "Capitec HR",    email: "corporate@bion.app", role: "corporate" },
 ];

@@ -30,7 +30,7 @@ export default function ProviderSettings() {
   const [location, setLocation]       = useState("Sandton, Gauteng");
   const [sessionLength, setSessionLength] = useState("60");
   const [cancelPolicy, setCancelPolicy]   = useState("moderate");
-  const [miniSiteUrl, setMiniSiteUrl]     = useState("bio.app/james-okafor");
+  const [miniSiteUrl, setMiniSiteUrl]     = useState("bion.app/james-okafor");
 
   // Billing
   const [plan] = useState("Growth");

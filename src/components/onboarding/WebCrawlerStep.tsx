@@ -4,6 +4,10 @@ import { Globe, Loader2, CheckCircle, AlertCircle, ChevronDown, ChevronUp, Penci
 import type { CrawlResult, ServiceRecommendation } from "@/types/onboarding";
 import { crawlWebsite, generateServiceRecommendations, generateCorporateRecommendations } from "@/lib/webcrawler";
 
+function delay(ms: number) {
+  return new Promise<void>((r) => setTimeout(r, ms));
+}
+
 interface Props {
   title: string;
   subtitle?: string;
@@ -357,6 +361,3 @@ export function WebCrawlerStep({ title, subtitle, mode = "provider", onCrawlComp
   );
 }
 
-function delay(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
-}

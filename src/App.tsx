@@ -71,6 +71,8 @@ const ONBOARDING_ROUTES: Record<string, string> = {
 };
 
 function isOnboardingComplete(userId: string, role: string): boolean {
+  // Demo accounts have id prefixed "demo_" — they bypass onboarding entirely
+  if (userId.startsWith("demo_")) return true;
   try {
     const key = `bion_onboarding_${userId}_${role}`;
     const raw = localStorage.getItem(key);

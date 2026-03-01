@@ -512,7 +512,7 @@ function OnboardingShellInner({
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={handleNext}
-            disabled={!canGoNext && step.type !== "welcome" && step.type !== "info" && step.type !== "webcrawl" && step.type !== "ai-setup" && step.type !== "batch-upload"}
+            disabled={!canGoNext && !step.canSkip && step.type !== "welcome" && step.type !== "info" && step.type !== "complete"}
             className="flex-1 flex items-center justify-center gap-2 py-3 rounded-pill gradient-indigo text-primary-foreground font-semibold text-sm shadow-cta disabled:opacity-40"
           >
             {step.type === "complete" ? "Go to Dashboard →" : (
