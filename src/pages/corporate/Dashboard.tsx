@@ -7,7 +7,7 @@ import CoachAI from "@/components/CoachAI";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Users, TrendingUp, Wallet, Star, ChevronRight,
-  ArrowUpRight, ArrowDownRight, Zap, Calendar,
+  ArrowUpRight, ArrowDownRight, Zap, Calendar, BarChart2,
 } from "lucide-react";
 
 import provider1 from "@/assets/provider-1.jpg";
