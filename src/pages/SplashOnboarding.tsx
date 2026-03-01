@@ -65,6 +65,13 @@ const ROLE_HOME: Record<UserRole, string> = {
   client: "/", provider: "/pro/dashboard", admin: "/admin/dashboard", corporate: "/corporate/dashboard",
 };
 
+const ONBOARDING_ROUTES: Record<UserRole, string> = {
+  client: "/onboarding/client",
+  provider: "/onboarding/provider",
+  corporate: "/onboarding/corporate",
+  admin: "/onboarding/admin",
+};
+
 export default function SplashOnboarding() {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -120,6 +127,11 @@ export default function SplashOnboarding() {
   const handleDemoLogin = (account: BioUser) => {
     login(account);
     navigate(ROLE_HOME[account.role], { replace: true });
+  };
+
+  const handleDemoOnboarding = (account: BioUser) => {
+    login(account);
+    navigate(ONBOARDING_ROUTES[account.role], { replace: true });
   };
 
   // ── Splash screen ────────────────────────────────────────────────
@@ -254,13 +266,19 @@ export default function SplashOnboarding() {
             Continue →
           </motion.button>
           <div>
-            <p className="text-center text-[11px] text-muted-foreground mb-2">Or jump in with a demo account</p>
-            <div className="flex gap-2 justify-center">
+            <p className="text-center text-[11px] text-muted-foreground mb-3">Or jump in with a demo account</p>
+            <div className="flex gap-3 justify-center flex-wrap">
               {DEMO_ACCOUNTS.map(acc => (
-                <motion.button key={acc.role} whileTap={{ scale: 0.95 }} onClick={() => handleDemoLogin(acc)}
-                  className="px-3 py-1.5 glass-1 rounded-pill text-[10px] font-medium text-muted-foreground capitalize hover:text-foreground transition-colors">
-                  {acc.role}
-                </motion.button>
+                <div key={acc.role} className="flex flex-col items-center gap-1">
+                  <motion.button whileTap={{ scale: 0.95 }} onClick={() => handleDemoLogin(acc)}
+                    className="px-3 py-1.5 glass-1 rounded-pill text-[10px] font-medium text-muted-foreground capitalize hover:text-foreground transition-colors">
+                    {acc.role}
+                  </motion.button>
+                  <button onClick={() => handleDemoOnboarding(acc)}
+                    className="text-[9px] text-indigo/60 hover:text-indigo transition-colors leading-none">
+                    ↗ onboarding
+                  </button>
+                </div>
               ))}
             </div>
           </div>
@@ -338,13 +356,19 @@ export default function SplashOnboarding() {
 
         {/* Demo shortcuts */}
         <div className="pt-1">
-          <p className="text-center text-[11px] text-muted-foreground mb-2">Quick demo access</p>
-          <div className="flex gap-2 justify-center flex-wrap">
+          <p className="text-center text-[11px] text-muted-foreground mb-3">Quick demo access</p>
+          <div className="flex gap-3 justify-center flex-wrap">
             {DEMO_ACCOUNTS.map(acc => (
-              <motion.button key={acc.role} whileTap={{ scale: 0.95 }} onClick={() => handleDemoLogin(acc)}
-                className="px-3 py-1.5 glass-1 rounded-pill text-[10px] font-medium text-muted-foreground capitalize hover:text-foreground transition-colors">
-                {acc.role}
-              </motion.button>
+              <div key={acc.role} className="flex flex-col items-center gap-1">
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => handleDemoLogin(acc)}
+                  className="px-3 py-1.5 glass-1 rounded-pill text-[10px] font-medium text-muted-foreground capitalize hover:text-foreground transition-colors">
+                  {acc.role}
+                </motion.button>
+                <button onClick={() => handleDemoOnboarding(acc)}
+                  className="text-[9px] text-indigo/60 hover:text-indigo transition-colors leading-none">
+                  ↗ onboarding
+                </button>
+              </div>
             ))}
           </div>
         </div>
