@@ -22,7 +22,7 @@ export default function AdminSettings() {
   const [saved, setSaved] = useState(false);
 
   // Platform settings
-  const [platformName, setPlatformName] = useState("BIO Platform");
+  const [platformName, setPlatformName] = useState("BION Platform");
   const [supportEmail, setSupportEmail]  = useState("support@bio.app");
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [whatsappEnabled, setWhatsappEnabled] = useState(true);

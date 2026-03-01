@@ -245,7 +245,7 @@ export default function ProviderClients() {
                   <div className="text-center py-8">
                     <p className="text-3xl mb-3">✅</p>
                     <p className="text-sm font-semibold text-foreground">Invite sent!</p>
-                    <p className="text-xs text-muted-foreground mt-1">They'll receive a link to create their BIO profile and connect with you.</p>
+                    <p className="text-xs text-muted-foreground mt-1">They'll receive a link to create their BION profile and connect with you.</p>
                   </div>
                 ) : (
                   <>
@@ -264,14 +264,14 @@ export default function ProviderClients() {
                         <input
                           value={inviteNote}
                           onChange={e => setInviteNote(e.target.value)}
-                          placeholder="e.g. Welcome to BIO! Looking forward to your first session."
+                          placeholder="e.g. Welcome to BION! Looking forward to your first session."
                           className="w-full mt-1 glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none"
                         />
                       </div>
                     </div>
                     <GlassCard className="p-3 mb-4">
                       <p className="text-[11px] text-muted-foreground leading-relaxed">
-                        The client will receive a link via email/SMS to create a BIO account and connect with your profile. Once they accept, they'll appear in your client list.
+                        The client will receive a link via email/SMS to create a BION account and connect with your profile. Once they accept, they'll appear in your client list.
                       </p>
                     </GlassCard>
                     <motion.button whileTap={{ scale: 0.97 }} onClick={sendInvite}

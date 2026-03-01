@@ -108,8 +108,8 @@ export async function signOutSupabase(): Promise<void> {
 
 // ── Demo accounts (localStorage-only, no Supabase session) ─────────
 export const DEMO_ACCOUNTS: BioUser[] = [
-  { name: "Oko Mthembu",    email: "client@bio.app",    role: "client"    },
-  { name: "James Okafor",   email: "provider@bio.app",  role: "provider"  },
-  { name: "Admin",          email: "admin@bio.app",     role: "admin"     },
-  { name: "Capitec HR",     email: "corporate@bio.app", role: "corporate" },
+  { name: "Oko Mthembu",    email: "client@bion.app",    role: "client"    },
+  { name: "James Okafor",   email: "provider@bion.app",  role: "provider"  },
+  { name: "Admin",          email: "admin@bion.app",     role: "admin"     },
+  { name: "Capitec HR",     email: "corporate@bion.app", role: "corporate" },
 ];

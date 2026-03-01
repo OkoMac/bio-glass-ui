@@ -108,7 +108,7 @@ const Profile = () => {
                 activeTab === tab ? "gradient-indigo text-primary-foreground" : "text-muted-foreground"
               }`}
             >
-              {tab === "passport" ? "BIO Passport" : "Rewards"}
+              {tab === "passport" ? "BION Passport" : "Rewards"}
             </motion.button>
           ))}
         </div>
@@ -207,7 +207,7 @@ const Profile = () => {
                 <Trophy className="w-4 h-4 text-amber" />
                 <div className="flex-1">
                   <span className="text-sm text-foreground">Challenges</span>
-                  <p className="text-[10px] text-muted-foreground">Join group challenges, earn BIOPoints</p>
+                  <p className="text-[10px] text-muted-foreground">Join group challenges, earn BIONPoints</p>
                 </div>
                 <span className="text-[10px] px-1.5 py-0.5 glass-accent-amber rounded-pill text-amber mr-1">2 active</span>
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -218,7 +218,7 @@ const Profile = () => {
             <div className="space-y-1">
               {[
                 { icon: Bell,       label: "Notifications",   tab: "notifications" },
-                { icon: CreditCard, label: "BIOWallet",        tab: "wallet"        },
+                { icon: CreditCard, label: "BIONWallet",        tab: "wallet"        },
                 { icon: Eye,        label: "Privacy & Data",  tab: "privacy"       },
                 { icon: Settings,   label: "Settings",        tab: "account"       },
               ].map((item) => (
@@ -259,7 +259,7 @@ const Profile = () => {
             animate={{ opacity: 1 }}
             className="space-y-5"
           >
-            {/* BIOPoints Hero */}
+            {/* BIONPoints Hero */}
             <div className="flex flex-col items-center py-4">
               <div className="relative">
                 <div className="w-32 h-32 rounded-full flex items-center justify-center shadow-glow-amber"
@@ -273,7 +273,7 @@ const Profile = () => {
                     >
                       {bioPoints.toLocaleString()}
                     </motion.p>
-                    <p className="text-[10px] text-muted-foreground">BIOPoints</p>
+                    <p className="text-[10px] text-muted-foreground">BIONPoints</p>
                   </div>
                 </div>
               </div>

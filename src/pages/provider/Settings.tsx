@@ -229,7 +229,7 @@ export default function ProviderSettings() {
 
               {/* Mini-site URL */}
               <GlassCard className="p-4 space-y-2">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5"><Globe className="w-3.5 h-3.5" /> Your BIO mini-site</p>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5"><Globe className="w-3.5 h-3.5" /> Your BION mini-site</p>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 bg-white/5 rounded-xl px-3 py-2.5 border border-white/10">
                     <p className="text-[10px] text-muted-foreground">Public URL</p>

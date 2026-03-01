@@ -62,7 +62,7 @@ const MEDICATIONS: { name: string; dose: string; frequency: string }[] = [
 const PRIVACY_LABELS: Record<PrivacyLevel, { label: string; icon: typeof Lock; color: string }> = {
   private:  { label: "Only me",         icon: Lock,   color: "text-coral"  },
   provider: { label: "My providers",    icon: Shield, color: "text-indigo" },
-  all:      { label: "Anyone on BIO",   icon: Eye,    color: "text-teal"   },
+  all:      { label: "Anyone on BION",  icon: Eye,    color: "text-teal"   },
 };
 
 type Tab = "metrics" | "goals" | "medical" | "privacy";

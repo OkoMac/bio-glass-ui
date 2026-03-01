@@ -144,7 +144,7 @@ export default function CorporateWallet() {
           <div className="p-3 glass-1 rounded-xl flex items-start gap-2">
             <Building2 className="w-4 h-4 text-amber shrink-0 mt-0.5"/>
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              Funds are loaded to your BIOWallet company account. Employees draw from their allocated monthly budgets.
+              Funds are loaded to your BIONWallet company account. Employees draw from their allocated monthly budgets.
               Top-ups are instant. Corporate invoices issued at month-end.
             </p>
           </div>

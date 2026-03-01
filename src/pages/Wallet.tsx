@@ -14,7 +14,7 @@ const TRANSACTIONS = [
   { id: "t1", type: "debit",  label: "Session: Lisa Dlamini",     amount: -400,  date: "28 Feb", icon: "💪" },
   { id: "t2", type: "topup",  label: "Top-up via card",            amount: 500,   date: "25 Feb", icon: "💳" },
   { id: "t3", type: "debit",  label: "Session: Sarah Chen",        amount: -650,  date: "22 Feb", icon: "✨" },
-  { id: "t4", type: "reward", label: "BIOPoints redeemed",         amount: 50,    date: "20 Feb", icon: "🎁" },
+  { id: "t4", type: "reward", label: "BIONPoints redeemed",         amount: 50,    date: "20 Feb", icon: "🎁" },
   { id: "t5", type: "debit",  label: "Session: Dr. K. Sithole",   amount: -550,  date: "15 Feb", icon: "🏥" },
   { id: "t6", type: "topup",  label: "Top-up via EFT",             amount: 1000,  date: "10 Feb", icon: "💳" },
   { id: "t7", type: "debit",  label: "Session: Amir Patel",        amount: -280,  date: "5 Feb",  icon: "🧘" },
@@ -83,7 +83,7 @@ export default function Wallet() {
             <ArrowLeft className="w-4 h-4 text-foreground" />
           </motion.button>
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-foreground">BIOWallet</h1>
+            <h1 className="text-2xl font-bold text-foreground">BIONWallet</h1>
             <p className="text-xs text-muted-foreground">{user?.name ?? "Oko Mthembu"}</p>
           </div>
           <Shield className="w-4 h-4 text-teal" />
@@ -105,7 +105,7 @@ export default function Wallet() {
           >
             R{balance.toLocaleString()}
           </motion.p>
-          <p className="text-[10px] text-muted-foreground mt-1">BIO Credits · closed-loop</p>
+          <p className="text-[10px] text-muted-foreground mt-1">BION Credits · closed-loop</p>
 
           <div className="flex gap-2 mt-5 justify-center">
             <motion.button
@@ -128,7 +128,7 @@ export default function Wallet() {
         <div className="flex items-start gap-2 glass-1 rounded-2xl p-3">
           <Info className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />
           <p className="text-[10px] text-muted-foreground leading-relaxed">
-            BIOWallet credits are used for session payments only. Credits expire 12 months after top-up. Not a banking product.
+            BIONWallet credits are used for session payments only. Credits expire 12 months after top-up. Not a banking product.
           </p>
         </div>
 

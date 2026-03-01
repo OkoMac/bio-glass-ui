@@ -28,7 +28,7 @@ export default function AdminNav() {
             <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg,#F05A28,#FBBF24)" }}>
               <ShieldCheck className="w-4 h-4 text-white" />
             </div>
-            <span className="text-sm font-bold text-foreground">BIO Admin</span>
+            <span className="text-sm font-bold text-foreground">BION Admin</span>
           </div>
         </div>
 
@@ -72,7 +72,7 @@ export default function AdminNav() {
         style={{ background: "rgba(10,10,18,0.95)", backdropFilter: "blur(40px)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-coral" />
-          <span className="text-sm font-bold text-foreground">BIO Admin</span>
+          <span className="text-sm font-bold text-foreground">BION Admin</span>
         </div>
         <div className="flex gap-1">
           {navItems.slice(0,4).map(item => (

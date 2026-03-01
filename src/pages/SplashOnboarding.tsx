@@ -12,7 +12,7 @@ const onboardingSteps = [
   { headline: "Every service you need.",         sub: "Health. Beauty. Medical. Professional. All in one place.", emoji: "🌍" },
   { headline: "Starts in WhatsApp.",             sub: "Book anything, anywhere. No app required.",               emoji: "💬" },
   { headline: "Your providers, in your pocket.", sub: "Routines, meal plans, reminders, progress. All connected.", emoji: "🤝" },
-  { headline: "One profile. Every provider.",    sub: "Your BIO Passport travels with you — across health, beauty, and beyond.", emoji: "🛂" },
+  { headline: "One profile. Every provider.",    sub: "Your BION Passport travels with you — across health, beauty, and beyond.", emoji: "🛂" },
 ];
 
 type Phase = "splash" | "onboarding" | "role" | "auth";
@@ -92,7 +92,7 @@ export default function SplashOnboarding() {
       <div className="fixed inset-0 z-[100] bg-obsidian flex flex-col items-center justify-center"
         style={{ background: "radial-gradient(ellipse at 50% 45%, rgba(99,102,241,0.12) 0%, #0A0A0F 65%)" }}>
         <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="text-7xl font-bold text-foreground tracking-tight">BIO</motion.h1>
+          className="text-7xl font-bold text-foreground tracking-tight">BION</motion.h1>
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
           className="text-base text-foreground/55 mt-3">Every Service. One Platform.</motion.p>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}

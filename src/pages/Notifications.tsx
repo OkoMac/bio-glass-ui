@@ -54,8 +54,8 @@ const MOCK_NOTIFS: Notification[] = [
   },
   {
     id: "n4", category: "reward", read: true, createdAt: hrs(3),
-    title: "BIOPoints Earned",
-    body:  "You earned 150 BIOPoints from your session with Sarah Chen.",
+    title: "BIONPoints Earned",
+    body:  "You earned 150 BIONPoints from your session with Sarah Chen.",
     time:  "3h ago", actionUrl: "/profile",
   },
   {
@@ -66,8 +66,8 @@ const MOCK_NOTIFS: Notification[] = [
   },
   {
     id: "n6", category: "system", read: true, createdAt: days(1),
-    title: "New Feature: BIOWallet",
-    body:  "Top up your BIOWallet and pay for sessions seamlessly — no card needed at checkout.",
+    title: "New Feature: BIONWallet",
+    body:  "Top up your BIONWallet and pay for sessions seamlessly — no card needed at checkout.",
     time:  "Yesterday", actionUrl: "/wallet",
   },
   {
@@ -79,13 +79,13 @@ const MOCK_NOTIFS: Notification[] = [
   {
     id: "n8", category: "reward", read: true, createdAt: days(2),
     title: "Challenge Complete!",
-    body:  "You completed the 'Book 3 Verticals' challenge and earned 500 bonus BIOPoints.",
+    body:  "You completed the 'Book 3 Verticals' challenge and earned 500 bonus BIONPoints.",
     time:  "2 days ago", actionUrl: "/challenges",
   },
   {
     id: "n9", category: "booking", read: true, createdAt: days(3),
     title: "Session Recap",
-    body:  "Session with Amir Patel is done. Leave a review to earn 50 BIOPoints.",
+    body:  "Session with Amir Patel is done. Leave a review to earn 50 BIONPoints.",
     time:  "3 days ago",
   },
   {

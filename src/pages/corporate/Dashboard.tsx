@@ -216,7 +216,7 @@ export default function CorporateDashboard() {
           {[
             { label: "Manage Employees", icon: Users,     path: "/corporate/employees", color: "#6366F1" },
             { label: "View Analytics",   icon: BarChart2, path: "/corporate/analytics", color: "#2DD4BF" },
-            { label: "BIOWallet",        icon: Wallet,    path: "/corporate/wallet",    color: "#F59E0B" },
+            { label: "BIONWallet",        icon: Wallet,    path: "/corporate/wallet",    color: "#F59E0B" },
             { label: "Settings",         icon: TrendingUp,path: "/corporate/settings",  color: "#F05A28" },
           ].map(q => (
             <motion.button key={q.label} whileTap={{ scale: 0.95 }}

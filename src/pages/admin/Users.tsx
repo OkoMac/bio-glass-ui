@@ -88,7 +88,7 @@ const STATUS_META: Record<UserStatus, { label: string; dot: string }> = {
 };
 
 const PERMISSION_LABELS: Record<string, string> = {
-  book: "Book sessions", wallet: "BIOWallet", chat: "Messaging",
+  book: "Book sessions", wallet: "BIONWallet", chat: "Messaging",
   challenges: "Challenges", passport: "Health Passport",
   create_services: "Create services", manage_clients: "CRM access",
   analytics: "Analytics", billing: "Billing", medical_prescriptions: "Medical prescriptions",

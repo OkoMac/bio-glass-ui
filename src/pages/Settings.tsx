@@ -188,7 +188,7 @@ export default function Settings() {
             </GlassCard>
 
             <GlassCard className="p-5 space-y-3">
-              <h2 className="text-sm font-semibold text-foreground mb-1">BIOWallet</h2>
+              <h2 className="text-sm font-semibold text-foreground mb-1">BIONWallet</h2>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-2xl font-bold font-data text-teal">R1,250</p>
@@ -203,7 +203,7 @@ export default function Settings() {
               </div>
               <div className="pt-2 border-t border-white/5">
                 <p className="text-[10px] text-muted-foreground">
-                  BIOWallet credits are used for session payments. Unused credits roll over monthly.
+                  BIONWallet credits are used for session payments. Unused credits roll over monthly.
                 </p>
               </div>
             </GlassCard>
@@ -220,7 +220,7 @@ export default function Settings() {
               </div>
               {[
                 { label: "Share progress with providers", sub: "Providers can view your tracked metrics",     val: shareProgressWithProviders, set: setShareProgress },
-                { label: "Anonymous analytics",           sub: "Help improve BIO with anonymised usage data", val: allowAnonymousAnalytics,    set: setAllowAnalytics },
+                { label: "Anonymous analytics",           sub: "Help improve BION with anonymised usage data", val: allowAnonymousAnalytics,    set: setAllowAnalytics },
                 { label: "Hide profile from search",     sub: "Prevent your name appearing in provider search", val: hideProfileFromSearch,  set: setHideProfile },
                 { label: "Two-factor authentication",   sub: "Require OTP on each login",                    val: twoFactorEnabled,          set: set2FA },
               ].map(row => (
@@ -256,7 +256,7 @@ export default function Settings() {
                 <div>
                   <p className="text-sm font-semibold text-coral">Delete Account</p>
                   <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">
-                    Permanently delete your BIO account and all associated data. This cannot be undone.
+                    Permanently delete your BION account and all associated data. This cannot be undone.
                   </p>
                   <button className="mt-2 text-[11px] text-coral font-medium underline underline-offset-2">
                     Request account deletion

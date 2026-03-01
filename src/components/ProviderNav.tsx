@@ -45,7 +45,7 @@ export default function ProviderNav() {
         {/* Logo */}
         <div className="px-3 mb-8 flex items-center justify-between">
           <div>
-            <span className="text-xl font-bold text-foreground tracking-tight">BIO</span>
+            <span className="text-xl font-bold text-foreground tracking-tight">BION</span>
             <span className="ml-1.5 text-[10px] text-muted-foreground uppercase tracking-widest">Provider</span>
           </div>
           <button onClick={() => navigate("/notifications")} className="relative w-8 h-8 glass-1 rounded-full flex items-center justify-center">

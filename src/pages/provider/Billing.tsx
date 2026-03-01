@@ -91,7 +91,7 @@ export default function ProviderBilling() {
           {[
             { label: "This month (est.)",  value: thisMonth.net,     icon: TrendingUp, color: "text-teal"   },
             { label: "Sessions",            value: `${thisMonth.sessions}`,icon: Zap,    color: "text-indigo" },
-            { label: "BIO fee (10%)",       value: thisMonth.fee,     icon: Shield,     color: "text-amber"  },
+            { label: "BION fee (10%)",       value: thisMonth.fee,     icon: Shield,     color: "text-amber"  },
             { label: "Payout date",         value: "1 Mar 2026",      icon: Clock,      color: "text-coral"  },
           ].map((card) => {
             const Icon = card.icon;
@@ -208,7 +208,7 @@ export default function ProviderBilling() {
           <div className="space-y-3">
             {[
               { label: "Gross session revenue", value: thisMonth.gross,  color: "text-foreground" },
-              { label: "BIO platform fee (10%)",  value: `-${thisMonth.fee}`, color: "text-coral"    },
+              { label: "BION platform fee (10%)",  value: `-${thisMonth.fee}`, color: "text-coral"    },
               { label: "Net payout",              value: thisMonth.net,   color: "text-teal"     },
             ].map(row => (
               <div key={row.label} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">

@@ -480,7 +480,7 @@ export default function ProviderClientDetail() {
             <GlassCard className="p-4">
               <p className="text-xs font-semibold text-foreground mb-1">Why reward clients?</p>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Recognising good clients with BIOPoints boosts retention by up to 40%. Points can be redeemed for free sessions, wallet credits, or premium badges — at no cost to you.
+                Recognising good clients with BIONPoints boosts retention by up to 40%. Points can be redeemed for free sessions, wallet credits, or premium badges — at no cost to you.
               </p>
             </GlassCard>
           </div>

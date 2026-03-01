@@ -51,11 +51,11 @@ const MOCK_RESPONSES: Record<string, string[]> = {
   "what should i focus on today":
     ["Your programme from Lisa has 2 exercises left from yesterday's session: Tricep Dips and Bicep Curls. Want me to add a reminder at 5pm? Also — you're 1 session away from unlocking the 🏆 Consistency badge!"],
   "how is my streak going":
-    ["You're on a 🔥 14-day streak — incredible! Your personal best is 21 days. If you check in today, you'll earn +50 BIOPoints. Keep it up!"],
+    ["You're on a 🔥 14-day streak — incredible! Your personal best is 21 days. If you check in today, you'll earn +50 BIONPoints. Keep it up!"],
   "help me book a session":
     ["Lisa has slots at 3pm and 6pm today. Dr. Kagiso is free tomorrow morning. Want me to book the 3pm with Lisa? Just say 'confirm' and I'll lock it in."],
   "show me my progress this month":
-    ["February was great! ✅ 12 sessions completed · ↓ 1.9kg lost · 💪 Lean mass up 0.3kg · 🔥 14-day streak. You're in the top 15% of BIO clients this month!"],
+    ["February was great! ✅ 12 sessions completed · ↓ 1.9kg lost · 💪 Lean mass up 0.3kg · 🔥 14-day streak. You're in the top 15% of BION clients this month!"],
   "which clients are at churn risk":
     ["2 clients need attention: Kobus P. (11 days since last session, usually 2×/week) and Amir K. (went quiet after session 5). I can draft a check-in message for both — want that?"],
   "what's on my schedule today":
@@ -159,7 +159,7 @@ export default function CoachAI() {
                     <p className="text-sm font-bold text-foreground">{persona.name}</p>
                     <div className="flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-teal" />
-                      <span className="text-[10px] text-teal">Online · Powered by BIO AI</span>
+                      <span className="text-[10px] text-teal">Online · Powered by BION AI</span>
                     </div>
                   </div>
                 </div>

@@ -44,7 +44,7 @@ const CHALLENGES: Challenge[] = [
     progress: 57,
     reward: "R50 Wallet Credit",
     rewardPoints: 500,
-    createdBy: "BIO",
+    createdBy: "BION",
     badge: "🌅",
     difficulty: "easy",
     tasks: [
@@ -69,7 +69,7 @@ const CHALLENGES: Challenge[] = [
     progress: 28,
     reward: "Hydration Badge + 300 pts",
     rewardPoints: 300,
-    createdBy: "BIO",
+    createdBy: "BION",
     badge: "💧",
     difficulty: "easy",
     tasks: [
@@ -117,7 +117,7 @@ const CHALLENGES: Challenge[] = [
     progress: 0,
     reward: "Mindfulness Badge + 400 pts",
     rewardPoints: 400,
-    createdBy: "BIO",
+    createdBy: "BION",
     badge: "🧘",
     difficulty: "easy",
     tasks: [],
@@ -125,7 +125,7 @@ const CHALLENGES: Challenge[] = [
   {
     id: "ch5",
     title: "Bring a Buddy",
-    description: "Refer 2 friends to BIO and complete a joint session together.",
+    description: "Refer 2 friends to BION and complete a joint session together.",
     category: "social",
     status: "available",
     participants: 34,
@@ -134,7 +134,7 @@ const CHALLENGES: Challenge[] = [
     progress: 0,
     reward: "Social Badge + R100 credit",
     rewardPoints: 700,
-    createdBy: "BIO",
+    createdBy: "BION",
     badge: "🤝",
     difficulty: "medium",
     tasks: [],
@@ -224,14 +224,14 @@ export default function ChallengesPage() {
           </p>
         </div>
 
-        {/* BIOPoints mini card */}
+        {/* BIONPoints mini card */}
         <GlassCard className="p-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl gradient-indigo flex items-center justify-center">
               <Star className="w-4 h-4 text-white" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Your BIOPoints</p>
+              <p className="text-xs text-muted-foreground">Your BIONPoints</p>
               <p className="text-lg font-bold font-data text-foreground">2,450</p>
             </div>
           </div>
@@ -334,7 +334,7 @@ export default function ChallengesPage() {
 
                       {/* Reward line */}
                       <p className="text-[10px] text-teal mt-2">🏅 {c.reward}</p>
-                      {c.createdBy !== "BIO" && (
+                      {c.createdBy !== "BION" && (
                         <p className="text-[9px] text-muted-foreground">by {c.createdBy}</p>
                       )}
                     </div>
@@ -382,7 +382,7 @@ export default function ChallengesPage() {
                       <div className="flex gap-2 mt-2">
                         <span className={`text-[10px] px-2 py-0.5 rounded-pill border capitalize ${CAT_COLORS[detail.category]}`}>{detail.category}</span>
                         <span className={`text-[10px] font-semibold capitalize ${DIFF_CLS[detail.difficulty]}`}>{detail.difficulty}</span>
-                        {detail.createdBy !== "BIO" && (
+                        {detail.createdBy !== "BION" && (
                           <span className="text-[10px] glass-1 px-2 py-0.5 rounded-pill text-muted-foreground">by {detail.createdBy}</span>
                         )}
                       </div>
