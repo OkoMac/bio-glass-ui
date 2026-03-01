@@ -203,14 +203,17 @@ export default function Notifications() {
   const [showRead, setShowRead] = useState(true);
 
   // Real-time: subscribe to bookings/messages for live notifications
+  // profileId is the profiles.id FK used in bookings and messages tables
+  const profileId = user?.profileId;
   useEffect(() => {
-    if (!user?.id) return;
+    if (!profileId) return;
 
     const channel = supabase
       .channel("notif-realtime")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "bookings", filter: `client_id=eq.${user.id}` },
+        // filter uses profiles.id (profileId), not the auth user id
+        { event: "INSERT", schema: "public", table: "bookings", filter: `client_id=eq.${profileId}` },
         payload => {
           const row = payload.new as { id: string; status: string; service: string };
           if (row.status === "confirmed") {
@@ -231,7 +234,7 @@ export default function Notifications() {
         "postgres_changes",
         {
           event: "INSERT", schema: "public", table: "messages",
-          filter: `receiver_id=eq.${user.id}`,
+          filter: `receiver_id=eq.${profileId}`,
         },
         payload => {
           const row = payload.new as { id: string; content: string; sender_id: string };
@@ -250,7 +253,7 @@ export default function Notifications() {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [user?.id]);
+  }, [profileId]);
 
   const unreadCount = notifs.filter(n => !n.read).length;
 

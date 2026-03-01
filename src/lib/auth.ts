@@ -4,6 +4,7 @@ export type UserRole = "client" | "provider" | "admin" | "corporate";
 
 export interface BioUser {
   id?: string;          // Supabase auth user id (undefined for demo accounts)
+  profileId?: string;   // profiles.id — FK used in bookings, messages, biopoints, etc.
   name: string;
   email: string;
   role: UserRole;
@@ -35,7 +36,7 @@ export function removeUser(): void {
 export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser | null> {
   try {
     const [{ data: profile }, { data: roleRow }, { data: authData }] = await Promise.all([
-      supabase.from("profiles").select("full_name, email, avatar_url").eq("user_id", supabaseUserId).maybeSingle(),
+      supabase.from("profiles").select("id, full_name, email, avatar_url").eq("user_id", supabaseUserId).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", supabaseUserId).maybeSingle(),
       supabase.auth.getUser(),
     ]);
@@ -45,11 +46,12 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
     const role: UserRole = metaRole ?? (roleRow?.role as UserRole) ?? "client";
 
     return {
-      id:     supabaseUserId,
-      name:   profile?.full_name ?? authData.user?.email?.split("@")[0] ?? "User",
-      email:  profile?.email ?? authData.user?.email ?? "",
+      id:        supabaseUserId,
+      profileId: profile?.id ?? undefined,
+      name:      profile?.full_name ?? authData.user?.email?.split("@")[0] ?? "User",
+      email:     profile?.email ?? authData.user?.email ?? "",
       role,
-      avatar: profile?.avatar_url ?? undefined,
+      avatar:    profile?.avatar_url ?? undefined,
     };
   } catch {
     return null;
@@ -92,7 +94,11 @@ export async function signUpWithEmail(
     });
   }
 
-  return { user: { id: uid, name, email, role }, error: null };
+  // Fetch the newly created profile ID
+  const { data: profileData } = await supabase
+    .from("profiles").select("id").eq("user_id", uid).maybeSingle();
+
+  return { user: { id: uid, profileId: profileData?.id, name, email, role }, error: null };
 }
 
 /** Sign out from Supabase */

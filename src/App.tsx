@@ -57,8 +57,15 @@ const queryClient = new QueryClient();
 
 // Auth guard — redirects unauthenticated users to /welcome
 function RequireAuth({ children, allowedRoles }: { children: ReactNode; allowedRoles?: string[] }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
+
+  // While Supabase is restoring the session, render nothing to avoid flash-to-welcome
+  if (loading) return (
+    <div className="min-h-screen bg-obsidian flex items-center justify-center">
+      <div className="w-8 h-8 rounded-full border-2 border-indigo border-t-transparent animate-spin" />
+    </div>
+  );
 
   if (!user) return <Navigate to="/welcome" state={{ from: location }} replace />;
   if (allowedRoles && !allowedRoles.includes(user.role)) {

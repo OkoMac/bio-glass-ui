@@ -12,18 +12,20 @@ export interface BioPointsEntry {
 
 export function useBioPoints() {
   const { user } = useAuth();
+  // biopoints.user_id references profiles.id — use profileId, not auth user id
+  const profileId = user?.profileId;
   const [balance, setBalance]   = useState(2450); // mock default
   const [history, setHistory]   = useState<BioPointsEntry[]>([]);
   const [loading, setLoading]   = useState(false);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!profileId) return;
     setLoading(true);
 
     supabase
       .from("biopoints")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", profileId)
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {
         if (!error && data) {
@@ -36,18 +38,18 @@ export function useBioPoints() {
         }
         setLoading(false);
       });
-  }, [user?.id]);
+  }, [profileId]);
 
   const awardPoints = useCallback(async (points: number, reason: string, sourceType?: string) => {
-    if (!user?.id) return;
+    if (!profileId) return;
     setBalance(prev => prev + points);
     await supabase.from("biopoints").insert({
-      user_id: user.id,
+      user_id: profileId,
       points,
       reason,
       source_type: sourceType ?? null,
     });
-  }, [user?.id]);
+  }, [profileId]);
 
   return { balance, history, loading, awardPoints };
 }

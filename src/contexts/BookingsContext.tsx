@@ -84,18 +84,12 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
     if (!user?.id) return; // demo mode — keep mock data
 
     const fetchBookings = async () => {
-      let query = supabase
+      // No manual role filter needed — RLS policies on bookings restrict rows
+      // to those where the auth user's profiles.id matches client_id or provider_id
+      const { data, error } = await supabase
         .from("bookings")
         .select("*, profiles!bookings_client_id_fkey(full_name), services(title)")
         .order("booking_date", { ascending: true });
-
-      if (user.role === "client") {
-        query = query.eq("client_id", user.id) as typeof query;
-      } else if (user.role === "provider") {
-        query = query.eq("provider_id", user.id) as typeof query;
-      }
-
-      const { data, error } = await query;
       if (!error && data && data.length > 0) {
         setBookings((data as unknown as SupaRow[]).map(mapRow));
       }
@@ -136,10 +130,12 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
   const addBooking = useCallback(async (booking: Omit<Booking, "id" | "status">) => {
     const newBooking: Booking = { ...booking, id: `b${Date.now()}`, status: "pending" };
     setBookings(prev => [...prev, newBooking]);
-    if (user?.id) {
+    // Only insert when we have a real session with a resolved profile ID
+    if (user?.profileId) {
       await supabase.from("bookings").insert({
-        client_id:        booking.clientId || user.id,
-        provider_id:      user.role === "provider" ? user.id : "00000000-0000-0000-0000-000000000000",
+        // profiles.id is the FK — use profileId, not the auth user id
+        client_id:        booking.clientId || user.profileId,
+        provider_id:      user.role === "provider" ? user.profileId : "00000000-0000-0000-0000-000000000000",
         booking_date:     booking.date,
         booking_time:     booking.time,
         duration_minutes: parseInt(booking.duration) || 60,
