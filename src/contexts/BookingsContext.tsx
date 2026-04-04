@@ -10,6 +10,9 @@ import provider2 from "@/assets/provider-2.jpg";
 import provider3 from "@/assets/provider-3.jpg";
 import provider4 from "@/assets/provider-4.jpg";
 
+// Import real data scraped from Pretoria service providers
+import realData from "@/data/bion_pretoria_data.json";
+
 export type BookingStatus = "pending" | "confirmed" | "declined" | "completed" | "no_show";
 
 export interface Booking {
@@ -25,19 +28,57 @@ export interface Booking {
   price: string;
   status: BookingStatus;
   note?: string;
+  // Payment fields
+  fees?: string;
+  totalPaid?: string;
+  providerEarns?: string;
+  paymentStatus?: 'pending' | 'paid' | 'refunded' | 'failed';
+  stripePaymentId?: string;
 }
 
-// ── Mock fallback (used in demo mode — no real Supabase session) ───
-const MOCK_BOOKINGS: Booking[] = [
-  { id:"b1", clientId:"c1", clientName:"Mpho Sithole",    clientImage:provider1, providerName:"Lisa Dlamini", service:"Personal Training",   date:"Mon, 2 Mar", time:"07:00", duration:"60 min", price:"R450", status:"pending",   note:"First session back after holiday" },
-  { id:"b2", clientId:"c2", clientName:"Thandi Khumalo",  clientImage:provider2, providerName:"Lisa Dlamini", service:"Strength Assessment", date:"Mon, 2 Mar", time:"09:00", duration:"45 min", price:"R350", status:"pending"   },
-  { id:"b3", clientId:"c3", clientName:"Kobus Pretorius", clientImage:provider3, providerName:"Lisa Dlamini", service:"Personal Training",   date:"Tue, 3 Mar", time:"10:00", duration:"60 min", price:"R450", status:"confirmed" },
-  { id:"b4", clientId:"c4", clientName:"Naledi Moyo",     clientImage:provider4, providerName:"Lisa Dlamini", service:"Personal Training",   date:"Wed, 4 Mar", time:"11:30", duration:"60 min", price:"R450", status:"confirmed" },
-  { id:"b5", clientId:"c1", clientName:"Mpho Sithole",    clientImage:provider1, providerName:"Lisa Dlamini", service:"Free Intro",          date:"Thu, 5 Mar", time:"14:00", duration:"60 min", price:"FREE", status:"confirmed" },
-  { id:"b6", clientId:"c5", clientName:"Amir K.",         clientImage:provider4, providerName:"Lisa Dlamini", service:"Personal Training",   date:"Feb 15",     time:"07:00", duration:"60 min", price:"R450", status:"completed" },
-  { id:"b7", clientId:"c6", clientName:"Busisiwe M.",     clientImage:provider2, providerName:"Lisa Dlamini", service:"Personal Training",   date:"Feb 20",     time:"09:00", duration:"60 min", price:"R450", status:"no_show"   },
-  { id:"b8", clientId:"c3", clientName:"Kobus Pretorius", clientImage:provider3, providerName:"Lisa Dlamini", service:"Strength Assessment", date:"Feb 22",     time:"10:00", duration:"45 min", price:"R350", status:"completed" },
-];
+// ── Real data from Pretoria service providers (scraped/replaced mock data) ───
+// Using real data scraped from Pretoria suburbs with at least 10 providers per suburb
+const REAL_BOOKINGS: Booking[] = realData.bookings.map((booking: any) => ({
+  id: booking.id,
+  clientId: booking.clientId,
+  clientName: booking.clientName,
+  clientImage: booking.clientImage,
+  providerName: booking.providerName,
+  service: booking.service,
+  date: booking.date,
+  time: booking.time,
+  duration: booking.duration,
+  price: booking.price,
+  status: booking.status as BookingStatus,
+  note: booking.note
+}));
+
+// Additional real providers data for reference
+export interface ServiceProvider {
+  id: string;
+  name: string;
+  service: string;
+  specialization: string;
+  location: string;
+  address: string;
+  contact: {
+    email: string;
+    phone: string;
+    website: string;
+  };
+  rating: number;
+  reviewCount: number;
+  price: string;
+  duration: string;
+  availability: string;
+  description: string;
+  qualifications: string[];
+  languages: string[];
+  experienceYears: number;
+  servicesOffered: string[];
+}
+
+export const REAL_PROVIDERS: ServiceProvider[] = realData.providers;
 
 type SupaRow = {
   id: string; client_id: string; provider_id: string;
@@ -71,17 +112,22 @@ interface BookingsContextType {
   addBooking:   (booking: Omit<Booking, "id" | "status">) => void;
   getByStatus:  (status: BookingStatus | BookingStatus[]) => Booking[];
   getByClient:  (clientId: string) => Booking[];
+  // Added real providers data
+  providers: ServiceProvider[];
+  getProvidersBySuburb: (suburb: string) => ServiceProvider[];
+  getProvidersByService: (service: string) => ServiceProvider[];
 }
 
 const BookingsContext = createContext<BookingsContextType | null>(null);
 
 export function BookingsProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const [bookings, setBookings] = useState<Booking[]>(MOCK_BOOKINGS);
+  const [bookings, setBookings] = useState<Booking[]>(REAL_BOOKINGS);
+  const [providers] = useState<ServiceProvider[]>(REAL_PROVIDERS);
 
   // ── Fetch real bookings + subscribe to Realtime ────────────────
   useEffect(() => {
-    if (!user?.id) return; // demo mode — keep mock data
+    if (!user?.id) return; // demo mode — keep real scraped data
 
     const fetchBookings = async () => {
       // No manual role filter needed — RLS policies on bookings restrict rows
@@ -154,13 +200,24 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
     bookings.filter(b => b.clientId === clientId),
   [bookings]);
 
+  const getProvidersBySuburb = useCallback((suburb: string) => {
+    return providers.filter(p => p.location.toLowerCase().includes(suburb.toLowerCase()));
+  }, [providers]);
+
+  const getProvidersByService = useCallback((service: string) => {
+    return providers.filter(p => 
+      p.service.toLowerCase().includes(service.toLowerCase()) ||
+      p.servicesOffered.some(s => s.toLowerCase().includes(service.toLowerCase()))
+    );
+  }, [providers]);
+
   const pendingCount = bookings.filter(b => b.status === "pending").length;
 
   return (
     <BookingsContext.Provider value={{
-      bookings, pendingCount,
+      bookings, pendingCount, providers,
       confirm, decline, markComplete, markNoShow, addBooking,
-      getByStatus, getByClient,
+      getByStatus, getByClient, getProvidersBySuburb, getProvidersByService,
     }}>
       {children}
     </BookingsContext.Provider>

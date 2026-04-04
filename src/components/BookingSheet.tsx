@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "./GlassCard";
 import BioAvatar from "./BioAvatar";
-import { X, ChevronLeft } from "lucide-react";
+import { X, ChevronLeft, CreditCard, Shield, Lock, AlertCircle, Check, Loader2 } from "lucide-react";
 import BookingCelebration from "./BookingCelebration";
+import StripePaymentForm from "./StripePaymentForm";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -54,10 +55,98 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
   const [selectedTime, setSelectedTime]   = useState<string | null>(null);
   const [note, setNote]                   = useState("");
   const [showCelebration, setShowCelebration] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<string>("card");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentDetails, setPaymentDetails] = useState<{
+    price: string;
+    fees: string;
+    totalPaid: string;
+  } | null>(null);
+  const [stripePaymentId, setStripePaymentId] = useState<string | null>(null);
+  const [stripeError, setStripeError] = useState<string | null>(null);
+
+  // Check authentication when sheet opens
+  useEffect(() => {
+    if (open && !user) {
+      // Redirect to signup if not authenticated
+      navigate('/onboarding/signup');
+      onClose();
+    }
+  }, [open, user, navigate, onClose]);
+
+  // Calculate fees (5% to business + 5% to client = 10% total)
+  const calculateFees = () => {
+    if (selectedService === null) return { servicePrice: 0, businessFee: 0, clientFee: 0, total: 0 };
+    
+    const svc = provider.services[selectedService];
+    const priceStr = svc.price.replace('R', '').replace(',', '').replace('FREE', '0');
+    const servicePrice = parseFloat(priceStr) || 0;
+    
+    const businessFee = servicePrice * 0.05; // 5% to business
+    const clientFee = servicePrice * 0.05;   // 5% to client
+    const total = servicePrice + clientFee;  // Client pays service price + their 5% fee
+    
+    return { servicePrice, businessFee, clientFee, total };
+  };
+
+  const handlePayment = async () => {
+    if (selectedService === null || !selectedTime) return;
+    
+    setIsProcessing(true);
+    
+    // Simulate payment processing
+    setTimeout(() => {
+      const svc = provider.services[selectedService];
+      const fees = calculateFees();
+      
+      // Store payment details for celebration display
+      setPaymentDetails({
+        price: `R${fees.servicePrice.toFixed(0)}`,
+        fees: `R${fees.clientFee.toFixed(0)} (5%)`,
+        totalPaid: `R${fees.total.toFixed(0)}`,
+      });
+      
+      addBooking({
+        clientId:     user?.email ?? "client",
+        clientName:   user?.name  ?? "Guest",
+        clientImage:  provider.image,
+        providerName: provider.name,
+        service:      svc.name,
+        date:         weekDates[selectedDay].fullLabel,
+        time:         selectedTime,
+        duration:     svc.duration,
+        price:        `R${fees.servicePrice.toFixed(0)}`,
+        fees:         `R${fees.clientFee.toFixed(0)} (5%)`,
+        totalPaid:    `R${fees.total.toFixed(0)}`,
+        providerEarns: `R${(fees.servicePrice - fees.businessFee).toFixed(0)}`,
+        note:         note || undefined,
+        paymentStatus: 'paid',
+      });
+      
+      setIsProcessing(false);
+      setShowCelebration(true);
+    }, 1500);
+  };
 
   const handleConfirm = () => {
+    // Old confirm function - now we go to payment step
+    setStep(3); // Go to payment step
+  };
+
+  const handleStripePaymentSuccess = (paymentIntentId: string) => {
     if (selectedService === null || !selectedTime) return;
+    
     const svc = provider.services[selectedService];
+    const fees = calculateFees();
+    
+    // Store payment details for celebration display
+    setPaymentDetails({
+      price: `R${fees.servicePrice.toFixed(0)}`,
+      fees: `R${fees.clientFee.toFixed(0)} (5%)`,
+      totalPaid: `R${fees.total.toFixed(0)}`,
+    });
+    
+    // Create booking with real payment
     addBooking({
       clientId:     user?.email ?? "client",
       clientName:   user?.name  ?? "Guest",
@@ -67,10 +156,22 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
       date:         weekDates[selectedDay].fullLabel,
       time:         selectedTime,
       duration:     svc.duration,
-      price:        svc.price,
+      price:        `R${fees.servicePrice.toFixed(0)}`,
+      fees:         `R${fees.clientFee.toFixed(0)} (5%)`,
+      totalPaid:    `R${fees.total.toFixed(0)}`,
+      providerEarns: `R${(fees.servicePrice - fees.businessFee).toFixed(0)}`,
       note:         note || undefined,
+      paymentStatus: 'paid',
+      stripePaymentId: paymentIntentId,
     });
+    
+    setStripePaymentId(paymentIntentId);
     setShowCelebration(true);
+  };
+
+  const handleStripePaymentError = (error: string) => {
+    setStripeError(error);
+    setIsProcessing(false);
   };
 
   const handleCelebrationClose = (goToSchedule: boolean) => {
@@ -79,6 +180,7 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
     setSelectedService(null);
     setSelectedTime(null);
     setNote("");
+    setPaymentDetails(null);
     onClose();
     if (goToSchedule) navigate("/schedule");
   };
@@ -93,11 +195,15 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
         date={weekDates[selectedDay].fullLabel}
         time={selectedTime ?? ""}
         onClose={handleCelebrationClose}
+        price={selectedServiceData.price}
+        fees={paymentDetails?.fees}
+        totalPaid={paymentDetails?.totalPaid}
+        paymentStatus="paid"
       />
     );
   }
 
-  const sheetHeight = step === 1 ? "44%" : step === 2 ? "78%" : "88%";
+  const sheetHeight = step === 1 ? "44%" : step === 2 ? "78%" : step === 3 ? "88%" : "92%";
 
   return (
     <AnimatePresence>
@@ -197,16 +303,18 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
                 </motion.div>
               )}
 
-              {/* ── Step 3: Confirm ── */}
+              {/* ── Step 3: Payment & Confirm ── */}
               {step === 3 && (
                 <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                   <div className="flex items-center justify-between">
                     <button onClick={() => setStep(2)} className="flex items-center gap-1 text-sm text-muted-foreground">
                       <ChevronLeft className="w-4 h-4" /> Back
                     </button>
-                    <h2 className="text-lg font-semibold text-foreground">Confirm Booking</h2>
+                    <h2 className="text-lg font-semibold text-foreground">Secure Payment</h2>
                     <button onClick={onClose}><X className="w-5 h-5 text-muted-foreground" /></button>
                   </div>
+                  
+                  {/* Booking Summary */}
                   <GlassCard className="p-4 space-y-4">
                     <div className="flex items-center gap-3">
                       <BioAvatar src={provider.image} alt={provider.name} size="lg" verticalColor={provider.vertical} verified />
@@ -228,24 +336,156 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
                           <span className="text-foreground">{r.value}</span>
                         </div>
                       ))}
-                      <div className="h-px bg-foreground/5" />
-                      <div className="flex justify-between text-sm font-semibold">
-                        <span className="text-foreground">Total</span>
-                        <span className={selectedServiceData?.price === "FREE" ? "text-amber" : "text-foreground"}>
-                          {selectedServiceData?.price}
-                        </span>
-                      </div>
+                      
+                      {/* Fee Breakdown */}
+                      <div className="h-px bg-foreground/5 mt-3" />
+                      {selectedServiceData?.price !== "FREE" && (
+                        <>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Service fee</span>
+                            <span className="text-foreground">{selectedServiceData?.price}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground flex items-center gap-1">
+                              <Shield className="w-3 h-3" /> Platform fee (5%)
+                            </span>
+                            <span className="text-foreground">R{calculateFees().clientFee.toFixed(0)}</span>
+                          </div>
+                          <div className="h-px bg-foreground/5" />
+                          <div className="flex justify-between text-sm font-semibold">
+                            <span className="text-foreground">Total to pay</span>
+                            <span className="text-indigo">R{calculateFees().total.toFixed(0)}</span>
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            <div className="flex items-center gap-1">
+                              <Check className="w-3 h-3" />
+                              Provider receives: R{(calculateFees().servicePrice - calculateFees().businessFee).toFixed(0)} (after 5% platform fee)
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </GlassCard>
-                  <div className="glass-1 rounded-xl p-3">
-                    <textarea value={note} onChange={e => setNote(e.target.value)}
-                      placeholder="Add a note for your provider…"
-                      className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none h-16" />
-                  </div>
-                  <motion.button whileTap={{ scale: 0.97 }} onClick={handleConfirm}
-                    className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta">
-                    {selectedServiceData?.price === "FREE" ? "Confirm Booking" : `Pay ${selectedServiceData?.price}`}
-                  </motion.button>
+                  
+                  {/* Payment Section - Conditional based on service price */}
+                  {selectedServiceData?.price === "FREE" ? (
+                    <>
+                      {/* Free Service - Simple confirmation */}
+                      {/* Payment Method (simplified for free) */}
+                      <div className="glass-1 rounded-xl p-4">
+                        <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                          <Shield className="w-4 h-4" /> Free Service
+                        </h3>
+                        <div className="space-y-2">
+                          <div className="w-full p-3 rounded-xl glass-accent-teal flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-teal/10 flex items-center justify-center">
+                                <Check className="w-4 h-4 text-teal" />
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-foreground">No Payment Required</p>
+                                <p className="text-xs text-muted-foreground">This is a free service</p>
+                              </div>
+                            </div>
+                            <div className="w-5 h-5 rounded-full gradient-teal flex items-center justify-center">
+                              <Check className="w-3 h-3 text-white" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Note */}
+                      <div className="glass-1 rounded-xl p-3">
+                        <textarea value={note} onChange={e => setNote(e.target.value)}
+                          placeholder="Add a note for your provider…"
+                          className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none h-16" />
+                      </div>
+                      
+                      {/* Secure Booking Info */}
+                      <div className="glass-1 rounded-xl p-3 flex items-start gap-2">
+                        <Shield className="w-4 h-4 text-teal shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-xs font-medium text-foreground">Secure Booking</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Your booking is confirmed instantly. Free cancellation up to 24h before.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Confirm Button for Free Service */}
+                      <motion.button 
+                        whileTap={{ scale: isProcessing ? 1 : 0.97 }}
+                        onClick={handlePayment}
+                        disabled={isProcessing}
+                        className="w-full rounded-pill py-4 text-base font-semibold gradient-teal text-primary-foreground shadow-cta disabled:opacity-60 flex items-center justify-center gap-2"
+                      >
+                        {isProcessing ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            Confirming...
+                          </>
+                        ) : (
+                          "Confirm Free Booking"
+                        )}
+                      </motion.button>
+                    </>
+                  ) : (
+                    <>
+                      {/* Paid Service - Stripe Payment Integration */}
+                      <div className="glass-1 rounded-xl p-4">
+                        <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                          <CreditCard className="w-4 h-4" /> Secure Payment
+                        </h3>
+                        
+                        {stripeError && (
+                          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+                            {stripeError}
+                          </div>
+                        )}
+                        
+                        <StripePaymentForm
+                          amount={calculateFees().total}
+                          currency="zar"
+                          bookingDetails={{
+                            providerId: provider.id || provider.name,
+                            serviceId: selectedService?.toString() || "",
+                            date: weekDates[selectedDay].fullLabel,
+                            time: selectedTime || "",
+                            note: note || undefined,
+                          }}
+                          onSuccess={handleStripePaymentSuccess}
+                          onError={handleStripePaymentError}
+                          onCancel={() => setStep(2)}
+                        />
+                      </div>
+                      
+                      {/* Note */}
+                      <div className="glass-1 rounded-xl p-3">
+                        <textarea value={note} onChange={e => setNote(e.target.value)}
+                          placeholder="Add a note for your provider…"
+                          className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none h-16" />
+                      </div>
+                      
+                      {/* Secure Payment Info */}
+                      <div className="glass-1 rounded-xl p-3 flex items-start gap-2">
+                        <Shield className="w-4 h-4 text-teal shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-xs font-medium text-foreground">Secure Advance Payment</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Your payment is held securely until your appointment is completed. Full refund if canceled 24h before.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Payment processing handled by StripePaymentForm */}
+                    </>
+                  )}
+                  
+                  {/* Terms */}
+                  <p className="text-[10px] text-muted-foreground text-center px-4">
+                    By booking, you agree to our Terms of Service and Privacy Policy.
+                    Platform fees: 5% to business + 5% to client.
+                  </p>
                 </motion.div>
               )}
             </div>

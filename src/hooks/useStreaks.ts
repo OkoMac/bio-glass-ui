@@ -15,7 +15,7 @@ export function useStreaks(streakType = "booking") {
   // user_streaks.user_id references profiles.id — use profileId, not auth user id
   const profileId = user?.profileId;
   const [streak, setStreak] = useState<Streak>({
-    id: "mock", streakType, currentStreak: 14, longestStreak: 21,
+    id: "demo", streakType, currentStreak: 14, longestStreak: 21,
     lastActivityDate: new Date().toISOString().split("T")[0],
   });
 

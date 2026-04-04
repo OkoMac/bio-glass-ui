@@ -16,519 +16,530 @@ import provider2 from "@/assets/provider-2.jpg";
 import provider3 from "@/assets/provider-3.jpg";
 import provider4 from "@/assets/provider-4.jpg";
 
-/* ── mock CRM data (in prod, fetched by client ID) ─────────── */
-const CLIENTS: Record<string, {
+// Import real data for realistic client information
+import realData from "@/data/bion_pretoria_data.json";
+
+/* ── Real CRM data based on Pretoria service providers ─────────── */
+interface ClientData {
   id: string; name: string; image: string; vertical: string;
   email: string; phone: string; goal: string; risk: string;
   sessions: number; totalSpend: number; nextBooking: string;
   joinedAt: string; lastVisit: string; wellnessScore: number;
   streak: number; bioPoints: number; tags: string[];
+  location: string; // Pretoria suburb
+  providerType: string; // Service type from provider
   sessionHistory: { date: string; service: string; notes: string; rating: number }[];
   activeTasks: { id: string; label: string; due: string; done: boolean; type: string }[];
   providerNotes: { id: string; text: string; date: string; pinned: boolean }[];
   prescriptions: { id: string; title: string; type: string; progress: number }[];
   rewardsGiven: { label: string; points: number; date: string }[];
-}> = {
-  c1: {
-    id: "c1", name: "Mpho Sithole", image: provider1, vertical: "teal",
-    email: "mpho@example.com", phone: "082 555 0001",
-    goal: "Weight loss + strength", risk: "low",
-    sessions: 18, totalSpend: 8100, nextBooking: "Mon 3 Mar 3pm",
-    joinedAt: "Jun 2024", lastVisit: "Today", wellnessScore: 72, streak: 14, bioPoints: 2450,
-    tags: ["Regular", "Referred 2", "Loves HIIT"],
-    sessionHistory: [
-      { date: "26 Feb", service: "PT Session — Upper Body",    notes: "PB on bench press. Adjust tricep volume next week.", rating: 5 },
-      { date: "24 Feb", service: "PT Session — Lower Body",    notes: "Slight knee discomfort — kept load light.",           rating: 4 },
-      { date: "21 Feb", service: "Strength Assessment",         notes: "Improved 1RM by 8% since December.",                rating: 5 },
-      { date: "19 Feb", service: "PT Session — Full Body",     notes: "Great energy. Hit all targets.",                     rating: 5 },
-      { date: "17 Feb", service: "Free Intro — Nutrition Chat",notes: "Discussed meal timing around sessions.",             rating: 5 },
-    ],
-    activeTasks: [
-      { id: "t1", label: "Complete Week 4 upper body routine",      due: "Tomorrow",  done: false, type: "workout" },
-      { id: "t2", label: "Log meals for 3 days (check-in required)",due: "Fri 7 Mar", done: false, type: "nutrition" },
-      { id: "t3", label: "20-min walk on rest days",                due: "Ongoing",   done: false, type: "cardio" },
-      { id: "t4", label: "Foam roll quads 5 min post-workout",      due: "Ongoing",   done: true,  type: "recovery" },
-    ],
-    providerNotes: [
-      { id: "n1", text: "Lactose intolerant — avoid dairy in meal plan suggestions.", date: "Jan 10", pinned: true },
-      { id: "n2", text: "Loves HIIT but needs to control heart rate zones. Cap at Z4.", date: "Feb 5", pinned: false },
-      { id: "n3", text: "Referred Thandi and one other — give loyalty reward next session.", date: "Feb 19", pinned: true },
-    ],
-    prescriptions: [
-      { id: "pr1", title: "Week 4 Upper Body Strength", type: "workout",   progress: 60 },
-      { id: "pr2", title: "February Meal Plan",         type: "nutrition", progress: 75 },
-    ],
-    rewardsGiven: [
-      { label: "Consistency Star",     points: 200, date: "Feb 1"  },
-      { label: "Referral Bonus",       points: 300, date: "Feb 14" },
-    ],
-  },
-  c2: {
-    id: "c2", name: "Thandi Khumalo", image: provider2, vertical: "indigo",
-    email: "thandi@example.com", phone: "083 555 0002",
-    goal: "Post-pregnancy fitness", risk: "low",
-    sessions: 12, totalSpend: 5400, nextBooking: "Wed 5 Mar 10am",
-    joinedAt: "Nov 2024", lastVisit: "Today", wellnessScore: 58, streak: 6, bioPoints: 780,
-    tags: ["Regular", "Doctor cleared"],
-    sessionHistory: [
-      { date: "25 Feb", service: "PT Session",     notes: "Core work only. No high impact yet.", rating: 4 },
-      { date: "22 Feb", service: "PT Session",     notes: "Good progress. Added light HIIT.",    rating: 5 },
-    ],
-    activeTasks: [
-      { id: "t1", label: "Pelvic floor exercises 2×/day", due: "Daily",    done: false, type: "rehab"   },
-      { id: "t2", label: "30-min gentle walk",            due: "Daily",    done: true,  type: "cardio"  },
-      { id: "t3", label: "Protein target: 120g/day",      due: "Ongoing",  done: false, type: "nutrition"},
-    ],
-    providerNotes: [
-      { id: "n1", text: "Doctor cleared for exercise at 12 weeks postpartum. No jumping until 16 weeks.", date: "Dec 1", pinned: true },
-    ],
-    prescriptions: [
-      { id: "pr1", title: "Postpartum Recovery Plan",  type: "rehab",   progress: 40 },
-    ],
-    rewardsGiven: [],
-  },
-  c3: {
-    id: "c3", name: "Kobus Pretorius", image: provider3, vertical: "coral",
-    email: "kobus@example.com", phone: "071 555 0003",
-    goal: "Powerlifting", risk: "high",
-    sessions: 7, totalSpend: 2450, nextBooking: "Sat 7 Mar",
-    joinedAt: "Jan 2025", lastVisit: "10 Feb", wellnessScore: 44, streak: 0, bioPoints: 330,
-    tags: ["At risk", "High no-show"],
-    sessionHistory: [
-      { date: "10 Feb", service: "PT Session",  notes: "Called 45 min before to cancel. Re-booked.", rating: 3 },
-      { date: "3 Feb",  service: "PT Session",  notes: "Solid session. Strong lifter but ego lifts.",  rating: 4 },
-    ],
-    activeTasks: [
-      { id: "t1", label: "Re-confirm Saturday session by Thursday", due: "Thu 6 Mar", done: false, type: "admin" },
-    ],
-    providerNotes: [
-      { id: "n1", text: "High no-show rate. Implement 24h confirmation policy with this client.", date: "Feb 15", pinned: true },
-      { id: "n2", text: "Ego lifts. Watch form on squat — lower back risk.", date: "Feb 3", pinned: false },
-    ],
-    prescriptions: [],
-    rewardsGiven: [],
-  },
-  c4: {
-    id: "c4", name: "Naledi Moyo", image: provider4, vertical: "amber",
-    email: "naledi@example.com", phone: "079 555 0004",
-    goal: "General fitness", risk: "low",
-    sessions: 9, totalSpend: 4050, nextBooking: "Fri 6 Mar 9am",
-    joinedAt: "Mar 2024", lastVisit: "Today", wellnessScore: 85, streak: 31, bioPoints: 5100,
-    tags: ["Regular", "Morning only"],
-    sessionHistory: [
-      { date: "26 Feb", service: "PT Session", notes: "Outstanding session. 31-day streak maintained.", rating: 5 },
-      { date: "24 Feb", service: "PT Session", notes: "Introduced new cardio intervals.",              rating: 5 },
-    ],
-    activeTasks: [
-      { id: "t1", label: "Daily 15-min yoga morning flow", due: "Daily", done: true, type: "flexibility" },
-    ],
-    providerNotes: [
-      { id: "n1", text: "Morning sessions only — non-negotiable. Has work commitments from 9:30am.", date: "Mar 2024", pinned: true },
-      { id: "n2", text: "Marathon training starting April. Adjust programme to support running.", date: "Feb 20", pinned: false },
-    ],
-    prescriptions: [
-      { id: "pr1", title: "General Fitness Plan", type: "workout", progress: 85 },
-    ],
-    rewardsGiven: [
-      { label: "Iron Commitment Award", points: 500, date: "Jan 31" },
-      { label: "31-Day Streak Bonus",   points: 300, date: "Feb 26" },
-    ],
-  },
+}
+
+// Use ONLY real client data from Pretoria - no fake data generation
+const generateRealClients = (): Record<string, ClientData> => {
+  const clients: Record<string, ClientData> = {};
+  
+  // Use first 4 real clients from our data
+  const realClients = realData.clients.slice(0, 4);
+  
+  realClients.forEach((client, i) => {
+    const clientId = client.id;
+    const suburb = client.location || "Pretoria";
+    
+    // Extract suburb name from location (e.g., "Rietfontein, Pretoria" -> "Rietfontein")
+    const suburbName = suburb.split(',')[0].trim();
+    
+    // Use ONLY real data - no manufactured information
+    // For fields without real data, use empty arrays or default values
+    clients[clientId] = {
+      id: clientId,
+      name: client.name, // Real name from data
+      image: `/placeholder.svg?height=100&width=100&text=${client.name.charAt(0)}`,
+      vertical: ["teal", "indigo", "coral", "amber"][i % 4] as const,
+      email: client.email, // Real email from data
+      phone: client.phone, // Real phone from data
+      goal: "General wellness", // Default goal (not in real data)
+      risk: "medium", // Default risk level (not in real data)
+      sessions: 0, // No real session data yet
+      totalSpend: 0, // No real spending data yet
+      nextBooking: "No upcoming bookings", // Will be populated with real bookings
+      joinedAt: client.joinDate || "2024", // Real join date from data
+      lastVisit: "No visits yet", // Will be populated with real visits
+      wellnessScore: 50, // Default score (not in real data)
+      streak: 0, // No real streak data yet
+      bioPoints: 0, // No real points data yet
+      tags: ["New client"], // Default tag
+      location: suburbName,
+      providerType: "General Service", // Will be populated with real service data
+      sessionHistory: [], // No real session history yet
+      activeTasks: [], // No real tasks yet
+      providerNotes: [
+        { 
+          id: "n1", 
+          text: `Client based in ${suburbName}. Contact via ${client.email}.`, 
+          date: client.joinDate || "2024", 
+          pinned: true 
+        }
+      ], // Minimal note based on real data
+      prescriptions: [], // No real prescriptions yet
+      rewardsGiven: [] // No real rewards yet
+    };
+  });
+  
+  return clients;
 };
 
-const TYPE_ICON: Record<string, string> = {
-  workout: "💪", nutrition: "🥗", cardio: "🏃", recovery: "🧊",
-  rehab: "🦴", flexibility: "🧘", admin: "📋",
-};
+const REAL_CLIENTS = generateRealClients();
 
-const REWARD_OPTIONS = [
-  { label: "Consistency Star",    points: 200 },
-  { label: "Best Client Award",   points: 300 },
-  { label: "Progress Champion",   points: 250 },
-  { label: "Streak Warrior",      points: 400 },
-  { label: "Referral Bonus",      points: 300 },
-  { label: "Session Superstar",   points: 150 },
-];
-
-type DetailTab = "overview" | "sessions" | "tasks" | "notes" | "rewards";
-
-export default function ProviderClientDetail() {
-  const { id } = useParams<{ id: string }>();
+// ── Main component ──────────────────────────────────────────────
+export default function ClientDetail() {
+  const { clientId } = useParams<{ clientId: string }>();
   const navigate = useNavigate();
-  const client = CLIENTS[id ?? "c1"] ?? CLIENTS.c1;
+  const [activeTab, setActiveTab] = useState<"overview" | "history" | "tasks" | "notes">("overview");
+  const [showNoteForm, setShowNoteForm] = useState(false);
+  const [newNote, setNewNote] = useState("");
+  const [pinned, setPinned] = useState(false);
 
-  const [tab, setTab]             = useState<DetailTab>("overview");
-  const [newNote, setNewNote]     = useState("");
-  const [newTask, setNewTask]     = useState("");
-  const [taskDue, setTaskDue]     = useState("");
-  const [showRewardModal, setShowRewardModal] = useState(false);
-  const [selectedReward, setSelectedReward]   = useState<typeof REWARD_OPTIONS[number] | null>(null);
-  const [tasks, setTasks]         = useState(client.activeTasks);
-  const [notes, setNotes]         = useState(client.providerNotes);
-  const [rewards, setRewards]     = useState(client.rewardsGiven);
+  const client = clientId ? REAL_CLIENTS[clientId] : REAL_CLIENTS.c1;
 
-  const riskColor = client.risk === "high" ? "text-coral" : client.risk === "medium" ? "text-amber" : "text-teal";
-
-  const toggleTask = (tid: string) =>
-    setTasks(prev => prev.map(t => t.id === tid ? { ...t, done: !t.done } : t));
+  if (!client) {
+    return (
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-foreground mb-2">Client not found</h1>
+          <button onClick={() => navigate("/provider/clients")} className="px-4 py-2 gradient-indigo rounded-full">
+            Back to Clients
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const addNote = () => {
     if (!newNote.trim()) return;
-    setNotes(prev => [{ id: Date.now().toString(), text: newNote.trim(), date: "Today", pinned: false }, ...prev]);
+    // In a real app, this would update the database
+    setShowNoteForm(false);
     setNewNote("");
+    setPinned(false);
   };
 
-  const addTask = () => {
-    if (!newTask.trim()) return;
-    setTasks(prev => [...prev, { id: Date.now().toString(), label: newTask.trim(), due: taskDue || "Ongoing", done: false, type: "workout" }]);
-    setNewTask(""); setTaskDue("");
+  const markTaskDone = (taskId: string) => {
+    // In a real app, this would update the database
+    console.log(`Marked task ${taskId} as done`);
   };
 
-  const giveReward = () => {
-    if (!selectedReward) return;
-    setRewards(prev => [{ label: selectedReward.label, points: selectedReward.points, date: "Today" }, ...prev]);
-    setShowRewardModal(false); setSelectedReward(null);
+  // Calculate client statistics
+  const clientStats = {
+    totalSessions: client.sessions,
+    totalValue: client.totalSpend,
+    avgRating: client.sessionHistory.length > 0 
+      ? (client.sessionHistory.reduce((sum, session) => sum + session.rating, 0) / client.sessionHistory.length).toFixed(1)
+      : "0.0",
+    completionRate: client.activeTasks.length > 0
+      ? Math.round((client.activeTasks.filter(t => t.done).length / client.activeTasks.length) * 100)
+      : 0
   };
-
-  const TABS: { id: DetailTab; label: string }[] = [
-    { id: "overview", label: "Overview" },
-    { id: "sessions", label: "Sessions" },
-    { id: "tasks",    label: "Tasks"    },
-    { id: "notes",    label: "Notes"    },
-    { id: "rewards",  label: "Rewards"  },
-  ];
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
-      <div className="mx-auto max-w-2xl px-4 pt-6 pb-28 md:pb-8 space-y-5">
-
-        {/* Back + actions */}
+      <div className="mx-auto max-w-5xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-6">
+        {/* Header */}
         <div className="flex items-center justify-between">
-          <button onClick={() => navigate("/pro/clients")}
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Clients
-          </button>
-          <div className="flex gap-2">
-            <button onClick={() => navigate("/pro/messages")}
-              className="flex items-center gap-1.5 px-3 py-1.5 glass-1 rounded-pill text-xs text-muted-foreground hover:text-foreground transition-colors">
-              <MessageSquare className="w-3.5 h-3.5" /> Message
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate("/provider/clients")} className="p-1.5 glass-1 rounded-full">
+              <ArrowLeft className="w-5 h-5 text-foreground" />
             </button>
-            <button onClick={() => navigate("/pro/bookings")}
-              className="flex items-center gap-1.5 px-3 py-1.5 gradient-indigo rounded-pill text-xs text-primary-foreground">
-              <Calendar className="w-3.5 h-3.5" /> Book
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">{client.name}</h1>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-sm text-muted-foreground">{client.location}, Pretoria</span>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                  client.risk === "low" ? "bg-emerald-500/20 text-emerald-300" :
+                  client.risk === "medium" ? "bg-amber-500/20 text-amber-300" :
+                  "bg-rose-500/20 text-rose-300"
+                }`}>
+                  {client.risk} risk
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button className="px-4 py-2 glass-1 rounded-full text-sm font-medium">
+              <MessageSquare className="w-4 h-4 inline mr-1" />
+              Message
+            </button>
+            <button className="px-4 py-2 gradient-indigo rounded-full text-sm font-medium">
+              <Calendar className="w-4 h-4 inline mr-1" />
+              Book Session
             </button>
           </div>
         </div>
 
-        {/* Identity card */}
-        <GlassCard className="p-4">
-          <div className="flex items-center gap-4">
-            <img src={client.image} alt={client.name} className="w-16 h-16 rounded-2xl object-cover shrink-0" />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold text-foreground">{client.name}</h1>
-                {client.risk !== "low" && <AlertTriangle className={`w-4 h-4 shrink-0 ${riskColor}`} />}
+        {/* Stats overview */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <GlassCard className="p-4">
+            <div className="text-2xl font-bold text-foreground">{clientStats.totalSessions}</div>
+            <div className="text-xs text-muted-foreground">Total Sessions</div>
+          </GlassCard>
+          <GlassCard className="p-4">
+            <div className="text-2xl font-bold text-foreground">R{clientStats.totalValue}</div>
+            <div className="text-xs text-muted-foreground">Total Value</div>
+          </GlassCard>
+          <GlassCard className="p-4">
+            <div className="text-2xl font-bold text-foreground">{clientStats.avgRating}/5</div>
+            <div className="text-xs text-muted-foreground">Avg Rating</div>
+          </GlassCard>
+          <GlassCard className="p-4">
+            <div className="text-2xl font-bold text-foreground">{clientStats.completionRate}%</div>
+            <div className="text-xs text-muted-foreground">Task Completion</div>
+          </GlassCard>
+        </div>
+
+        {/* Client info card */}
+        <GlassCard className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="font-semibold text-foreground mb-4">Client Information</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Service Type</span>
+                  <span className="font-medium">{client.providerType}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Primary Goal</span>
+                  <span className="font-medium">{client.goal}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Wellness Score</span>
+                  <span className="font-medium">{client.wellnessScore}/100</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Current Streak</span>
+                  <span className="font-medium">{client.streak} days</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">BIO Points</span>
+                  <span className="font-medium">{client.bioPoints}</span>
+                </div>
               </div>
-              <p className="text-xs text-muted-foreground">{client.goal}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{client.email} · {client.phone}</p>
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {client.tags.map(t => (
-                  <span key={t} className="text-[10px] px-2 py-0.5 glass-1 rounded-pill text-muted-foreground">{t}</span>
-                ))}
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground mb-4">Contact & Details</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Email</span>
+                  <span className="font-medium">{client.email}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Phone</span>
+                  <span className="font-medium">{client.phone}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Joined</span>
+                  <span className="font-medium">{client.joinedAt}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Last Visit</span>
+                  <span className="font-medium">{client.lastVisit}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Next Booking</span>
+                  <span className="font-medium">{client.nextBooking}</span>
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Quick stats */}
-          <div className="grid grid-cols-4 gap-2 mt-4">
-            {[
-              { label: "Sessions",   value: String(client.sessions)       },
-              { label: "LTV",        value: `R${client.totalSpend.toLocaleString()}` },
-              { label: "Streak",     value: client.streak > 0 ? `${client.streak}d 🔥` : "—" },
-              { label: "Wellness",   value: `${client.wellnessScore}/100` },
-            ].map(s => (
-              <div key={s.label} className="glass-1 rounded-xl p-2.5 text-center">
-                <p className="text-sm font-bold font-data text-foreground">{s.value}</p>
-                <p className="text-[9px] text-muted-foreground mt-0.5">{s.label}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Next booking */}
-          {client.nextBooking !== "—" && (
-            <div className="flex items-center gap-2 mt-3 glass-accent-indigo rounded-xl px-3 py-2">
-              <Calendar className="w-3.5 h-3.5 text-indigo" />
-              <span className="text-xs text-indigo font-medium">Next: {client.nextBooking}</span>
+          
+          {/* Tags */}
+          <div className="mt-6 pt-6 border-t border-white/5">
+            <div className="flex flex-wrap gap-2">
+              {client.tags.map((tag, idx) => (
+                <span key={idx} className="px-3 py-1 bg-slate-500/10 text-slate-300 rounded-full text-xs">
+                  {tag}
+                </span>
+              ))}
+              <span className="px-3 py-1 bg-indigo-500/10 text-indigo-300 rounded-full text-xs">
+                {client.location}
+              </span>
             </div>
-          )}
+          </div>
         </GlassCard>
 
-        {/* Tabs */}
-        <div className="flex gap-1 glass-1 p-1 rounded-2xl overflow-x-auto scrollbar-none">
-          {TABS.map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)}
-              className={`flex-1 py-2 rounded-xl text-[11px] font-medium whitespace-nowrap transition-all ${
-                tab === t.id ? "gradient-indigo text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}>
-              {t.label}
-            </button>
+        {/* Tab navigation */}
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
+          {(["overview", "history", "tasks", "notes"] as const).map(tab => (
+            <motion.button
+              key={tab}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 rounded-pill text-sm font-medium whitespace-nowrap ${
+                activeTab === tab ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
+              }`}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </motion.button>
           ))}
         </div>
 
-        {/* ── Overview ── */}
-        {tab === "overview" && (
-          <div className="space-y-4">
-            {/* Active prescriptions */}
-            {client.prescriptions.length > 0 && (
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Active Programmes</p>
-                <div className="space-y-2">
-                  {client.prescriptions.map(p => (
-                    <GlassCard key={p.id} className="p-3.5">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span>{p.type === "workout" ? "💪" : p.type === "nutrition" ? "🥗" : "🦴"}</span>
-                          <p className="text-sm font-semibold text-foreground">{p.title}</p>
+        {/* Tab content */}
+        <div className="space-y-6">
+          {/* Session History */}
+          {activeTab === "history" && (
+            <GlassCard className="p-6">
+              <h3 className="font-semibold text-foreground mb-4">Session History</h3>
+              <div className="space-y-4">
+                {client.sessionHistory.map((session, idx) => (
+                  <div key={idx} className="flex items-start justify-between p-4 glass-1 rounded-2xl">
+                    <div>
+                      <div className="font-medium text-foreground">{session.service}</div>
+                      <div className="text-sm text-muted-foreground mt-1">{session.notes}</div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-xs text-muted-foreground">{session.date}</span>
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-3 h-3 ${
+                                i < session.rating ? "text-amber fill-amber" : "text-muted-foreground"
+                              }`}
+                            />
+                          ))}
                         </div>
-                        <span className="text-xs text-indigo font-semibold">{p.progress}%</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-white/5">
-                        <div className="h-full rounded-full bg-gradient-to-r from-indigo to-violet" style={{ width: `${p.progress}%` }} />
-                      </div>
-                    </GlassCard>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Pending tasks */}
-            <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Out-of-Session Tasks</p>
-              <div className="space-y-1.5">
-                {tasks.filter(t => !t.done).slice(0, 3).map(t => (
-                  <GlassCard key={t.id} className="p-3 flex items-center gap-3">
-                    <span className="text-base">{TYPE_ICON[t.type] ?? "📌"}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground truncate">{t.label}</p>
-                      <p className="text-[10px] text-muted-foreground">Due: {t.due}</p>
                     </div>
-                    <button onClick={() => { setTab("tasks"); }} className="text-[10px] text-indigo">View all</button>
-                  </GlassCard>
+                    <button className="p-2 rounded-full hover:bg-white/10">
+                      <FileText className="w-4 h-4 text-foreground" />
+                    </button>
+                  </div>
                 ))}
-                {tasks.filter(t => !t.done).length === 0 && (
-                  <p className="text-xs text-muted-foreground text-center py-4">All tasks complete! 🎉</p>
-                )}
               </div>
-            </div>
+            </GlassCard>
+          )}
 
-            {/* Pinned notes */}
-            <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Pinned Notes</p>
-              {notes.filter(n => n.pinned).map(n => (
-                <GlassCard key={n.id} className="p-3.5 mb-2">
-                  <p className="text-sm text-foreground leading-relaxed">{n.text}</p>
-                  <p className="text-[10px] text-muted-foreground mt-1">{n.date}</p>
-                </GlassCard>
-              ))}
-            </div>
-
-            {/* Give reward shortcut */}
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={() => setShowRewardModal(true)}
-              className="w-full py-3 glass-1 rounded-2xl text-sm font-semibold text-amber flex items-center justify-center gap-2 border border-amber/20"
-            >
-              <Gift className="w-4 h-4" /> Give Client a Reward
-            </motion.button>
-          </div>
-        )}
-
-        {/* ── Session History ── */}
-        {tab === "sessions" && (
-          <div className="space-y-2">
-            {client.sessionHistory.map((s, i) => (
-              <GlassCard key={i} className="p-3.5">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-foreground">{s.service}</p>
-                    <p className="text-[10px] text-muted-foreground mb-2">{s.date}</p>
-                    <p className="text-xs text-muted-foreground leading-relaxed italic">"{s.notes}"</p>
+          {/* Active Tasks */}
+          {activeTab === "tasks" && (
+            <GlassCard className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-foreground">Active Tasks</h3>
+                <button className="px-3 py-1.5 gradient-indigo rounded-full text-xs font-medium">
+                  <Plus className="w-3 h-3 inline mr-1" />
+                  Add Task
+                </button>
+              </div>
+              <div className="space-y-3">
+                {client.activeTasks.map(task => (
+                  <div key={task.id} className="flex items-center justify-between p-4 glass-1 rounded-2xl">
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => markTaskDone(task.id)}
+                        className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                          task.done ? "bg-emerald border-emerald" : "border-muted-foreground"
+                        }`}
+                      >
+                        {task.done && <CheckCircle className="w-3 h-3 text-white" />}
+                      </button>
+                      <div>
+                        <div className={`font-medium ${task.done ? "text-foreground/60 line-through" : "text-foreground"}`}>
+                          {task.label}
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs text-muted-foreground">Due: {task.due}</span>
+                          <span className={`px-2 py-0.5 rounded-full text-xs ${
+                            task.type === "workout" ? "bg-indigo-500/10 text-indigo-300" :
+                            task.type === "nutrition" ? "bg-emerald-500/10 text-emerald-300" :
+                            "bg-amber-500/10 text-amber-300"
+                          }`}>
+                            {task.type}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <button className="p-2 rounded-full hover:bg-white/10">
+                      <Edit3 className="w-4 h-4 text-foreground" />
+                    </button>
                   </div>
-                  <div className="flex shrink-0 ml-2">
-                    {Array.from({ length: 5 }).map((_, j) => (
-                      <Star key={j} className={`w-3 h-3 ${j < s.rating ? "text-amber fill-amber" : "text-muted-foreground/30"}`} />
-                    ))}
+                ))}
+              </div>
+            </GlassCard>
+          )}
+
+          {/* Provider Notes */}
+          {activeTab === "notes" && (
+            <GlassCard className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-foreground">Provider Notes</h3>
+                <button
+                  onClick={() => setShowNoteForm(true)}
+                  className="px-3 py-1.5 gradient-indigo rounded-full text-xs font-medium"
+                >
+                  <Plus className="w-3 h-3 inline mr-1" />
+                  Add Note
+                </button>
+              </div>
+              
+              {/* Note form */}
+              <AnimatePresence>
+                {showNoteForm && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mb-6 overflow-hidden"
+                  >
+                    <div className="glass-1 rounded-2xl p-4">
+                      <textarea
+                        value={newNote}
+                        onChange={(e) => setNewNote(e.target.value)}
+                        placeholder="Add a note about this client..."
+                        className="w-full bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground min-h-[100px]"
+                      />
+                      <div className="flex items-center justify-between mt-4">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setPinned(!pinned)}
+                            className={`p-1.5 rounded-full ${pinned ? "bg-amber/20 text-amber" : "glass-1 text-muted-foreground"}`}
+                          >
+                            <Award className="w-4 h-4" />
+                          </button>
+                          <span className="text-xs text-muted-foreground">
+                            {pinned ? "Pinned note" : "Pin this note"}
+                          </span>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              setShowNoteForm(false);
+                              setNewNote("");
+                              setPinned(false);
+                            }}
+                            className="px-3 py-1.5 glass-1 rounded-full text-xs"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={addNote}
+                            disabled={!newNote.trim()}
+                            className="px-3 py-1.5 gradient-indigo rounded-full text-xs font-medium"
+                          >
+                            Save Note
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Notes list */}
+              <div className="space-y-4">
+                {client.providerNotes.map(note => (
+                  <div key={note.id} className={`p-4 rounded-2xl ${note.pinned ? "glass-accent-amber" : "glass-1"}`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <p className="text-foreground">{note.text}</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="text-xs text-muted-foreground">{note.date}</span>
+                          {note.pinned && (
+                            <span className="px-2 py-0.5 bg-amber-500/10 text-amber-300 rounded-full text-xs">
+                              Pinned
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {note.pinned && (
+                          <Award className="w-4 h-4 text-amber" />
+                        )}
+                        <button className="p-1.5 rounded-full hover:bg-white/10">
+                          <Edit3 className="w-4 h-4 text-foreground" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
+                ))}
+              </div>
+            </GlassCard>
+          )}
+
+          {/* Overview (default) */}
+          {activeTab === "overview" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Prescriptions/Programs */}
+              <GlassCard className="p-6">
+                <h3 className="font-semibold text-foreground mb-4">Active Programs</h3>
+                <div className="space-y-4">
+                  {client.prescriptions.map(prescription => (
+                    <div key={prescription.id} className="p-4 glass-1 rounded-2xl">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="font-medium text-foreground">{prescription.title}</div>
+                        <span className={`px-2 py-0.5 rounded-full text-xs ${
+                          prescription.type === "workout" ? "bg-indigo-500/10 text-indigo-300" :
+                          "bg-emerald-500/10 text-emerald-300"
+                        }`}>
+                          {prescription.type}
+                        </span>
+                      </div>
+                      <div className="mt-3">
+                        <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                          <span>Progress</span>
+                          <span>{prescription.progress}%</span>
+                        </div>
+                        <div className="h-2 glass-2 rounded-full overflow-hidden">
+                          <div
+                            className="h-full gradient-indigo rounded-full"
+                            style={{ width: `${prescription.progress}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </GlassCard>
-            ))}
-          </div>
-        )}
 
-        {/* ── Tasks (out-of-session) ── */}
-        {tab === "tasks" && (
-          <div className="space-y-4">
-            {/* Add task */}
-            <GlassCard className="p-4">
-              <p className="text-xs font-semibold text-foreground mb-3">Assign New Task</p>
-              <input
-                value={newTask}
-                onChange={e => setNewTask(e.target.value)}
-                placeholder="e.g. 20-min walk every morning"
-                className="w-full glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none mb-2"
-              />
-              <div className="flex gap-2">
-                <input
-                  value={taskDue}
-                  onChange={e => setTaskDue(e.target.value)}
-                  placeholder="Due (e.g. Fri 7 Mar)"
-                  className="flex-1 glass-1 rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none"
-                />
-                <motion.button whileTap={{ scale: 0.95 }} onClick={addTask}
-                  className="px-4 py-2 gradient-indigo rounded-xl text-xs font-semibold text-primary-foreground">
-                  Assign
-                </motion.button>
-              </div>
-            </GlassCard>
-
-            <div className="space-y-2">
-              {tasks.map(t => (
-                <GlassCard key={t.id} className={`p-3.5 flex items-center gap-3 ${t.done ? "opacity-60" : ""}`}>
-                  <button onClick={() => toggleTask(t.id)}>
-                    {t.done
-                      ? <CheckCircle className="w-5 h-5 text-teal" />
-                      : <div className="w-5 h-5 rounded-full border-2 border-white/20" />
-                    }
-                  </button>
-                  <span className="text-lg">{TYPE_ICON[t.type] ?? "📌"}</span>
-                  <div className="flex-1">
-                    <p className={`text-sm text-foreground ${t.done ? "line-through" : ""}`}>{t.label}</p>
-                    <p className="text-[10px] text-muted-foreground">Due: {t.due}</p>
-                  </div>
-                </GlassCard>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── Notes ── */}
-        {tab === "notes" && (
-          <div className="space-y-4">
-            <GlassCard className="p-4">
-              <p className="text-xs font-semibold text-foreground mb-3">Add Note</p>
-              <textarea
-                value={newNote}
-                onChange={e => setNewNote(e.target.value)}
-                placeholder="e.g. Mentioned knee pain during warm-up…"
-                rows={3}
-                className="w-full glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none resize-none mb-2"
-              />
-              <motion.button whileTap={{ scale: 0.95 }} onClick={addNote}
-                className="w-full py-2 gradient-indigo rounded-xl text-xs font-semibold text-primary-foreground">
-                Save Note
-              </motion.button>
-            </GlassCard>
-
-            <div className="space-y-2">
-              {notes.map(n => (
-                <GlassCard key={n.id} className={`p-3.5 ${n.pinned ? "border border-amber/20" : ""}`}>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      {n.pinned && <span className="text-[10px] text-amber font-semibold">📌 Pinned · </span>}
-                      <span className="text-[10px] text-muted-foreground">{n.date}</span>
-                      <p className="text-sm text-foreground leading-relaxed mt-1">{n.text}</p>
+              {/* Rewards & Recognition */}
+              <GlassCard className="p-6">
+                <h3 className="font-semibold text-foreground mb-4">Rewards & Recognition</h3>
+                <div className="space-y-4">
+                  {client.rewardsGiven.length > 0 ? (
+                    client.rewardsGiven.map((reward, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-4 glass-1 rounded-2xl">
+                        <div>
+                          <div className="font-medium text-foreground">{reward.label}</div>
+                          <div className="text-sm text-muted-foreground mt-1">{reward.points} points • {reward.date}</div>
+                        </div>
+                        <Gift className="w-5 h-5 text-amber" />
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <Gift className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                      <p className="text-sm text-muted-foreground">No rewards yet</p>
+                      <button className="mt-3 px-4 py-2 gradient-indigo rounded-full text-sm font-medium">
+                        <Award className="w-4 h-4 inline mr-1" />
+                        Award Points
+                      </button>
                     </div>
-                  </div>
-                </GlassCard>
-              ))}
+                  )}
+                </div>
+              </GlassCard>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* ── Rewards ── */}
-        {tab === "rewards" && (
-          <div className="space-y-4">
-            <GlassCard className="p-4 flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground">Rewards given</p>
-                <p className="text-lg font-bold text-amber">{rewards.length} rewards · {rewards.reduce((a, r) => a + r.points, 0)} pts sent</p>
-              </div>
-              <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowRewardModal(true)}
-                className="flex items-center gap-1.5 px-3 py-2 gradient-indigo rounded-xl text-xs font-semibold text-primary-foreground">
-                <Gift className="w-3.5 h-3.5" /> Give Reward
-              </motion.button>
-            </GlassCard>
-
-            <div className="space-y-2">
-              {rewards.length === 0 && (
-                <p className="text-center py-8 text-sm text-muted-foreground">No rewards given yet. Recognise great clients! 🌟</p>
-              )}
-              {rewards.map((r, i) => (
-                <GlassCard key={i} className="p-3.5 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-amber/10 flex items-center justify-center shrink-0">
-                    <Award className="w-4 h-4 text-amber" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-foreground">{r.label}</p>
-                    <p className="text-[10px] text-muted-foreground">{r.date}</p>
-                  </div>
-                  <span className="text-sm font-bold text-amber">+{r.points} pts</span>
-                </GlassCard>
-              ))}
-            </div>
-
-            <GlassCard className="p-4">
-              <p className="text-xs font-semibold text-foreground mb-1">Why reward clients?</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Recognising good clients with BIONPoints boosts retention by up to 40%. Points can be redeemed for free sessions, wallet credits, or premium badges — at no cost to you.
-              </p>
-            </GlassCard>
-          </div>
-        )}
+        {/* Bottom navigation */}
+        <ProviderNav active="clients" />
       </div>
 
-      {/* Reward modal */}
-      <AnimatePresence>
-        {showRewardModal && (
-          <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setShowRewardModal(false)} className="fixed inset-0 bg-obsidian/70 z-50" />
-            <motion.div
-              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="fixed bottom-0 left-0 right-0 z-50 rounded-t-[2rem] pb-safe"
-              style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)" }}
-            >
-              <div className="px-5 pt-5 pb-8">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-base font-bold text-foreground">Give {client.name.split(" ")[0]} a Reward</h3>
-                  <button onClick={() => setShowRewardModal(false)}><X className="w-5 h-5 text-muted-foreground" /></button>
-                </div>
-                <div className="space-y-2 mb-4">
-                  {REWARD_OPTIONS.map(r => (
-                    <button key={r.label} onClick={() => setSelectedReward(r)}
-                      className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all text-sm ${
-                        selectedReward?.label === r.label
-                          ? "border-amber/40 bg-amber/10 text-amber"
-                          : "border-white/08 glass-1 text-foreground"
-                      }`}>
-                      <span>{r.label}</span>
-                      <span className="text-xs font-bold">+{r.points} pts</span>
-                    </button>
-                  ))}
-                </div>
-                <motion.button whileTap={{ scale: 0.97 }} onClick={giveReward} disabled={!selectedReward}
-                  className="w-full py-3 gradient-indigo rounded-2xl text-sm font-bold text-primary-foreground disabled:opacity-40">
-                  Send Reward 🎁
-                </motion.button>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
-      <CoachAI />
-      <ProviderNav />
+      {/* Coach AI */}
+      <CoachAI
+        context={`Client detail view: ${client.name}. ${client.sessions} sessions, ${client.wellnessScore} wellness score, ${client.risk} risk. Based in ${client.location}, Pretoria.`}
+        suggestions={[
+          `How can I better support ${client.name}'s ${client.goal} goals?`,
+          `What strategies work best for ${client.risk} risk clients?`,
+          `How do I improve engagement with clients from ${client.location}?`,
+          `What metrics should I track for ${client.providerType} clients?`
+        ]}
+      />
     </div>
   );
 }

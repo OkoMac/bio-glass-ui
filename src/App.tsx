@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { ReactNode } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { BookingsProvider } from "@/contexts/BookingsContext";
+import FeatureFlagRoute from "@/components/FeatureFlagRoute";
 
 // Client pages
 import Index           from "./pages/Index";
@@ -43,6 +44,19 @@ import ProviderAvailability from "./pages/provider/Availability";
 import ProviderSettings     from "./pages/provider/Settings";
 import ProviderBilling      from "./pages/provider/Billing";
 import ProviderProgramBuilder from "./pages/provider/ProgramBuilder";
+
+// NEW: Enhanced provider dashboard (feature-flagged)
+import ProviderDashboardV2 from "./pages/provider/DashboardV2";
+import SessionManager from "./pages/provider/SessionManager";
+import ProgressTracker from "./pages/provider/ProgressTracker";
+import PackageBuilder from "./pages/provider/PackageBuilder";
+import ClientCRM from "./pages/provider/ClientCRM";
+import BeautyDashboard from "./pages/beauty/BeautyDashboard";
+import MedicalDashboard from "./pages/medical/MedicalDashboard";
+import ViralFeatures from "./pages/viral/ViralFeatures";
+
+// Client billing
+import ClientBilling from "./pages/client/Billing";
 
 // Admin portal
 import AdminDashboard  from "./pages/admin/Dashboard";
@@ -141,15 +155,14 @@ function AppRoutes() {
 
       {/* Root redirect based on role */}
       <Route path="/" element={
-        !user                         ? <Navigate to="/welcome" replace /> :
-        user.role === "admin"         ? <Navigate to="/admin/dashboard"    replace /> :
-        user.role === "provider"      ? <Navigate to="/pro/dashboard"       replace /> :
-        user.role === "corporate"     ? <Navigate to="/corporate/dashboard" replace /> :
+        user?.role === "admin"         ? <Navigate to="/admin/dashboard"    replace /> :
+        user?.role === "provider"      ? <Navigate to="/pro/dashboard"       replace /> :
+        user?.role === "corporate"     ? <Navigate to="/corporate/dashboard" replace /> :
         <Index />
       } />
 
       {/* Client routes */}
-      <Route path="/provider/:id" element={<RequireAuth><ProviderProfile /></RequireAuth>} />
+      <Route path="/provider/:id" element={<ProviderProfile />} />
       <Route path="/schedule"    element={<RequireAuth allowedRoles={["client"]}><Schedule /></RequireAuth>} />
       <Route path="/messages"    element={<RequireAuth allowedRoles={["client"]}><Messages /></RequireAuth>} />
       <Route path="/profile"     element={<RequireAuth allowedRoles={["client"]}><Profile /></RequireAuth>} />
@@ -160,10 +173,83 @@ function AppRoutes() {
       <Route path="/challenges"     element={<RequireAuth allowedRoles={["client"]}><Challenges /></RequireAuth>} />
       <Route path="/health-profile" element={<RequireAuth allowedRoles={["client"]}><HealthProfile /></RequireAuth>} />
       <Route path="/wallet"         element={<RequireAuth allowedRoles={["client"]}><Wallet /></RequireAuth>} />
+      <Route path="/billing"        element={<RequireAuth allowedRoles={["client"]}><ClientBilling /></RequireAuth>} />
       <Route path="/notifications"  element={<RequireAuth><Notifications /></RequireAuth>} />
 
       {/* Provider portal */}
       <Route path="/pro/dashboard"    element={<RequireAuth allowedRoles={["provider"]}><ProviderDashboard /></RequireAuth>} />
+      <Route path="/pro/dashboard-v2" element={
+        <RequireAuth allowedRoles={["provider"]}>
+          <FeatureFlagRoute 
+            feature="providerDashboardV2"
+            enabledComponent={<ProviderDashboardV2 />}
+            disabledComponent={<ProviderDashboard />} // Fall back to old dashboard
+          />
+        </RequireAuth>
+      } />
+      <Route path="/pro/session-manager" element={
+        <RequireAuth allowedRoles={["provider"]}>
+          <FeatureFlagRoute 
+            feature="sessionManagement"
+            enabledComponent={<SessionManager />}
+            disabledComponent={<ProviderSchedule />} // Fall back to existing schedule
+          />
+        </RequireAuth>
+      } />
+      <Route path="/pro/progress-tracker" element={
+        <RequireAuth allowedRoles={["provider"]}>
+          <FeatureFlagRoute 
+            feature="progressTracking"
+            enabledComponent={<ProgressTracker />}
+            disabledComponent={<ProviderClients />} // Fall back to clients page
+          />
+        </RequireAuth>
+      } />
+      <Route path="/pro/package-builder" element={
+        <RequireAuth allowedRoles={["provider"]}>
+          <FeatureFlagRoute 
+            feature="packageBuilder"
+            enabledComponent={<PackageBuilder />}
+            disabledComponent={<ProviderBilling />} // Fall back to billing page
+          />
+        </RequireAuth>
+      } />
+      <Route path="/pro/client-crm" element={
+        <RequireAuth allowedRoles={["provider"]}>
+          <FeatureFlagRoute 
+            feature="providerDashboardV2"
+            enabledComponent={<ClientCRM />}
+            disabledComponent={<ProviderClients />} // Fall back to clients page
+          />
+        </RequireAuth>
+      } />
+      <Route path="/beauty/dashboard" element={
+        <RequireAuth allowedRoles={["provider"]}>
+          <FeatureFlagRoute 
+            feature="beautyVertical"
+            enabledComponent={<BeautyDashboard />}
+            disabledComponent={<ProviderDashboard />} // Fall back to main dashboard
+          />
+        </RequireAuth>
+      } />
+      <Route path="/medical/dashboard" element={
+        <RequireAuth allowedRoles={["provider"]}>
+          <FeatureFlagRoute 
+            feature="medicalVertical"
+            enabledComponent={<MedicalDashboard />}
+            disabledComponent={<ProviderDashboard />} // Fall back to main dashboard
+          />
+        </RequireAuth>
+      } />
+      <Route path="/viral-features" element={
+        <RequireAuth allowedRoles={["provider", "client"]}>
+          <FeatureFlagRoute 
+            feature="shareableProgressCards"
+            enabledComponent={<ViralFeatures />}
+            disabledComponent={<Index />} // Fall back to home page
+          />
+        </RequireAuth>
+      } />
       <Route path="/pro/bookings"     element={<RequireAuth allowedRoles={["provider"]}><ProviderBookings /></RequireAuth>} />
       <Route path="/pro/schedule"     element={<RequireAuth allowedRoles={["provider"]}><ProviderSchedule /></RequireAuth>} />
       <Route path="/pro/clients"      element={<RequireAuth allowedRoles={["provider"]}><ProviderClients /></RequireAuth>} />

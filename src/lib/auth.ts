@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { Subscription, createDefaultSubscription, PROVIDER_TIER_FEATURES, CLIENT_TIER_FEATURES } from "./subscription";
 
 export type UserRole = "client" | "provider" | "admin" | "corporate";
 
@@ -15,6 +16,8 @@ export interface BioUser {
     instagram?: string;
     facebook?: string;
   };
+  // Subscription info (for providers)
+  subscription?: Subscription;
 }
 
 const KEY = "bio_user";
@@ -51,7 +54,7 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
     const metaRole = authData.user?.user_metadata?.bio_role as UserRole | undefined;
     const role: UserRole = metaRole ?? (roleRow?.role as UserRole) ?? "client";
 
-    return {
+    const user: BioUser = {
       id:        supabaseUserId,
       profileId: profile?.id ?? undefined,
       name:      profile?.full_name ?? authData.user?.email?.split("@")[0] ?? "User",
@@ -59,6 +62,39 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
       role,
       avatar:    profile?.avatar_url ?? undefined,
     };
+    
+    // Add subscription based on user role
+    if (role === 'provider') {
+      user.subscription = createDefaultSubscription('provider');
+      
+      // Demo accounts get pro tier for showcasing features
+      if (user.email.includes('demo') || user.name.includes('Demo')) {
+        user.subscription = {
+          userType: 'provider',
+          tier: 'pro',
+          status: 'active',
+          currentPeriodEnd: null,
+          trialEnd: null,
+          features: PROVIDER_TIER_FEATURES.pro
+        };
+      }
+    } else if (role === 'client') {
+      user.subscription = createDefaultSubscription('client');
+      
+      // Demo client accounts get premium tier for showcasing features
+      if (user.email.includes('demo') || user.name.includes('Demo')) {
+        user.subscription = {
+          userType: 'client',
+          tier: 'premium',
+          status: 'active',
+          currentPeriodEnd: null,
+          trialEnd: null,
+          features: CLIENT_TIER_FEATURES.premium
+        };
+      }
+    }
+    
+    return user;
   } catch {
     return null;
   }

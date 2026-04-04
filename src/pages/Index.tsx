@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import SearchBar from "@/components/SearchBar";
 import CategoryChip from "@/components/CategoryChip";
@@ -8,52 +8,66 @@ import BottomNav from "@/components/BottomNav";
 import ServeAIChat from "@/components/ServeAIChat";
 import { useAuth } from "@/contexts/AuthContext";
 import GlassCard from "@/components/GlassCard";
-import { Sparkles } from "lucide-react";
+import { Sparkles, MapPin, Navigation, Loader2, AlertCircle } from "lucide-react";
+import { getProviderImage, getProviderCover } from "@/lib/providerImages";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { useProviderDistance } from "@/hooks/useProviderDistance";
 
-import provider1 from "@/assets/provider-1.jpg";
-import provider2 from "@/assets/provider-2.jpg";
-import provider3 from "@/assets/provider-3.jpg";
-import provider4 from "@/assets/provider-4.jpg";
-import heroCover1 from "@/assets/hero-cover-1.jpg";
-import heroCover2 from "@/assets/hero-cover-2.jpg";
+// Import real Pretoria data
+import realData from "@/data/bion_pretoria_data.json";
 
 const categories = ["All", "Fitness", "Medical", "Beauty", "Professional", "Free Sessions", "Available Now"];
 
-const heroProviders = [
-  {
-    id: "lisa",
-    name: "Lisa Dlamini",
-    specialty: "Personal Trainer",
-    rating: 4.9,
-    distance: "0.8 km",
-    image: provider1,
-    coverImage: heroCover1,
-    vertical: "teal" as const,
-  },
-  {
-    id: "sarah",
-    name: "Sarah Chen",
-    specialty: "Beauty & Skincare",
-    rating: 4.8,
-    distance: "1.5 km",
-    image: provider3,
-    coverImage: heroCover2,
-    vertical: "coral" as const,
-  },
-];
+// Convert real provider data to UI format with addresses for geolocation
+const generateRealProviders = () => {
+  // Use first 12 real providers for the public directory
+  const realProviders = realData.providers.slice(0, 12);
+  
+  // Map real providers to the UI format with addresses for geolocation
+  return realProviders.map((provider, index) => {
+    const verticals = ["teal", "indigo", "coral", "amber"] as const;
+    
+    // Generate next slots (simulated for now)
+    const nextSlots = ["Today 3pm", "Tomorrow 9am", "Today 5pm", "Wed 7am", "Thu 4pm", "Fri 10am"];
+    
+    return {
+      id: provider.id,
+      name: provider.name,
+      specialty: provider.service,
+      rating: provider.rating,
+      reviews: provider.reviewCount,
+      // Distance will be calculated by useProviderDistance hook
+      distance: "Calculating...",
+      nextSlot: nextSlots[index % nextSlots.length],
+      image: getProviderImage(provider.id),
+      vertical: verticals[index % verticals.length],
+      // Additional fields needed for geolocation
+      address: provider.address,
+      location: provider.location,
+      service: provider.service,
+      price: provider.price,
+      isFree: provider.price?.includes("Free") || false,
+    };
+  });
+};
 
-const forYouProviders = [
-  { id: "lisa", name: "Lisa Dlamini", specialty: "Personal Trainer", rating: 4.9, reviews: 128, distance: "0.8 km", nextSlot: "Today 3pm", image: provider1, vertical: "teal" as const },
-  { id: "kagiso", name: "Dr. Kagiso Sithole", specialty: "Biokineticist", rating: 4.8, reviews: 95, distance: "1.2 km", nextSlot: "Tomorrow 9am", image: provider2, vertical: "indigo" as const },
-  { id: "sarah", name: "Sarah Chen", specialty: "Skincare Specialist", rating: 4.8, reviews: 203, distance: "1.5 km", nextSlot: "Today 5pm", image: provider3, vertical: "coral" as const },
-  { id: "amir", name: "Amir Patel", specialty: "Yoga Instructor", rating: 4.7, reviews: 67, distance: "2.1 km", nextSlot: "Wed 7am", image: provider4, vertical: "amber" as const },
-];
+const allRealProviders = generateRealProviders();
 
-const freeProviders = [
-  { id: "kagiso", name: "Dr. Kagiso Sithole", specialty: "Free Intro — Biokineticist", rating: 4.8, reviews: 95, distance: "1.2 km", nextSlot: "Tomorrow 9am", image: provider2, vertical: "teal" as const, isFree: true },
-  { id: "amir", name: "Amir Patel", specialty: "Free Intro — Yoga", rating: 4.7, reviews: 67, distance: "2.1 km", nextSlot: "Wed 7am", image: provider4, vertical: "amber" as const, isFree: true },
-  { id: "lisa", name: "Lisa Dlamini", specialty: "Free Intro — PT", rating: 4.9, reviews: 128, distance: "0.8 km", nextSlot: "Thu 4pm", image: provider1, vertical: "teal" as const, isFree: true },
-];
+// Filter providers for different sections
+const getHeroProviders = (providers: any[]) => providers.slice(0, 2).map((provider) => ({
+  ...provider,
+  coverImage: getProviderCover(provider.id),
+}));
+
+const getForYouProviders = (providers: any[]) => providers.slice(2, 6);
+
+const getFreeProviders = (providers: any[]) => providers.slice(4, 7).map(provider => ({
+  ...provider,
+  specialty: `Free Intro — ${provider.specialty}`,
+  isFree: true,
+}));
+
+const getTodayProviders = (providers: any[]) => providers.filter(p => p.nextSlot?.includes("Today"));
 
 const stagger = {
   container: { transition: { staggerChildren: 0.05 } },
@@ -64,6 +78,23 @@ const Index = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const { user } = useAuth();
   const [heroIndex, setHeroIndex] = useState(0);
+  
+  // Use geolocation hook
+  const { coordinates, error: locationError, isLoading: locationLoading } = useGeolocation();
+  
+  // Use provider distance hook with all providers
+  const {
+    providers: providersWithDistance,
+    isLoading: distanceLoading,
+    error: distanceError,
+    stats,
+    refresh: refreshDistances
+  } = useProviderDistance(allRealProviders, {
+    radiusKm: 50,
+    maxResults: 12,
+    autoSort: true,
+    userLocation: coordinates || undefined
+  });
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -71,6 +102,35 @@ const Index = () => {
     if (hour < 18) return "Good afternoon";
     return "Good evening";
   };
+
+  // Show loading state while getting location or calculating distances
+  const isLoading = locationLoading || distanceLoading;
+  const hasError = locationError || distanceError;
+  
+  // Transform providers for ProviderCard component
+  // ProviderCard expects distance as string, but geolocation returns distanceFormatted
+  const transformProviderForCard = (provider: any) => {
+    // If provider has distanceFormatted from geolocation, use it
+    if (provider.distanceFormatted && typeof provider.distanceFormatted === 'string') {
+      return {
+        ...provider,
+        distance: provider.distanceFormatted,
+      };
+    }
+    // Otherwise use as-is (with simulated distance string)
+    return provider;
+  };
+
+  // Use providers with real distances if available, otherwise use simulated
+  const displayProviders = providersWithDistance.length > 0 ? 
+    providersWithDistance.map(transformProviderForCard) : 
+    allRealProviders;
+  
+  // Get provider lists for different sections
+  const heroProviders = getHeroProviders(displayProviders);
+  const forYouProviders = getForYouProviders(displayProviders);
+  const freeProviders = getFreeProviders(displayProviders);
+  const todayProviders = getTodayProviders(displayProviders);
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-24">
@@ -87,6 +147,36 @@ const Index = () => {
         >
           {getGreeting()}, {user?.name?.split(" ")[0] ?? "there"} ☀️
         </motion.h1>
+
+        {/* Location Status */}
+        <div className="flex items-center gap-2 text-sm">
+          <MapPin className="w-4 h-4 text-muted-foreground" />
+          {isLoading ? (
+            <span className="text-muted-foreground flex items-center gap-2">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              Finding your location...
+            </span>
+          ) : hasError ? (
+            <span className="text-amber flex items-center gap-2">
+              <AlertCircle className="w-3 h-3" />
+              Location unavailable - showing Pretoria providers
+            </span>
+          ) : coordinates ? (
+            <span className="text-teal flex items-center gap-2">
+              <Navigation className="w-3 h-3" />
+              Showing providers near you
+              {stats?.nearestDistance && (
+                <span className="text-xs text-muted-foreground">
+                  (closest: {stats.nearestDistance})
+                </span>
+              )}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">
+              Enable location for nearby providers
+            </span>
+          )}
+        </div>
 
         {/* Category Chips */}
         <div className="flex gap-2 overflow-x-auto scrollbar-none -mx-4 px-4">
@@ -171,9 +261,20 @@ const Index = () => {
             <div>
               <p className="text-sm font-medium text-foreground">ServeAI Insight ✦</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Based on your goals, we recommend adding a yoga session to balance your training routine.
+                {coordinates ? (
+                  `Based on your location, we found ${stats?.totalProviders || 0} providers within ${stats?.radiusKm || 50}km.`
+                ) : (
+                  "Enable location services to see providers near you."
+                )}
               </p>
-              <button className="text-xs text-indigo-light font-medium mt-2">Explore →</button>
+              {hasError && (
+                <button 
+                  onClick={refreshDistances}
+                  className="text-xs text-indigo-light font-medium mt-2"
+                >
+                  Retry location →
+                </button>
+              )}
             </div>
           </div>
         </GlassCard>
@@ -185,7 +286,7 @@ const Index = () => {
             <span className="text-xs text-muted-foreground">→</span>
           </div>
           <div className="flex gap-3 overflow-x-auto scrollbar-none -mx-4 px-4">
-            {forYouProviders.filter(p => p.nextSlot?.includes("Today")).map((p, i) => (
+            {todayProviders.map((p, i) => (
               <motion.div
                 key={`${p.id}-today`}
                 initial={{ opacity: 0, y: 20 }}

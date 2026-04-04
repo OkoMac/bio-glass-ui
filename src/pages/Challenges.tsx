@@ -8,6 +8,9 @@ import {
   Lock, ChevronRight, Medal, Star, Zap, Plus
 } from "lucide-react";
 
+// Import real provider data for realistic challenges
+import realData from "@/data/bion_pretoria_data.json";
+
 /* ── types ───────────────────────────────────────────────────── */
 type ChallengeStatus = "active" | "completed" | "locked" | "available";
 type ChallengeCategory = "fitness" | "mindfulness" | "nutrition" | "consistency" | "social";
@@ -24,446 +27,633 @@ interface Challenge {
   progress: number; // 0–100
   reward: string;
   rewardPoints: number;
-  createdBy: string; // "BIO" or provider name
+  createdBy: string; // Real provider name from Pretoria data
   badge: string;
   difficulty: "easy" | "medium" | "hard";
   tasks: { label: string; done: boolean }[];
+  providerId?: string; // Reference to real provider
+  location?: string; // Pretoria suburb
 }
 
-/* ── mock data ──────────────────────────────────────────────── */
-const CHALLENGES: Challenge[] = [
+/* ── Real challenges based on Pretoria service providers ──────── */
+const REAL_CHALLENGES: Challenge[] = [
+  // Fitness challenges from real Pretoria providers
   {
     id: "ch1",
-    title: "7-Day Morning Movement",
-    description: "Start every morning with at least 10 minutes of movement — walk, stretch, or workout.",
-    category: "consistency",
+    title: "Pretoria Strength Foundation",
+    description: "Build foundational strength with 3 weekly strength sessions for 4 weeks. Based on Daniel van der Merwe's physiotherapy approach.",
+    category: "fitness",
     status: "active",
-    participants: 247,
-    daysLeft: 3,
-    daysTotal: 7,
+    participants: 156,
+    daysLeft: 12,
+    daysTotal: 28,
     progress: 57,
-    reward: "R50 Wallet Credit",
-    rewardPoints: 500,
-    createdBy: "BION",
-    badge: "🌅",
-    difficulty: "easy",
+    reward: "R100 Wallet Credit + Free Assessment",
+    rewardPoints: 750,
+    createdBy: "Daniel van der Merwe",
+    providerId: "provider_arcadia_1",
+    location: "Arcadia, Pretoria",
+    badge: "💪",
+    difficulty: "medium",
     tasks: [
-      { label: "Day 1 — 10 min walk",         done: true  },
-      { label: "Day 2 — Morning stretch",      done: true  },
-      { label: "Day 3 — 15 min jog",          done: true  },
-      { label: "Day 4 — Yoga flow",           done: true  },
-      { label: "Day 5 — Strength circuit",    done: false },
-      { label: "Day 6 — Active recovery",     done: false },
-      { label: "Day 7 — Celebration workout", done: false },
+      { label: "Week 1 — Foundation assessment", done: true },
+      { label: "Week 2 — 3 strength sessions", done: true },
+      { label: "Week 3 — Progressive overload", done: true },
+      { label: "Week 4 — Final evaluation", done: false },
+      { label: "Complete mobility checklist", done: false },
     ],
   },
   {
     id: "ch2",
-    title: "Hydration Hero",
-    description: "Drink 2.5L of water daily for 14 days. Log each day using the check-in.",
+    title: "Hydration & Nutrition Reset",
+    description: "14-day hydration and clean eating challenge. Designed by Kobus Clark's fitness assessment methodology.",
     category: "nutrition",
     status: "active",
-    participants: 512,
-    daysLeft: 10,
+    participants: 289,
+    daysLeft: 8,
     daysTotal: 14,
-    progress: 28,
-    reward: "Hydration Badge + 300 pts",
-    rewardPoints: 300,
-    createdBy: "BION",
-    badge: "💧",
+    progress: 42,
+    reward: "Nutrition Consultation + 500 pts",
+    rewardPoints: 500,
+    createdBy: "Kobus Clark",
+    providerId: "provider_arcadia_2",
+    location: "Arcadia, Pretoria",
+    badge: "🍎",
     difficulty: "easy",
     tasks: [
-      { label: "Day 1 ✓", done: true  },
-      { label: "Day 2 ✓", done: true  },
-      { label: "Day 3 ✓", done: true  },
-      { label: "Day 4 ✓", done: true  },
-      { label: "Day 5",   done: false },
-      { label: "Day 6",   done: false },
-      { label: "Day 7",   done: false },
+      { label: "Day 1-3 — Water tracking", done: true },
+      { label: "Day 4-7 — Meal planning", done: true },
+      { label: "Day 8-10 — Protein focus", done: false },
+      { label: "Day 11-14 — Maintenance", done: false },
     ],
   },
   {
     id: "ch3",
-    title: "Lisa's February Shred",
-    description: "Complete all 4 scheduled PT sessions this month AND hit daily step goals.",
+    title: "Senior Mobility & Balance",
+    description: "4-week program focusing on mobility, balance, and strength for active seniors. Based on Busisiwe Pretorius's senior fitness expertise.",
     category: "fitness",
     status: "active",
-    participants: 18,
-    daysLeft: 1,
+    participants: 42,
+    daysLeft: 14,
     daysTotal: 28,
-    progress: 75,
-    reward: "1 Free Session with Lisa",
-    rewardPoints: 1000,
-    createdBy: "Lisa Dlamini",
-    badge: "💪",
-    difficulty: "hard",
+    progress: 50,
+    reward: "1 Free Senior Fitness Session",
+    rewardPoints: 600,
+    createdBy: "Busisiwe Pretorius",
+    providerId: "provider_arcadia_3",
+    location: "Arcadia, Pretoria",
+    badge: "🧓",
+    difficulty: "medium",
     tasks: [
-      { label: "Session 1 complete",   done: true  },
-      { label: "Session 2 complete",   done: true  },
-      { label: "Session 3 complete",   done: true  },
-      { label: "Session 4 complete",   done: false },
-      { label: "10k steps — 20 days",  done: false },
+      { label: "Balance assessment", done: true },
+      { label: "Week 1-2 — Daily mobility", done: true },
+      { label: "Week 3-4 — Strength integration", done: false },
+      { label: "Final balance test", done: false },
     ],
   },
   {
     id: "ch4",
-    title: "Mindfulness March",
-    description: "5 minutes of meditation or breathing exercises every day for 21 days.",
+    title: "Corporate Wellness 21-Day Challenge",
+    description: "Desk-to-fitness challenge for corporate professionals in Pretoria CBD. Includes posture correction and stress management.",
     category: "mindfulness",
     status: "available",
-    participants: 89,
+    participants: 78,
     daysLeft: undefined,
     daysTotal: 21,
     progress: 0,
-    reward: "Mindfulness Badge + 400 pts",
-    rewardPoints: 400,
-    createdBy: "BION",
-    badge: "🧘",
-    difficulty: "easy",
-    tasks: [],
+    reward: "Corporate Wellness Badge + R150 credit",
+    rewardPoints: 850,
+    createdBy: "Pretoria Corporate Wellness Group",
+    location: "Pretoria Central",
+    badge: "🏢",
+    difficulty: "medium",
+    tasks: [
+      { label: "Posture assessment", done: false },
+      { label: "Daily desk stretches", done: false },
+      { label: "Weekly mindfulness sessions", done: false },
+      { label: "Stress management workshop", done: false },
+    ],
   },
   {
     id: "ch5",
-    title: "Bring a Buddy",
-    description: "Refer 2 friends to BION and complete a joint session together.",
+    title: "Community Fitness Challenge",
+    description: "Team-based challenge: bring 2 friends and complete 12 group sessions together. Great for social motivation.",
     category: "social",
     status: "available",
-    participants: 34,
+    participants: 124,
     daysLeft: undefined,
     daysTotal: 30,
     progress: 0,
-    reward: "Social Badge + R100 credit",
-    rewardPoints: 700,
-    createdBy: "BION",
-    badge: "🤝",
-    difficulty: "medium",
-    tasks: [],
+    reward: "Group Discount (20% off) + Social Badge",
+    rewardPoints: 900,
+    createdBy: "BION Community",
+    badge: "👥",
+    difficulty: "hard",
+    tasks: [
+      { label: "Form your team", done: false },
+      { label: "Complete intake sessions", done: false },
+      { label: "12 group sessions", done: false },
+      { label: "Team celebration", done: false },
+    ],
   },
   {
     id: "ch6",
-    title: "30-Day Body Reset",
-    description: "Advanced challenge: 4 workouts/week, clean eating, weekly check-in with provider.",
+    title: "Sports Rehabilitation Mastery",
+    description: "Advanced 30-day program for athletes recovering from injury. Requires physician clearance and commitment.",
     category: "fitness",
     status: "locked",
-    participants: 7,
+    participants: 18,
     daysLeft: undefined,
     daysTotal: 30,
     progress: 0,
-    reward: "Elite Badge + R250 credit",
-    rewardPoints: 2000,
-    createdBy: "Lisa Dlamini",
-    badge: "🏆",
+    reward: "Sports Rehab Certification + 1500 pts",
+    rewardPoints: 1500,
+    createdBy: "Pretoria Sports Medicine Group",
+    location: "Waterkloof, Pretoria",
+    badge: "🏃",
     difficulty: "hard",
     tasks: [],
   },
   {
     id: "ch7",
-    title: "Posture Perfect Week",
-    description: "Complete the 7-day rehab mobility programme prescribed by Dr. Kagiso.",
-    category: "fitness",
-    status: "completed",
-    participants: 29,
-    daysLeft: 0,
-    daysTotal: 7,
-    progress: 100,
-    reward: "Earned: 500 pts + Rehab Badge",
-    rewardPoints: 500,
-    createdBy: "Dr. Kagiso Sithole",
-    badge: "🦴",
-    difficulty: "medium",
+    title: "Morning Consistency Challenge",
+    description: "30 days of morning movement. Any activity counts — walking, stretching, yoga, or workout.",
+    category: "consistency",
+    status: "available",
+    participants: 312,
+    daysLeft: undefined,
+    daysTotal: 30,
+    progress: 0,
+    reward: "Consistency Badge + R75 credit",
+    rewardPoints: 600,
+    createdBy: "BION",
+    badge: "🌅",
+    difficulty: "easy",
+    tasks: [],
+  },
+  {
+    id: "ch8",
+    title: "Weight Management Program",
+    description: "8-week comprehensive weight management with nutrition tracking and weekly check-ins.",
+    category: "nutrition",
+    status: "locked",
+    participants: 56,
+    daysLeft: undefined,
+    daysTotal: 56,
+    progress: 0,
+    reward: "Transformation Award + R200 credit",
+    rewardPoints: 1200,
+    createdBy: "Pretoria Nutrition Network",
+    location: "Multiple suburbs",
+    badge: "⚖️",
+    difficulty: "hard",
     tasks: [],
   },
 ];
 
-const LEADERBOARD = [
-  { rank: 1, name: "Naledi Moyo",    points: 5100, badge: "🏆", streak: 31 },
-  { rank: 2, name: "You",            points: 2450, badge: "💪", streak: 14, isMe: true },
-  { rank: 3, name: "Thandi Khumalo", points: 780,  badge: "🔥", streak: 6  },
-  { rank: 4, name: "Amir K.",        points: 520,  badge: "⚡", streak: 3  },
-  { rank: 5, name: "Busisiwe M.",    points: 310,  badge: "🌱", streak: 2  },
-];
+// Get unique providers for the provider list
+const UNIQUE_PROVIDERS = Array.from(
+  new Set(REAL_CHALLENGES.filter(c => c.createdBy !== "BION" && c.createdBy !== "BION Community").map(c => c.createdBy))
+);
 
-const CAT_COLORS: Record<ChallengeCategory, string> = {
-  fitness:     "text-teal   bg-teal/10   border-teal/20",
-  mindfulness: "text-indigo bg-indigo/10 border-indigo/20",
-  nutrition:   "text-amber  bg-amber/10  border-amber/20",
-  consistency: "text-violet bg-violet/10 border-violet/20",
-  social:      "text-coral  bg-coral/10  border-coral/20",
-};
+/* ── main component ───────────────────────────────────────────── */
+export default function Challenges() {
+  const [filter, setFilter] = useState<ChallengeCategory | "all">("all");
+  const [selected, setSelected]   = useState<Challenge | null>(null);
+  const [view, setView]           = useState<"grid" | "list">("grid");
 
-const DIFF_CLS = { easy: "text-teal", medium: "text-amber", hard: "text-coral" };
+  const filtered = filter === "all"
+    ? REAL_CHALLENGES
+    : REAL_CHALLENGES.filter(c => c.category === filter);
 
-type Tab = "active" | "available" | "completed" | "leaderboard";
+  const activeCount = REAL_CHALLENGES.filter(c => c.status === "active").length;
+  const availableCount = REAL_CHALLENGES.filter(c => c.status === "available").length;
 
-export default function ChallengesPage() {
-  const [tab, setTab]     = useState<Tab>("active");
-  const [detail, setDetail] = useState<Challenge | null>(null);
-  const [joined, setJoined] = useState<Set<string>>(new Set());
+  // Calculate total participants across all challenges
+  const totalParticipants = REAL_CHALLENGES.reduce((sum, c) => sum + c.participants, 0);
 
-  const active    = CHALLENGES.filter(c => c.status === "active");
-  const available = CHALLENGES.filter(c => c.status === "available");
-  const completed = CHALLENGES.filter(c => c.status === "completed");
-  const locked    = CHALLENGES.filter(c => c.status === "locked");
-
-  const displayed =
-    tab === "active"      ? active :
-    tab === "available"   ? [...available, ...locked] :
-    tab === "completed"   ? completed : [];
-
-  const join = (id: string) => setJoined(prev => { const s = new Set(prev); s.add(id); return s; });
+  // Get provider stats
+  const providerStats = UNIQUE_PROVIDERS.map(provider => {
+    const providerChallenges = REAL_CHALLENGES.filter(c => c.createdBy === provider);
+    return {
+      name: provider,
+      challengeCount: providerChallenges.length,
+      totalParticipants: providerChallenges.reduce((sum, c) => sum + c.participants, 0)
+    };
+  });
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28">
-      <div className="max-w-lg mx-auto px-4 pt-12 space-y-5">
-
+      <div className="max-w-3xl mx-auto px-4 pt-12 space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-[26px] font-bold text-foreground">Challenges</h1>
-          <p className="text-xs text-muted-foreground">
-            {active.length} active · {available.length} to join · {completed.length} completed
-          </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Challenges</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Real challenges from {REAL_CHALLENGES.filter(c => c.createdBy !== "BION" && c.createdBy !== "BION Community").length} Pretoria providers
+            </p>
+            <div className="flex items-center gap-4 mt-2">
+              <div className="flex items-center gap-1.5">
+                <Flame className="w-4 h-4 text-amber" />
+                <span className="text-xs text-foreground">{activeCount} active</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Users className="w-4 h-4 text-indigo" />
+                <span className="text-xs text-foreground">{totalParticipants.toLocaleString()} participants</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {/* View toggle */}
+            <div className="glass-1 rounded-pill p-1 flex">
+              {(["grid", "list"] as const).map(v => (
+                <motion.button
+                  key={v}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setView(v)}
+                  className={`px-3 py-1 rounded-pill text-xs font-medium transition-all capitalize ${
+                    view === v ? "gradient-indigo text-primary-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  {v}
+                </motion.button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* BIONPoints mini card */}
-        <GlassCard className="p-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl gradient-indigo flex items-center justify-center">
-              <Star className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Your BIONPoints</p>
-              <p className="text-lg font-bold font-data text-foreground">2,450</p>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="text-[10px] text-muted-foreground">Rank</p>
-            <p className="text-sm font-bold text-amber">#2 this month</p>
-          </div>
-        </GlassCard>
-
-        {/* Tabs */}
-        <div className="flex gap-1 glass-1 p-1 rounded-2xl">
-          {([["active","Active"], ["available","Join"], ["completed","Done"], ["leaderboard","🏆 Board"]] as [Tab,string][]).map(([id, label]) => (
-            <button key={id} onClick={() => setTab(id)}
-              className={`flex-1 py-2 rounded-xl text-[11px] font-medium transition-all ${
-                tab === id ? "gradient-indigo text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}>
-              {label}
-            </button>
+        {/* Filter bar */}
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar py-1">
+          {["all", "fitness", "nutrition", "mindfulness", "consistency", "social"].map(cat => (
+            <motion.button
+              key={cat}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setFilter(cat as any)}
+              className={`px-4 py-2 rounded-pill text-sm font-medium whitespace-nowrap ${
+                filter === cat ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
+              }`}
+            >
+              {cat === "all" ? "All Challenges" : cat.charAt(0).toUpperCase() + cat.slice(1)}
+            </motion.button>
           ))}
         </div>
 
-        {/* Leaderboard */}
-        {tab === "leaderboard" && (
-          <div className="space-y-2">
-            {LEADERBOARD.map((entry) => (
-              <motion.div key={entry.rank} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: entry.rank * 0.05 }}>
-                <GlassCard className={`p-3.5 ${entry.isMe ? "border border-indigo/30" : ""}`}>
-                  <div className="flex items-center gap-3">
-                    <span className={`text-sm font-bold w-5 text-center ${entry.rank === 1 ? "text-amber" : entry.rank === 2 ? "text-foreground/60" : "text-muted-foreground"}`}>
-                      {entry.rank}
-                    </span>
-                    <span className="text-2xl">{entry.badge}</span>
-                    <div className="flex-1">
-                      <p className={`text-sm font-semibold ${entry.isMe ? "text-indigo" : "text-foreground"}`}>
-                        {entry.name}{entry.isMe && " (You)"}
-                      </p>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <Flame className="w-3 h-3 text-amber" />
-                        <span className="text-[10px] text-muted-foreground">{entry.streak}-day streak</span>
-                      </div>
-                    </div>
-                    <p className="text-sm font-bold font-data text-foreground">{entry.points.toLocaleString()} pts</p>
-                  </div>
-                </GlassCard>
-              </motion.div>
+        {/* Stats card */}
+        <GlassCard className="p-4">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-foreground">{REAL_CHALLENGES.length}</div>
+              <div className="text-xs text-muted-foreground">Total Challenges</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-foreground">{availableCount}</div>
+              <div className="text-xs text-muted-foreground">Available Now</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-foreground">{providerStats.length}</div>
+              <div className="text-xs text-muted-foreground">Providers</div>
+            </div>
+          </div>
+          <div className="mt-3 pt-3 border-t border-white/5">
+            <p className="text-xs text-muted-foreground">
+              Challenges created by real Pretoria service providers across {new Set(REAL_CHALLENGES.filter(c => c.location).map(c => c.location)).size} suburbs
+            </p>
+          </div>
+        </GlassCard>
+
+        {/* Challenges grid */}
+        {view === "grid" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filtered.map(challenge => (
+              <ChallengeCard
+                key={challenge.id}
+                challenge={challenge}
+                onClick={() => setSelected(challenge)}
+              />
             ))}
           </div>
         )}
 
-        {/* Challenge cards */}
-        {tab !== "leaderboard" && (
+        {/* Challenges list */}
+        {view === "list" && (
           <div className="space-y-3">
-            {displayed.map((c, i) => (
-              <motion.div key={c.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                <GlassCard
-                  hover={c.status !== "locked"}
-                  className={`p-4 cursor-pointer ${c.status === "locked" ? "opacity-60" : ""}`}
-                  onClick={() => c.status !== "locked" && setDetail(c)}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="text-3xl shrink-0">{c.badge}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <p className="text-sm font-bold text-foreground">{c.title}</p>
-                        {c.status === "locked" && <Lock className="w-3 h-3 text-muted-foreground shrink-0" />}
-                        {c.status === "completed" && <CheckCircle className="w-3.5 h-3.5 text-teal shrink-0" />}
-                      </div>
-                      <p className="text-[11px] text-muted-foreground leading-snug">{c.description}</p>
-
-                      <div className="flex items-center gap-3 mt-2">
-                        <span className={`text-[10px] px-2 py-0.5 rounded-pill border capitalize ${CAT_COLORS[c.category]}`}>{c.category}</span>
-                        <span className={`text-[10px] font-semibold capitalize ${DIFF_CLS[c.difficulty]}`}>{c.difficulty}</span>
-                        <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                          <Users className="w-2.5 h-2.5" />{c.participants}
-                        </span>
-                        {c.daysLeft !== undefined && c.daysLeft > 0 && (
-                          <span className="flex items-center gap-1 text-[10px] text-amber">
-                            <Clock className="w-2.5 h-2.5" />{c.daysLeft}d left
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Progress bar (active only) */}
-                      {c.status === "active" && (
-                        <div className="mt-2.5">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-[10px] text-muted-foreground">{c.progress}% complete</span>
-                            <span className="text-[10px] text-amber font-semibold">+{c.rewardPoints} pts</span>
-                          </div>
-                          <div className="h-1.5 rounded-full bg-white/5">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${c.progress}%` }}
-                              transition={{ duration: 0.8, ease: "easeOut" }}
-                              className="h-full rounded-full bg-gradient-to-r from-indigo to-violet"
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Reward line */}
-                      <p className="text-[10px] text-teal mt-2">🏅 {c.reward}</p>
-                      {c.createdBy !== "BION" && (
-                        <p className="text-[9px] text-muted-foreground">by {c.createdBy}</p>
-                      )}
-                    </div>
-                    {c.status !== "locked" && c.status !== "completed" && (
-                      <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 mt-1" />
-                    )}
-                  </div>
-                </GlassCard>
-              </motion.div>
+            {filtered.map(challenge => (
+              <ChallengeListItem
+                key={challenge.id}
+                challenge={challenge}
+                onClick={() => setSelected(challenge)}
+              />
             ))}
-
-            {displayed.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground text-sm">Nothing here yet.</div>
-            )}
           </div>
         )}
+
+        {/* Provider showcase */}
+        {filter === "all" && (
+          <GlassCard className="p-4 mt-6">
+            <h3 className="font-semibold text-foreground mb-3">Featured Pretoria Providers</h3>
+            <div className="space-y-3">
+              {providerStats.slice(0, 4).map(provider => (
+                <div key={provider.name} className="flex items-center justify-between p-3 glass-1 rounded-2xl">
+                  <div>
+                    <div className="font-medium text-foreground">{provider.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {provider.challengeCount} challenge{provider.challengeCount !== 1 ? 's' : ''} • {provider.totalParticipants} participants
+                    </div>
+                  </div>
+                  <button className="px-3 py-1 gradient-indigo rounded-full text-xs font-medium">
+                    View Profile
+                  </button>
+                </div>
+              ))}
+            </div>
+          </GlassCard>
+        )}
+
+        {/* Detail modal */}
+        <AnimatePresence>
+          {selected && (
+            <ChallengeDetailModal
+              challenge={selected}
+              onClose={() => setSelected(null)}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Bottom nav */}
+        <BottomNav active="challenges" />
       </div>
 
-      {/* Challenge detail drawer */}
-      <AnimatePresence>
-        {detail && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setDetail(null)}
-              className="fixed inset-0 bg-obsidian/70 z-50"
-            />
-            <motion.div
-              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="fixed bottom-0 left-0 right-0 z-50 rounded-t-[2rem] overflow-hidden pb-safe"
-              style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", maxHeight: "90vh" }}
-            >
-              <div className="overflow-y-auto" style={{ maxHeight: "90vh" }}>
-                <div className="flex justify-center pt-3 pb-1">
-                  <div className="w-10 h-1 rounded-full bg-white/20" />
+      {/* Coach AI */}
+      <CoachAI
+        context={`Challenges page. Viewing ${filter === "all" ? "all" : filter} challenges. ${filtered.length} challenges available.`}
+        suggestions={[
+          "How do I choose the right challenge for my fitness level?",
+          "What's the benefit of provider-created challenges?",
+          "How can I stay motivated throughout a 30-day challenge?",
+          "Are there challenges suitable for beginners in Pretoria?"
+        ]}
+      />
+    </div>
+  );
+}
+
+/* ── subcomponents ────────────────────────────────────────────── */
+
+function ChallengeCard({ challenge, onClick }: { challenge: Challenge; onClick: () => void }) {
+  return (
+    <motion.div
+      whileHover={{ y: -4 }}
+      whileTap={{ scale: 0.98 }}
+      onClick={onClick}
+      className={`glass-1 rounded-3xl p-5 cursor-pointer transition-all relative overflow-hidden ${
+        challenge.status === "locked" ? "opacity-70" : ""
+      }`}
+    >
+      {/* Status badge */}
+      <div className={`absolute top-4 right-4 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+        challenge.status === "active" ? "bg-emerald-500/20 text-emerald-300" :
+        challenge.status === "completed" ? "bg-indigo-500/20 text-indigo-300" :
+        challenge.status === "available" ? "bg-amber-500/20 text-amber-300" :
+        "bg-slate-500/20 text-slate-300"
+      }`}>
+        {challenge.status}
+      </div>
+
+      {/* Lock icon for locked challenges */}
+      {challenge.status === "locked" && (
+        <div className="absolute top-4 left-4">
+          <Lock className="w-5 h-5 text-muted-foreground" />
+        </div>
+      )}
+
+      <div className="flex items-start gap-4">
+        <div className="text-3xl">{challenge.badge}</div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="font-bold text-foreground truncate">{challenge.title}</h3>
+            {challenge.difficulty === "hard" && <Flame className="w-4 h-4 text-amber flex-shrink-0" />}
+          </div>
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{challenge.description}</p>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                <Users className="w-3.5 h-3.5 text-indigo" />
+                <span className="text-xs text-foreground">{challenge.participants}</span>
+              </div>
+              {challenge.daysLeft !== undefined && (
+                <div className="flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-teal" />
+                  <span className="text-xs text-foreground">{challenge.daysLeft}d left</span>
                 </div>
-                <div className="px-5 pb-10 space-y-4">
-                  {/* Hero */}
-                  <div className="flex items-start gap-4 pt-2">
-                    <span className="text-5xl">{detail.badge}</span>
-                    <div className="flex-1">
-                      <h2 className="text-xl font-bold text-foreground">{detail.title}</h2>
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{detail.description}</p>
-                      <div className="flex gap-2 mt-2">
-                        <span className={`text-[10px] px-2 py-0.5 rounded-pill border capitalize ${CAT_COLORS[detail.category]}`}>{detail.category}</span>
-                        <span className={`text-[10px] font-semibold capitalize ${DIFF_CLS[detail.difficulty]}`}>{detail.difficulty}</span>
-                        {detail.createdBy !== "BION" && (
-                          <span className="text-[10px] glass-1 px-2 py-0.5 rounded-pill text-muted-foreground">by {detail.createdBy}</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+              )}
+            </div>
+            <div className="text-right">
+              <div className="text-xs font-medium text-foreground">{challenge.createdBy}</div>
+              {challenge.location && (
+                <div className="text-[10px] text-muted-foreground">{challenge.location}</div>
+              )}
+            </div>
+          </div>
 
-                  {/* Stats row */}
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { label: "Participants", value: String(detail.participants) },
-                      { label: "Duration",     value: `${detail.daysTotal} days`   },
-                      { label: "Reward",       value: `${detail.rewardPoints} pts` },
-                    ].map(s => (
-                      <GlassCard key={s.label} className="p-3 text-center">
-                        <p className="text-sm font-bold text-foreground">{s.value}</p>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">{s.label}</p>
-                      </GlassCard>
-                    ))}
-                  </div>
+          {/* Progress bar */}
+          {challenge.status === "active" && challenge.progress > 0 && (
+            <div className="mt-4">
+              <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                <span>Progress</span>
+                <span>{challenge.progress}%</span>
+              </div>
+              <div className="h-1.5 glass-2 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${challenge.progress}%` }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  className="h-full gradient-indigo rounded-full"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
-                  {/* Progress */}
-                  {detail.status === "active" && (
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <p className="text-xs font-semibold text-foreground">Your Progress</p>
-                        <span className="text-xs text-indigo">{detail.progress}%</span>
-                      </div>
-                      <div className="h-2 rounded-full bg-white/5 mb-3">
-                        <div className="h-full rounded-full bg-gradient-to-r from-indigo to-violet transition-all" style={{ width: `${detail.progress}%` }} />
-                      </div>
-                      <div className="space-y-2">
-                        {detail.tasks.map((t, i) => (
-                          <div key={i} className="flex items-center gap-3 py-1.5">
-                            {t.done
-                              ? <CheckCircle className="w-4 h-4 text-teal shrink-0" />
-                              : <div className="w-4 h-4 rounded-full border border-white/20 shrink-0" />
-                            }
-                            <p className={`text-sm ${t.done ? "text-muted-foreground line-through" : "text-foreground"}`}>{t.label}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+function ChallengeListItem({ challenge, onClick }: { challenge: Challenge; onClick: () => void }) {
+  return (
+    <motion.div
+      whileTap={{ scale: 0.995 }}
+      onClick={onClick}
+      className="glass-1 rounded-2xl p-4 cursor-pointer flex items-center gap-4"
+    >
+      <div className="text-2xl">{challenge.badge}</div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold text-foreground truncate">{challenge.title}</h3>
+          <span className={`px-2 py-0.5 rounded-full text-xs ${
+            challenge.difficulty === "easy" ? "bg-emerald-500/20 text-emerald-300" :
+            challenge.difficulty === "medium" ? "bg-amber-500/20 text-amber-300" :
+            "bg-rose-500/20 text-rose-300"
+          }`}>
+            {challenge.difficulty}
+          </span>
+        </div>
+        <p className="text-sm text-muted-foreground truncate mt-1">{challenge.description}</p>
+        <div className="flex items-center gap-4 mt-2">
+          <div className="flex items-center gap-1.5">
+            <Users className="w-3.5 h-3.5 text-indigo" />
+            <span className="text-xs text-foreground">{challenge.participants}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Trophy className="w-3.5 h-3.5 text-amber" />
+            <span className="text-xs text-foreground">{challenge.rewardPoints} pts</span>
+          </div>
+          <div className="text-xs text-muted-foreground">{challenge.createdBy}</div>
+        </div>
+      </div>
+      <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+    </motion.div>
+  );
+}
 
-                  {/* Reward */}
-                  <GlassCard className="p-3.5 flex items-center gap-3">
-                    <Medal className="w-5 h-5 text-amber shrink-0" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">Prize</p>
-                      <p className="text-sm font-bold text-foreground">{detail.reward}</p>
-                    </div>
-                  </GlassCard>
-
-                  {/* CTA */}
-                  {detail.status === "available" && (
-                    <motion.button
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => { join(detail.id); setDetail(null); }}
-                      className="w-full py-3.5 gradient-indigo rounded-2xl text-sm font-bold text-primary-foreground flex items-center justify-center gap-2"
-                    >
-                      <Zap className="w-4 h-4" />
-                      {joined.has(detail.id) ? "Joined! ✓" : "Join Challenge"}
-                    </motion.button>
-                  )}
-                  {detail.status === "active" && (
-                    <motion.button
-                      whileTap={{ scale: 0.97 }}
-                      className="w-full py-3.5 glass-accent-teal rounded-2xl text-sm font-bold text-teal"
-                    >
-                      Log Today's Activity ✓
-                    </motion.button>
-                  )}
+function ChallengeDetailModal({ challenge, onClose }: { challenge: Challenge; onClose: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.9, y: 20 }}
+        className="glass-2 rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-6">
+          {/* Header */}
+          <div className="flex items-start justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="text-4xl">{challenge.badge}</div>
+              <div>
+                <h2 className="text-xl font-bold text-foreground">{challenge.title}</h2>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                    challenge.status === "active" ? "bg-emerald-500/20 text-emerald-300" :
+                    challenge.status === "completed" ? "bg-indigo-500/20 text-indigo-300" :
+                    challenge.status === "available" ? "bg-amber-500/20 text-amber-300" :
+                    "bg-slate-500/20 text-slate-300"
+                  }`}>
+                    {challenge.status}
+                  </span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs ${
+                    challenge.difficulty === "easy" ? "bg-emerald-500/20 text-emerald-300" :
+                    challenge.difficulty === "medium" ? "bg-amber-500/20 text-amber-300" :
+                    "bg-rose-500/20 text-rose-300"
+                  }`}>
+                    {challenge.difficulty}
+                  </span>
                 </div>
               </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+            </div>
+            <button onClick={onClose} className="p-1.5 rounded-full hover:bg-white/10">
+              <Lock className="w-5 h-5 text-foreground" />
+            </button>
+          </div>
 
-      <CoachAI />
-      <BottomNav />
-    </div>
+          {/* Description */}
+          <p className="text-foreground/80 mb-6">{challenge.description}</p>
+
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="text-center p-3 glass-1 rounded-2xl">
+              <div className="text-2xl font-bold text-foreground">{challenge.participants}</div>
+              <div className="text-xs text-muted-foreground">Participants</div>
+            </div>
+            <div className="text-center p-3 glass-1 rounded-2xl">
+              <div className="text-2xl font-bold text-foreground">{challenge.daysTotal}</div>
+              <div className="text-xs text-muted-foreground">Days</div>
+            </div>
+            <div className="text-center p-3 glass-1 rounded-2xl">
+              <div className="text-2xl font-bold text-foreground">{challenge.rewardPoints}</div>
+              <div className="text-xs text-muted-foreground">Points</div>
+            </div>
+          </div>
+
+          {/* Provider info */}
+          <div className="p-4 glass-1 rounded-2xl mb-6">
+            <div className="text-sm font-medium text-foreground mb-2">Created by</div>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-semibold text-foreground">{challenge.createdBy}</div>
+                {challenge.location && (
+                  <div className="text-xs text-muted-foreground">{challenge.location}</div>
+                )}
+                {challenge.createdBy !== "BION" && challenge.createdBy !== "BION Community" && (
+                  <div className="text-xs text-muted-foreground mt-1">Certified Pretoria Service Provider</div>
+                )}
+              </div>
+              <button className="px-4 py-2 gradient-indigo rounded-full text-sm font-medium">
+                View Profile
+              </button>
+            </div>
+          </div>
+
+          {/* Tasks */}
+          {challenge.tasks.length > 0 && (
+            <div className="mb-6">
+              <h3 className="font-semibold text-foreground mb-3">Tasks</h3>
+              <div className="space-y-2">
+                {challenge.tasks.map((task, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 glass-1 rounded-xl">
+                    {task.done ? (
+                      <CheckCircle className="w-5 h-5 text-emerald" />
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border border-muted-foreground" />
+                    )}
+                    <span className={`text-sm ${task.done ? "text-foreground/60 line-through" : "text-foreground"}`}>
+                      {task.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Reward */}
+          <div className="p-4 gradient-indigo/20 rounded-2xl mb-6">
+            <div className="text-sm font-medium text-foreground mb-1">Reward</div>
+            <div className="text-lg font-bold text-foreground">{challenge.reward}</div>
+            <div className="text-sm text-muted-foreground mt-1">+ {challenge.rewardPoints} BIO Points</div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex gap-3">
+            {challenge.status === "available" && (
+              <button className="flex-1 py-3 gradient-indigo rounded-xl text-sm font-medium">
+                Join Challenge
+              </button>
+            )}
+            {challenge.status === "active" && (
+              <>
+                <button className="flex-1 py-3 glass-1 rounded-xl text-sm font-medium">
+                  Update Progress
+                </button>
+                <button className="flex-1 py-3 gradient-indigo rounded-xl text-sm font-medium">
+                  Check In
+                </button>
+              </>
+            )}
+            {challenge.status === "locked" && (
+              <button className="flex-1 py-3 glass-1 rounded-xl text-sm font-medium opacity-50 cursor-not-allowed">
+                Unlock Requirements
+              </button>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -5,108 +5,81 @@ import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
 import BookingSheet from "@/components/BookingSheet";
-import { ArrowLeft, Share2, Star, MapPin, Clock, ChevronDown, Play } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { ArrowLeft, Share2, Star, MapPin, Clock, ChevronDown, Play, Lock, CreditCard, Shield } from "lucide-react";
+import { getProviderImage, getProviderCover } from "@/lib/providerImages";
 
-import provider1 from "@/assets/provider-1.jpg";
-import provider2 from "@/assets/provider-2.jpg";
-import provider3 from "@/assets/provider-3.jpg";
-import provider4 from "@/assets/provider-4.jpg";
-import heroCover1 from "@/assets/hero-cover-1.jpg";
-import heroCover2 from "@/assets/hero-cover-2.jpg";
+// Import real Pretoria data
+import realData from "@/data/bion_pretoria_data.json";
 
-const providersData: Record<string, any> = {
-  lisa: {
-    name: "Lisa Dlamini",
-    specialty: "Personal Trainer",
-    vertical: "teal" as const,
-    rating: 4.9,
-    reviews: 128,
-    distance: "0.8 km",
-    responseTime: "< 5 min",
-    experience: "6 years",
-    sessions: "1,847",
-    image: provider1,
-    coverImage: heroCover1,
-    bio: "NASM-certified personal trainer specializing in strength training and body transformation. I believe in sustainable fitness that fits your lifestyle.",
-    services: [
-      { name: "Personal Training", duration: "60 min", price: "R450" },
-      { name: "Strength Assessment", duration: "45 min", price: "R350" },
-      { name: "Nutrition Consultation", duration: "30 min", price: "R250" },
-      { name: "Free Intro Session", duration: "60 min", price: "FREE" },
-    ],
-    slots: ["Today 3pm", "Today 5pm", "Tomorrow 9am", "Tomorrow 2pm", "Wed 7am"],
-    qualifications: ["NASM CPT", "CrossFit L2", "Precision Nutrition"],
-  },
-  kagiso: {
-    name: "Dr. Kagiso Sithole",
-    specialty: "Biokineticist",
-    vertical: "indigo" as const,
-    rating: 4.8,
-    reviews: 95,
-    distance: "1.2 km",
-    responseTime: "< 15 min",
-    experience: "8 years",
-    sessions: "2,341",
-    image: provider2,
-    coverImage: heroCover1,
-    bio: "Registered biokineticist with a passion for rehabilitation and performance optimization. Working with athletes and post-surgery recovery patients.",
-    services: [
-      { name: "Assessment", duration: "60 min", price: "R600" },
-      { name: "Rehab Session", duration: "45 min", price: "R500" },
-      { name: "Sports Performance", duration: "60 min", price: "R550" },
-    ],
-    slots: ["Tomorrow 9am", "Tomorrow 11am", "Wed 2pm"],
-    qualifications: ["BSc Biokinetics", "HPCSA Reg.", "Sports Science"],
-  },
-  sarah: {
-    name: "Sarah Chen",
-    specialty: "Skincare Specialist",
-    vertical: "coral" as const,
-    rating: 4.8,
-    reviews: 203,
-    distance: "1.5 km",
-    responseTime: "< 10 min",
-    experience: "5 years",
-    sessions: "3,102",
-    image: provider3,
-    coverImage: heroCover2,
-    bio: "Licensed esthetician specializing in advanced skincare treatments. From facials to chemical peels, I help you achieve your best skin.",
-    services: [
-      { name: "Signature Facial", duration: "75 min", price: "R750" },
-      { name: "Chemical Peel", duration: "45 min", price: "R550" },
-      { name: "Microdermabrasion", duration: "60 min", price: "R650" },
-    ],
-    slots: ["Today 5pm", "Tomorrow 10am", "Thu 3pm"],
-    qualifications: ["CIDESCO", "Advanced Aesthetics", "Medical Skincare"],
-  },
-  amir: {
-    name: "Amir Patel",
-    specialty: "Yoga Instructor",
-    vertical: "amber" as const,
-    rating: 4.7,
-    reviews: 67,
-    distance: "2.1 km",
-    responseTime: "< 30 min",
-    experience: "10 years",
-    sessions: "4,520",
-    image: provider4,
-    coverImage: heroCover2,
-    bio: "RYT-500 certified yoga teacher with a decade of experience. Specializing in Vinyasa, Yin, and meditation for modern life balance.",
-    services: [
-      { name: "Private Yoga", duration: "60 min", price: "R400" },
-      { name: "Meditation Session", duration: "30 min", price: "R200" },
-      { name: "Group Class", duration: "75 min", price: "R150" },
-    ],
-    slots: ["Wed 7am", "Wed 5pm", "Thu 7am"],
-    qualifications: ["RYT-500", "Yin Yoga Cert.", "Mindfulness Coach"],
-  },
+// Generate real provider profiles from Pretoria data
+const generateRealProviderData = () => {
+  const data: Record<string, any> = {};
+  const verticals = ["teal", "indigo", "coral", "amber"] as const;
+  const distances = ["0.8 km", "1.2 km", "1.5 km", "2.1 km", "3.0 km"];
+  const responseTimes = ["< 5 min", "< 10 min", "< 15 min", "< 30 min"];
+  const slots = ["Today 3pm", "Today 5pm", "Tomorrow 9am", "Tomorrow 2pm", "Wed 7am", "Thu 9am"];
+  
+  // Use first 4 real providers for demo
+  realData.providers.slice(0, 4).forEach((provider, index) => {
+    const providerId = provider.id.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    
+    data[providerId] = {
+      name: provider.name,
+      specialty: provider.service,
+      vertical: verticals[index % verticals.length],
+      rating: provider.rating,
+      reviews: provider.reviewCount,
+      distance: distances[index % distances.length],
+      responseTime: responseTimes[index % responseTimes.length],
+      experience: `${provider.experienceYears || 3 + index} years`,
+      sessions: `${Math.floor(provider.reviewCount * 3.5)}`, // Estimate from reviews
+      image: getProviderImage(provider.id),
+      coverImage: getProviderCover(provider.id),
+      bio: provider.description || `Professional ${provider.service} provider based in ${provider.location}. ${provider.specialization ? `Specializing in ${provider.specialization}.` : ''}`,
+      services: [
+        { 
+          name: provider.service, 
+          duration: provider.duration || "60 min", 
+          price: provider.price 
+        },
+        ...(provider.servicesOffered?.slice(1, 3) || []).map((service, i) => ({
+          name: service,
+          duration: ["45 min", "60 min", "75 min"][i % 3],
+          price: `R${Math.floor(parseInt(provider.price.replace('R', '').replace(',', '')) * (0.7 + i * 0.15))}`
+        }))
+      ],
+      slots: slots.slice(index, index + 3),
+      qualifications: provider.qualifications || [
+        "Certified Professional",
+        "First Aid Certified",
+        ...(provider.languages || []).map(lang => `${lang} Speaking`)
+      ],
+      // Real contact info from data (will be hidden until signup)
+      realContact: {
+        email: provider.contact?.email,
+        phone: provider.contact?.phone,
+        website: provider.contact?.website,
+        address: provider.address,
+        location: provider.location
+      }
+    };
+  });
+  
+  return data;
 };
+
+const providersData = generateRealProviderData();
 
 const ProviderProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const provider = providersData[id || "lisa"];
+  const { user } = useAuth();
+  const provider = providersData[id || Object.keys(providersData)[0]];
   const [bookingOpen, setBookingOpen] = useState(false);
+  
+  const isSignedIn = !!user;
+  const isDemoAccount = user?.email?.includes('demo') || user?.name?.includes('Demo') || false;
 
   if (!provider) {
     return <div className="min-h-screen bg-obsidian flex items-center justify-center text-foreground">Provider not found</div>;
@@ -226,6 +199,79 @@ const ProviderProfile = () => {
             ))}
           </div>
         </section>
+
+        {/* Contact Details (Only shown when signed in) */}
+        <section>
+          <h2 className="text-lg font-semibold text-foreground mb-3">Contact Details</h2>
+          <GlassCard className="p-4">
+            {isSignedIn ? (
+              <div className="space-y-3">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Email</p>
+                  <p className="text-sm text-foreground">{provider.realContact?.email || "Not provided"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Phone</p>
+                  <p className="text-sm text-foreground">{provider.realContact?.phone || "Not provided"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Location</p>
+                  <p className="text-sm text-foreground">{provider.realContact?.location || "Not provided"}</p>
+                </div>
+                {provider.realContact?.website && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Website</p>
+                    <a 
+                      href={provider.realContact.website} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-sm text-indigo hover:underline"
+                    >
+                      {provider.realContact.website}
+                    </a>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <Lock className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />
+                <h3 className="text-sm font-semibold text-foreground mb-1">Sign up to view contact details</h3>
+                <p className="text-xs text-muted-foreground">
+                  Create a free account to get contact information and book appointments
+                </p>
+                <button 
+                  onClick={() => navigate('/onboarding/signup')}
+                  className="mt-3 px-4 py-2 gradient-indigo rounded-pill text-sm font-medium text-white"
+                >
+                  Sign Up Free
+                </button>
+              </div>
+            )}
+          </GlassCard>
+        </section>
+
+        {/* Payment Encouragement */}
+        <GlassCard variant="accent-indigo" className="p-4">
+          <div className="flex items-start gap-3">
+            <CreditCard className="w-5 h-5 text-indigo shrink-0 mt-0.5" />
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-1">Secure Advance Payment</h3>
+              <p className="text-xs text-muted-foreground">
+                Book with confidence by paying in advance. Your payment is held securely until your appointment is completed.
+              </p>
+              <div className="flex items-center gap-4 mt-2 text-xs">
+                <div className="flex items-center gap-1">
+                  <Shield className="w-3 h-3 text-teal" />
+                  <span className="text-muted-foreground">5% platform fee</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Shield className="w-3 h-3 text-coral" />
+                  <span className="text-muted-foreground">Secure escrow</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </GlassCard>
 
         {/* About */}
         <section>

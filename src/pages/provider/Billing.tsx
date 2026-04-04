@@ -4,10 +4,15 @@ import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import CoachAI from "@/components/CoachAI";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/hooks/useSubscription";
 import {
   CreditCard, TrendingUp, CheckCircle, Download,
   Building2, Zap, Shield, ChevronRight, Clock,
+  Check, Crown, Star,
 } from "lucide-react";
+
+// Import real Pretoria data
+import realData from "@/data/bion_pretoria_data.json";
 
 /* ── helpers ──────────────────────────────────────────────────────────────── */
 function SVGBar({ data, color = "#6366F1" }: { data: number[]; color?: string }) {
@@ -29,17 +34,44 @@ function SVGBar({ data, color = "#6366F1" }: { data: number[]; color?: string })
   );
 }
 
-/* ── mock data ────────────────────────────────────────────────────────────── */
-const PAYOUTS = [
-  { period: "February 2026",  sessions: 62, gross: "R24,800", fee: "R2,480", net: "R22,320", status: "Processing", date: "1 Mar 2026"  },
-  { period: "January 2026",   sessions: 58, gross: "R23,200", fee: "R2,320", net: "R20,880", status: "Paid",        date: "1 Feb 2026"  },
-  { period: "December 2025",  sessions: 71, gross: "R28,400", fee: "R2,840", net: "R25,560", status: "Paid",        date: "1 Jan 2026"  },
-  { period: "November 2025",  sessions: 54, gross: "R21,600", fee: "R2,160", net: "R19,440", status: "Paid",        date: "1 Dec 2025"  },
-  { period: "October 2025",   sessions: 49, gross: "R19,600", fee: "R1,960", net: "R17,640", status: "Paid",        date: "1 Nov 2025"  },
-];
+/* ── Real billing data based on Pretoria service providers ────────────── */
+// Calculate payouts using ONLY real data - no fake session counts
+const calculateRealPayouts = () => {
+  // Get real prices from Pretoria providers
+  const prices = realData.providers.map(p => {
+    const priceStr = p.price.replace('R', '').replace(',', '');
+    return parseInt(priceStr) || 0;
+  }).filter(p => p > 0);
+  
+  const avgPrice = prices.length > 0 ? prices.reduce((a, b) => a + b) / prices.length : 0;
+  
+  // No fake session data - show empty/placeholder until real data exists
+  const months = ["March 2026", "February 2026", "January 2026", "December 2025", "November 2025"];
+  
+  return months.map((period, index) => {
+    // No real session data yet - will be populated with actual usage
+    const sessions = 0; // Real sessions will be tracked when service is used
+    const gross = 0; // Real gross will be calculated from actual bookings
+    const fee = 0; // Real fees will be calculated from actual transactions
+    const net = 0; // Real net will be calculated from actual payouts
+    
+    return {
+      period,
+      sessions,
+      gross: `R${gross.toLocaleString('en-ZA')}`,
+      fee: `R${fee.toLocaleString('en-ZA', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+      net: `R${net.toLocaleString('en-ZA', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+      status: "No data yet",
+      date: "Will populate with real data",
+    };
+  });
+};
 
-const MONTHLY_NET = [14200, 16800, 17640, 19440, 20880, 22320];
-const MONTH_LABELS = ["Sep", "Oct", "Nov", "Dec", "Jan", "Feb"];
+const PAYOUTS = calculateRealPayouts();
+
+// No real trend data yet - chart will show when real data exists
+const MONTHLY_NET = [0, 0, 0, 0, 0]; // Will be populated with real net values
+const MONTH_LABELS = ["Nov", "Dec", "Jan", "Feb", "Mar"];
 
 const PLANS = [
   {
@@ -47,14 +79,14 @@ const PLANS = [
     name: "Starter",
     price: "Free",
     fee: "15%",
-    features: ["Up to 20 sessions/month", "Basic analytics", "1 service listing"],
+    features: ["Up to 20 sessions/month", "Basic analytics", "1 service listing", "Standard support"],
   },
   {
     id: "pro",
     name: "Pro",
     price: "R499/mo",
     fee: "10%",
-    features: ["Unlimited sessions", "Full analytics", "5 service listings", "Priority support", "Custom availability"],
+    features: ["Unlimited sessions", "Full analytics", "5 service listings", "Priority support", "Custom availability", "Client messaging"],
     current: true,
   },
   {
@@ -62,7 +94,7 @@ const PLANS = [
     name: "Elite",
     price: "R999/mo",
     fee: "7%",
-    features: ["Everything in Pro", "Unlimited listings", "White-label booking page", "Dedicated account manager", "Early access to features"],
+    features: ["Everything in Pro", "Unlimited listings", "White-label booking page", "Dedicated account manager", "Early access to features", "Advanced reporting"],
   },
 ];
 

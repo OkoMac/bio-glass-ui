@@ -2,12 +2,12 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
-import { Search, Send, ChevronLeft, Mic, Paperclip, CheckCheck, Sparkles } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/hooks/useSubscription";
+import { Search, Send, ChevronLeft, Mic, Paperclip, CheckCheck, Sparkles, MessageSquare, Lock, CreditCard } from "lucide-react";
 
-import provider1 from "@/assets/provider-1.jpg";
-import provider2 from "@/assets/provider-2.jpg";
-import provider3 from "@/assets/provider-3.jpg";
-import provider4 from "@/assets/provider-4.jpg";
+// Import real Pretoria data
+import realData from "@/data/bion_pretoria_data.json";
 
 interface Msg {
   id: string;
@@ -28,56 +28,85 @@ interface Thread {
   messages: Msg[];
 }
 
-const threads: Thread[] = [
-  {
-    id: "t1", name: "Mpho Sithole", image: provider1, online: true, unread: 2,
-    time: "09:41", lastMsg: "Can we move Monday's session to 8am?",
-    messages: [
-      { id: "m1", from: "client",   text: "Hey James! Quick question about Monday.",        time: "09:30", read: true },
-      { id: "m2", from: "provider", text: "Sure, what's up Mpho?",                          time: "09:32", read: true },
-      { id: "m3", from: "client",   text: "Can we move Monday's session to 8am?",           time: "09:41", read: false },
-      { id: "m4", from: "client",   text: "I have a meeting at 10 I forgot about.",         time: "09:41", read: false },
-    ],
-  },
-  {
-    id: "t2", name: "Thandi Khumalo", image: provider2, online: true, unread: 0,
-    time: "Yesterday", lastMsg: "Thank you so much! See you Wednesday 🙌",
-    messages: [
-      { id: "m1", from: "provider", text: "Great session today Thandi! Really strong progress.",  time: "16:00", read: true },
-      { id: "m2", from: "client",   text: "I could feel the difference! The mobility work helped.", time: "16:05", read: true },
-      { id: "m3", from: "client",   text: "Thank you so much! See you Wednesday 🙌",              time: "16:06", read: true },
-    ],
-  },
-  {
-    id: "t3", name: "Kobus Pretorius", image: provider3, online: false, unread: 0,
-    time: "Mon", lastMsg: "I'll be there, promise. 7am sharp.",
-    messages: [
-      { id: "m1", from: "provider", text: "Hey Kobus, just confirming Saturday 7am?",  time: "10:00", read: true },
-      { id: "m2", from: "client",   text: "I'll be there, promise. 7am sharp.",        time: "10:15", read: true },
-    ],
-  },
-  {
-    id: "t4", name: "Amir K.", image: provider4, online: false, unread: 0,
-    time: "7 Feb", lastMsg: "Sent a re-engagement message via ServeAI",
-    messages: [
-      { id: "m1", from: "provider", text: "Hey Amir! It's been a while. How are you doing?", time: "10:00", read: true },
-      { id: "m2", from: "client",   text: "Hey! Been crazy at work. Will book soon.",        time: "14:22", read: true },
-    ],
-  },
-];
+// Use real data from Pretoria - no fake data generation
+// Generate messages ONLY for demo account
+// Real accounts will have empty message inbox until they actually have conversations
+const generateThreads = (isDemoAccount: boolean): Thread[] => {
+  if (!isDemoAccount) {
+    // Real accounts - no messages yet
+    return [];
+  }
+  
+  // Demo account - show example messages with real Pretoria data
+  return realData.clients.slice(0, 4).map((client, index) => {
+    const provider = realData.providers[index] || realData.providers[0];
+    const suburb = provider.location.split(',')[0];
+    
+    // Demo messages for demo account only
+    const messages: Msg[] = [
+      { 
+        id: "m1", 
+        from: "client" as const, 
+        text: `Hi! I'm interested in your ${provider.service} services in ${suburb}.`, 
+        time: "10:30 AM", 
+        read: true 
+      },
+      { 
+        id: "m2", 
+        from: "provider" as const, 
+        text: `Hi ${client.name.split(' ')[0]}! Thanks for reaching out. I have availability this week.`, 
+        time: "10:35 AM", 
+        read: true 
+      },
+      { 
+        id: "m3", 
+        from: "client" as const, 
+        text: `Great! Can we schedule a session for Thursday morning?`, 
+        time: "10:40 AM", 
+        read: false 
+      },
+    ];
+    
+    return {
+      id: `t${index + 1}`,
+      name: client.name,
+      image: `/placeholder.svg?height=100&width=100&text=${client.name.charAt(0)}`,
+      online: index < 2, // Some online for demo
+      unread: index === 0 ? 1 : 0, // One unread for demo
+      time: index === 0 ? "10:40 AM" : "Yesterday",
+      lastMsg: messages[messages.length - 1].text,
+      messages: messages,
+    };
+  });
+};
 
+// AI suggestions - same for all accounts
 const aiSuggestions = [
-  "Send a re-engagement nudge to Amir",
-  "Remind Kobus about Saturday's session",
-  "Check in with Naledi about her goals",
+  "Message clients to confirm upcoming appointments",
+  "Send welcome messages to new clients",
+  "Follow up on service inquiries",
+  "Share availability updates",
+  "Request client feedback",
 ];
 
 export default function ProviderMessages() {
+  const { user } = useAuth();
+  const { canAccess, requiresUpgrade, getUpgradeUrl, tierDisplayName } = useSubscription();
   const [query, setQuery]           = useState("");
   const [activeId, setActiveId]     = useState<string | null>(null);
-  const [threadData, setThreadData] = useState(threads);
   const [input, setInput]           = useState("");
   const messagesEndRef               = useRef<HTMLDivElement>(null);
+  
+  // Check if this is a demo account (simplified check - in real app would check user.role or user.isDemo)
+  const isDemoAccount = user?.email?.includes('demo') || user?.name?.includes('Demo') || false;
+  
+  // Check if user can access messaging feature
+  const canMessage = canAccess('messaging');
+  const needsUpgrade = requiresUpgrade('messaging');
+  
+  // Generate threads based on account type and subscription
+  const threads = generateThreads(isDemoAccount && canMessage);
+  const [threadData, setThreadData] = useState(threads);
 
   const filtered = threadData.filter(t =>
     t.name.toLowerCase().includes(query.toLowerCase())
@@ -115,6 +144,75 @@ export default function ProviderMessages() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [active?.messages.length]);
+
+  // Show upgrade prompt if messaging feature is not available
+  if (needsUpgrade) {
+    return (
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+        <div className="mx-auto max-w-3xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
+          {/* Header */}
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Messages</h1>
+            <p className="text-xs text-muted-foreground">
+              Upgrade required to access messaging
+            </p>
+          </div>
+          
+          {/* Upgrade Prompt */}
+          <GlassCard className="p-6 text-center">
+            <Lock className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
+            <h2 className="text-lg font-semibold text-foreground mb-2">
+              Messaging Requires Pro Subscription
+            </h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Your current plan ({tierDisplayName()}) doesn't include client messaging. 
+              Upgrade to Pro or Elite to send and receive messages with clients.
+            </p>
+            <div className="space-y-3 max-w-md mx-auto">
+              <div className="glass-1 rounded-xl p-4 text-left">
+                <h3 className="text-sm font-semibold text-foreground mb-2">Pro Plan Includes:</h3>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo"></div>
+                    Client messaging & notifications
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo"></div>
+                    Booking management & calendar sync
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo"></div>
+                    Basic analytics & insights
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo"></div>
+                    Up to 5 service listings
+                  </li>
+                </ul>
+              </div>
+              
+              <button
+                onClick={() => window.location.href = getUpgradeUrl()}
+                className="w-full gradient-indigo rounded-pill py-3.5 text-sm font-semibold text-white flex items-center justify-center gap-2"
+              >
+                <CreditCard className="w-4 h-4" />
+                Upgrade to Pro - R499/month
+              </button>
+              
+              <button
+                onClick={() => window.location.href = '/provider/billing'}
+                className="w-full glass-1 rounded-pill py-3 text-sm font-medium text-foreground"
+              >
+                View All Plans
+              </button>
+            </div>
+          </GlassCard>
+          
+          <ProviderNav />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
@@ -163,39 +261,54 @@ export default function ProviderMessages() {
                 />
               </div>
 
-              {/* Thread list */}
+              {/* Thread list or empty state */}
               <div className="space-y-2">
-                {filtered.map((t, i) => (
-                  <motion.div
-                    key={t.id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.04 }}
-                  >
-                    <GlassCard hover className="p-3 cursor-pointer" onClick={() => openThread(t.id)}>
-                      <div className="flex items-center gap-3">
-                        <div className="relative shrink-0">
-                          <img src={t.image} alt={t.name} className="w-11 h-11 rounded-full object-cover" />
-                          {t.online && (
-                            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-teal border-2 border-obsidian" />
+                {filtered.length > 0 ? (
+                  filtered.map((t, i) => (
+                    <motion.div
+                      key={t.id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.04 }}
+                    >
+                      <GlassCard hover className="p-3 cursor-pointer" onClick={() => openThread(t.id)}>
+                        <div className="flex items-center gap-3">
+                          <div className="relative shrink-0">
+                            <img src={t.image} alt={t.name} className="w-11 h-11 rounded-full object-cover" />
+                            {t.online && (
+                              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-teal border-2 border-obsidian" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-semibold text-foreground">{t.name}</p>
+                              <p className="text-[10px] text-muted-foreground">{t.time}</p>
+                            </div>
+                            <p className="text-[11px] text-muted-foreground truncate">{t.lastMsg}</p>
+                          </div>
+                          {t.unread > 0 && (
+                            <div className="w-5 h-5 rounded-full gradient-indigo flex items-center justify-center shrink-0">
+                              <span className="text-[9px] font-bold text-white">{t.unread}</span>
+                            </div>
                           )}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-semibold text-foreground">{t.name}</p>
-                            <p className="text-[10px] text-muted-foreground">{t.time}</p>
-                          </div>
-                          <p className="text-[11px] text-muted-foreground truncate">{t.lastMsg}</p>
-                        </div>
-                        {t.unread > 0 && (
-                          <div className="w-5 h-5 rounded-full gradient-indigo flex items-center justify-center shrink-0">
-                            <span className="text-[9px] font-bold text-white">{t.unread}</span>
-                          </div>
-                        )}
-                      </div>
-                    </GlassCard>
-                  </motion.div>
-                ))}
+                      </GlassCard>
+                    </motion.div>
+                  ))
+                ) : (
+                  // Empty state for no messages
+                  <GlassCard className="p-6 text-center">
+                    <MessageSquare className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
+                    <h3 className="text-sm font-semibold text-foreground mb-1">
+                      {isDemoAccount ? "No messages yet" : "Your message inbox is empty"}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      {isDemoAccount 
+                        ? "Messages will appear here when clients contact you." 
+                        : "Connect with clients to start conversations."}
+                    </p>
+                  </GlassCard>
+                )}
               </div>
             </motion.div>
           ) : (

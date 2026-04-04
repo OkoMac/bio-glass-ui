@@ -4,11 +4,15 @@ import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import CoachAI from "@/components/CoachAI";
+import { useSubscription } from "@/hooks/useSubscription";
 import {
   Plus, Trash2, ChevronDown, ChevronUp, Check, X,
   Dumbbell, Salad, Heart, ArrowLeft, Copy, Send,
-  GripVertical, Users,
+  GripVertical, Users, Lock, CreditCard,
 } from "lucide-react";
+
+// Import real Pretoria data
+import realData from "@/data/bion_pretoria_data.json";
 
 // ── Types ───────────────────────────────────────────────────────────
 
@@ -61,33 +65,27 @@ interface Program {
   assignedTo:  string[];
 }
 
-// ── Mock exercise library ────────────────────────────────────────────
+// Exercise library - using only real exercise names that would be offered by Pretoria providers
+// Based on actual services offered by Pretoria providers in our data
 const EXERCISE_LIBRARY: { name: string; category: string }[] = [
-  { name: "Barbell Back Squat",    category: "Lower"  },
-  { name: "Romanian Deadlift",     category: "Lower"  },
-  { name: "Walking Lunge",         category: "Lower"  },
-  { name: "Leg Press",             category: "Lower"  },
-  { name: "Bench Press",           category: "Push"   },
-  { name: "Overhead Press",        category: "Push"   },
-  { name: "Push-Up",               category: "Push"   },
-  { name: "Dumbbell Flye",         category: "Push"   },
-  { name: "Pull-Up",               category: "Pull"   },
-  { name: "Bent-Over Row",         category: "Pull"   },
-  { name: "Lat Pulldown",          category: "Pull"   },
-  { name: "Face Pull",             category: "Pull"   },
-  { name: "Plank",                 category: "Core"   },
-  { name: "Dead Bug",              category: "Core"   },
-  { name: "Cable Crunch",          category: "Core"   },
-  { name: "Farmer's Carry",        category: "Full"   },
-  { name: "Kettlebell Swing",      category: "Full"   },
-  { name: "Burpee",                category: "Cardio" },
-  { name: "Box Jump",              category: "Power"  },
-  { name: "Hip Thrust",            category: "Lower"  },
+  // Exercises derived from actual service types in Pretoria data
+  { name: "Physiotherapy Session", category: "Physiotherapy" },
+  { name: "Sports Rehabilitation", category: "Physiotherapy" },
+  { name: "Fitness Assessment", category: "Assessment" },
+  { name: "Strength Training", category: "Training" },
+  { name: "Senior Fitness Session", category: "Senior Care" },
+  { name: "Yoga Instruction", category: "Wellness" },
+  { name: "Personal Training", category: "Training" },
+  { name: "Massage Therapy", category: "Therapy" },
+  { name: "Nutrition Consultation", category: "Nutrition" },
+  { name: "Health Screening", category: "Assessment" },
 ];
 
-const MOCK_CLIENTS = ["Sipho M.", "Lerato K.", "Anele D.", "Thabo N.", "Aysha P."];
+// Real clients from Pretoria data - limited to actual clients
+const REAL_CLIENTS = realData.clients.slice(0, 5).map(client => client.name);
 
-const MEAL_LABELS = ["Breakfast", "Morning Snack", "Lunch", "Afternoon Snack", "Dinner"];
+// Standard meal labels
+const MEAL_LABELS = ["Breakfast", "Lunch", "Dinner"];
 
 function newId() { return `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`; }
 
@@ -576,41 +574,140 @@ const emptyWorkout = (): Program => ({
   assignedTo:    [],
 });
 
+// Sample programs using ONLY real data - no manufactured programs
+// These are template programs that would be created by providers for their actual services
 const SAMPLE_PROGRAMS: Program[] = [
+  // Demo program template - the only manufactured content allowed
   {
-    id: "p1", type: "workout", title: "8-Week Strength Block", description: "Progressive overload, compound lifts.",
-    durationWeeks: 8,
+    id: "demo", type: "workout", title: "Demo Program Template", 
+    description: "Template program for demonstration purposes only. Real programs would be created by providers for their specific services.",
+    durationWeeks: 4,
     days: [
-      { id: "d1", name: "Push",  exercises: [{ id: "e1", name: "Bench Press", sets: 4, reps: "8", rest: 90, note: "" }] },
-      { id: "d2", name: "Pull",  exercises: [{ id: "e2", name: "Bent-Over Row", sets: 4, reps: "8", rest: 90, note: "" }] },
-      { id: "d3", name: "Legs",  exercises: [{ id: "e3", name: "Barbell Back Squat", sets: 4, reps: "6", rest: 120, note: "Brace core, sit back" }] },
+      { 
+        id: "d1", name: "Initial Assessment",  
+        exercises: [
+          { id: "e1", name: "Service Consultation", sets: 1, reps: "60 min", rest: 0, note: "Initial client assessment and goal setting" },
+        ] 
+      },
     ],
-    meals: [], careSteps: [], assignedTo: ["Sipho M."],
+    meals: [], careSteps: [], 
+    assignedTo: ["Demo User"], // Only manufactured user account
   },
+  
+  // Empty state programs - real programs would be created here
   {
-    id: "p2", type: "meal", title: "High-Protein Cut", description: "180g protein, 300 kcal deficit.",
-    durationWeeks: 6,
+    id: "empty1", type: "workout", title: "Create New Program", 
+    description: "Create a custom program for your clients based on your service offerings.",
+    durationWeeks: 0,
     days: [],
-    meals: [
-      { id: "m1", label: "Breakfast", items: [{ id: "mi1", name: "Egg whites + oats", qty: "200g", kcal: 320 }] },
-      { id: "m2", label: "Lunch",     items: [{ id: "mi2", name: "Chicken breast + rice", qty: "300g", kcal: 480 }] },
-    ],
-    careSteps: [], assignedTo: ["Lerato K."],
+    meals: [], careSteps: [], 
+    assignedTo: [],
   },
   {
-    id: "p3", type: "care", title: "Post-Facial Recovery Plan", description: "7-day gentle skin restoration protocol.",
-    durationWeeks: 1,
+    id: "empty2", type: "meal", title: "Create Meal Plan", 
+    description: "Design nutrition plans for your clients.",
+    durationWeeks: 0,
+    days: [],
+    meals: [],
+    careSteps: [], 
+    assignedTo: [],
+  },
+  {
+    id: "empty3", type: "care", title: "Create Care Plan", 
+    description: "Develop wellness and care programs for your clients.",
+    durationWeeks: 0,
     days: [], meals: [],
-    careSteps: [
-      { id: "cs1", name: "Gentle cleanse", detail: "Use Cetaphil or CeraVe, lukewarm water only.", durationMins: 2 },
-      { id: "cs2", name: "Barrier cream",  detail: "Apply Vaseline or Aquaphor generously.",       durationMins: 1 },
-    ],
+    careSteps: [],
     assignedTo: [],
   },
 ];
 
 export default function ProgramBuilder() {
   const navigate = useNavigate();
+  const { canAccess, requiresUpgrade, getUpgradeUrl, tierDisplayName } = useSubscription();
+  
+  // Check if user can access program builder feature
+  const canUseProgramBuilder = canAccess('basicAnalytics'); // Using basicAnalytics as proxy for program builder access
+  const needsUpgrade = requiresUpgrade('basicAnalytics');
+  
+  // Show upgrade prompt if program builder feature is not available
+  if (needsUpgrade) {
+    return (
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28">
+        <div className="mx-auto max-w-2xl px-4 pt-12 space-y-5">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => navigate(-1)}
+                className="w-9 h-9 glass-1 rounded-full flex items-center justify-center"
+              >
+                <ArrowLeft className="w-4 h-4 text-foreground" />
+              </motion.button>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">Programs</h1>
+                <p className="text-xs text-muted-foreground">Upgrade required to access program builder</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Upgrade Prompt */}
+          <GlassCard className="p-6 text-center">
+            <Lock className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
+            <h2 className="text-lg font-semibold text-foreground mb-2">
+              Program Builder Requires Pro Subscription
+            </h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Your current plan ({tierDisplayName()}) doesn't include program creation tools. 
+              Upgrade to Pro or Elite to create custom workout, meal, and care plans for your clients.
+            </p>
+            <div className="space-y-3 max-w-md mx-auto">
+              <div className="glass-1 rounded-xl p-4 text-left">
+                <h3 className="text-sm font-semibold text-foreground mb-2">Pro Plan Includes:</h3>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo"></div>
+                    Custom program builder (workout, meal, care plans)
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo"></div>
+                    Client messaging & notifications
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo"></div>
+                    Booking management & calendar sync
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo"></div>
+                    Basic analytics & insights
+                  </li>
+                </ul>
+              </div>
+              
+              <button
+                onClick={() => window.location.href = getUpgradeUrl()}
+                className="w-full gradient-indigo rounded-pill py-3.5 text-sm font-semibold text-white flex items-center justify-center gap-2"
+              >
+                <CreditCard className="w-4 h-4" />
+                Upgrade to Pro - R499/month
+              </button>
+              
+              <button
+                onClick={() => window.location.href = '/provider/billing'}
+                className="w-full glass-1 rounded-pill py-3 text-sm font-medium text-foreground"
+              >
+                View All Plans
+              </button>
+            </div>
+          </GlassCard>
+          
+          <ProviderNav />
+        </div>
+      </div>
+    );
+  }
+  
   const [programs, setPrograms]   = useState<Program[]>(SAMPLE_PROGRAMS);
   const [editing, setEditing]     = useState<Program | null>(null);
   const [typeFilter, setTypeFilter] = useState<ProgramType | "all">("all");

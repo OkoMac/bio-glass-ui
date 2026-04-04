@@ -14,6 +14,11 @@ interface BookingCelebrationProps {
   date: string;
   time: string;
   onClose: (goToSchedule: boolean) => void;
+  // Optional payment details
+  price?: string;
+  fees?: string;
+  totalPaid?: string;
+  paymentStatus?: 'pending' | 'paid' | 'refunded' | 'failed';
 }
 
 const BookingCelebration = ({ provider, service, date, time, onClose }: BookingCelebrationProps) => {
@@ -91,6 +96,50 @@ const BookingCelebration = ({ provider, service, date, time, onClose }: BookingC
         <p className="text-base text-foreground font-medium">{provider.name}</p>
         <p className="text-sm text-muted-foreground">{service}</p>
         <p className="text-sm text-muted-foreground">{date} · {time}</p>
+        
+        {/* Payment confirmation */}
+        {price && price !== "FREE" && totalPaid && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 1.3 }}
+            className="mt-3 p-3 rounded-xl glass-accent-indigo/30 border border-indigo/20"
+          >
+            <p className="text-xs text-muted-foreground mb-1">Payment Confirmed</p>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-foreground">Service:</span>
+              <span className="text-sm font-medium text-foreground">{price}</span>
+            </div>
+            {fees && (
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Platform fee:</span>
+                <span className="text-xs text-muted-foreground">{fees}</span>
+              </div>
+            )}
+            <div className="h-px bg-foreground/10 my-1" />
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-foreground">Total paid:</span>
+              <span className="text-sm font-bold text-indigo">{totalPaid}</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-1">
+              ✓ Payment secured. Provider will receive payment after your appointment.
+            </p>
+          </motion.div>
+        )}
+        
+        {price === "FREE" && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 1.3 }}
+            className="mt-3 p-3 rounded-xl glass-accent-amber/30 border border-amber/20"
+          >
+            <p className="text-xs text-amber font-medium">Free Session Booked</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              No payment required for this introductory session.
+            </p>
+          </motion.div>
+        )}
       </motion.div>
 
       {/* Action buttons */}
