@@ -52,6 +52,68 @@ export type Database = {
           },
         ]
       }
+      booking_requests: {
+        Row: {
+          assigned_to: string | null
+          client_email: string
+          client_name: string
+          client_phone: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          preferred_date: string | null
+          preferred_time: string | null
+          provider_email: string | null
+          provider_name: string
+          provider_phone: string | null
+          service_description: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          client_email: string
+          client_name: string
+          client_phone?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          preferred_date?: string | null
+          preferred_time?: string | null
+          provider_email?: string | null
+          provider_name: string
+          provider_phone?: string | null
+          service_description: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          client_email?: string
+          client_name?: string
+          client_phone?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          preferred_date?: string | null
+          preferred_time?: string | null
+          provider_email?: string | null
+          provider_name?: string
+          provider_phone?: string | null
+          service_description?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_requests_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           booking_date: string
