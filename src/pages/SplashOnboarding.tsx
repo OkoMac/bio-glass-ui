@@ -62,7 +62,7 @@ const ROLE_OPTIONS = [
 ];
 
 const ROLE_HOME: Record<UserRole, string> = {
-  client: "/", provider: "/pro/dashboard", admin: "/admin/dashboard", corporate: "/corporate/dashboard",
+  client: "/home", provider: "/pro/dashboard", admin: "/admin/dashboard", corporate: "/corporate/dashboard",
 };
 
 const ONBOARDING_ROUTES: Record<UserRole, string> = {
