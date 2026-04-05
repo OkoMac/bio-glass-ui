@@ -9,6 +9,7 @@ import { BookingsProvider } from "@/contexts/BookingsContext";
 
 // Client pages
 import Index           from "./pages/Index";
+import Directory       from "./pages/Directory";
 import ProviderProfile from "./pages/ProviderProfile";
 import Schedule        from "./pages/Schedule";
 import Messages        from "./pages/Messages";
