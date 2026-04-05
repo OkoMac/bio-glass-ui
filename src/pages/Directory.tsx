@@ -360,6 +360,26 @@ export default function Directory() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Floating "Can't find provider?" button */}
+      <motion.button
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 1 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setShowBookingForm(true)}
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-5 py-3 rounded-pill gradient-indigo text-primary-foreground shadow-cta text-sm font-semibold"
+      >
+        <Plus className="w-4 h-4" />
+        Can't find your provider?
+      </motion.button>
+
+      {/* Booking request form modal */}
+      <AnimatePresence>
+        {showBookingForm && (
+          <BookingRequestForm onClose={() => setShowBookingForm(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
