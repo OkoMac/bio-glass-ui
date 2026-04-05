@@ -30,6 +30,7 @@ export default function Directory() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | null>(null);
+  const [showBookingForm, setShowBookingForm] = useState(false);
 
   const filteredCategories = useMemo(() => {
     if (!search.trim()) return SERVICE_CATEGORIES;
