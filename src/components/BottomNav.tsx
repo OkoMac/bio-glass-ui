@@ -4,7 +4,7 @@ import { Compass, Calendar, MessageCircle, User, Dumbbell } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const tabs = [
-  { icon: Compass,       label: "Discover",  path: "/" },
+  { icon: Compass,       label: "Discover",  path: "/home" },
   { icon: Dumbbell,      label: "Routines",  path: "/routines" },
   { label: "BION",       path: "/quick-book", isFab: true },
   { icon: MessageCircle, label: "Messages",  path: "/messages" },
