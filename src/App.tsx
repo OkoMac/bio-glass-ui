@@ -131,7 +131,8 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* Public */}
+      {/* Public — Directory landing page (no auth required) */}
+      <Route path="/directory" element={<Directory />} />
       <Route path="/welcome" element={<SplashOnboarding />} />
 
       {/* Onboarding routes — no role guard, but must be authenticated */}
@@ -140,9 +141,9 @@ function AppRoutes() {
       <Route path="/onboarding/corporate" element={<RequireAuth skipOnboardingCheck><CorporateOnboarding /></RequireAuth>} />
       <Route path="/onboarding/admin"     element={<RequireAuth skipOnboardingCheck><AdminOnboarding /></RequireAuth>} />
 
-      {/* Root redirect based on role */}
+      {/* Root redirect based on role — authenticated users go to their dashboard, unauthenticated to directory */}
       <Route path="/" element={
-        !user                         ? <Navigate to="/welcome" replace /> :
+        !user                         ? <Navigate to="/directory" replace /> :
         user.role === "admin"         ? <Navigate to="/admin/dashboard"    replace /> :
         user.role === "provider"      ? <Navigate to="/pro/dashboard"       replace /> :
         user.role === "corporate"     ? <Navigate to="/corporate/dashboard" replace /> :
