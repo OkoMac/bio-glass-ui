@@ -80,7 +80,7 @@ export default function Directory() {
               )}
               {user ? (
                 <button
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/home")}
                   className="px-4 py-2 rounded-pill text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta"
                 >
                   Dashboard
