@@ -131,24 +131,25 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* Public — Directory landing page (no auth required) */}
+      {/* Public — Directory IS the root landing page */}
+      <Route path="/" element={
+        !user                         ? <Directory /> :
+        user.role === "admin"         ? <Navigate to="/admin/dashboard"    replace /> :
+        user.role === "provider"      ? <Navigate to="/pro/dashboard"       replace /> :
+        user.role === "corporate"     ? <Navigate to="/corporate/dashboard" replace /> :
+        <Navigate to="/home" replace />
+      } />
       <Route path="/directory" element={<Directory />} />
       <Route path="/welcome" element={<SplashOnboarding />} />
+
+      {/* Client home (authenticated) */}
+      <Route path="/home" element={<RequireAuth allowedRoles={["client"]}><Index /></RequireAuth>} />
 
       {/* Onboarding routes — no role guard, but must be authenticated */}
       <Route path="/onboarding/client"    element={<RequireAuth skipOnboardingCheck><ClientOnboarding /></RequireAuth>} />
       <Route path="/onboarding/provider"  element={<RequireAuth skipOnboardingCheck><ProviderOnboarding /></RequireAuth>} />
       <Route path="/onboarding/corporate" element={<RequireAuth skipOnboardingCheck><CorporateOnboarding /></RequireAuth>} />
       <Route path="/onboarding/admin"     element={<RequireAuth skipOnboardingCheck><AdminOnboarding /></RequireAuth>} />
-
-      {/* Root redirect based on role — authenticated users go to their dashboard, unauthenticated to directory */}
-      <Route path="/" element={
-        !user                         ? <Navigate to="/directory" replace /> :
-        user.role === "admin"         ? <Navigate to="/admin/dashboard"    replace /> :
-        user.role === "provider"      ? <Navigate to="/pro/dashboard"       replace /> :
-        user.role === "corporate"     ? <Navigate to="/corporate/dashboard" replace /> :
-        <Index />
-      } />
 
       {/* Client routes */}
       <Route path="/provider/:id" element={<RequireAuth><ProviderProfile /></RequireAuth>} />

@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Search, MapPin, SlidersHorizontal, Navigation, Star, Clock, ChevronRight, X } from "lucide-react";
+import { Search, MapPin, SlidersHorizontal, Navigation, Star, Clock, ChevronRight, X, Plus } from "lucide-react";
+import BookingRequestForm from "@/components/BookingRequestForm";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import ServiceCategoryBlock, { SERVICE_CATEGORIES, type ServiceCategory } from "@/components/ServiceCategoryBlock";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,6 +30,7 @@ export default function Directory() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | null>(null);
+  const [showBookingForm, setShowBookingForm] = useState(false);
 
   const filteredCategories = useMemo(() => {
     if (!search.trim()) return SERVICE_CATEGORIES;
@@ -80,7 +82,7 @@ export default function Directory() {
               )}
               {user ? (
                 <button
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/home")}
                   className="px-4 py-2 rounded-pill text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta"
                 >
                   Dashboard
@@ -358,6 +360,26 @@ export default function Directory() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Floating "Can't find provider?" button */}
+      <motion.button
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 1 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setShowBookingForm(true)}
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-5 py-3 rounded-pill gradient-indigo text-primary-foreground shadow-cta text-sm font-semibold"
+      >
+        <Plus className="w-4 h-4" />
+        Can't find your provider?
+      </motion.button>
+
+      {/* Booking request form modal */}
+      <AnimatePresence>
+        {showBookingForm && (
+          <BookingRequestForm onClose={() => setShowBookingForm(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
