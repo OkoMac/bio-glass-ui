@@ -32109,6 +32109,540 @@
       "enhanced_city": "Pretoria",
       "enhanced_category": "College",
       "enhanced_verified": false
+    },
+    {
+      "id": "pt_tough_made",
+      "name": "Tough Made Fitness (Tyler Marais)",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Centurion, Pretoria",
+      "address": "143 Burger Ave, Lyttelton Manor",
+      "contact": {
+        "phone": "+27 73 832 5039"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Online and in-person personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Online Coaching",
+        "Group Classes"
+      ]
+    },
+    {
+      "id": "pt_olesya",
+      "name": "Olesya van Veelen",
+      "service": "Personal Training & Yoga",
+      "specialization": "Personal Training & Yoga",
+      "location": "Pretoria",
+      "address": "Pretoria",
+      "contact": {
+        "phone": "+27 83 418 6746"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Elite Personal Trainer, Yoga, Mat & Reformer Pilates coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Yoga",
+        "Mat Pilates",
+        "Reformer Pilates"
+      ]
+    },
+    {
+      "id": "pt_elaine",
+      "name": "Elaine Pieterse Personal Trainer",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Pretoria East",
+      "address": "Pretoria East",
+      "contact": {
+        "phone": "Contact via Facebook"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training, diets, and training programs",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Diet Plans",
+        "Training Programs"
+      ]
+    },
+    {
+      "id": "pt_triple_m",
+      "name": "tripleMFitness (Mahlatshwa Makhubela)",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Pretoria East",
+      "address": "Pretoria East",
+      "contact": {
+        "phone": "+27 73 305 1323"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training services",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness Coaching"
+      ]
+    },
+    {
+      "id": "pt_barax",
+      "name": "BARAX Performance Training",
+      "service": "Performance Training",
+      "specialization": "Performance Training",
+      "location": "Pretoria East",
+      "address": "Virgin Active Hazeldean",
+      "contact": {
+        "phone": "+27 78 820 8379"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "1-on-1, group & online coaching, 20+ years experience",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Performance Coaching",
+        "Group Training",
+        "Online Coaching"
+      ]
+    },
+    {
+      "id": "pt_jbody",
+      "name": "JBody Fitness (Jason Olivier)",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Menlo Park, Pretoria",
+      "address": "24th Street, Menlo Park",
+      "contact": {
+        "phone": "+27 83 382 2774"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Online and in-person personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Online Coaching"
+      ]
+    },
+    {
+      "id": "pt_franco",
+      "name": "Franco van Wyk Personal Trainer",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Centurion, Pretoria",
+      "address": "Centurion, Midrand & Pretoria",
+      "contact": {
+        "phone": "Contact via Facebook"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Health and wellness, training and restoring muscle fitness",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Muscle Restoration",
+        "Wellness"
+      ]
+    },
+    {
+      "id": "pt_muscle_fitness",
+      "name": "Muscle & Fitness PT Studio",
+      "service": "Personal Training Studio",
+      "specialization": "Personal Training Studio",
+      "location": "Montana, Pretoria",
+      "address": "Montana, Pretoria",
+      "contact": {
+        "phone": "Contact via Facebook"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training studio in Montana",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Strength Training",
+        "Body Building"
+      ]
+    },
+    {
+      "id": "pt_nfitness",
+      "name": "NFitness Personal Trainers",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Pretoria",
+      "address": "Pretoria",
+      "contact": {
+        "phone": "Contact via Facebook"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training services",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness Coaching"
+      ]
+    },
+    {
+      "id": "pt_corporate",
+      "name": "PT Personal Training & Corporate Wellness",
+      "service": "Personal & Corporate Training",
+      "specialization": "Personal & Corporate Training",
+      "location": "Pretoria",
+      "address": "Pretoria",
+      "contact": {
+        "phone": "Contact via Facebook"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training and corporate wellness programs",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Corporate Wellness",
+        "Group Fitness"
+      ]
+    },
+    {
+      "id": "pt_training_stef",
+      "name": "Training with Stef",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Pretoria East",
+      "address": "Pretoria East",
+      "contact": {
+        "phone": "Contact via website"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training or group sessions",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Group Sessions"
+      ]
+    },
+    {
+      "id": "pt_body_guru",
+      "name": "BodyGuru Gym",
+      "service": "Personal Training & Gym",
+      "specialization": "Personal Training & Gym",
+      "location": "Montana, Pretoria",
+      "address": "Cnr Zambesi Road and Veronica Road",
+      "contact": {
+        "phone": "+27 79 878 8199"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training and gym facilities",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Gym",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_glam",
+      "name": "Glam Physiques",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Pretoria",
+      "address": "Pretoria",
+      "contact": {
+        "phone": "+27 83 988 7696"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Body transformation coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Body Transformation"
+      ]
+    },
+    {
+      "id": "pt_gosweat",
+      "name": "Gosweat",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Brooklyn, Pretoria",
+      "address": "Brooklyn",
+      "contact": {
+        "phone": "+27 71 452 8141"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Fitness training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_shate_up",
+      "name": "Sh8pe Up FitClub",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Theresapark, Pretoria",
+      "address": "915 Barbara Street",
+      "contact": {
+        "phone": "+27 84 549 5191"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Fitness club and personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Group Fitness",
+        "Boot Camp"
+      ]
+    },
+    {
+      "id": "pt_biominceur",
+      "name": "Biominceur Centurion",
+      "service": "Body Sculpting & Training",
+      "specialization": "Body Sculpting & Training",
+      "location": "Centurion, Pretoria",
+      "address": "Cnr Brits & Breyten Street, Wierdapark",
+      "contact": {
+        "phone": "+27 82 332 0622"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Body sculpting and fitness",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Body Sculpting",
+        "Personal Training",
+        "Weight Loss"
+      ]
+    },
+    {
+      "id": "pt_madame",
+      "name": "Madame Et Monsieur Centurion",
+      "service": "Fitness & Wellness",
+      "specialization": "Fitness & Wellness",
+      "location": "Centurion, Pretoria",
+      "address": "102 Jean Avenue, Doringkloof",
+      "contact": {
+        "phone": "+27 12 667 5479"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Fitness and wellness",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Wellness",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_mobigym",
+      "name": "MobiGym",
+      "service": "Mobile Personal Training",
+      "specialization": "Mobile Personal Training",
+      "location": "Valhalla, Pretoria",
+      "address": "Valhalla",
+      "contact": {
+        "phone": "+27 83 376 7538"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Mobile gym and personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Mobile Personal Training",
+        "Home Fitness"
+      ]
+    },
+    {
+      "id": "pt_authentic",
+      "name": "Authentic U",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Queenswood, Pretoria",
+      "address": "219 Dunstan Road",
+      "contact": {
+        "phone": "+27 12 333 4381"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Authentic personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Wellness"
+      ]
+    },
+    {
+      "id": "pt_iron_angel",
+      "name": "Iron Angel Private Gym",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Pretoria",
+      "address": "Pretoria",
+      "contact": {
+        "phone": "+27 12 809 1446"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Private gym and personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Private Gym",
+        "Strength Training"
+      ]
     }
   ],
   "metadata": {

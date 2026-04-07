@@ -138,8 +138,8 @@ export default function SplashOnboarding() {
     return (
       <div className="fixed inset-0 z-[100] bg-obsidian flex flex-col items-center justify-center"
         style={{ background: "radial-gradient(ellipse at 50% 45%, rgba(99,102,241,0.12) 0%, #0A0A0F 65%)" }}>
-        <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="text-7xl font-bold text-foreground tracking-tight">BION</motion.h1>
+        <motion.img src="/bion-logo-color.jpg" alt="BION" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+          className="h-16 md:h-20 w-auto" />
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
           className="text-base text-foreground/55 mt-3">Every Service. One Platform.</motion.p>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}

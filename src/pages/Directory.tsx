@@ -131,13 +131,9 @@ export default function Directory() {
       <div className="sticky top-0 z-40 bg-obsidian/80 backdrop-blur-xl border-b border-white/[0.06]">
         <div className="w-full px-4 md:px-8 xl:px-12 py-4">
           <div className="flex items-center justify-between mb-4">
-            <motion.h1
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="text-2xl md:text-3xl font-bold text-foreground tracking-tight"
-            >
-              BION
-            </motion.h1>
+            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
+              <img src="/bion-logo-color.jpg" alt="BION" className="h-8 md:h-10 w-auto" />
+            </motion.div>
             <div className="flex items-center gap-3">
               {geo.permitted && (
                 <div className="flex items-center gap-1.5 text-xs text-teal">
