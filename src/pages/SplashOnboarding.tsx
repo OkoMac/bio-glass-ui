@@ -51,7 +51,7 @@ const onboardingSteps: OnboardingStep[] = [
   },
 ];
 
-type Phase = "splash" | "onboarding" | "role" | "auth";
+type Phase = "splash" | "onboarding" | "role" | "auth" | "terms";
 type AuthMode = "signin" | "signup";
 
 const ROLE_OPTIONS = [
@@ -88,6 +88,7 @@ export default function SplashOnboarding() {
   const [showPw,   setShowPw]           = useState(false);
   const [error,    setError]            = useState("");
   const [busy,     setBusy]             = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // Splash loader
   useEffect(() => {
@@ -288,6 +289,48 @@ export default function SplashOnboarding() {
     );
   }
 
+  // ── Terms of Service ───────────────────────────────────────────────
+  if (phase === "terms") {
+    return (
+      <div className="fixed inset-0 z-[100] bg-obsidian overflow-y-auto">
+        <div className="max-w-lg mx-auto px-5 py-12 space-y-6">
+          <button onClick={() => setPhase("auth")} className="text-sm text-muted-foreground">← Back to signup</button>
+          <img src="/bion-logo-color.jpg" alt="BION" className="h-8 w-auto" />
+          <h1 className="text-2xl font-bold text-foreground">Terms of Service & Privacy Policy</h1>
+          <p className="text-xs text-muted-foreground">Last updated: April 2026</p>
+
+          {[
+            { title: "1. Acceptance of Terms", text: "By creating a BION account, you agree to be bound by these Terms of Service. If you do not agree, do not use the platform." },
+            { title: "2. Services", text: "BION is a digital marketplace connecting clients with health, beauty, and wellness service providers. BION facilitates bookings and payments but does not provide health services directly." },
+            { title: "3. User Accounts", text: "You must provide accurate information when creating an account. You are responsible for maintaining the security of your account credentials. You must be at least 18 years old to create an account." },
+            { title: "4. Booking & Payments", text: "A 5% booking fee applies to all client transactions. A 5% platform fee applies to all provider transactions. Payments are processed securely through Paystack. Providers receive payments directly to their bank accounts." },
+            { title: "5. Cancellation Policy", text: "Cancellation policies are set by individual providers. BION recommends providers set clear cancellation terms. Refunds are subject to the provider's cancellation policy." },
+            { title: "6. Privacy & Data Protection (POPIA)", text: "BION complies with the Protection of Personal Information Act (POPIA). We collect and process personal information only for the purposes of providing our services. You have the right to access, correct, and delete your personal information. We do not sell your personal information to third parties. Data is stored securely on servers protected by industry-standard encryption." },
+            { title: "7. User Conduct", text: "You agree not to misuse the platform, harass other users, provide false information, or engage in fraudulent activity. BION reserves the right to suspend or terminate accounts that violate these terms." },
+            { title: "8. Provider Responsibilities", text: "Providers must maintain valid professional qualifications where required. Providers are responsible for the quality of their services. Medical providers must comply with HPCSA/SANC regulations." },
+            { title: "9. Limitation of Liability", text: "BION is a platform facilitator, not a healthcare provider. BION is not liable for the quality of services provided by third-party providers. Use of wellness tools (water tracker, sleep tracker, etc.) does not constitute medical advice." },
+            { title: "10. Changes to Terms", text: "BION may update these terms from time to time. Continued use of the platform after changes constitutes acceptance of the updated terms." },
+          ].map((section) => (
+            <div key={section.title} className="glass-1 rounded-xl p-4">
+              <h3 className="text-sm font-semibold text-foreground mb-2">{section.title}</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">{section.text}</p>
+            </div>
+          ))}
+
+          <div className="glass-1 rounded-xl p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-2">Contact</h3>
+            <p className="text-xs text-muted-foreground">For questions about these terms, contact support@bion.app</p>
+          </div>
+
+          <button onClick={() => { setAcceptedTerms(true); setPhase("auth"); }}
+            className="w-full rounded-pill py-4 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta">
+            I Accept — Continue to Sign Up
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // ── Auth form (sign in / sign up) ─────────────────────────────────
   return (
     <div className="fixed inset-0 z-[100] bg-obsidian flex flex-col items-end justify-end"
@@ -347,7 +390,30 @@ export default function SplashOnboarding() {
           </div>
         </div>
 
-        <motion.button whileTap={{ scale: 0.97 }} onClick={handleAuth} disabled={busy}
+        {/* Terms acceptance — signup only */}
+        {authMode === "signup" && (
+          <label className="flex items-start gap-2.5 cursor-pointer px-1">
+            <input
+              type="checkbox"
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+              className="mt-0.5 w-4 h-4 rounded accent-indigo"
+            />
+            <span className="text-[11px] text-muted-foreground leading-relaxed">
+              I agree to BION's{" "}
+              <button type="button" onClick={() => setPhase("terms")} className="text-indigo underline">
+                Terms of Service
+              </button>{" "}
+              and{" "}
+              <button type="button" onClick={() => setPhase("terms")} className="text-indigo underline">
+                Privacy Policy
+              </button>
+              . I understand that BION processes my data in accordance with POPIA.
+            </span>
+          </label>
+        )}
+
+        <motion.button whileTap={{ scale: 0.97 }} onClick={handleAuth} disabled={busy || (authMode === "signup" && !acceptedTerms)}
           className="w-full rounded-pill py-4 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta flex items-center justify-center gap-2 disabled:opacity-60">
           {busy
             ? <><Loader2 className="w-4 h-4 animate-spin" /> {authMode === "signup" ? "Creating account…" : "Signing in…"}</>
