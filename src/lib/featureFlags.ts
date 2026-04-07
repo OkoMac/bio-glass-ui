@@ -170,7 +170,6 @@ export function enableFeature(featureName: string): boolean {
   }
   
   flag.enabled = true;
-  console.log(`✅ Feature "${featureName}" enabled`);
   return true;
 }
 
@@ -184,7 +183,6 @@ export function disableFeature(featureName: string): boolean {
   }
   
   flag.enabled = false;
-  console.log(`⏸️ Feature "${featureName}" disabled`);
   return true;
 }
 
@@ -203,7 +201,6 @@ export function setRolloutPercentage(featureName: string, percentage: number): b
   }
   
   flag.rolloutPercentage = percentage;
-  console.log(`📊 Feature "${featureName}" rollout set to ${percentage}%`);
   return true;
 }
 

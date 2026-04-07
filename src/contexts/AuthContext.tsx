@@ -27,27 +27,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ── Sync with Supabase session ──────────────────────────────────
   useEffect(() => {
+    let mounted = true;
+    let resolved = false;
+
+    const finish = () => {
+      if (mounted && !resolved) { resolved = true; setLoading(false); }
+    };
+
+    // Safety timeout — never spin forever
+    const timeout = setTimeout(finish, 5000);
+
     // Check for an existing session on mount
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!mounted) return;
       if (session?.user) {
-        const profile = await fetchUserProfile(session.user.id);
-        if (profile) { storeUser(profile); setUser(profile); }
+        try {
+          const profile = await fetchUserProfile(session.user.id);
+          if (mounted && profile) { storeUser(profile); setUser(profile); }
+        } catch (e) {
+          // Profile fetch failed — use stored user if available
+        }
       }
-      setLoading(false);
-    });
+      finish();
+    }).catch(() => finish());
 
-    // Listen to future auth changes (sign in, sign out, token refresh)
+    // Listen to future auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" && session?.user) {
-        const profile = await fetchUserProfile(session.user.id);
-        if (profile) { storeUser(profile); setUser(profile); }
+      if (!mounted) return;
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
+        if (session?.user) {
+          try {
+            const profile = await fetchUserProfile(session.user.id);
+            if (mounted && profile) { storeUser(profile); setUser(profile); }
+          } catch (e) {
+            // Use stored user as fallback
+          }
+        }
+        finish();
       } else if (event === "SIGNED_OUT") {
         removeUser();
         setUser(null);
+        finish();
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => { mounted = false; clearTimeout(timeout); subscription.unsubscribe(); };
   }, []);
 
   // ── Demo / direct-set login (no Supabase session) ──────────────

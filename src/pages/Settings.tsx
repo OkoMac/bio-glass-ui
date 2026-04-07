@@ -32,7 +32,8 @@ const TABS: { id: Tab; label: string; icon: typeof Bell }[] = [
 export default function Settings() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const initialTab = (params.get("tab") as Tab | null) ?? "notifications";
   const [tab, setTab]     = useState<Tab>(initialTab);
@@ -236,7 +237,10 @@ export default function Settings() {
 
             <GlassCard className="p-5 space-y-3">
               <h2 className="text-sm font-semibold text-foreground">Your Data</h2>
-              <button className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl glass-1 text-sm text-foreground hover:bg-white/5 transition-colors">
+              <button
+                onClick={() => window.alert("Your data export will be emailed to you.")}
+                className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl glass-1 text-sm text-foreground hover:bg-white/5 transition-colors"
+              >
                 <span>Download my data</span>
                 <ChevronLeft className="w-4 h-4 rotate-180 text-muted-foreground" />
               </button>
@@ -258,9 +262,35 @@ export default function Settings() {
                   <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">
                     Permanently delete your BION account and all associated data. This cannot be undone.
                   </p>
-                  <button className="mt-2 text-[11px] text-coral font-medium underline underline-offset-2">
-                    Request account deletion
-                  </button>
+                  {!showDeleteConfirm ? (
+                    <button
+                      onClick={() => setShowDeleteConfirm(true)}
+                      className="mt-2 text-[11px] text-coral font-medium underline underline-offset-2"
+                    >
+                      Request account deletion
+                    </button>
+                  ) : (
+                    <div className="mt-3 p-3 rounded-xl border border-coral/20 bg-coral/5 space-y-2">
+                      <p className="text-xs text-foreground font-medium">Are you sure? This action is permanent and cannot be undone.</p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            logout();
+                            navigate("/welcome");
+                          }}
+                          className="flex-1 rounded-xl py-2 text-xs font-semibold bg-coral text-white"
+                        >
+                          Yes, delete my account
+                        </button>
+                        <button
+                          onClick={() => setShowDeleteConfirm(false)}
+                          className="flex-1 rounded-xl py-2 text-xs font-semibold glass-1 text-foreground"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </GlassCard>

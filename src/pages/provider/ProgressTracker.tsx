@@ -15,19 +15,14 @@ import {
 export default function ProgressTracker() {
   const { isEnabled } = useFeatureFlags();
   
-  // Sample data - will be replaced with real data later
-  const [clients, setClients] = useState([
-    { id: 1, name: 'John Smith', startDate: '2026-01-15', progress: 85, photos: 12, lastUpdate: '2 days ago', goal: 'Weight Loss' },
-    { id: 2, name: 'Sarah Johnson', startDate: '2026-02-01', progress: 60, photos: 8, lastUpdate: '1 week ago', goal: 'Muscle Gain' },
-    { id: 3, name: 'Mike Wilson', startDate: '2026-01-20', progress: 45, photos: 6, lastUpdate: '3 days ago', goal: 'Rehabilitation' },
-    { id: 4, name: 'Emma Davis', startDate: '2026-02-10', progress: 30, photos: 4, lastUpdate: '2 weeks ago', goal: 'Fitness' },
-  ]);
-  
-  const [measurements, setMeasurements] = useState([
-    { id: 1, client: 'John Smith', date: '2026-03-28', weight: 82.5, bodyFat: 18.2, chest: 102, waist: 86, hips: 98 },
-    { id: 2, client: 'Sarah Johnson', date: '2026-03-27', weight: 65.2, bodyFat: 24.5, chest: 88, waist: 72, hips: 94 },
-    { id: 3, client: 'Mike Wilson', date: '2026-03-26', weight: 75.8, bodyFat: 22.1, chest: 96, waist: 84, hips: 100 },
-  ]);
+  // Empty state - will be populated with real client data from Supabase
+  const [clients, setClients] = useState<
+    { id: number; name: string; startDate: string; progress: number; photos: number; lastUpdate: string; goal: string }[]
+  >([]);
+
+  const [measurements, setMeasurements] = useState<
+    { id: number; client: string; date: string; weight: number; bodyFat: number; chest: number; waist: number; hips: number }[]
+  >([]);
   
   // If the feature flag is disabled, show upgrade prompt
   if (!isEnabled('progressTracking')) {
@@ -89,11 +84,12 @@ export default function ProgressTracker() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">4 clients</span>
+              <span className="text-xs text-muted-foreground">{clients.length} clients</span>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </div>
           </div>
           
+          {clients.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {clients.map(client => (
               <div key={client.id} className="p-4 glass-1 rounded-xl">
@@ -106,7 +102,7 @@ export default function ProgressTracker() {
                     <span className="text-sm font-bold text-indigo">{client.progress}%</span>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-muted-foreground">Started</span>
@@ -121,10 +117,10 @@ export default function ProgressTracker() {
                     <span className="font-medium text-foreground">{client.lastUpdate}</span>
                   </div>
                 </div>
-                
+
                 <div className="mt-3 pt-3 border-t border-white/5">
                   <div className="w-full bg-white/5 rounded-full h-2">
-                    <div 
+                    <div
                       className="bg-indigo rounded-full h-2 transition-all"
                       style={{ width: `${client.progress}%` }}
                     ></div>
@@ -133,6 +129,13 @@ export default function ProgressTracker() {
               </div>
             ))}
           </div>
+          ) : (
+            <div className="text-center py-8">
+              <Users className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+              <p className="text-sm font-medium text-foreground">No client progress data yet</p>
+              <p className="text-xs text-muted-foreground mt-1">Add clients and track their transformation journey.</p>
+            </div>
+          )}
         </GlassCard>
         
         <div className="grid lg:grid-cols-3 gap-5">
@@ -155,6 +158,7 @@ export default function ProgressTracker() {
                 </button>
               </div>
               
+              {measurements.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -197,6 +201,12 @@ export default function ProgressTracker() {
                   </tbody>
                 </table>
               </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Ruler className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">No measurements recorded yet.</p>
+                </div>
+              )}
               
               <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground mt-4 flex items-center justify-center gap-2">
                 <Plus className="w-4 h-4" />
@@ -223,17 +233,17 @@ export default function ProgressTracker() {
               <div className="p-3 glass-1 rounded-xl">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm font-medium text-foreground">Pending Photo Reviews</p>
-                  <span className="text-xs font-medium text-amber">3 new</span>
+                  <span className="text-xs font-medium text-muted-foreground">0</span>
                 </div>
-                <p className="text-xs text-muted-foreground">Clients have uploaded progress photos for your review</p>
+                <p className="text-xs text-muted-foreground">Client progress photos will appear here for review</p>
               </div>
-              
+
               <div className="p-3 glass-1 rounded-xl">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm font-medium text-foreground">Before/After Galleries</p>
-                  <span className="text-xs font-medium text-teal">8 ready</span>
+                  <span className="text-xs font-medium text-muted-foreground">0</span>
                 </div>
-                <p className="text-xs text-muted-foreground">Complete transformation galleries ready to share</p>
+                <p className="text-xs text-muted-foreground">Transformation galleries will populate with client data</p>
               </div>
               
               <div className="space-y-2">
@@ -261,37 +271,37 @@ export default function ProgressTracker() {
                     <TrendingUp className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-foreground">12.5kg</p>
+                    <p className="text-2xl font-bold text-foreground">--</p>
                     <p className="text-xs text-muted-foreground">Total Weight Lost</p>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">Across all active clients this month</p>
+                <p className="text-xs text-muted-foreground">Will calculate when measurements are logged</p>
               </div>
-              
+
               <div className="p-4 glass-1 rounded-xl">
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-10 h-10 rounded-full gradient-teal flex items-center justify-center">
                     <Target className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-foreground">68%</p>
+                    <p className="text-2xl font-bold text-foreground">--</p>
                     <p className="text-xs text-muted-foreground">Goal Completion</p>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">Average progress toward client goals</p>
+                <p className="text-xs text-muted-foreground">Will calculate from client progress data</p>
               </div>
-              
+
               <div className="p-4 glass-1 rounded-xl">
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-10 h-10 rounded-full gradient-amber flex items-center justify-center">
                     <BarChart className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-foreground">94%</p>
+                    <p className="text-2xl font-bold text-foreground">--</p>
                     <p className="text-xs text-muted-foreground">Client Retention</p>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">Clients who continue progress tracking</p>
+                <p className="text-xs text-muted-foreground">Will calculate from active client data</p>
               </div>
             </div>
           </GlassCard>

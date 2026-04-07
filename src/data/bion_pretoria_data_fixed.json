@@ -2,7 +2,7 @@
   "providers": [
     {
       "id": "cen_lynette",
-      "name": "Lynette van Zyl – Bridal Hair & Makeup",
+      "name": "Lynette van Zyl \u2013 Bridal Hair & Makeup",
       "service": "Hair Styling",
       "specialization": "Bridal",
       "location": "Arcadia, Pretoria",
@@ -46,7 +46,7 @@
     },
     {
       "id": "cen_ashe",
-      "name": "Ashé Hair Design",
+      "name": "Ash\u00e9 Hair Design",
       "service": "Hair Design",
       "specialization": "Creative Hair",
       "location": "Arcadia, Pretoria",
@@ -324,7 +324,7 @@
         "Weekdays",
         "Weekends"
       ],
-      "description": "GPs, Dentists, Psychologists, Physiotherapist, Aesthetician — all under one roof",
+      "description": "GPs, Dentists, Psychologists, Physiotherapist, Aesthetician \u2014 all under one roof",
       "qualifications": [],
       "languages": [
         "English",
@@ -534,7 +534,7 @@
     },
     {
       "id": "cen_ritali_physio",
-      "name": "Ritali Cronjé Physiotherapists",
+      "name": "Ritali Cronj\u00e9 Physiotherapists",
       "service": "Physiotherapy",
       "specialization": "Physio",
       "location": "Arcadia, Pretoria",
@@ -1377,7 +1377,7 @@
         "Weekdays",
         "Weekends"
       ],
-      "description": "GP, Doctor and Medical Centre — your doctor for all medical needs",
+      "description": "GP, Doctor and Medical Centre \u2014 your doctor for all medical needs",
       "qualifications": [],
       "languages": [
         "English"
@@ -4130,7 +4130,7 @@
     },
     {
       "id": "fg_dr_ade_dent",
-      "name": "Dr. Adé Meyer Cosmetic Dentistry",
+      "name": "Dr. Ad\u00e9 Meyer Cosmetic Dentistry",
       "service": "Cosmetic Dentist",
       "specialization": "CEREC Dentistry",
       "location": "Menlo Park, Pretoria",
@@ -6915,7 +6915,7 @@
     },
     {
       "id": "pn_lenie_hypno",
-      "name": "Lenie Naudé Hypnotherapist",
+      "name": "Lenie Naud\u00e9 Hypnotherapist",
       "service": "Hypnotherapy",
       "specialization": "Hypnotherapy",
       "location": "Moreleta Park, Pretoria",
@@ -7865,7 +7865,7 @@
         "Weekdays",
         "Weekends"
       ],
-      "description": "Functional fitness training — Fitness For Everyone",
+      "description": "Functional fitness training \u2014 Fitness For Everyone",
       "qualifications": [],
       "languages": [
         "English",
@@ -8495,7 +8495,7 @@
     },
     {
       "id": "sun_elsabe_psych",
-      "name": "Elsabé Swanepoel Psychologist",
+      "name": "Elsab\u00e9 Swanepoel Psychologist",
       "service": "Psychology",
       "specialization": "Counselling & Educational",
       "location": "Faerie Glen, Pretoria",
@@ -16403,7 +16403,7 @@
     },
     {
       "id": "h_gloa",
-      "name": "Glóa Hair and Beauty",
+      "name": "Gl\u00f3a Hair and Beauty",
       "service": "Hair & Beauty",
       "specialization": "Hair & Beauty",
       "location": "Silverton, Pretoria",
@@ -20770,7 +20770,7 @@
     },
     {
       "id": "ps_elsabe",
-      "name": "Elsabé Swanepoel Psychologist",
+      "name": "Elsab\u00e9 Swanepoel Psychologist",
       "service": "Psychology",
       "specialization": "Psychology",
       "location": "Centurion, Pretoria",
@@ -27489,7 +27489,7 @@
     },
     {
       "id": "d2_simone",
-      "name": "Dr Simoné Möhr-de Bod",
+      "name": "Dr Simon\u00e9 M\u00f6hr-de Bod",
       "service": "Dentist",
       "specialization": "Dentist",
       "location": "Wonderboom, Pretoria",
@@ -27967,7 +27967,7 @@
     },
     {
       "id": "w2_sor",
-      "name": "SôR Salon",
+      "name": "S\u00f4R Salon",
       "service": "Wellness & Beauty",
       "specialization": "Wellness & Beauty",
       "location": "Wonderboom, Pretoria",
@@ -32148,6 +32148,5 @@
     "original_file": "/Users/mac/Documents/Builds/BION/bio-glass-ui/src/data/bion_pretoria_data.json"
   },
   "fix_applied": true,
-  "fix_date": "2026-04-07",
-  "bookings": []
+  "fix_date": "2026-04-07"
 }

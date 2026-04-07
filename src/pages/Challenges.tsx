@@ -8,9 +8,6 @@ import {
   Lock, ChevronRight, Medal, Star, Zap, Plus
 } from "lucide-react";
 
-// Import real provider data for realistic challenges
-import realData from "@/data/bion_pretoria_data.json";
-
 /* ── types ───────────────────────────────────────────────────── */
 type ChallengeStatus = "active" | "completed" | "locked" | "available";
 type ChallengeCategory = "fitness" | "mindfulness" | "nutrition" | "consistency" | "social";
@@ -24,197 +21,21 @@ interface Challenge {
   participants: number;
   daysLeft?: number;
   daysTotal: number;
-  progress: number; // 0–100
+  progress: number; // 0-100
   reward: string;
   rewardPoints: number;
-  createdBy: string; // Real provider name from Pretoria data
+  createdBy: string;
   badge: string;
   difficulty: "easy" | "medium" | "hard";
   tasks: { label: string; done: boolean }[];
-  providerId?: string; // Reference to real provider
-  location?: string; // Pretoria suburb
+  providerId?: string;
+  location?: string;
 }
 
-/* ── Real challenges based on Pretoria service providers ──────── */
-const REAL_CHALLENGES: Challenge[] = [
-  // Fitness challenges from real Pretoria providers
-  {
-    id: "ch1",
-    title: "Pretoria Strength Foundation",
-    description: "Build foundational strength with 3 weekly strength sessions for 4 weeks. Based on Daniel van der Merwe's physiotherapy approach.",
-    category: "fitness",
-    status: "active",
-    participants: 156,
-    daysLeft: 12,
-    daysTotal: 28,
-    progress: 57,
-    reward: "R100 Wallet Credit + Free Assessment",
-    rewardPoints: 750,
-    createdBy: "Daniel van der Merwe",
-    providerId: "provider_arcadia_1",
-    location: "Arcadia, Pretoria",
-    badge: "💪",
-    difficulty: "medium",
-    tasks: [
-      { label: "Week 1 — Foundation assessment", done: true },
-      { label: "Week 2 — 3 strength sessions", done: true },
-      { label: "Week 3 — Progressive overload", done: true },
-      { label: "Week 4 — Final evaluation", done: false },
-      { label: "Complete mobility checklist", done: false },
-    ],
-  },
-  {
-    id: "ch2",
-    title: "Hydration & Nutrition Reset",
-    description: "14-day hydration and clean eating challenge. Designed by Kobus Clark's fitness assessment methodology.",
-    category: "nutrition",
-    status: "active",
-    participants: 289,
-    daysLeft: 8,
-    daysTotal: 14,
-    progress: 42,
-    reward: "Nutrition Consultation + 500 pts",
-    rewardPoints: 500,
-    createdBy: "Kobus Clark",
-    providerId: "provider_arcadia_2",
-    location: "Arcadia, Pretoria",
-    badge: "🍎",
-    difficulty: "easy",
-    tasks: [
-      { label: "Day 1-3 — Water tracking", done: true },
-      { label: "Day 4-7 — Meal planning", done: true },
-      { label: "Day 8-10 — Protein focus", done: false },
-      { label: "Day 11-14 — Maintenance", done: false },
-    ],
-  },
-  {
-    id: "ch3",
-    title: "Senior Mobility & Balance",
-    description: "4-week program focusing on mobility, balance, and strength for active seniors. Based on Busisiwe Pretorius's senior fitness expertise.",
-    category: "fitness",
-    status: "active",
-    participants: 42,
-    daysLeft: 14,
-    daysTotal: 28,
-    progress: 50,
-    reward: "1 Free Senior Fitness Session",
-    rewardPoints: 600,
-    createdBy: "Busisiwe Pretorius",
-    providerId: "provider_arcadia_3",
-    location: "Arcadia, Pretoria",
-    badge: "🧓",
-    difficulty: "medium",
-    tasks: [
-      { label: "Balance assessment", done: true },
-      { label: "Week 1-2 — Daily mobility", done: true },
-      { label: "Week 3-4 — Strength integration", done: false },
-      { label: "Final balance test", done: false },
-    ],
-  },
-  {
-    id: "ch4",
-    title: "Corporate Wellness 21-Day Challenge",
-    description: "Desk-to-fitness challenge for corporate professionals in Pretoria CBD. Includes posture correction and stress management.",
-    category: "mindfulness",
-    status: "available",
-    participants: 78,
-    daysLeft: undefined,
-    daysTotal: 21,
-    progress: 0,
-    reward: "Corporate Wellness Badge + R150 credit",
-    rewardPoints: 850,
-    createdBy: "Pretoria Corporate Wellness Group",
-    location: "Pretoria Central",
-    badge: "🏢",
-    difficulty: "medium",
-    tasks: [
-      { label: "Posture assessment", done: false },
-      { label: "Daily desk stretches", done: false },
-      { label: "Weekly mindfulness sessions", done: false },
-      { label: "Stress management workshop", done: false },
-    ],
-  },
-  {
-    id: "ch5",
-    title: "Community Fitness Challenge",
-    description: "Team-based challenge: bring 2 friends and complete 12 group sessions together. Great for social motivation.",
-    category: "social",
-    status: "available",
-    participants: 124,
-    daysLeft: undefined,
-    daysTotal: 30,
-    progress: 0,
-    reward: "Group Discount (20% off) + Social Badge",
-    rewardPoints: 900,
-    createdBy: "BION Community",
-    badge: "👥",
-    difficulty: "hard",
-    tasks: [
-      { label: "Form your team", done: false },
-      { label: "Complete intake sessions", done: false },
-      { label: "12 group sessions", done: false },
-      { label: "Team celebration", done: false },
-    ],
-  },
-  {
-    id: "ch6",
-    title: "Sports Rehabilitation Mastery",
-    description: "Advanced 30-day program for athletes recovering from injury. Requires physician clearance and commitment.",
-    category: "fitness",
-    status: "locked",
-    participants: 18,
-    daysLeft: undefined,
-    daysTotal: 30,
-    progress: 0,
-    reward: "Sports Rehab Certification + 1500 pts",
-    rewardPoints: 1500,
-    createdBy: "Pretoria Sports Medicine Group",
-    location: "Waterkloof, Pretoria",
-    badge: "🏃",
-    difficulty: "hard",
-    tasks: [],
-  },
-  {
-    id: "ch7",
-    title: "Morning Consistency Challenge",
-    description: "30 days of morning movement. Any activity counts — walking, stretching, yoga, or workout.",
-    category: "consistency",
-    status: "available",
-    participants: 312,
-    daysLeft: undefined,
-    daysTotal: 30,
-    progress: 0,
-    reward: "Consistency Badge + R75 credit",
-    rewardPoints: 600,
-    createdBy: "BION",
-    badge: "🌅",
-    difficulty: "easy",
-    tasks: [],
-  },
-  {
-    id: "ch8",
-    title: "Weight Management Program",
-    description: "8-week comprehensive weight management with nutrition tracking and weekly check-ins.",
-    category: "nutrition",
-    status: "locked",
-    participants: 56,
-    daysLeft: undefined,
-    daysTotal: 56,
-    progress: 0,
-    reward: "Transformation Award + R200 credit",
-    rewardPoints: 1200,
-    createdBy: "Pretoria Nutrition Network",
-    location: "Multiple suburbs",
-    badge: "⚖️",
-    difficulty: "hard",
-    tasks: [],
-  },
-];
+// Challenges loaded from backend
+const REAL_CHALLENGES: Challenge[] = [];
 
-// Get unique providers for the provider list
-const UNIQUE_PROVIDERS = Array.from(
-  new Set(REAL_CHALLENGES.filter(c => c.createdBy !== "BION" && c.createdBy !== "BION Community").map(c => c.createdBy))
-);
+const UNIQUE_PROVIDERS: string[] = [];
 
 /* ── main component ───────────────────────────────────────────── */
 export default function Challenges() {
@@ -250,7 +71,7 @@ export default function Challenges() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Challenges</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Real challenges from {REAL_CHALLENGES.filter(c => c.createdBy !== "BION" && c.createdBy !== "BION Community").length} Pretoria providers
+              Earn rewards by completing wellness challenges
             </p>
             <div className="flex items-center gap-4 mt-2">
               <div className="flex items-center gap-1.5">
@@ -316,13 +137,21 @@ export default function Challenges() {
           </div>
           <div className="mt-3 pt-3 border-t border-white/5">
             <p className="text-xs text-muted-foreground">
-              Challenges created by real Pretoria service providers across {new Set(REAL_CHALLENGES.filter(c => c.location).map(c => c.location)).size} suburbs
+              Challenges created by service providers in your area
             </p>
           </div>
         </GlassCard>
 
-        {/* Challenges grid */}
-        {view === "grid" && (
+        {/* Challenges grid / list / empty state */}
+        {filtered.length === 0 ? (
+          <GlassCard className="p-8 text-center">
+            <Trophy className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+            <p className="text-sm font-medium text-foreground mb-1">No challenges available yet</p>
+            <p className="text-xs text-muted-foreground">
+              Challenges from providers will appear here. Check back soon!
+            </p>
+          </GlassCard>
+        ) : view === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filtered.map(challenge => (
               <ChallengeCard
@@ -332,10 +161,7 @@ export default function Challenges() {
               />
             ))}
           </div>
-        )}
-
-        {/* Challenges list */}
-        {view === "list" && (
+        ) : (
           <div className="space-y-3">
             {filtered.map(challenge => (
               <ChallengeListItem
@@ -348,9 +174,9 @@ export default function Challenges() {
         )}
 
         {/* Provider showcase */}
-        {filter === "all" && (
+        {filter === "all" && providerStats.length > 0 && (
           <GlassCard className="p-4 mt-6">
-            <h3 className="font-semibold text-foreground mb-3">Featured Pretoria Providers</h3>
+            <h3 className="font-semibold text-foreground mb-3">Featured Providers</h3>
             <div className="space-y-3">
               {providerStats.slice(0, 4).map(provider => (
                 <div key={provider.name} className="flex items-center justify-between p-3 glass-1 rounded-2xl">
@@ -380,7 +206,7 @@ export default function Challenges() {
         </AnimatePresence>
 
         {/* Bottom nav */}
-        <BottomNav active="challenges" />
+        <BottomNav />
       </div>
 
       {/* Coach AI */}

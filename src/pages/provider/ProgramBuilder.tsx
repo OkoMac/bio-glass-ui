@@ -82,7 +82,7 @@ const EXERCISE_LIBRARY: { name: string; category: string }[] = [
 ];
 
 // Real clients from Pretoria data - limited to actual clients
-const REAL_CLIENTS = realData.clients.slice(0, 5).map(client => client.name);
+const REAL_CLIENTS = [...new Set((realData.bookings ?? []).map((b: any) => b.clientName))].slice(0, 5);
 
 // Standard meal labels
 const MEAL_LABELS = ["Breakfast", "Lunch", "Dinner"];

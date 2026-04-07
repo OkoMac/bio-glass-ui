@@ -17,35 +17,17 @@ import {
 export default function MedicalDashboard() {
   const { isEnabled } = useFeatureFlags();
   
-  // Sample medical patients - will be replaced with real data
-  const [patients, setPatients] = useState([
-    { id: 1, name: 'John Smith', condition: 'Lower back pain', lastVisit: '2026-03-27', 
-      nextAppointment: '2026-04-03', medicalAid: 'Discovery', memberNumber: 'DS123456',
-      notes: 'Responding well to physio, needs core strengthening' },
-    { id: 2, name: 'Sarah Johnson', condition: 'Post-op knee rehab', lastVisit: '2026-03-25',
-      nextAppointment: '2026-04-01', medicalAid: 'Momentum', memberNumber: 'MM789012',
-      notes: 'ACL reconstruction, progressing to weight-bearing' },
-    { id: 3, name: 'Mike Wilson', condition: 'Hypertension management', lastVisit: '2026-03-20',
-      nextAppointment: '2026-04-05', medicalAid: 'Bonitas', memberNumber: 'BN345678',
-      notes: 'Diet and exercise plan, monitoring BP weekly' },
-    { id: 4, name: 'Emma Davis', condition: 'Diabetes management', lastVisit: '2026-03-15',
-      nextAppointment: '2026-04-10', medicalAid: 'Fedhealth', memberNumber: 'FH901234',
-      notes: 'Insulin-dependent, tracking glucose levels' },
-  ]);
-  
-  // Sample SOAP notes
-  const [soapNotes, setSoapNotes] = useState([
-    { id: 1, patient: 'John Smith', date: '2026-03-27', 
-      subjective: 'Reports 40% improvement in pain, still stiff in mornings',
-      objective: 'ROM improved 15°, strength 4/5, gait normalizing',
-      assessment: 'Good progress, continue current protocol',
-      plan: 'Add core exercises, next visit in 1 week' },
-    { id: 2, patient: 'Sarah Johnson', date: '2026-03-25',
-      subjective: 'Pain reduced, can walk without crutches',
-      objective: 'Knee flexion 90°, swelling minimal, weight-bearing 50%',
-      assessment: 'Excellent progress post-op week 6',
-      plan: 'Increase weight-bearing, add balance exercises' },
-  ]);
+  // Patients loaded from backend
+  const [patients, setPatients] = useState<{
+    id: number; name: string; condition: string; lastVisit: string;
+    nextAppointment: string; medicalAid: string; memberNumber: string; notes: string;
+  }[]>([]);
+
+  // SOAP notes loaded from backend
+  const [soapNotes, setSoapNotes] = useState<{
+    id: number; patient: string; date: string;
+    subjective: string; objective: string; assessment: string; plan: string;
+  }[]>([]);
   
   // If the feature flag is disabled, show upgrade prompt
   if (!isEnabled('medicalVertical')) {
@@ -74,7 +56,7 @@ export default function MedicalDashboard() {
     totalPatients: patients.length,
     upcomingAppointments: patients.filter(p => p.nextAppointment).length,
     soapNotesCount: soapNotes.length,
-    medicalAidClaims: 8, // Sample claims
+    medicalAidClaims: 0,
   };
   
   return (
@@ -157,76 +139,86 @@ export default function MedicalDashboard() {
           </div>
           
           <div className="space-y-3">
-            {patients.map(patient => (
-              <div key={patient.id} className="p-4 glass-1 rounded-xl">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-12 h-12 rounded-full bg-indigo/20 flex items-center justify-center flex-shrink-0">
-                      <User className="w-6 h-6 text-indigo" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">{patient.name}</p>
-                      
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-                        <div className="flex items-center gap-1">
-                          <Stethoscope className="w-3 h-3" />
-                          <span>{patient.condition}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          <span>Last: {patient.lastVisit}</span>
+            {patients.length === 0 ? (
+              <div className="p-6 text-center">
+                <User className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+                <p className="text-sm font-medium text-foreground mb-1">No patients yet</p>
+                <p className="text-xs text-muted-foreground">
+                  Add patients to manage their conditions, appointments, and medical records.
+                </p>
+              </div>
+            ) : (
+              patients.map(patient => (
+                <div key={patient.id} className="p-4 glass-1 rounded-xl">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-12 h-12 rounded-full bg-indigo/20 flex items-center justify-center flex-shrink-0">
+                        <User className="w-6 h-6 text-indigo" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">{patient.name}</p>
+
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                          <div className="flex items-center gap-1">
+                            <Stethoscope className="w-3 h-3" />
+                            <span>{patient.condition}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            <span>Last: {patient.lastVisit}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="text-right">
-                    <div className="flex items-center gap-1 justify-end mb-1">
-                      <Calendar className="w-3 h-3 text-teal" />
-                      <p className="text-sm font-medium text-teal">{patient.nextAppointment}</p>
-                    </div>
-                    <p className="text-xs text-muted-foreground">Next appointment</p>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3 mb-3">
-                  <div className="p-2 glass-1 rounded-lg">
-                    <p className="text-xs text-muted-foreground">Medical Aid</p>
-                    <div className="flex items-center gap-1 mt-1">
-                      <Shield className="w-3 h-3 text-amber" />
-                      <p className="text-sm font-medium text-foreground">{patient.medicalAid}</p>
+
+                    <div className="text-right">
+                      <div className="flex items-center gap-1 justify-end mb-1">
+                        <Calendar className="w-3 h-3 text-teal" />
+                        <p className="text-sm font-medium text-teal">{patient.nextAppointment}</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground">Next appointment</p>
                     </div>
                   </div>
-                  
-                  <div className="p-2 glass-1 rounded-lg">
-                    <p className="text-xs text-muted-foreground">Member Number</p>
-                    <div className="flex items-center gap-1 mt-1">
-                      <FileText className="w-3 h-3 text-purple" />
-                      <p className="text-sm font-medium text-foreground">{patient.memberNumber}</p>
+
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div className="p-2 glass-1 rounded-lg">
+                      <p className="text-xs text-muted-foreground">Medical Aid</p>
+                      <div className="flex items-center gap-1 mt-1">
+                        <Shield className="w-3 h-3 text-amber" />
+                        <p className="text-sm font-medium text-foreground">{patient.medicalAid}</p>
+                      </div>
+                    </div>
+
+                    <div className="p-2 glass-1 rounded-lg">
+                      <p className="text-xs text-muted-foreground">Member Number</p>
+                      <div className="flex items-center gap-1 mt-1">
+                        <FileText className="w-3 h-3 text-purple" />
+                        <p className="text-sm font-medium text-foreground">{patient.memberNumber}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-                
-                {patient.notes && (
-                  <div className="p-2 glass-1 rounded-lg mb-3">
-                    <p className="text-xs text-muted-foreground mb-1">Clinical Notes</p>
-                    <p className="text-sm text-foreground">{patient.notes}</p>
+
+                  {patient.notes && (
+                    <div className="p-2 glass-1 rounded-lg mb-3">
+                      <p className="text-xs text-muted-foreground mb-1">Clinical Notes</p>
+                      <p className="text-sm text-foreground">{patient.notes}</p>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-2">
+                    <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground">
+                      SOAP Notes
+                    </button>
+                    <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground">
+                      Prescriptions
+                    </button>
+                    <button className="flex-1 gradient-indigo rounded-pill py-2 text-sm font-semibold text-white">
+                      Medical Claim
+                    </button>
                   </div>
-                )}
-                
-                <div className="flex items-center gap-2">
-                  <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground">
-                    SOAP Notes
-                  </button>
-                  <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground">
-                    Prescriptions
-                  </button>
-                  <button className="flex-1 gradient-indigo rounded-pill py-2 text-sm font-semibold text-white">
-                    Medical Claim
-                  </button>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </GlassCard>
         
@@ -251,56 +243,64 @@ export default function MedicalDashboard() {
               </div>
               
               <div className="space-y-3">
-                {soapNotes.map(note => (
-                  <div key={note.id} className="p-3 glass-1 rounded-xl">
-                    <div className="flex items-center justify-between mb-2">
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{note.patient}</p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                          <Calendar className="w-3 h-3" />
-                          <span>{note.date}</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="px-2 py-0.5 bg-teal/20 text-teal rounded-full text-xs font-medium">
-                          SOAP
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Subjective</p>
-                        <p className="text-sm text-foreground">{note.subjective}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Objective</p>
-                        <p className="text-sm text-foreground">{note.objective}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Assessment</p>
-                        <p className="text-sm text-foreground">{note.assessment}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Plan</p>
-                        <p className="text-sm text-foreground">{note.plan}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 mt-3">
-                      <button className="flex-1 glass-1 rounded-pill py-1.5 text-xs font-medium text-foreground">
-                        Edit
-                      </button>
-                      <button className="flex-1 glass-1 rounded-pill py-1.5 text-xs font-medium text-foreground">
-                        Print
-                      </button>
-                      <button className="flex-1 gradient-indigo rounded-pill py-1.5 text-xs font-semibold text-white">
-                        Sign & Lock
-                      </button>
-                    </div>
+                {soapNotes.length === 0 ? (
+                  <div className="p-6 text-center">
+                    <FileText className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+                    <p className="text-sm font-medium text-foreground mb-1">No SOAP notes yet</p>
+                    <p className="text-xs text-muted-foreground">Create SOAP notes to document patient consultations.</p>
                   </div>
-                ))}
-                
+                ) : (
+                  soapNotes.map(note => (
+                    <div key={note.id} className="p-3 glass-1 rounded-xl">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{note.patient}</p>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                            <Calendar className="w-3 h-3" />
+                            <span>{note.date}</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="px-2 py-0.5 bg-teal/20 text-teal rounded-full text-xs font-medium">
+                            SOAP
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Subjective</p>
+                          <p className="text-sm text-foreground">{note.subjective}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Objective</p>
+                          <p className="text-sm text-foreground">{note.objective}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Assessment</p>
+                          <p className="text-sm text-foreground">{note.assessment}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Plan</p>
+                          <p className="text-sm text-foreground">{note.plan}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 mt-3">
+                        <button className="flex-1 glass-1 rounded-pill py-1.5 text-xs font-medium text-foreground">
+                          Edit
+                        </button>
+                        <button className="flex-1 glass-1 rounded-pill py-1.5 text-xs font-medium text-foreground">
+                          Print
+                        </button>
+                        <button className="flex-1 gradient-indigo rounded-pill py-1.5 text-xs font-semibold text-white">
+                          Sign & Lock
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+
                 <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                   <Plus className="w-4 h-4" />
                   Create New SOAP Note

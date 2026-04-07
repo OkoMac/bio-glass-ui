@@ -5,36 +5,12 @@ import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { withTimeout } from "@/lib/safeQuery";
 import {
   Users, Briefcase, TrendingUp, AlertTriangle,
   CheckCircle, Clock, XCircle, ChevronRight, ShieldCheck,
-  Mail, Phone, Calendar, FileText, UserPlus,
+  Mail, Phone, Calendar, FileText, UserPlus, Loader2,
 } from "lucide-react";
-
-import provider1 from "@/assets/provider-1.jpg";
-import provider2 from "@/assets/provider-2.jpg";
-import provider3 from "@/assets/provider-3.jpg";
-
-const pendingVerifications = [
-  { id: "pv1", name: "Dr. Zanele Dlamini", vertical: "Medical", submitted: "1 Feb", image: provider1, docs: 3 },
-  { id: "pv2", name: "Kagiso Sithole", vertical: "Fitness", submitted: "28 Jan", image: provider2, docs: 2 },
-  { id: "pv3", name: "Aisha Patel", vertical: "Beauty", submitted: "25 Jan", image: provider3, docs: 4 },
-];
-
-const kpis = [
-  { label: "Total Providers", value: "284", trend: "+12 this week", icon: Briefcase, color: "#6366F1" },
-  { label: "Active Clients", value: "4,810", trend: "+138 this week", icon: Users, color: "#2DD4BF" },
-  { label: "Bookings (MTD)", value: "12,340", trend: "+22%", icon: TrendingUp, color: "#FBBF24" },
-  { label: "Pending Requests", value: "—", trend: "Loading...", icon: AlertTriangle, color: "#FB7185" },
-];
-
-const verticalStats = [
-  { label: "Fitness", count: 112, pct: 100, color: "#2DD4BF" },
-  { label: "Medical", count: 68, pct: 61, color: "#6366F1" },
-  { label: "Beauty", count: 54, pct: 48, color: "#FB7185" },
-  { label: "Professional", count: 32, pct: 29, color: "#FBBF24" },
-  { label: "Wellness", count: 18, pct: 16, color: "#A78BFA" },
-];
 
 interface BookingRequest {
   id: string;
@@ -52,27 +28,117 @@ interface BookingRequest {
   created_at: string;
 }
 
+interface VerticalStat {
+  label: string;
+  count: number;
+  pct: number;
+  color: string;
+}
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [approvals, setApprovals] = useState<Record<string, "approved" | "rejected" | null>>(
-    Object.fromEntries(pendingVerifications.map(p => [p.id, null]))
-  );
+
+  const [providerCount, setProviderCount] = useState(0);
+  const [clientCount, setClientCount] = useState(0);
+  const [bookingCount, setBookingCount] = useState(0);
+  const [loadingKpis, setLoadingKpis] = useState(true);
+
+  const [pendingProviders, setPendingProviders] = useState<{ id: string; full_name: string; specialty: string | null; created_at: string }[]>([]);
+  const [approvals, setApprovals] = useState<Record<string, "approved" | "rejected" | null>>({});
+  const [loadingPending, setLoadingPending] = useState(true);
+
+  const [verticalStats, setVerticalStats] = useState<VerticalStat[]>([]);
+
   const [bookingRequests, setBookingRequests] = useState<BookingRequest[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
 
   useEffect(() => {
+    loadKpis();
+    loadPendingProviders();
     loadBookingRequests();
+    loadVerticalStats();
   }, []);
 
+  const loadKpis = async () => {
+    try {
+      const [providers, clients, bookings] = await Promise.all([
+        withTimeout(() => supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "provider"), 5000, { count: 0 } as any),
+        withTimeout(() => supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "client"), 5000, { count: 0 } as any),
+        withTimeout(() => supabase.from("bookings").select("id", { count: "exact", head: true }), 5000, { count: 0 } as any),
+      ]);
+      setProviderCount(providers.count ?? 0);
+      setClientCount(clients.count ?? 0);
+      setBookingCount(bookings.count ?? 0);
+    } catch (err) {
+      console.error("Failed to load KPIs:", err);
+    } finally {
+      setLoadingKpis(false);
+    }
+  };
+
+  const loadPendingProviders = async () => {
+    try {
+      const { data } = await withTimeout(
+        () => supabase.from("profiles").select("id, full_name, specialty, created_at").eq("is_active", false).order("created_at", { ascending: false }).limit(10),
+        5000,
+        { data: null } as any,
+      );
+      const list = data ?? [];
+      setPendingProviders(list);
+      setApprovals(Object.fromEntries(list.map(p => [p.id, null])));
+    } catch (err) {
+      console.error("Failed to load pending providers:", err);
+    } finally {
+      setLoadingPending(false);
+    }
+  };
+
+  const loadVerticalStats = async () => {
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("specialty")
+        .not("specialty", "is", null);
+      if (data && data.length > 0) {
+        const counts: Record<string, number> = {};
+        data.forEach(p => {
+          const key = p.specialty || "Other";
+          counts[key] = (counts[key] || 0) + 1;
+        });
+        const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+        const maxCount = sorted[0]?.[1] || 1;
+        const VERTICAL_COLORS: Record<string, string> = {
+          Fitness: "#2DD4BF", Medical: "#6366F1", Beauty: "#FB7185",
+          Professional: "#FBBF24", Wellness: "#A78BFA",
+        };
+        setVerticalStats(sorted.map(([label, count]) => ({
+          label,
+          count,
+          pct: Math.round((count / maxCount) * 100),
+          color: VERTICAL_COLORS[label] || "#6B7280",
+        })));
+      } else {
+        setVerticalStats([]);
+      }
+    } catch (err) {
+      console.error("Failed to load vertical stats:", err);
+    }
+  };
+
   const loadBookingRequests = async () => {
-    const { data } = await supabase
-      .from("booking_requests")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(10) as { data: BookingRequest[] | null };
-    setBookingRequests(data ?? []);
-    setLoadingRequests(false);
+    try {
+      const { data } = await supabase
+        .from("booking_requests")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(10) as { data: BookingRequest[] | null };
+      setBookingRequests(data ?? []);
+    } catch (err) {
+      console.error("Failed to load booking requests:", err);
+    } finally {
+      setLoadingRequests(false);
+    }
   };
 
   const updateRequestStatus = async (id: string, status: string) => {
@@ -80,14 +146,23 @@ export default function AdminDashboard() {
     setBookingRequests(prev => prev.map(r => r.id === id ? { ...r, status } : r));
   };
 
+  const approveProvider = async (id: string) => {
+    await supabase.from("profiles").update({ is_active: true } as any).eq("id", id);
+    setApprovals(a => ({ ...a, [id]: "approved" }));
+  };
+
+  const rejectProvider = async (id: string) => {
+    setApprovals(a => ({ ...a, [id]: "rejected" }));
+  };
+
   const pendingCount = bookingRequests.filter(r => r.status === "pending").length;
 
-  const verticalColor: Record<string, string> = {
-    Medical: "text-indigo glass-accent-indigo",
-    Fitness: "text-teal glass-accent-teal",
-    Beauty: "text-coral glass-accent-coral",
-    Wellness: "text-violet glass-accent-indigo",
-  };
+  const kpis = [
+    { label: "Total Providers", value: loadingKpis ? "..." : String(providerCount), trend: loadingKpis ? "Loading..." : "From Supabase", icon: Briefcase, color: "#6366F1" },
+    { label: "Active Clients", value: loadingKpis ? "..." : String(clientCount), trend: loadingKpis ? "Loading..." : "From Supabase", icon: Users, color: "#2DD4BF" },
+    { label: "Bookings (Total)", value: loadingKpis ? "..." : String(bookingCount), trend: loadingKpis ? "Loading..." : "From Supabase", icon: TrendingUp, color: "#FBBF24" },
+    { label: "Pending Requests", value: "—", trend: "Loading...", icon: AlertTriangle, color: "#FB7185" },
+  ];
 
   const statusColor: Record<string, string> = {
     pending: "glass-accent-amber text-amber",
@@ -148,6 +223,7 @@ export default function AdminDashboard() {
 
           {loadingRequests ? (
             <div className="glass-1 rounded-2xl p-8 text-center">
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">Loading requests...</p>
             </div>
           ) : bookingRequests.length === 0 ? (
@@ -248,67 +324,89 @@ export default function AdminDashboard() {
                   {Object.values(approvals).filter(v => !v).length}
                 </span>
               </div>
-              <button onClick={() => navigate("/admin/providers")} className="text-xs text-indigo">View all →</button>
+              <button onClick={() => navigate("/admin/providers")} className="text-xs text-indigo">View all</button>
             </div>
-            <div className="space-y-2">
-              {pendingVerifications.map((p, i) => {
-                const decision = approvals[p.id];
-                return (
-                  <motion.div key={p.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
-                    <GlassCard className="p-4">
-                      <div className="flex items-center gap-3">
-                        <img src={p.image} alt={p.name} className="w-10 h-10 rounded-xl object-cover" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-foreground">{p.name}</p>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className={`text-[9px] px-1.5 py-0.5 rounded-pill ${verticalColor[p.vertical] || "glass-1 text-muted-foreground"}`}>
-                              {p.vertical}
+
+            {loadingPending ? (
+              <GlassCard className="p-8 text-center">
+                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Loading pending verifications...</p>
+              </GlassCard>
+            ) : pendingProviders.length === 0 ? (
+              <GlassCard className="p-8 text-center">
+                <CheckCircle className="w-6 h-6 text-teal mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">No pending verifications</p>
+                <p className="text-xs text-muted-foreground mt-1">All providers are verified.</p>
+              </GlassCard>
+            ) : (
+              <div className="space-y-2">
+                {pendingProviders.map((p, i) => {
+                  const decision = approvals[p.id];
+                  return (
+                    <motion.div key={p.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
+                      <GlassCard className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-sm font-bold text-foreground shrink-0">
+                            {(p.full_name || "?").charAt(0)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-foreground">{p.full_name || "Unknown"}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[9px] px-1.5 py-0.5 rounded-pill glass-1 text-muted-foreground">
+                                {p.specialty || "No specialty"}
+                              </span>
+                              <span className="text-[10px] text-muted-foreground">
+                                {new Date(p.created_at).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                          {decision ? (
+                            <span className={`text-[10px] px-2 py-1 rounded-pill ${
+                              decision === "approved" ? "glass-accent-teal text-teal" : "glass-accent-coral text-coral"
+                            }`}>
+                              {decision === "approved" ? "Approved" : "Rejected"}
                             </span>
-                            <span className="text-[10px] text-muted-foreground">{p.docs} docs · {p.submitted}</span>
-                          </div>
+                          ) : (
+                            <div className="flex gap-1.5">
+                              <motion.button whileTap={{ scale: 0.95 }} onClick={() => approveProvider(p.id)} className="p-2 glass-accent-teal rounded-xl">
+                                <CheckCircle className="w-4 h-4 text-teal" />
+                              </motion.button>
+                              <motion.button whileTap={{ scale: 0.95 }} onClick={() => rejectProvider(p.id)} className="p-2 glass-accent-coral rounded-xl">
+                                <XCircle className="w-4 h-4 text-coral" />
+                              </motion.button>
+                            </div>
+                          )}
                         </div>
-                        {decision ? (
-                          <span className={`text-[10px] px-2 py-1 rounded-pill ${
-                            decision === "approved" ? "glass-accent-teal text-teal" : "glass-accent-coral text-coral"
-                          }`}>
-                            {decision === "approved" ? "Approved" : "Rejected"}
-                          </span>
-                        ) : (
-                          <div className="flex gap-1.5">
-                            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setApprovals(a => ({ ...a, [p.id]: "approved" }))} className="p-2 glass-accent-teal rounded-xl">
-                              <CheckCircle className="w-4 h-4 text-teal" />
-                            </motion.button>
-                            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setApprovals(a => ({ ...a, [p.id]: "rejected" }))} className="p-2 glass-accent-coral rounded-xl">
-                              <XCircle className="w-4 h-4 text-coral" />
-                            </motion.button>
-                          </div>
-                        )}
-                      </div>
-                    </GlassCard>
-                  </motion.div>
-                );
-              })}
-            </div>
+                      </GlassCard>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Right col */}
           <div className="space-y-4">
             <GlassCard className="p-4">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Providers by Vertical</p>
-              <div className="space-y-3">
-                {verticalStats.map(v => (
-                  <div key={v.label}>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-xs text-muted-foreground">{v.label}</span>
-                      <span className="text-xs font-bold text-foreground">{v.count}</span>
+              {verticalStats.length === 0 ? (
+                <p className="text-xs text-muted-foreground text-center py-4">No data yet</p>
+              ) : (
+                <div className="space-y-3">
+                  {verticalStats.map(v => (
+                    <div key={v.label}>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-xs text-muted-foreground">{v.label}</span>
+                        <span className="text-xs font-bold text-foreground">{v.count}</span>
+                      </div>
+                      <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                        <motion.div initial={{ width: 0 }} animate={{ width: `${v.pct}%` }} transition={{ delay: 0.3, duration: 0.8 }}
+                          className="h-full rounded-full" style={{ background: v.color }} />
+                      </div>
                     </div>
-                    <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                      <motion.div initial={{ width: 0 }} animate={{ width: `${v.pct}%` }} transition={{ delay: 0.3, duration: 0.8 }}
-                        className="h-full rounded-full" style={{ background: v.color }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </GlassCard>
           </div>
         </div>

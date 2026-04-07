@@ -65,7 +65,8 @@ const PaymentForm: React.FC<StripePaymentFormProps & { stripe: Stripe | null }> 
 
     try {
       // 1. Create payment intent on our backend
-      const response = await fetch('http://localhost:4000/api/stripe/create-payment-intent', {
+      const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
+      const response = await fetch(`${apiUrl}/api/stripe/create-payment-intent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,7 +117,6 @@ const PaymentForm: React.FC<StripePaymentFormProps & { stripe: Stripe | null }> 
         // In production, you would also create the booking here
         if (bookingDetails) {
           // Call your booking API to create the booking
-          console.log('Payment successful, creating booking:', bookingDetails);
         }
       }
     } catch (error: any) {

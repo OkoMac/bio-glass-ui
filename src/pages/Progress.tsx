@@ -168,14 +168,13 @@ export default function Progress() {
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-foreground">Progress Photos</h2>
-            <motion.button whileTap={{ scale: 0.95 }}
-              className="rounded-pill px-3 py-1.5 glass-1 text-xs text-muted-foreground flex items-center gap-1">
-              <Plus className="w-3 h-3" /> Add
-            </motion.button>
+            <span className="rounded-pill px-3 py-1.5 glass-1 text-xs text-muted-foreground/50 cursor-default">
+              Coming soon
+            </span>
           </div>
           <div className="grid grid-cols-3 gap-2">
             {["Jan 10", "Jan 24", "Feb 14"].map((date, i) => (
-              <div key={date} className="aspect-square rounded-xl overflow-hidden relative glass-1 flex items-center justify-center">
+              <div key={date} className="aspect-square rounded-xl overflow-hidden relative glass-1 flex items-center justify-center cursor-default">
                 <div className="text-center">
                   <p className="text-[10px] font-medium text-muted-foreground">{date}</p>
                   <p className="text-[9px] text-muted-foreground/50 mt-0.5">Week {[1,3,5][i]}</p>
@@ -183,6 +182,7 @@ export default function Progress() {
               </div>
             ))}
           </div>
+          <p className="text-[10px] text-muted-foreground/60 text-center mt-2">Photo tracking coming in next update</p>
         </section>
 
         {/* Milestones */}

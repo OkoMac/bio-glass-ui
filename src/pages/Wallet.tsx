@@ -10,16 +10,8 @@ import {
   CreditCard, Shield, Info, CheckCircle, X,
 } from "lucide-react";
 
-const TRANSACTIONS = [
-  { id: "t1", type: "debit",  label: "Session: Lisa Dlamini",     amount: -400,  date: "28 Feb", icon: "💪" },
-  { id: "t2", type: "topup",  label: "Top-up via card",            amount: 500,   date: "25 Feb", icon: "💳" },
-  { id: "t3", type: "debit",  label: "Session: Sarah Chen",        amount: -650,  date: "22 Feb", icon: "✨" },
-  { id: "t4", type: "reward", label: "BIONPoints redeemed",         amount: 50,    date: "20 Feb", icon: "🎁" },
-  { id: "t5", type: "debit",  label: "Session: Dr. K. Sithole",   amount: -550,  date: "15 Feb", icon: "🏥" },
-  { id: "t6", type: "topup",  label: "Top-up via EFT",             amount: 1000,  date: "10 Feb", icon: "💳" },
-  { id: "t7", type: "debit",  label: "Session: Amir Patel",        amount: -280,  date: "5 Feb",  icon: "🧘" },
-  { id: "t8", type: "reward", label: "Referral bonus",             amount: 100,   date: "1 Feb",  icon: "🎉" },
-];
+// Transactions loaded from backend
+const TRANSACTIONS: { id: string; type: string; label: string; amount: number; date: string; icon: string }[] = [];
 
 const PRESETS = [100, 250, 500, 1000];
 
@@ -32,7 +24,7 @@ export default function Wallet() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [balance, setBalance]           = useState(320);
+  const [balance, setBalance]           = useState(0);
   const [transactions, setTransactions] = useState(TRANSACTIONS);
   const [preset, setPreset]             = useState<number | null>(null);
   const [custom, setCustom]             = useState("");
@@ -117,6 +109,7 @@ export default function Wallet() {
             </motion.button>
             <motion.button
               whileTap={{ scale: 0.95 }}
+              onClick={() => window.alert("Transfer feature coming soon.")}
               className="flex items-center gap-1.5 rounded-pill px-4 py-2 glass-1 text-foreground text-xs font-medium"
             >
               <ArrowUpRight className="w-3.5 h-3.5" /> Send
@@ -148,6 +141,7 @@ export default function Wallet() {
             ))}
             <motion.button
               whileTap={{ scale: 0.97 }}
+              onClick={() => navigate("/settings?tab=payment")}
               className="w-full glass-1 rounded-2xl p-3.5 flex items-center gap-3 text-muted-foreground hover:bg-white/5 transition-all"
             >
               <Plus className="w-4 h-4" />
@@ -176,38 +170,45 @@ export default function Wallet() {
           </div>
 
           <div className="space-y-2">
-            <AnimatePresence initial={false}>
-              {visible.map((tx, i) => (
-                <motion.div
-                  key={tx.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ delay: i < 6 ? i * 0.03 : 0 }}
-                >
-                  <GlassCard className="p-3.5 flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 ${
-                      tx.amount > 0 ? "glass-accent-teal" : "glass-1"
-                    }`}>
-                      {tx.icon}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-foreground truncate">{tx.label}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{tx.date}</p>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {tx.amount > 0
-                        ? <ArrowDownLeft className="w-3 h-3 text-teal" />
-                        : <ArrowUpRight className="w-3 h-3 text-coral" />
-                      }
-                      <span className={`text-sm font-semibold font-data ${tx.amount > 0 ? "text-teal" : "text-foreground"}`}>
-                        {tx.amount > 0 ? "+" : ""}R{Math.abs(tx.amount)}
-                      </span>
-                    </div>
-                  </GlassCard>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+            {visible.length === 0 ? (
+              <GlassCard className="p-6 text-center">
+                <p className="text-sm font-medium text-foreground mb-1">No transactions yet</p>
+                <p className="text-xs text-muted-foreground">Top up your wallet to get started. Transactions will appear here.</p>
+              </GlassCard>
+            ) : (
+              <AnimatePresence initial={false}>
+                {visible.map((tx, i) => (
+                  <motion.div
+                    key={tx.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ delay: i < 6 ? i * 0.03 : 0 }}
+                  >
+                    <GlassCard className="p-3.5 flex items-center gap-3">
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 ${
+                        tx.amount > 0 ? "glass-accent-teal" : "glass-1"
+                      }`}>
+                        {tx.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-foreground truncate">{tx.label}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">{tx.date}</p>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {tx.amount > 0
+                          ? <ArrowDownLeft className="w-3 h-3 text-teal" />
+                          : <ArrowUpRight className="w-3 h-3 text-coral" />
+                        }
+                        <span className={`text-sm font-semibold font-data ${tx.amount > 0 ? "text-teal" : "text-foreground"}`}>
+                          {tx.amount > 0 ? "+" : ""}R{Math.abs(tx.amount)}
+                        </span>
+                      </div>
+                    </GlassCard>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            )}
           </div>
         </div>
       </div>

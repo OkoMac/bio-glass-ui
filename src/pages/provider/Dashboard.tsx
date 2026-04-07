@@ -11,22 +11,9 @@ import {
   Users, Calendar, AlertTriangle, ChevronRight,
 } from "lucide-react";
 
-import provider1 from "@/assets/provider-1.jpg";
-import provider2 from "@/assets/provider-2.jpg";
-import provider3 from "@/assets/provider-3.jpg";
-import provider4 from "@/assets/provider-4.jpg";
+const todaySchedule: { time: string; client: string; service: string; image: string; vertical: "teal" | "indigo" | "coral" | "amber"; confirmed: boolean }[] = [];
 
-const todaySchedule = [
-  { time: "07:00", client: "Mpho Sithole",    service: "Personal Training",   image: provider1, vertical: "teal"   as const, confirmed: true  },
-  { time: "09:00", client: "Thandi Khumalo",  service: "Strength Assessment", image: provider2, vertical: "indigo" as const, confirmed: true  },
-  { time: "10:00", client: "Kobus Pretorius", service: "Personal Training",   image: provider3, vertical: "coral"  as const, confirmed: false },
-  { time: "11:30", client: "Naledi Moyo",     service: "Personal Training",   image: provider4, vertical: "amber"  as const, confirmed: true  },
-];
-
-const churnRisk = [
-  { name: "Amir K.",    days: 21, risk: "high"   as const },
-  { name: "Busisiwe M.", days: 14, risk: "medium" as const },
-];
+const churnRisk: { name: string; days: number; risk: "high" | "medium" }[] = [];
 
 export default function ProviderDashboard() {
   const navigate = useNavigate();
@@ -60,7 +47,7 @@ export default function ProviderDashboard() {
           {[
             { label: "Today's revenue", value: `R${todayRevenue.toLocaleString()}`, icon: TrendingUp, color: "#6366F1" },
             { label: "Sessions today",  value: String(todaySchedule.length),         icon: Calendar,  color: "#2DD4BF" },
-            { label: "Active clients",  value: "24",                                  icon: Users,     color: "#FBBF24" },
+            { label: "Active clients",  value: "0",                                   icon: Users,     color: "#FBBF24" },
             { label: "Pending requests",value: String(pendingCount),                  icon: AlertTriangle, color: "#FB7185" },
           ].map((k, i) => (
             <motion.div key={k.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
@@ -125,7 +112,7 @@ export default function ProviderDashboard() {
             <button onClick={() => navigate("/pro/schedule")} className="text-xs text-indigo">Full calendar →</button>
           </div>
           <div className="space-y-2">
-            {todaySchedule.map((s, i) => (
+            {todaySchedule.length > 0 ? todaySchedule.map((s, i) => (
               <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + i * 0.05 }}>
                 <GlassCard className="p-3 flex items-center gap-3">
                   <div className="text-center shrink-0 w-12">
@@ -141,43 +128,51 @@ export default function ProviderDashboard() {
                   <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                 </GlassCard>
               </motion.div>
-            ))}
+            )) : (
+              <GlassCard className="p-6 text-center">
+                <Calendar className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-sm font-medium text-foreground">No sessions scheduled today</p>
+                <p className="text-xs text-muted-foreground mt-1">Your schedule will populate as clients book with you.</p>
+              </GlassCard>
+            )}
           </div>
         </section>
 
         {/* Churn risk */}
-        {churnRisk.length > 0 && (
-          <section>
-            <div className="flex items-center gap-2 mb-3">
-              <AlertTriangle className="w-4 h-4 text-amber" />
-              <h2 className="text-base font-semibold text-foreground">Churn Risk</h2>
-            </div>
-            <div className="space-y-2">
-              {churnRisk.map(c => (
-                <GlassCard key={c.name} className="p-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full glass-2 flex items-center justify-center text-xs font-bold text-foreground">
-                      {c.name.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{c.name}</p>
-                      <p className="text-[10px] text-muted-foreground">{c.days} days since last booking</p>
-                    </div>
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <AlertTriangle className="w-4 h-4 text-amber" />
+            <h2 className="text-base font-semibold text-foreground">Churn Risk</h2>
+          </div>
+          <div className="space-y-2">
+            {churnRisk.length > 0 ? churnRisk.map(c => (
+              <GlassCard key={c.name} className="p-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full glass-2 flex items-center justify-center text-xs font-bold text-foreground">
+                    {c.name.charAt(0)}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[10px] px-2 py-1 rounded-pill ${c.risk === "high" ? "glass-accent-coral text-coral" : "glass-accent-amber text-amber"}`}>
-                      {c.risk === "high" ? "High risk" : "Medium"}
-                    </span>
-                    <motion.button whileTap={{ scale: 0.95 }} onClick={() => navigate("/pro/messages")}
-                      className="p-1.5 glass-1 rounded-full">
-                      <MessageSquare className="w-3.5 h-3.5 text-indigo" />
-                    </motion.button>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{c.name}</p>
+                    <p className="text-[10px] text-muted-foreground">{c.days} days since last booking</p>
                   </div>
-                </GlassCard>
-              ))}
-            </div>
-          </section>
-        )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] px-2 py-1 rounded-pill ${c.risk === "high" ? "glass-accent-coral text-coral" : "glass-accent-amber text-amber"}`}>
+                    {c.risk === "high" ? "High risk" : "Medium"}
+                  </span>
+                  <motion.button whileTap={{ scale: 0.95 }} onClick={() => navigate("/pro/messages")}
+                    className="p-1.5 glass-1 rounded-full">
+                    <MessageSquare className="w-3.5 h-3.5 text-indigo" />
+                  </motion.button>
+                </div>
+              </GlassCard>
+            )) : (
+              <GlassCard className="p-4 text-center">
+                <p className="text-sm text-muted-foreground">No at-risk clients</p>
+              </GlassCard>
+            )}
+          </div>
+        </section>
 
         {/* Quick links */}
         <div className="grid grid-cols-2 gap-3">

@@ -5,11 +5,6 @@ import CorporateNav from "@/components/CorporateNav";
 import CoachAI from "@/components/CoachAI";
 import { Search, Users, Wallet, AlertTriangle, CheckCircle, ChevronRight, Plus, Minus, Filter } from "lucide-react";
 
-import provider1 from "@/assets/provider-1.jpg";
-import provider2 from "@/assets/provider-2.jpg";
-import provider3 from "@/assets/provider-3.jpg";
-import provider4 from "@/assets/provider-4.jpg";
-
 type EmployeeStatus = "active" | "inactive" | "pending";
 
 interface Employee {
@@ -25,16 +20,8 @@ interface Employee {
   categories: string[];
 }
 
-const EMPLOYEES: Employee[] = [
-  { id: "e1", name: "Sipho Mabunda",    image: provider1, email: "sipho@capitec.com",   department: "Engineering",  walletBalance: 1250, monthlyBudget: 1500, sessionsUsed: 8,  status: "active",   categories: ["Fitness", "Wellness"] },
-  { id: "e2", name: "Naledi Khumalo",   image: provider2, email: "naledi@capitec.com",  department: "Product",      walletBalance: 750,  monthlyBudget: 1500, sessionsUsed: 5,  status: "active",   categories: ["Medical", "Fitness"] },
-  { id: "e3", name: "Kobus Pretorius",  image: provider3, email: "kobus@capitec.com",   department: "Finance",      walletBalance: 200,  monthlyBudget: 1500, sessionsUsed: 11, status: "active",   categories: ["Fitness"] },
-  { id: "e4", name: "Thandi Moyo",      image: provider4, email: "thandi@capitec.com",  department: "HR",           walletBalance: 1500, monthlyBudget: 1500, sessionsUsed: 0,  status: "inactive", categories: ["Wellness", "Beauty"] },
-  { id: "e5", name: "Amir Khan",        image: provider1, email: "amir@capitec.com",    department: "Marketing",    walletBalance: 900,  monthlyBudget: 1500, sessionsUsed: 4,  status: "active",   categories: ["Fitness", "Medical"] },
-  { id: "e6", name: "Zanele Dlamini",   image: provider2, email: "zanele@capitec.com",  department: "Engineering",  walletBalance: 0,    monthlyBudget: 1500, sessionsUsed: 13, status: "active",   categories: ["Beauty", "Wellness"] },
-  { id: "e7", name: "Pieter van Wyk",   image: provider3, email: "pieter@capitec.com",  department: "Operations",   walletBalance: 1100, monthlyBudget: 1500, sessionsUsed: 2,  status: "pending",  categories: ["Fitness"] },
-  { id: "e8", name: "Busisiwe Nkosi",   image: provider4, email: "busisiwe@capitec.com",department: "Legal",        walletBalance: 650,  monthlyBudget: 1500, sessionsUsed: 6,  status: "active",   categories: ["Medical", "Wellness"] },
-];
+// Employees loaded from backend
+const EMPLOYEES: Employee[] = [];
 
 const DEPARTMENTS = ["All", "Engineering", "Product", "Finance", "HR", "Marketing", "Operations", "Legal"];
 const STATUS_META: Record<EmployeeStatus, { label: string; cls: string }> = {
@@ -125,6 +112,15 @@ export default function CorporateEmployees() {
 
         {/* Employee list */}
         <div className="space-y-2">
+          {filtered.length === 0 && (
+            <GlassCard className="p-8 text-center">
+              <Users className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+              <p className="text-sm font-medium text-foreground mb-1">No employees added yet</p>
+              <p className="text-xs text-muted-foreground">
+                Add employees to start managing their wellness budgets and sessions.
+              </p>
+            </GlassCard>
+          )}
           {filtered.map((e, i) => {
             const usedPct = Math.round(((e.monthlyBudget - e.walletBalance) / e.monthlyBudget) * 100);
             return (

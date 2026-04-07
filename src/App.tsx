@@ -3,9 +3,41 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { BookingsProvider } from "@/contexts/BookingsContext";
+
+// ─── Error Boundary ──────────────────────────────────
+class ErrorBoundary extends React.Component<
+  { children: ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: 40, fontFamily: "system-ui", color: "#fff", background: "#0a0a0f", minHeight: "100vh" }}>
+          <h1 style={{ color: "#f87171", marginBottom: 16 }}>Runtime Error</h1>
+          <pre style={{ background: "#1e1e2e", padding: 16, borderRadius: 8, overflow: "auto", fontSize: 13 }}>
+            {this.state.error?.message}
+            {"\n\n"}
+            {this.state.error?.stack}
+          </pre>
+          <button onClick={() => window.location.reload()} style={{ marginTop: 16, padding: "8px 20px", background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer" }}>
+            Reload
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // Client pages
 import Index           from "./pages/Index";
@@ -24,6 +56,12 @@ import Wallet          from "./pages/Wallet";
 import Notifications   from "./pages/Notifications";
 import SplashOnboarding from "./pages/SplashOnboarding";
 import NotFound        from "./pages/NotFound";
+
+// Client free tools
+import WaterTracker from "./pages/WaterTracker";
+import SleepTracker from "./pages/SleepTracker";
+import MedicalCard  from "./pages/MedicalCard";
+import LifeCoach    from "./pages/LifeCoach";
 
 // Role onboarding
 import ClientOnboarding    from "./pages/onboarding/ClientOnboarding";
@@ -74,6 +112,10 @@ const ONBOARDING_ROUTES: Record<string, string> = {
 function isOnboardingComplete(userId: string, role: string): boolean {
   // Demo accounts have id prefixed "demo_" — they bypass onboarding entirely
   if (userId.startsWith("demo_")) return true;
+  
+  // Admin users skip onboarding
+  if (role === "admin") return true;
+  
   try {
     const key = `bion_onboarding_${userId}_${role}`;
     const raw = localStorage.getItem(key);
@@ -163,6 +205,10 @@ function AppRoutes() {
       <Route path="/challenges"     element={<RequireAuth allowedRoles={["client"]}><Challenges /></RequireAuth>} />
       <Route path="/health-profile" element={<RequireAuth allowedRoles={["client"]}><HealthProfile /></RequireAuth>} />
       <Route path="/wallet"         element={<RequireAuth allowedRoles={["client"]}><Wallet /></RequireAuth>} />
+      <Route path="/water-tracker"  element={<RequireAuth allowedRoles={["client"]}><WaterTracker /></RequireAuth>} />
+      <Route path="/sleep-tracker"  element={<RequireAuth allowedRoles={["client"]}><SleepTracker /></RequireAuth>} />
+      <Route path="/medical-card"   element={<RequireAuth allowedRoles={["client"]}><MedicalCard /></RequireAuth>} />
+      <Route path="/life-coach"     element={<RequireAuth allowedRoles={["client"]}><LifeCoach /></RequireAuth>} />
       <Route path="/notifications"  element={<RequireAuth><Notifications /></RequireAuth>} />
 
       {/* Provider portal */}
@@ -200,19 +246,21 @@ function AppRoutes() {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <BookingsProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </TooltipProvider>
-      </BookingsProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <BookingsProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </TooltipProvider>
+        </BookingsProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

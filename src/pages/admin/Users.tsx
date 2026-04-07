@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
+import { supabase } from "@/integrations/supabase/client";
+import { withTimeout } from "@/lib/safeQuery";
 import {
   Search, Shield, ShieldCheck, ShieldOff, ChevronRight,
-  Plus, X, Eye, EyeOff, CheckCircle, AlertTriangle, User, Users
+  Plus, X, CheckCircle, AlertTriangle, User, Users, Loader2
 } from "lucide-react";
 
 type UserRole = "client" | "provider" | "admin" | "corporate";
@@ -22,57 +24,6 @@ interface PlatformUser {
   permissions: Record<string, boolean>;
   plan?: string;
 }
-
-const USERS: PlatformUser[] = [
-  {
-    id: "u1", name: "Mpho Sithole", email: "mpho@example.com",
-    role: "client", status: "active", joinedAt: "Jun 2024", lastActive: "Today",
-    verified: true,
-    permissions: { book: true, wallet: true, chat: true, challenges: true, passport: true },
-  },
-  {
-    id: "u2", name: "Lisa Dlamini", email: "lisa@example.com",
-    role: "provider", status: "active", joinedAt: "Jan 2025", lastActive: "Today",
-    verified: true, plan: "Pro",
-    permissions: { create_services: true, manage_clients: true, analytics: true, billing: true, challenges: true },
-  },
-  {
-    id: "u3", name: "Naledi Moyo", email: "naledi@example.com",
-    role: "client", status: "active", joinedAt: "Mar 2024", lastActive: "Today",
-    verified: true,
-    permissions: { book: true, wallet: true, chat: true, challenges: true, passport: true },
-  },
-  {
-    id: "u4", name: "Dr. Kagiso Sithole", email: "kagiso@example.com",
-    role: "provider", status: "active", joinedAt: "Nov 2024", lastActive: "Yesterday",
-    verified: true, plan: "Elite",
-    permissions: { create_services: true, manage_clients: true, analytics: true, billing: true, challenges: true, medical_prescriptions: true },
-  },
-  {
-    id: "u5", name: "Thabo Mokoena", email: "thabo@example.com",
-    role: "provider", status: "suspended", joinedAt: "Dec 2024", lastActive: "14 Feb",
-    verified: true, plan: "Starter",
-    permissions: { create_services: false, manage_clients: true, analytics: false, billing: true, challenges: false },
-  },
-  {
-    id: "u6", name: "Dr. Zanele Dlamini", email: "zanele@example.com",
-    role: "provider", status: "pending_verification", joinedAt: "Feb 2026", lastActive: "—",
-    verified: false, plan: "Pro",
-    permissions: { create_services: false, manage_clients: false, analytics: false, billing: false, challenges: false },
-  },
-  {
-    id: "u7", name: "FNB Wellness", email: "wellness@fnb.co.za",
-    role: "corporate", status: "active", joinedAt: "Oct 2024", lastActive: "Today",
-    verified: true,
-    permissions: { manage_employees: true, wallet_topup: true, analytics: true, category_restrictions: true },
-  },
-  {
-    id: "u8", name: "Admin User", email: "admin@bio.health",
-    role: "admin", status: "active", joinedAt: "Jan 2024", lastActive: "Today",
-    verified: true,
-    permissions: { approve_providers: true, manage_users: true, view_analytics: true, manage_settings: true, impersonate: false },
-  },
-];
 
 const ROLE_META: Record<UserRole, { label: string; color: string; icon: typeof User }> = {
   client:    { label: "Client",    color: "text-indigo bg-indigo/10 border-indigo/20",  icon: User     },
@@ -99,8 +50,24 @@ const PERMISSION_LABELS: Record<string, string> = {
   impersonate: "Impersonate users",
 };
 
+function defaultPermissions(role: UserRole): Record<string, boolean> {
+  switch (role) {
+    case "client":
+      return { book: true, wallet: true, chat: true, challenges: true, passport: true };
+    case "provider":
+      return { create_services: true, manage_clients: true, analytics: true, billing: true, challenges: true };
+    case "admin":
+      return { approve_providers: true, manage_users: true, view_analytics: true, manage_settings: true, impersonate: false };
+    case "corporate":
+      return { manage_employees: true, wallet_topup: true, analytics: true, category_restrictions: true };
+    default:
+      return {};
+  }
+}
+
 export default function AdminUsers() {
-  const [users, setUsers]       = useState<PlatformUser[]>(USERS);
+  const [users, setUsers]       = useState<PlatformUser[]>([]);
+  const [loading, setLoading]   = useState(true);
   const [query, setQuery]       = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | UserRole>("all");
   const [selected, setSelected] = useState<PlatformUser | null>(null);
@@ -112,17 +79,76 @@ export default function AdminUsers() {
   const [newRole, setNewRole]   = useState<UserRole>("client");
   const [addDone, setAddDone]   = useState(false);
 
+  useEffect(() => {
+    loadUsers().catch(() => setLoading(false));
+  }, []);
+
+  const loadUsers = async () => {
+    try {
+      // Get all roles
+      const { data: roleData } = await withTimeout(
+        () => supabase.from("user_roles").select("user_id, role"),
+        5000,
+        { data: null } as any,
+      );
+
+      if (!roleData || roleData.length === 0) {
+        setUsers([]);
+        setLoading(false);
+        return;
+      }
+
+      const roleMap: Record<string, UserRole> = {};
+      roleData.forEach(r => {
+        roleMap[r.user_id] = r.role as UserRole;
+      });
+
+      const userIds = roleData.map(r => r.user_id);
+
+      const { data: profileData } = await withTimeout(
+        () => supabase.from("profiles").select("id, user_id, full_name, email, is_active, created_at").in("user_id", userIds).order("created_at", { ascending: false }),
+        5000,
+        { data: null } as any,
+      );
+
+      const mapped: PlatformUser[] = (profileData ?? []).map(p => {
+        const role = roleMap[p.user_id] || "client";
+        return {
+          id: p.id ?? p.user_id,
+          name: p.full_name || "Unknown",
+          email: p.email || "",
+          role,
+          status: p.is_active === false ? "suspended" : "active" as UserStatus,
+          joinedAt: p.created_at ? new Date(p.created_at).toLocaleDateString("en-ZA", { month: "short", year: "numeric" }) : "Unknown",
+          lastActive: "Unknown",
+          verified: p.is_active !== false,
+          permissions: defaultPermissions(role),
+        };
+      });
+      setUsers(mapped);
+    } catch {
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filtered = users.filter(u => {
     const matchQ = u.name.toLowerCase().includes(query.toLowerCase()) || u.email.toLowerCase().includes(query.toLowerCase());
     const matchR = roleFilter === "all" || u.role === roleFilter;
     return matchQ && matchR;
   });
 
-  const toggleStatus = (id: string) => {
+  const toggleStatus = async (id: string) => {
+    const user = users.find(u => u.id === id);
+    if (!user) return;
+    const newStatus: UserStatus = user.status === "active" ? "suspended" : "active";
+    const isActive = newStatus === "active";
+    await supabase.from("profiles").update({ is_active: isActive } as any).eq("id", id);
     setUsers(prev => prev.map(u =>
-      u.id === id ? { ...u, status: u.status === "active" ? "suspended" : "active" } : u
+      u.id === id ? { ...u, status: newStatus } : u
     ));
-    if (selected?.id === id) setSelected(prev => prev ? { ...prev, status: prev.status === "active" ? "suspended" : "active" } : null);
+    if (selected?.id === id) setSelected(prev => prev ? { ...prev, status: newStatus } : null);
   };
 
   const togglePermission = (userId: string, perm: string) => {
@@ -140,14 +166,26 @@ export default function AdminUsers() {
       id: Date.now().toString(),
       name: newName.trim(), email: newEmail.trim(),
       role: newRole, status: "pending_verification",
-      joinedAt: "Today", lastActive: "—",
+      joinedAt: "Today", lastActive: "---",
       verified: false,
-      permissions: {},
+      permissions: defaultPermissions(newRole),
     };
     setUsers(prev => [newUser, ...prev]);
     setAddDone(true);
     setTimeout(() => { setShowAddModal(false); setAddDone(false); setNewName(""); setNewEmail(""); setNewRole("client"); }, 1800);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+        <div className="mx-auto max-w-4xl px-4 pt-16 pb-10 md:pt-8 flex flex-col items-center justify-center gap-3" style={{ minHeight: "60vh" }}>
+          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">Loading users...</p>
+        </div>
+        <AdminNav />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
@@ -173,7 +211,7 @@ export default function AdminUsers() {
         <div className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
           <input value={query} onChange={e => setQuery(e.target.value)}
-            placeholder="Search by name or email…"
+            placeholder="Search by name or email..."
             className="w-full h-10 glass-1 rounded-pill pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none" />
         </div>
 
@@ -190,40 +228,50 @@ export default function AdminUsers() {
         </div>
 
         {/* User list */}
-        <div className="space-y-2">
-          {filtered.map((u, i) => {
-            const meta = ROLE_META[u.role];
-            const statusMeta = STATUS_META[u.status];
-            return (
-              <motion.div key={u.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                <GlassCard hover className="p-4 cursor-pointer" onClick={() => setSelected(u)}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-sm font-bold text-foreground shrink-0">
-                      {u.name.charAt(0)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold text-foreground">{u.name}</p>
-                        {!u.verified && <AlertTriangle className="w-3 h-3 text-amber shrink-0" />}
+        {filtered.length === 0 ? (
+          <GlassCard className="p-8 text-center">
+            <Users className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
+            <p className="text-sm text-muted-foreground">No users found</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {query || roleFilter !== "all" ? "Try a different search or filter." : "No user accounts exist yet."}
+            </p>
+          </GlassCard>
+        ) : (
+          <div className="space-y-2">
+            {filtered.map((u, i) => {
+              const meta = ROLE_META[u.role];
+              const statusMeta = STATUS_META[u.status];
+              return (
+                <motion.div key={u.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                  <GlassCard hover className="p-4 cursor-pointer" onClick={() => setSelected(u)}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-sm font-bold text-foreground shrink-0">
+                        {u.name.charAt(0)}
                       </div>
-                      <p className="text-[11px] text-muted-foreground">{u.email}</p>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className={`text-[10px] px-2 py-0.5 rounded-pill border capitalize ${meta.color}`}>
-                        {meta.label}
-                      </span>
-                      <div className="flex items-center gap-1">
-                        <span className={`w-1.5 h-1.5 rounded-full ${statusMeta.dot}`} />
-                        <span className="text-[10px] text-muted-foreground">{statusMeta.label}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold text-foreground">{u.name}</p>
+                          {!u.verified && <AlertTriangle className="w-3 h-3 text-amber shrink-0" />}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">{u.email}</p>
                       </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={`text-[10px] px-2 py-0.5 rounded-pill border capitalize ${meta.color}`}>
+                          {meta.label}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <span className={`w-1.5 h-1.5 rounded-full ${statusMeta.dot}`} />
+                          <span className="text-[10px] text-muted-foreground">{statusMeta.label}</span>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                     </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                  </div>
-                </GlassCard>
-              </motion.div>
-            );
-          })}
-        </div>
+                  </GlassCard>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* User detail drawer */}
@@ -339,7 +387,7 @@ export default function AdminUsers() {
 
                 {addDone ? (
                   <div className="text-center py-8">
-                    <p className="text-3xl mb-3">✅</p>
+                    <CheckCircle className="w-8 h-8 text-teal mx-auto mb-3" />
                     <p className="text-sm font-semibold text-foreground">User created!</p>
                     <p className="text-xs text-muted-foreground mt-1">An invite email has been dispatched.</p>
                   </div>

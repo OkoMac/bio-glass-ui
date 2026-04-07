@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
 import { useAuth } from "@/contexts/AuthContext";
-import { Save, Check, Shield, Bell, Globe, CreditCard, Database, Zap, Eye, EyeOff, RefreshCw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { withTimeout } from "@/lib/safeQuery";
+import { Save, Check, Shield, Bell, Globe, CreditCard, Database, Zap, Loader2 } from "lucide-react";
 
 type Tab = "platform" | "security" | "notifications" | "billing";
 
@@ -20,39 +22,130 @@ export default function AdminSettings() {
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>("platform");
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   // Platform settings
-  const [platformName, setPlatformName] = useState("BION Platform");
-  const [supportEmail, setSupportEmail]  = useState("support@bion.app");
+  const [platformName, setPlatformName] = useState("");
+  const [supportEmail, setSupportEmail]  = useState("");
   const [maintenanceMode, setMaintenanceMode] = useState(false);
-  const [whatsappEnabled, setWhatsappEnabled] = useState(true);
-  const [serveAIEnabled, setServeAIEnabled]   = useState(true);
-  const [corpWellness, setCorpWellness]       = useState(true);
-  const [maxProviders, setMaxProviders]       = useState("500");
+  const [whatsappEnabled, setWhatsappEnabled] = useState(false);
+  const [serveAIEnabled, setServeAIEnabled]   = useState(false);
+  const [corpWellness, setCorpWellness]       = useState(false);
+  const [maxProviders, setMaxProviders]       = useState("");
 
   // Security
-  const [mfaRequired, setMfaRequired]     = useState(true);
-  const [sessionTimeout, setSessionTimeout] = useState("30");
+  const [mfaRequired, setMfaRequired]     = useState(false);
+  const [sessionTimeout, setSessionTimeout] = useState("");
   const [ipWhitelist, setIpWhitelist]       = useState(false);
-  const [auditLogs, setAuditLogs]           = useState(true);
-  const [apiKey, setApiKey]                 = useState("bio_sk_prod_••••••••••••••••");
-  const [showKey, setShowKey]               = useState(false);
+  const [auditLogs, setAuditLogs]           = useState(false);
 
   // Notifications
-  const [notifNewProvider, setNotifNewProvider]   = useState(true);
-  const [notifPayoutFail, setNotifPayoutFail]     = useState(true);
-  const [notifFlaggedUser, setNotifFlaggedUser]   = useState(true);
-  const [notifPlatformAlert, setNotifPlatformAlert] = useState(true);
-  const [notifWeeklyReport, setNotifWeeklyReport] = useState(true);
+  const [notifNewProvider, setNotifNewProvider]   = useState(false);
+  const [notifPayoutFail, setNotifPayoutFail]     = useState(false);
+  const [notifFlaggedUser, setNotifFlaggedUser]   = useState(false);
+  const [notifPlatformAlert, setNotifPlatformAlert] = useState(false);
+  const [notifWeeklyReport, setNotifWeeklyReport] = useState(false);
   const [notifGrowthAlert, setNotifGrowthAlert]   = useState(false);
 
   // Billing
-  const [currentPlan] = useState("Enterprise");
-  const [monthlySeats] = useState("12,400");
+  const [totalBookingGmv, setTotalBookingGmv] = useState(0);
+  const [activeSeats, setActiveSeats] = useState(0);
+  const [loadingBilling, setLoadingBilling] = useState(true);
 
-  const save = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  useEffect(() => {
+    loadSettings();
+    loadBillingData();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      const { data } = await withTimeout(
+        () => supabase.from("platform_settings").select("key, value"),
+        5000,
+        { data: null } as any,
+      );
+
+      if (data && data.length > 0) {
+        const settings: Record<string, string> = {};
+        data.forEach(row => { settings[row.key] = row.value; });
+
+        setPlatformName(settings["platform_name"] || "");
+        setSupportEmail(settings["support_email"] || "");
+        setMaintenanceMode(settings["maintenance_mode"] === "true");
+        setWhatsappEnabled(settings["whatsapp_enabled"] === "true");
+        setServeAIEnabled(settings["serve_ai_enabled"] === "true");
+        setCorpWellness(settings["corp_wellness"] === "true");
+        setMaxProviders(settings["max_providers"] || "");
+        setMfaRequired(settings["mfa_required"] === "true");
+        setSessionTimeout(settings["session_timeout"] || "");
+        setIpWhitelist(settings["ip_whitelist"] === "true");
+        setAuditLogs(settings["audit_logs"] === "true");
+        setNotifNewProvider(settings["notif_new_provider"] === "true");
+        setNotifPayoutFail(settings["notif_payout_fail"] === "true");
+        setNotifFlaggedUser(settings["notif_flagged_user"] === "true");
+        setNotifPlatformAlert(settings["notif_platform_alert"] === "true");
+        setNotifWeeklyReport(settings["notif_weekly_report"] === "true");
+        setNotifGrowthAlert(settings["notif_growth_alert"] === "true");
+      }
+    } catch {
+      // platform_settings table may not exist yet
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadBillingData = async () => {
+    try {
+      const [bookingsRes, seatsRes] = await Promise.all([
+        withTimeout(() => supabase.from("bookings").select("total_price").eq("status", "completed"), 5000, { data: [], count: 0 } as any),
+        withTimeout(() => supabase.from("user_roles").select("user_id", { count: "exact", head: true }), 5000, { data: null, count: 0 } as any),
+      ]);
+      const gmv = (bookingsRes.data ?? []).reduce((sum, b) => sum + (Number(b.total_price) || 0), 0);
+      setTotalBookingGmv(gmv);
+      setActiveSeats(seatsRes.count ?? 0);
+    } catch {
+      // bookings or user_roles table may not exist yet
+    } finally {
+      setLoadingBilling(false);
+    }
+  };
+
+  const save = async () => {
+    try {
+      const settingsToSave: Record<string, string> = {
+        platform_name: platformName,
+        support_email: supportEmail,
+        maintenance_mode: String(maintenanceMode),
+        whatsapp_enabled: String(whatsappEnabled),
+        serve_ai_enabled: String(serveAIEnabled),
+        corp_wellness: String(corpWellness),
+        max_providers: maxProviders,
+        mfa_required: String(mfaRequired),
+        session_timeout: sessionTimeout,
+        ip_whitelist: String(ipWhitelist),
+        audit_logs: String(auditLogs),
+        notif_new_provider: String(notifNewProvider),
+        notif_payout_fail: String(notifPayoutFail),
+        notif_flagged_user: String(notifFlaggedUser),
+        notif_platform_alert: String(notifPlatformAlert),
+        notif_weekly_report: String(notifWeeklyReport),
+        notif_growth_alert: String(notifGrowthAlert),
+      };
+
+      for (const [key, value] of Object.entries(settingsToSave)) {
+        await supabase
+          .from("platform_settings")
+          .upsert({ key, value } as any, { onConflict: "key" });
+      }
+
+      setSaved(true);
+      setSaveError("");
+      setTimeout(() => setSaved(false), 3000);
+    } catch {
+      setSaveError("Failed to save. Make sure the platform_settings table exists in Supabase.");
+      setTimeout(() => setSaveError(""), 5000);
+    }
   };
 
   const tabs: { key: Tab; label: string; icon: typeof Shield }[] = [
@@ -61,6 +154,18 @@ export default function AdminSettings() {
     { key: "notifications", label: "Notifications", icon: Bell     },
     { key: "billing",       label: "Billing",       icon: CreditCard },
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+        <div className="mx-auto max-w-2xl px-4 pt-16 pb-10 md:pt-8 flex flex-col items-center justify-center gap-3" style={{ minHeight: "60vh" }}>
+          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">Loading settings...</p>
+        </div>
+        <AdminNav />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
@@ -80,6 +185,17 @@ export default function AdminSettings() {
           </motion.button>
         </div>
 
+        {saved && (
+          <div className="glass-accent-teal rounded-xl p-3 text-sm text-teal flex items-center gap-2">
+            <Check className="w-4 h-4" /> Settings saved successfully
+          </div>
+        )}
+        {saveError && (
+          <div className="glass-accent-coral rounded-xl p-3 text-sm text-coral">
+            {saveError}
+          </div>
+        )}
+
         {/* Tab strip */}
         <div className="flex gap-1 glass-1 rounded-pill p-1">
           {tabs.map(t => (
@@ -93,20 +209,20 @@ export default function AdminSettings() {
           ))}
         </div>
 
-        {/* ── Platform ── */}
+        {/* Platform */}
         {tab === "platform" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
             <GlassCard className="p-4 space-y-4">
               <p className="text-sm font-semibold text-foreground">General</p>
               {[
-                { label: "Platform Name",  value: platformName, set: setPlatformName },
-                { label: "Support Email",  value: supportEmail, set: setSupportEmail },
-                { label: "Max Providers",  value: maxProviders, set: setMaxProviders, type: "number" },
+                { label: "Platform Name",  value: platformName, set: setPlatformName, placeholder: "Enter platform name" },
+                { label: "Support Email",  value: supportEmail, set: setSupportEmail, placeholder: "Enter support email" },
+                { label: "Max Providers",  value: maxProviders, set: setMaxProviders, type: "number", placeholder: "Enter max providers" },
               ].map(f => (
                 <div key={f.label}>
                   <label className="text-[10px] text-muted-foreground uppercase tracking-wider block mb-1">{f.label}</label>
-                  <input value={f.value} onChange={e => f.set(e.target.value)} type={f.type ?? "text"}
-                    className="w-full h-10 glass-1 rounded-xl px-3 text-sm text-foreground bg-transparent outline-none" />
+                  <input value={f.value} onChange={e => f.set(e.target.value)} type={f.type ?? "text"} placeholder={f.placeholder}
+                    className="w-full h-10 glass-1 rounded-xl px-3 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none" />
                 </div>
               ))}
             </GlassCard>
@@ -131,7 +247,7 @@ export default function AdminSettings() {
           </motion.div>
         )}
 
-        {/* ── Security ── */}
+        {/* Security */}
         {tab === "security" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
             <GlassCard className="p-4 space-y-3">
@@ -139,7 +255,7 @@ export default function AdminSettings() {
               {[
                 { label: "Require 2FA for Admins",     sub: "Force MFA on all admin accounts",  value: mfaRequired,  set: setMfaRequired  },
                 { label: "IP Whitelist",               sub: "Restrict admin panel by IP",        value: ipWhitelist,  set: setIpWhitelist  },
-                { label: "Full Audit Logs",             sub: "Log all admin actions to S3",       value: auditLogs,    set: setAuditLogs    },
+                { label: "Full Audit Logs",             sub: "Log all admin actions",             value: auditLogs,    set: setAuditLogs    },
               ].map(f => (
                 <div key={f.label} className="flex items-center justify-between py-1">
                   <div className="flex-1 min-w-0">
@@ -151,37 +267,32 @@ export default function AdminSettings() {
               ))}
               <div>
                 <label className="text-[10px] text-muted-foreground uppercase tracking-wider block mb-1">Session Timeout (minutes)</label>
-                <input value={sessionTimeout} onChange={e => setSessionTimeout(e.target.value)} type="number"
-                  className="w-full h-10 glass-1 rounded-xl px-3 text-sm text-foreground bg-transparent outline-none" />
+                <input value={sessionTimeout} onChange={e => setSessionTimeout(e.target.value)} type="number" placeholder="e.g. 30"
+                  className="w-full h-10 glass-1 rounded-xl px-3 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none" />
               </div>
             </GlassCard>
 
             <GlassCard className="p-4 space-y-3">
               <p className="text-sm font-semibold text-foreground">API Key</p>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 relative">
-                  <input readOnly value={showKey ? "bio_sk_prod_a4f8c2d1e9b3" : apiKey}
-                    className="w-full h-10 glass-1 rounded-xl px-3 pr-10 text-xs font-mono text-foreground bg-transparent outline-none" />
-                  <button onClick={() => setShowKey(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                    {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-                <motion.button whileTap={{ scale: 0.9 }}
-                  className="w-10 h-10 glass-1 rounded-xl flex items-center justify-center shrink-0"
-                  title="Regenerate">
-                  <RefreshCw className="w-4 h-4 text-muted-foreground" />
-                </motion.button>
+              <div className="flex items-center justify-center py-4">
+                <p className="text-xs text-muted-foreground text-center">
+                  API keys are managed via Supabase Dashboard.<br />
+                  Navigate to your project settings to manage keys.
+                </p>
               </div>
-              <p className="text-[10px] text-coral">⚠ Regenerating will invalidate all active integrations</p>
             </GlassCard>
 
             <GlassCard className="p-4">
               <p className="text-sm font-semibold text-foreground mb-2">POPIA Compliance</p>
               <div className="space-y-1.5">
-                {["Data retention: 3 years (compliant)", "Consent logs: Active", "Right to erasure: Enabled", "Last audit: Jan 15, 2026"].map(item => (
+                {[
+                  "Data retention policy: Configure in Supabase",
+                  "Consent logs: Configure in Supabase",
+                  "Right to erasure: Configure in Supabase",
+                  "Last audit: Not yet performed",
+                ].map(item => (
                   <div key={item} className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Check className="w-3 h-3 text-teal shrink-0" /> {item}
+                    <Database className="w-3 h-3 text-muted-foreground shrink-0" /> {item}
                   </div>
                 ))}
               </div>
@@ -189,7 +300,7 @@ export default function AdminSettings() {
           </motion.div>
         )}
 
-        {/* ── Notifications ── */}
+        {/* Notifications */}
         {tab === "notifications" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
             <GlassCard className="p-4 space-y-3">
@@ -214,23 +325,23 @@ export default function AdminSettings() {
           </motion.div>
         )}
 
-        {/* ── Billing ── */}
+        {/* Billing */}
         {tab === "billing" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
             <GlassCard className="p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold text-foreground">Current Plan</p>
-                <span className="text-xs px-2.5 py-1 rounded-pill gradient-indigo text-primary-foreground font-medium">
-                  {currentPlan}
+                <span className="text-xs px-2.5 py-1 rounded-pill glass-1 text-muted-foreground font-medium">
+                  Not configured
                 </span>
               </div>
               <div className="space-y-2">
                 {[
-                  { label: "Active Seats",        value: monthlySeats },
-                  { label: "Commission Rate",      value: "8% per booking" },
-                  { label: "Payout Frequency",     value: "Weekly" },
-                  { label: "Next Invoice",         value: "Mar 1, 2026" },
-                  { label: "Estimated Amount",     value: "R48,200" },
+                  { label: "Active Seats",        value: loadingBilling ? "..." : String(activeSeats) },
+                  { label: "Commission Rate",      value: "Configure in platform_settings" },
+                  { label: "Payout Frequency",     value: "Configure in platform_settings" },
+                  { label: "Next Invoice",         value: "N/A" },
+                  { label: "Estimated Amount",     value: "N/A" },
                 ].map(r => (
                   <div key={r.label} className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{r.label}</span>
@@ -242,24 +353,10 @@ export default function AdminSettings() {
 
             <GlassCard className="p-4">
               <p className="text-sm font-semibold text-foreground mb-3">Invoice History</p>
-              <div className="space-y-2">
-                {[
-                  { month: "January 2026",  amount: "R39,850", status: "Paid"    },
-                  { month: "December 2025", amount: "R35,200", status: "Paid"    },
-                  { month: "November 2025", amount: "R28,400", status: "Paid"    },
-                  { month: "October 2025",  amount: "R22,100", status: "Paid"    },
-                ].map(inv => (
-                  <div key={inv.month} className="flex items-center justify-between py-1">
-                    <div>
-                      <p className="text-xs font-medium text-foreground">{inv.month}</p>
-                      <p className="text-[10px] text-muted-foreground">{inv.amount}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] px-2 py-0.5 rounded-pill glass-accent-teal text-teal">{inv.status}</span>
-                      <button className="text-[10px] text-indigo font-medium">PDF</button>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex items-center justify-center py-6">
+                <p className="text-xs text-muted-foreground text-center">
+                  No invoices yet. Invoice history will appear here once billing is configured.
+                </p>
               </div>
             </GlassCard>
 
@@ -267,10 +364,12 @@ export default function AdminSettings() {
               <div className="flex items-start gap-3">
                 <Zap className="w-4 h-4 text-indigo mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-sm font-semibold text-foreground">Platform GMV This Month</p>
-                  <p className="text-2xl font-bold font-data text-foreground mt-1">R994,500</p>
+                  <p className="text-sm font-semibold text-foreground">Platform GMV (All Time)</p>
+                  <p className="text-2xl font-bold font-data text-foreground mt-1">
+                    {loadingBilling ? "..." : `R${totalBookingGmv.toLocaleString()}`}
+                  </p>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
-                    <span className="text-teal">+18.4%</span> vs January · On track for R1M milestone
+                    Calculated from completed bookings in Supabase
                   </p>
                 </div>
               </div>

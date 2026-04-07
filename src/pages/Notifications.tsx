@@ -11,9 +11,6 @@ import {
   Gift, Zap, CheckCheck, Trash2, Settings, BellOff,
 } from "lucide-react";
 
-// Import real provider data for realistic notifications
-import realData from "@/data/bion_pretoria_data.json";
-
 // ── Types ────────────────────────────────────────────────────────────
 
 type NotifCategory = "booking" | "message" | "streak" | "reward" | "system" | "provider";
@@ -27,152 +24,12 @@ interface Notification {
   createdAt:  number;       // for sorting
   read:       boolean;
   actionUrl?: string;
-  providerId?: string;      // Reference to real provider
-  location?: string;        // Pretoria suburb
+  providerId?: string;
+  location?: string;
 }
 
-// ── Real notification data based on Pretoria service providers ───────
-
-const now = Date.now();
-const mins = (n: number) => now - n * 60 * 1000;
-const hrs  = (n: number) => now - n * 60 * 60 * 1000;
-const days = (n: number) => now - n * 24 * 60 * 60 * 1000;
-
-// Get real provider names for notifications
-const REAL_PROVIDERS = realData.providers || [];
-const REAL_BOOKINGS = realData.bookings || [];
-
-// Helper to get a random provider
-const getRandomProvider = () => {
-  if (REAL_PROVIDERS.length === 0) return { name: "Provider", id: "", location: "Pretoria" };
-  const provider = REAL_PROVIDERS[Math.floor(Math.random() * REAL_PROVIDERS.length)];
-  return {
-    name: provider.name,
-    id: provider.id,
-    location: provider.location || "Pretoria",
-    service: provider.service
-  };
-};
-
-// Helper to get a random booking
-const getRandomBooking = () => {
-  if (REAL_BOOKINGS.length === 0) return { providerName: "Provider", service: "Session", time: "10:00" };
-  const booking = REAL_BOOKINGS[Math.floor(Math.random() * REAL_BOOKINGS.length)];
-  return {
-    providerName: booking.providerName || "Provider",
-    service: booking.service || "Session",
-    time: booking.time || "10:00",
-    date: booking.date || "Today"
-  };
-};
-
-// Generate realistic notifications based on real data
-const REAL_NOTIFICATIONS: Notification[] = [
-  // Recent notifications (unread)
-  {
-    id: "n1", category: "booking", read: false, createdAt: mins(5),
-    title: "Booking Confirmed",
-    body:  `${getRandomProvider().name} confirmed your ${getRandomBooking().service} session for tomorrow at ${getRandomBooking().time}.`,
-    time:  "5m ago", actionUrl: "/schedule",
-    providerId: getRandomProvider().id,
-    location: getRandomProvider().location,
-  },
-  {
-    id: "n2", category: "message", read: false, createdAt: mins(12),
-    title: `New message from ${getRandomProvider().name}`,
-    body:  "Great progress on your strength goals! Your form has improved significantly since last session. 💪",
-    time:  "12m ago", actionUrl: "/messages",
-    providerId: getRandomProvider().id,
-    location: getRandomProvider().location,
-  },
-  {
-    id: "n3", category: "streak", read: false, createdAt: hrs(1),
-    title: "🔥 7-Day Streak Achieved!",
-    body:  "You've maintained your fitness streak for 7 consecutive days. 500 BIONPoints awarded!",
-    time:  "1h ago",
-  },
-  {
-    id: "n4", category: "reward", read: false, createdAt: hrs(2),
-    title: "BIONPoints Earned",
-    body:  `You earned 250 BIONPoints from your session with ${getRandomProvider().name}.`,
-    time:  "2h ago", actionUrl: "/profile",
-    providerId: getRandomProvider().id,
-  },
-  
-  // Today's notifications (read)
-  {
-    id: "n5", category: "provider", read: true, createdAt: hrs(3),
-    title: "New Provider Available",
-    body:  `${getRandomProvider().name} is now accepting new clients in ${getRandomProvider().location}. Specializing in ${getRandomProvider().service}.`,
-    time:  "3h ago", actionUrl: "/providers",
-    providerId: getRandomProvider().id,
-    location: getRandomProvider().location,
-  },
-  {
-    id: "n6", category: "booking", read: true, createdAt: hrs(4),
-    title: "Upcoming Session Reminder",
-    body:  `You have ${getRandomBooking().service} with ${getRandomProvider().name} in 3 hours. Check in from the app.`,
-    time:  "4h ago", actionUrl: "/schedule",
-    providerId: getRandomProvider().id,
-  },
-  {
-    id: "n7", category: "system", read: true, createdAt: hrs(6),
-    title: "Pretoria Wellness Update",
-    body:  "New group classes available in your area. Check the schedule for yoga, pilates, and strength training.",
-    time:  "6h ago", actionUrl: "/schedule",
-    location: "Pretoria",
-  },
-  
-  // Yesterday's notifications
-  {
-    id: "n8", category: "message", read: true, createdAt: days(1),
-    title: `New routine from ${getRandomProvider().name}`,
-    body:  "Your personalized 4-week strength program has been updated. Week 2 protocol is now available.",
-    time:  "Yesterday", actionUrl: "/routines",
-    providerId: getRandomProvider().id,
-  },
-  {
-    id: "n9", category: "reward", read: true, createdAt: days(1),
-    title: "Challenge Complete!",
-    body:  "You completed the 'Morning Movement Challenge' and earned 750 bonus BIONPoints.",
-    time:  "Yesterday", actionUrl: "/challenges",
-  },
-  
-  // Older notifications
-  {
-    id: "n10", category: "booking", read: true, createdAt: days(2),
-    title: "Session Recap",
-    body:  `Session with ${getRandomProvider().name} completed. Leave a review to earn 50 BIONPoints.`,
-    time:  "2 days ago", actionUrl: "/reviews",
-    providerId: getRandomProvider().id,
-  },
-  {
-    id: "n11", category: "provider", read: true, createdAt: days(3),
-    title: "Provider Spotlight",
-    body:  `${getRandomProvider().name} was featured as 'Provider of the Month' for excellence in ${getRandomProvider().service}.`,
-    time:  "3 days ago", actionUrl: "/providers",
-    providerId: getRandomProvider().id,
-    location: getRandomProvider().location,
-  },
-  {
-    id: "n12", category: "system", read: true, createdAt: days(4),
-    title: "BIONWallet Enhanced",
-    body:  "Top up your BIONWallet and pay for sessions seamlessly across all Pretoria providers.",
-    time:  "4 days ago", actionUrl: "/wallet",
-  },
-  {
-    id: "n13", category: "booking", read: true, createdAt: days(5),
-    title: "Monthly Summary",
-    body:  "You completed 8 sessions with 4 different providers this month. View your fitness report.",
-    time:  "5 days ago", actionUrl: "/analytics",
-  },
-  {
-    id: "n14", category: "system", read: true, createdAt: days(7),
-    title: "POPIA Compliance Update",
-    body:  "Review your privacy settings and data sharing preferences with Pretoria service providers.",
-    time:  "1 week ago", actionUrl: "/settings?tab=privacy",
-  },
-];
+// Notifications loaded from backend
+const INITIAL_NOTIFICATIONS: Notification[] = [];
 
 // ── Category config ────────────────────────────────────────────────
 
@@ -190,7 +47,7 @@ const CATEGORY_CONFIG: Record<NotifCategory, { icon: React.ReactNode; color: str
 export default function Notifications() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [notifications, setNotifications] = useState<Notification[]>(REAL_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
   const [filter, setFilter] = useState<NotifCategory | "all">("all");
   const [showSettings, setShowSettings] = useState(false);
   const [muteAll, setMuteAll] = useState(false);
@@ -253,7 +110,7 @@ export default function Notifications() {
             <div>
               <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
               <p className="text-sm text-muted-foreground">
-                Real updates from {REAL_PROVIDERS.length} Pretoria providers
+                Stay updated with your providers and activities
               </p>
             </div>
           </div>
@@ -275,32 +132,29 @@ export default function Notifications() {
           </div>
         </div>
 
-        {/* Stats card */}
-        <GlassCard className="p-4">
-          <div className="grid grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">{unreadCount}</div>
-              <div className="text-xs text-muted-foreground">Unread</div>
+        {/* Stats card — only show when there are notifications */}
+        {notifications.length > 0 && (
+          <GlassCard className="p-4">
+            <div className="grid grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-foreground">{unreadCount}</div>
+                <div className="text-xs text-muted-foreground">Unread</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-foreground">{notifications.length}</div>
+                <div className="text-xs text-muted-foreground">Total</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-foreground">{mentionedProviders}</div>
+                <div className="text-xs text-muted-foreground">Providers</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-foreground">{mentionedLocations.length}</div>
+                <div className="text-xs text-muted-foreground">Locations</div>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">{notifications.length}</div>
-              <div className="text-xs text-muted-foreground">Total</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">{mentionedProviders}</div>
-              <div className="text-xs text-muted-foreground">Providers</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">{mentionedLocations.length}</div>
-              <div className="text-xs text-muted-foreground">Locations</div>
-            </div>
-          </div>
-          <div className="mt-3 pt-3 border-t border-white/5">
-            <p className="text-xs text-muted-foreground">
-              Notifications from {bookingNotifications} bookings and {providerNotifications} provider updates across Pretoria
-            </p>
-          </div>
-        </GlassCard>
+          </GlassCard>
+        )}
 
         {/* Filter bar */}
         <div className="flex gap-1.5 overflow-x-auto no-scrollbar py-1">
@@ -323,10 +177,10 @@ export default function Notifications() {
           {filtered.length === 0 ? (
             <GlassCard className="p-8 text-center">
               <BellOff className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-semibold text-foreground mb-2">No notifications</h3>
+              <h3 className="font-semibold text-foreground mb-2">No notifications yet</h3>
               <p className="text-sm text-muted-foreground">
-                {filter === "all" 
-                  ? "You're all caught up!" 
+                {filter === "all"
+                  ? "Notifications from bookings, providers, and rewards will appear here."
                   : `No ${filter} notifications`}
               </p>
             </GlassCard>
@@ -447,7 +301,7 @@ export default function Notifications() {
                   </div>
                   <div className="pt-4 border-t border-white/5">
                     <p className="text-sm text-muted-foreground">
-                      Currently showing notifications from {REAL_PROVIDERS.length} Pretoria service providers
+                      Manage how you receive notifications from your connected providers.
                     </p>
                   </div>
                 </div>
@@ -474,7 +328,7 @@ export default function Notifications() {
         </AnimatePresence>
 
         {/* Bottom navigation */}
-        <BottomNav active="notifications" />
+        <BottomNav />
       </div>
 
       {/* Coach AI */}

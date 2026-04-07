@@ -7,49 +7,13 @@ import ProviderNav from "@/components/ProviderNav";
 import CoachAI from "@/components/CoachAI";
 import { Search, MessageSquare, ChevronRight, AlertTriangle, Star, Plus, X, Send, UserPlus } from "lucide-react";
 
-import provider1 from "@/assets/provider-1.jpg";
-import provider2 from "@/assets/provider-2.jpg";
-import provider3 from "@/assets/provider-3.jpg";
-import provider4 from "@/assets/provider-4.jpg";
+interface Client {
+  id: string; name: string; image: string; vertical: "teal" | "indigo" | "coral" | "amber";
+  sessions: number; totalSpend: number; lastVisit: string; nextBooking: string;
+  goal: string; risk: string; note: string; tags: string[];
+}
 
-const clients = [
-  {
-    id: "c1", name: "Mpho Sithole",    image: provider1, vertical: "teal" as const,
-    sessions: 18, totalSpend: 8100,  lastVisit: "Today",     nextBooking: "Mon 3 Mar",
-    goal: "Weight loss + strength",  risk: "low",    note: "Loves HIIT. Lactose intolerant.",
-    tags: ["Regular", "Referred 2"],
-  },
-  {
-    id: "c2", name: "Thandi Khumalo",  image: provider2, vertical: "indigo" as const,
-    sessions: 12, totalSpend: 5400,  lastVisit: "Today",     nextBooking: "Wed 5 Mar",
-    goal: "Post-pregnancy fitness",  risk: "low",    note: "2× per week. Doctor cleared.",
-    tags: ["Regular"],
-  },
-  {
-    id: "c3", name: "Kobus Pretorius", image: provider3, vertical: "coral" as const,
-    sessions: 7,  totalSpend: 2450,  lastVisit: "Today",     nextBooking: "Sat 7 Mar",
-    goal: "Powerlifting",            risk: "high",   note: "High no-show risk. Always calls 1h before.",
-    tags: ["At risk"],
-  },
-  {
-    id: "c4", name: "Naledi Moyo",     image: provider4, vertical: "amber" as const,
-    sessions: 9,  totalSpend: 4050,  lastVisit: "Today",     nextBooking: "Fri 6 Mar",
-    goal: "General fitness",         risk: "low",    note: "Prefers morning slots.",
-    tags: ["Regular"],
-  },
-  {
-    id: "c5", name: "Amir K.",         image: provider1, vertical: "teal" as const,
-    sessions: 5,  totalSpend: 2250,  lastVisit: "7 Feb",     nextBooking: "—",
-    goal: "Muscle gain",             risk: "high",   note: "Went quiet after session 5. Follow up.",
-    tags: ["At risk", "Inactive"],
-  },
-  {
-    id: "c6", name: "Busisiwe M.",     image: provider2, vertical: "indigo" as const,
-    sessions: 8,  totalSpend: 3600,  lastVisit: "14 Feb",    nextBooking: "—",
-    goal: "Flexibility + mindfulness",risk: "medium", note: "Interested in adding yoga.",
-    tags: ["At risk"],
-  },
-];
+const clients: Client[] = [];
 
 const riskBadge: Record<string, { label: string; cls: string }> = {
   low:    { label: "Active",  cls: "glass-accent-teal  text-teal"  },
@@ -111,7 +75,7 @@ export default function ProviderClients() {
 
         {/* Client list */}
         <div className="space-y-2">
-          {filtered.map((c, i) => (
+          {filtered.length > 0 ? filtered.map((c, i) => (
             <motion.div
               key={c.id}
               initial={{ opacity: 0, y: 8 }}
@@ -131,15 +95,21 @@ export default function ProviderClients() {
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-sm font-bold font-data text-foreground">R{c.totalSpend.toLocaleString()}</p>
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded-pill ${riskBadge[c.risk].cls}`}>
-                      {riskBadge[c.risk].label}
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded-pill ${riskBadge[c.risk]?.cls ?? ""}`}>
+                      {riskBadge[c.risk]?.label ?? ""}
                     </span>
                     <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto mt-1" />
                   </div>
                 </div>
               </GlassCard>
             </motion.div>
-          ))}
+          )) : (
+            <GlassCard className="p-8 text-center">
+              <Search className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+              <p className="text-sm font-medium text-foreground mb-1">No clients yet</p>
+              <p className="text-xs text-muted-foreground">Clients will appear here when they book sessions with you.</p>
+            </GlassCard>
+          )}
         </div>
       </div>
 

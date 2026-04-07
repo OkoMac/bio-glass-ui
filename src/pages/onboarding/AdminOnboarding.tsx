@@ -126,12 +126,31 @@ export default function AdminOnboarding() {
     return null;
   }
 
+  const handleComplete = () => {
+    
+    // Try React Router navigation first
+    try {
+      navigate("/admin/dashboard", { replace: true });
+      
+      // Fallback after 1 second if navigation didn't work
+      setTimeout(() => {
+        if (window.location.pathname.includes("/onboarding")) {
+          window.location.href = "/admin/dashboard";
+        }
+      }, 1000);
+    } catch (error) {
+      console.error("Navigation error:", error);
+      // Direct fallback
+      window.location.href = "/admin/dashboard";
+    }
+  };
+
   return (
     <OnboardingShell
       userId={user.id ?? user.email}
       role="admin"
       steps={STEPS}
-      onComplete={() => navigate("/admin/dashboard", { replace: true })}
+      onComplete={handleComplete}
     />
   );
 }

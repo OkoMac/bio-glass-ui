@@ -4,10 +4,7 @@ import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
-import { Search, Send, ChevronLeft, Mic, Paperclip, CheckCheck, Sparkles, MessageSquare, Lock, CreditCard } from "lucide-react";
-
-// Import real Pretoria data
-import realData from "@/data/bion_pretoria_data.json";
+import { Search, Send, ChevronLeft, Mic, Paperclip, CheckCheck, MessageSquare, Lock, CreditCard } from "lucide-react";
 
 interface Msg {
   id: string;
@@ -28,66 +25,10 @@ interface Thread {
   messages: Msg[];
 }
 
-// Use real data from Pretoria - no fake data generation
-// Generate messages ONLY for demo account
-// Real accounts will have empty message inbox until they actually have conversations
-const generateThreads = (isDemoAccount: boolean): Thread[] => {
-  if (!isDemoAccount) {
-    // Real accounts - no messages yet
-    return [];
-  }
-  
-  // Demo account - show example messages with real Pretoria data
-  return realData.clients.slice(0, 4).map((client, index) => {
-    const provider = realData.providers[index] || realData.providers[0];
-    const suburb = provider.location.split(',')[0];
-    
-    // Demo messages for demo account only
-    const messages: Msg[] = [
-      { 
-        id: "m1", 
-        from: "client" as const, 
-        text: `Hi! I'm interested in your ${provider.service} services in ${suburb}.`, 
-        time: "10:30 AM", 
-        read: true 
-      },
-      { 
-        id: "m2", 
-        from: "provider" as const, 
-        text: `Hi ${client.name.split(' ')[0]}! Thanks for reaching out. I have availability this week.`, 
-        time: "10:35 AM", 
-        read: true 
-      },
-      { 
-        id: "m3", 
-        from: "client" as const, 
-        text: `Great! Can we schedule a session for Thursday morning?`, 
-        time: "10:40 AM", 
-        read: false 
-      },
-    ];
-    
-    return {
-      id: `t${index + 1}`,
-      name: client.name,
-      image: `/placeholder.svg?height=100&width=100&text=${client.name.charAt(0)}`,
-      online: index < 2, // Some online for demo
-      unread: index === 0 ? 1 : 0, // One unread for demo
-      time: index === 0 ? "10:40 AM" : "Yesterday",
-      lastMsg: messages[messages.length - 1].text,
-      messages: messages,
-    };
-  });
+// Real accounts have no threads until actual conversations happen
+const generateThreads = (_isDemoAccount: boolean): Thread[] => {
+  return [];
 };
-
-// AI suggestions - same for all accounts
-const aiSuggestions = [
-  "Message clients to confirm upcoming appointments",
-  "Send welcome messages to new clients",
-  "Follow up on service inquiries",
-  "Share availability updates",
-  "Request client feedback",
-];
 
 export default function ProviderMessages() {
   const { user } = useAuth();
@@ -226,25 +167,6 @@ export default function ProviderMessages() {
           </p>
         </div>
 
-        {/* ServeAI suggestions (only on list view) */}
-        {!active && (
-          <GlassCard className="p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-indigo" />
-              <p className="text-[11px] font-semibold text-indigo uppercase tracking-wider">ServeAI suggestions</p>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              {aiSuggestions.map(s => (
-                <button
-                  key={s}
-                  className="text-left text-xs text-muted-foreground glass-1 rounded-xl px-3 py-2 hover:text-foreground transition-colors"
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          </GlassCard>
-        )}
 
         {/* Search + list OR thread view */}
         <AnimatePresence mode="wait">
@@ -299,13 +221,9 @@ export default function ProviderMessages() {
                   // Empty state for no messages
                   <GlassCard className="p-6 text-center">
                     <MessageSquare className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
-                    <h3 className="text-sm font-semibold text-foreground mb-1">
-                      {isDemoAccount ? "No messages yet" : "Your message inbox is empty"}
-                    </h3>
+                    <h3 className="text-sm font-semibold text-foreground mb-1">No messages yet</h3>
                     <p className="text-xs text-muted-foreground">
-                      {isDemoAccount 
-                        ? "Messages will appear here when clients contact you." 
-                        : "Connect with clients to start conversations."}
+                      Messages will appear here when clients contact you.
                     </p>
                   </GlassCard>
                 )}

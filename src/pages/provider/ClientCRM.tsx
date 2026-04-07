@@ -17,24 +17,10 @@ import {
 export default function ClientCRM() {
   const { isEnabled } = useFeatureFlags();
   
-  // Sample clients - will be replaced with real data
-  const [clients, setClients] = useState([
-    { id: 1, name: 'John Smith', email: 'john@example.com', phone: '+27 82 123 4567', 
-      lastBooking: '2026-03-27', totalBookings: 24, lifetimeValue: 12000, status: 'active', 
-      healthFlags: ['Knee injury'], notes: 'Prefers morning sessions' },
-    { id: 2, name: 'Sarah Johnson', email: 'sarah@example.com', phone: '+27 83 234 5678',
-      lastBooking: '2026-03-25', totalBookings: 18, lifetimeValue: 9000, status: 'active',
-      healthFlags: [], notes: 'Training for marathon' },
-    { id: 3, name: 'Mike Wilson', email: 'mike@example.com', phone: '+27 84 345 6789',
-      lastBooking: '2026-03-20', totalBookings: 12, lifetimeValue: 6000, status: 'active',
-      healthFlags: ['High blood pressure'], notes: 'Needs low-impact exercises' },
-    { id: 4, name: 'Emma Davis', email: 'emma@example.com', phone: '+27 85 456 7890',
-      lastBooking: '2026-03-15', totalBookings: 8, lifetimeValue: 4000, status: 'lapsing',
-      healthFlags: [], notes: 'Interested in nutrition coaching' },
-    { id: 5, name: 'David Brown', email: 'david@example.com', phone: '+27 86 567 8901',
-      lastBooking: '2026-02-28', totalBookings: 6, lifetimeValue: 3000, status: 'lapsed',
-      healthFlags: ['Back pain'], notes: 'Travels frequently' },
-  ]);
+  // Empty state - will be populated with real client data from Supabase
+  const [clients, setClients] = useState<
+    { id: number; name: string; email: string; phone: string; lastBooking: string; totalBookings: number; lifetimeValue: number; status: string; healthFlags: string[]; notes: string }[]
+  >([]);
   
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -229,6 +215,7 @@ export default function ClientCRM() {
             </div>
           </div>
           
+          {filteredClients.length > 0 ? (
           <div className="space-y-3">
             {filteredClients.map(client => (
               <div key={client.id} className="p-4 glass-1 rounded-xl">
@@ -330,10 +317,17 @@ export default function ClientCRM() {
               </div>
             ))}
           </div>
+          ) : (
+            <div className="text-center py-8">
+              <Users className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+              <p className="text-sm font-medium text-foreground">No CRM data yet</p>
+              <p className="text-xs text-muted-foreground mt-1">Client records will appear here as clients book sessions with you.</p>
+            </div>
+          )}
         </GlassCard>
-        
+
         <div className="grid lg:grid-cols-3 gap-5">
-          
+
           {/* Follow-up Automation */}
           <div className="lg:col-span-2">
             <GlassCard className="p-5">
@@ -357,34 +351,34 @@ export default function ClientCRM() {
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-sm font-medium text-foreground">7-Day Follow-up</p>
                     <div className="flex items-center gap-1">
-                      <span className="text-xs text-muted-foreground">3 pending</span>
-                      <div className="w-2 h-2 rounded-full bg-teal"></div>
+                      <span className="text-xs text-muted-foreground">0 pending</span>
+                      <div className="w-2 h-2 rounded-full bg-muted-foreground/30"></div>
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Auto-message clients who haven't booked in 7 days
                   </p>
                 </div>
-                
+
                 <div className="p-3 glass-1 rounded-xl">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-sm font-medium text-foreground">30-Day Check-in</p>
                     <div className="flex items-center gap-1">
-                      <span className="text-xs text-muted-foreground">1 pending</span>
-                      <div className="w-2 h-2 rounded-full bg-amber"></div>
+                      <span className="text-xs text-muted-foreground">0 pending</span>
+                      <div className="w-2 h-2 rounded-full bg-muted-foreground/30"></div>
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Check in with clients at risk of lapsing
                   </p>
                 </div>
-                
+
                 <div className="p-3 glass-1 rounded-xl">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-sm font-medium text-foreground">Birthday Messages</p>
                     <div className="flex items-center gap-1">
-                      <span className="text-xs text-muted-foreground">2 this month</span>
-                      <div className="w-2 h-2 rounded-full bg-purple"></div>
+                      <span className="text-xs text-muted-foreground">0 this month</span>
+                      <div className="w-2 h-2 rounded-full bg-muted-foreground/30"></div>
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -447,7 +441,7 @@ export default function ClientCRM() {
                   </div>
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-muted-foreground">Avg retention</span>
-                    <span className="font-medium text-foreground">86%</span>
+                    <span className="font-medium text-foreground">--</span>
                   </div>
                 </div>
               </div>
@@ -466,37 +460,37 @@ export default function ClientCRM() {
                     <TrendingUp className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-foreground">24%</p>
+                    <p className="text-2xl font-bold text-foreground">--</p>
                     <p className="text-xs text-muted-foreground">Growth Rate</p>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">New clients this quarter</p>
+                <p className="text-xs text-muted-foreground">Will calculate from client data</p>
               </div>
-              
+
               <div className="p-4 glass-1 rounded-xl">
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-10 h-10 rounded-full gradient-teal flex items-center justify-center">
                     <Calendar className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-foreground">2.8</p>
+                    <p className="text-2xl font-bold text-foreground">--</p>
                     <p className="text-xs text-muted-foreground">Avg Sessions/Month</p>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">Per active client</p>
+                <p className="text-xs text-muted-foreground">Will calculate from booking data</p>
               </div>
-              
+
               <div className="p-4 glass-1 rounded-xl">
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-10 h-10 rounded-full gradient-amber flex items-center justify-center">
                     <Star className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-foreground">4.7</p>
+                    <p className="text-2xl font-bold text-foreground">--</p>
                     <p className="text-xs text-muted-foreground">Avg Rating</p>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">Client satisfaction</p>
+                <p className="text-xs text-muted-foreground">Will calculate from client reviews</p>
               </div>
             </div>
           </GlassCard>

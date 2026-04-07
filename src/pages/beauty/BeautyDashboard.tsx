@@ -17,31 +17,17 @@ import {
 export default function BeautyDashboard() {
   const { isEnabled } = useFeatureFlags();
   
-  // Sample beauty clients - will be replaced with real data
-  const [clients, setClients] = useState([
-    { id: 1, name: 'Lisa Johnson', service: 'Balayage & Cut', lastVisit: '2026-03-27', 
-      hairFormula: '8.1 + 30vol', skinType: 'Combination', nextAppointment: '2026-04-10',
-      notes: 'Prefers warm tones, sensitive scalp' },
-    { id: 2, name: 'Sarah Miller', service: 'Brazilian Blowout', lastVisit: '2026-03-25',
-      hairFormula: 'Natural + Keratin', skinType: 'Oily', nextAppointment: '2026-04-15',
-      notes: 'Allergic to ammonia, uses olaplex' },
-    { id: 3, name: 'Emma Wilson', service: 'Facials & Peels', lastVisit: '2026-03-20',
-      hairFormula: 'N/A', skinType: 'Dry/Sensitive', nextAppointment: '2026-04-05',
-      notes: 'Uses retinol, needs gentle products' },
-    { id: 4, name: 'Mike Davis', service: 'Beard Trim & Shape', lastVisit: '2026-03-15',
-      hairFormula: 'N/A', skinType: 'Normal', nextAppointment: '2026-04-12',
-      notes: 'Prefers traditional barbering' },
-  ]);
-  
-  // Sample hair formulas
-  const [formulas, setFormulas] = useState([
-    { id: 1, name: 'Ash Blonde', code: '8.1', developer: '30vol', time: '45min', 
-      client: 'Lisa Johnson', lastUsed: '2026-03-27', notes: 'Add 5g violet' },
-    { id: 2, name: 'Natural Brown', code: '5N', developer: '20vol', time: '35min',
-      client: 'Sarah Miller', lastUsed: '2026-03-25', notes: 'Keratin treatment' },
-    { id: 3, name: 'Copper Red', code: '7.43', developer: '25vol', time: '50min',
-      client: 'Emma Wilson', lastUsed: '2026-03-20', notes: 'Vibrant result' },
-  ]);
+  // Beauty clients loaded from backend
+  const [clients, setClients] = useState<{
+    id: number; name: string; service: string; lastVisit: string;
+    hairFormula: string; skinType: string; nextAppointment: string; notes: string;
+  }[]>([]);
+
+  // Hair formulas loaded from backend
+  const [formulas, setFormulas] = useState<{
+    id: number; name: string; code: string; developer: string; time: string;
+    client: string; lastUsed: string; notes: string;
+  }[]>([]);
   
   // If the feature flag is disabled, show upgrade prompt
   if (!isEnabled('beautyVertical')) {
@@ -70,7 +56,7 @@ export default function BeautyDashboard() {
     totalClients: clients.length,
     upcomingAppointments: clients.filter(c => c.nextAppointment).length,
     formulasCount: formulas.length,
-    revenue: 12500, // Sample revenue
+    revenue: 0,
   };
   
   return (
@@ -153,78 +139,88 @@ export default function BeautyDashboard() {
           </div>
           
           <div className="space-y-3">
-            {clients.map(client => (
-              <div key={client.id} className="p-4 glass-1 rounded-xl">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-12 h-12 rounded-full bg-indigo/20 flex items-center justify-center flex-shrink-0">
-                      <User className="w-6 h-6 text-indigo" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">{client.name}</p>
-                      
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-                        <div className="flex items-center gap-1">
-                          <Scissors className="w-3 h-3" />
-                          <span>{client.service}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          <span>Last: {client.lastVisit}</span>
+            {clients.length === 0 ? (
+              <div className="p-6 text-center">
+                <User className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+                <p className="text-sm font-medium text-foreground mb-1">No beauty clients yet</p>
+                <p className="text-xs text-muted-foreground">
+                  Add clients to track their service history, formulas, and preferences.
+                </p>
+              </div>
+            ) : (
+              clients.map(client => (
+                <div key={client.id} className="p-4 glass-1 rounded-xl">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-12 h-12 rounded-full bg-indigo/20 flex items-center justify-center flex-shrink-0">
+                        <User className="w-6 h-6 text-indigo" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">{client.name}</p>
+
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                          <div className="flex items-center gap-1">
+                            <Scissors className="w-3 h-3" />
+                            <span>{client.service}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            <span>Last: {client.lastVisit}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="text-right">
-                    <div className="flex items-center gap-1 justify-end mb-1">
-                      <Calendar className="w-3 h-3 text-teal" />
-                      <p className="text-sm font-medium text-teal">{client.nextAppointment}</p>
+
+                    <div className="text-right">
+                      <div className="flex items-center gap-1 justify-end mb-1">
+                        <Calendar className="w-3 h-3 text-teal" />
+                        <p className="text-sm font-medium text-teal">{client.nextAppointment}</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground">Next appointment</p>
                     </div>
-                    <p className="text-xs text-muted-foreground">Next appointment</p>
                   </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3 mb-3">
-                  {client.hairFormula !== 'N/A' && (
+
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    {client.hairFormula !== 'N/A' && (
+                      <div className="p-2 glass-1 rounded-lg">
+                        <p className="text-xs text-muted-foreground">Hair Formula</p>
+                        <div className="flex items-center gap-1 mt-1">
+                          <Droplets className="w-3 h-3 text-amber" />
+                          <p className="text-sm font-medium text-foreground">{client.hairFormula}</p>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="p-2 glass-1 rounded-lg">
-                      <p className="text-xs text-muted-foreground">Hair Formula</p>
+                      <p className="text-xs text-muted-foreground">Skin Type</p>
                       <div className="flex items-center gap-1 mt-1">
-                        <Droplets className="w-3 h-3 text-amber" />
-                        <p className="text-sm font-medium text-foreground">{client.hairFormula}</p>
+                        <Sparkles className="w-3 h-3 text-purple" />
+                        <p className="text-sm font-medium text-foreground">{client.skinType}</p>
                       </div>
+                    </div>
+                  </div>
+
+                  {client.notes && (
+                    <div className="p-2 glass-1 rounded-lg mb-3">
+                      <p className="text-xs text-muted-foreground mb-1">Notes</p>
+                      <p className="text-sm text-foreground">{client.notes}</p>
                     </div>
                   )}
-                  
-                  <div className="p-2 glass-1 rounded-lg">
-                    <p className="text-xs text-muted-foreground">Skin Type</p>
-                    <div className="flex items-center gap-1 mt-1">
-                      <Sparkles className="w-3 h-3 text-purple" />
-                      <p className="text-sm font-medium text-foreground">{client.skinType}</p>
-                    </div>
+
+                  <div className="flex items-center gap-2">
+                    <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground">
+                      View History
+                    </button>
+                    <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground">
+                      Book Next
+                    </button>
+                    <button className="flex-1 gradient-indigo rounded-pill py-2 text-sm font-semibold text-white">
+                      Edit Profile
+                    </button>
                   </div>
                 </div>
-                
-                {client.notes && (
-                  <div className="p-2 glass-1 rounded-lg mb-3">
-                    <p className="text-xs text-muted-foreground mb-1">Notes</p>
-                    <p className="text-sm text-foreground">{client.notes}</p>
-                  </div>
-                )}
-                
-                <div className="flex items-center gap-2">
-                  <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground">
-                    View History
-                  </button>
-                  <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground">
-                    Book Next
-                  </button>
-                  <button className="flex-1 gradient-indigo rounded-pill py-2 text-sm font-semibold text-white">
-                    Edit Profile
-                  </button>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </GlassCard>
         
@@ -249,50 +245,58 @@ export default function BeautyDashboard() {
               </div>
               
               <div className="space-y-3">
-                {formulas.map(formula => (
-                  <div key={formula.id} className="p-3 glass-1 rounded-xl">
-                    <div className="flex items-center justify-between mb-2">
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{formula.name}</p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                          <span>Code: {formula.code}</span>
-                          <span>•</span>
-                          <span>Developer: {formula.developer}</span>
-                          <span>•</span>
-                          <span>Time: {formula.time}</span>
+                {formulas.length === 0 ? (
+                  <div className="p-6 text-center">
+                    <Droplets className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+                    <p className="text-sm font-medium text-foreground mb-1">No formulas yet</p>
+                    <p className="text-xs text-muted-foreground">Add hair formulas to track color recipes for your clients.</p>
+                  </div>
+                ) : (
+                  formulas.map(formula => (
+                    <div key={formula.id} className="p-3 glass-1 rounded-xl">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{formula.name}</p>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                            <span>Code: {formula.code}</span>
+                            <span>•</span>
+                            <span>Developer: {formula.developer}</span>
+                            <span>•</span>
+                            <span>Time: {formula.time}</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-muted-foreground">Last used</p>
+                          <p className="text-sm font-medium text-foreground">{formula.lastUsed}</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs text-muted-foreground">Last used</p>
-                        <p className="text-sm font-medium text-foreground">{formula.lastUsed}</p>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1">
+                          <User className="w-3 h-3 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">{formula.client}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button className="glass-1 rounded-pill px-3 py-1 text-xs font-medium text-foreground">
+                            Edit
+                          </button>
+                          <button className="gradient-indigo rounded-pill px-3 py-1 text-xs font-semibold text-white">
+                            Use Again
+                          </button>
+                        </div>
                       </div>
+
+                      {formula.notes && (
+                        <div className="mt-2 p-2 glass-1 rounded-lg">
+                          <p className="text-xs text-muted-foreground">Notes</p>
+                          <p className="text-sm text-foreground">{formula.notes}</p>
+                        </div>
+                      )}
                     </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <User className="w-3 h-3 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">{formula.client}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <button className="glass-1 rounded-pill px-3 py-1 text-xs font-medium text-foreground">
-                          Edit
-                        </button>
-                        <button className="gradient-indigo rounded-pill px-3 py-1 text-xs font-semibold text-white">
-                          Use Again
-                        </button>
-                      </div>
-                    </div>
-                    
-                    {formula.notes && (
-                      <div className="mt-2 p-2 glass-1 rounded-lg">
-                        <p className="text-xs text-muted-foreground">Notes</p>
-                        <p className="text-sm text-foreground">{formula.notes}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-                
+                  ))
+                )}
+
                 <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                   <Plus className="w-4 h-4" />
                   Add New Formula
@@ -341,15 +345,15 @@ export default function BeautyDashboard() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-muted-foreground">Avg Service Time</span>
-                    <span className="font-medium text-foreground">1.5 hours</span>
+                    <span className="font-medium text-foreground">--</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-muted-foreground">Client Retention</span>
-                    <span className="font-medium text-foreground">92%</span>
+                    <span className="font-medium text-foreground">--</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-muted-foreground">Product Sales</span>
-                    <span className="font-medium text-foreground">R2,400/month</span>
+                    <span className="font-medium text-foreground">--</span>
                   </div>
                 </div>
               </div>

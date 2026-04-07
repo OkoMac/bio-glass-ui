@@ -6,7 +6,7 @@ import ProviderNav from "@/components/ProviderNav";
 import {
   Calendar, Clock, Users, Video, Home, MapPin,
   Plus, Edit, Trash2, Check, X, ChevronRight,
-  Sparkles, Lock
+  Sparkles, Lock, TrendingUp
 } from "lucide-react";
 
 // Session Management System for Gym Providers
@@ -15,19 +15,14 @@ import {
 export default function SessionManager() {
   const { isEnabled } = useFeatureFlags();
   
-  // Sample data - will be replaced with real data later
-  const [sessions, setSessions] = useState([
-    { id: 1, type: 'Personal Training', client: 'John Smith', time: '09:00', duration: 60, status: 'confirmed', location: 'Gym Floor' },
-    { id: 2, type: 'Group Class', client: 'Yoga Class', time: '10:30', duration: 45, status: 'confirmed', location: 'Studio A' },
-    { id: 3, type: 'Virtual Session', client: 'Sarah Johnson', time: '14:00', duration: 30, status: 'pending', location: 'Zoom' },
-    { id: 4, type: 'Biokinetics', client: 'Mike Wilson', time: '16:00', duration: 60, status: 'confirmed', location: 'Rehab Room' },
-  ]);
-  
-  const [classes, setClasses] = useState([
-    { id: 1, name: 'Morning Yoga', day: 'Mon, Wed, Fri', time: '07:00', capacity: 20, enrolled: 18, location: 'Studio A' },
-    { id: 2, name: 'HIIT Burn', day: 'Tue, Thu', time: '17:30', capacity: 15, enrolled: 15, location: 'Gym Floor' },
-    { id: 3, name: 'Senior Mobility', day: 'Mon, Thu', time: '10:00', capacity: 12, enrolled: 8, location: 'Studio B' },
-  ]);
+  // Empty state - will be populated with real session data from Supabase
+  const [sessions, setSessions] = useState<
+    { id: number; type: string; client: string; time: string; duration: number; status: string; location: string }[]
+  >([]);
+
+  const [classes, setClasses] = useState<
+    { id: number; name: string; day: string; time: string; capacity: number; enrolled: number; location: string }[]
+  >([]);
   
   // If the feature flag is disabled, show upgrade prompt
   if (!isEnabled('sessionManagement')) {
@@ -83,11 +78,12 @@ export default function SessionManager() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">4 sessions</span>
+              <span className="text-xs text-muted-foreground">{sessions.length} sessions</span>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </div>
           </div>
-          
+
+          {sessions.length > 0 ? (
           <div className="space-y-3">
             {sessions.map(session => (
               <div key={session.id} className="flex items-center justify-between p-3 glass-1 rounded-xl">
@@ -107,7 +103,7 @@ export default function SessionManager() {
                     <p className="text-sm font-medium text-foreground">{session.client}</p>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span>{session.type}</span>
-                      <span>•</span>
+                      <span>-</span>
                       <span>{session.time} ({session.duration}min)</span>
                     </div>
                   </div>
@@ -118,8 +114,8 @@ export default function SessionManager() {
                     <span>{session.location}</span>
                   </div>
                   <div className={`px-2 py-1 rounded-full text-xs ${
-                    session.status === 'confirmed' 
-                      ? 'bg-teal/20 text-teal' 
+                    session.status === 'confirmed'
+                      ? 'bg-teal/20 text-teal'
                       : 'bg-amber/20 text-amber'
                   }`}>
                     {session.status}
@@ -128,6 +124,13 @@ export default function SessionManager() {
               </div>
             ))}
           </div>
+          ) : (
+            <div className="text-center py-8">
+              <Calendar className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+              <p className="text-sm font-medium text-foreground">No sessions scheduled</p>
+              <p className="text-xs text-muted-foreground mt-1">Sessions will appear here as clients book with you.</p>
+            </div>
+          )}
         </GlassCard>
         
         <div className="grid md:grid-cols-2 gap-5">
@@ -149,6 +152,7 @@ export default function SessionManager() {
               </button>
             </div>
             
+            {classes.length > 0 ? (
             <div className="space-y-3">
               {classes.map(cls => (
                 <div key={cls.id} className="p-3 glass-1 rounded-xl">
@@ -175,12 +179,22 @@ export default function SessionManager() {
                   </div>
                 </div>
               ))}
-              
+
               <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground mt-2 flex items-center justify-center gap-2">
                 <Plus className="w-4 h-4" />
                 Add New Class
               </button>
             </div>
+            ) : (
+              <div className="text-center py-6">
+                <Users className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground mb-3">No group classes set up yet.</p>
+                <button className="glass-1 rounded-pill py-2.5 px-4 text-sm font-medium text-foreground flex items-center justify-center gap-2 mx-auto">
+                  <Plus className="w-4 h-4" />
+                  Add New Class
+                </button>
+              </div>
+            )}
           </GlassCard>
           
           {/* Quick Stats */}
@@ -200,39 +214,17 @@ export default function SessionManager() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3 glass-1 rounded-xl text-center">
-                  <p className="text-2xl font-bold text-foreground">24</p>
+                  <p className="text-2xl font-bold text-foreground">0</p>
                   <p className="text-xs text-muted-foreground">Total Sessions</p>
                 </div>
                 <div className="p-3 glass-1 rounded-xl text-center">
-                  <p className="text-2xl font-bold text-foreground">18</p>
+                  <p className="text-2xl font-bold text-foreground">0</p>
                   <p className="text-xs text-muted-foreground">Completed</p>
                 </div>
               </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Personal Training</span>
-                  <span className="font-medium text-foreground">12 sessions</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Group Classes</span>
-                  <span className="font-medium text-foreground">8 sessions</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Virtual Sessions</span>
-                  <span className="font-medium text-foreground">4 sessions</span>
-                </div>
-              </div>
-              
+
               <div className="pt-3 border-t border-white/5">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Weekly Revenue</span>
-                  <span className="font-bold text-foreground">R8,450</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Avg per session</span>
-                  <span className="font-medium text-foreground">R352</span>
-                </div>
+                <p className="text-sm text-muted-foreground text-center">Session stats will appear once you have bookings.</p>
               </div>
             </div>
           </GlassCard>

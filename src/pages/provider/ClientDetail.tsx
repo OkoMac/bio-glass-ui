@@ -8,26 +8,18 @@ import {
   ArrowLeft, MessageSquare, Calendar, Star, AlertTriangle,
   CheckCircle, Plus, Send, Award, Flame, ClipboardList,
   TrendingUp, Activity, FileText, Gift, ChevronRight,
-  Clock, Target, Edit3, Trash2, X
+  Clock, Target, Edit3, Trash2, X, Users
 } from "lucide-react";
 
-import provider1 from "@/assets/provider-1.jpg";
-import provider2 from "@/assets/provider-2.jpg";
-import provider3 from "@/assets/provider-3.jpg";
-import provider4 from "@/assets/provider-4.jpg";
-
-// Import real data for realistic client information
-import realData from "@/data/bion_pretoria_data.json";
-
-/* ── Real CRM data based on Pretoria service providers ─────────── */
+/* ── Client CRM data types ─────────── */
 interface ClientData {
   id: string; name: string; image: string; vertical: string;
   email: string; phone: string; goal: string; risk: string;
   sessions: number; totalSpend: number; nextBooking: string;
   joinedAt: string; lastVisit: string; wellnessScore: number;
   streak: number; bioPoints: number; tags: string[];
-  location: string; // Pretoria suburb
-  providerType: string; // Service type from provider
+  location: string;
+  providerType: string;
   sessionHistory: { date: string; service: string; notes: string; rating: number }[];
   activeTasks: { id: string; label: string; due: string; done: boolean; type: string }[];
   providerNotes: { id: string; text: string; date: string; pinned: boolean }[];
@@ -35,61 +27,8 @@ interface ClientData {
   rewardsGiven: { label: string; points: number; date: string }[];
 }
 
-// Use ONLY real client data from Pretoria - no fake data generation
-const generateRealClients = (): Record<string, ClientData> => {
-  const clients: Record<string, ClientData> = {};
-  
-  // Use first 4 real clients from our data
-  const realClients = realData.clients.slice(0, 4);
-  
-  realClients.forEach((client, i) => {
-    const clientId = client.id;
-    const suburb = client.location || "Pretoria";
-    
-    // Extract suburb name from location (e.g., "Rietfontein, Pretoria" -> "Rietfontein")
-    const suburbName = suburb.split(',')[0].trim();
-    
-    // Use ONLY real data - no manufactured information
-    // For fields without real data, use empty arrays or default values
-    clients[clientId] = {
-      id: clientId,
-      name: client.name, // Real name from data
-      image: `/placeholder.svg?height=100&width=100&text=${client.name.charAt(0)}`,
-      vertical: ["teal", "indigo", "coral", "amber"][i % 4] as const,
-      email: client.email, // Real email from data
-      phone: client.phone, // Real phone from data
-      goal: "General wellness", // Default goal (not in real data)
-      risk: "medium", // Default risk level (not in real data)
-      sessions: 0, // No real session data yet
-      totalSpend: 0, // No real spending data yet
-      nextBooking: "No upcoming bookings", // Will be populated with real bookings
-      joinedAt: client.joinDate || "2024", // Real join date from data
-      lastVisit: "No visits yet", // Will be populated with real visits
-      wellnessScore: 50, // Default score (not in real data)
-      streak: 0, // No real streak data yet
-      bioPoints: 0, // No real points data yet
-      tags: ["New client"], // Default tag
-      location: suburbName,
-      providerType: "General Service", // Will be populated with real service data
-      sessionHistory: [], // No real session history yet
-      activeTasks: [], // No real tasks yet
-      providerNotes: [
-        { 
-          id: "n1", 
-          text: `Client based in ${suburbName}. Contact via ${client.email}.`, 
-          date: client.joinDate || "2024", 
-          pinned: true 
-        }
-      ], // Minimal note based on real data
-      prescriptions: [], // No real prescriptions yet
-      rewardsGiven: [] // No real rewards yet
-    };
-  });
-  
-  return clients;
-};
-
-const REAL_CLIENTS = generateRealClients();
+// No hardcoded clients - will be fetched from Supabase when real data exists
+const REAL_CLIENTS: Record<string, ClientData> = {};
 
 // ── Main component ──────────────────────────────────────────────
 export default function ClientDetail() {
@@ -100,17 +39,23 @@ export default function ClientDetail() {
   const [newNote, setNewNote] = useState("");
   const [pinned, setPinned] = useState(false);
 
-  const client = clientId ? REAL_CLIENTS[clientId] : REAL_CLIENTS.c1;
+  const client = clientId ? REAL_CLIENTS[clientId] : undefined;
 
   if (!client) {
     return (
-      <div className="min-h-screen bg-obsidian bg-obsidian-glow flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-2">Client not found</h1>
-          <button onClick={() => navigate("/provider/clients")} className="px-4 py-2 gradient-indigo rounded-full">
-            Back to Clients
-          </button>
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+        <div className="mx-auto max-w-3xl px-4 pt-12 pb-28 md:pb-8 md:pt-8">
+          <GlassCard className="p-8 text-center">
+            <Users className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
+            <h1 className="text-lg font-bold text-foreground mb-2">Client not found</h1>
+            <p className="text-xs text-muted-foreground mb-4">This client does not exist or has not booked with you yet.</p>
+            <button onClick={() => navigate("/pro/clients")} className="px-4 py-2 gradient-indigo rounded-full text-sm font-medium">
+              Back to Clients
+            </button>
+          </GlassCard>
         </div>
+        <CoachAI />
+        <ProviderNav />
       </div>
     );
   }
@@ -125,7 +70,6 @@ export default function ClientDetail() {
 
   const markTaskDone = (taskId: string) => {
     // In a real app, this would update the database
-    console.log(`Marked task ${taskId} as done`);
   };
 
   // Calculate client statistics
@@ -287,6 +231,12 @@ export default function ClientDetail() {
           {activeTab === "history" && (
             <GlassCard className="p-6">
               <h3 className="font-semibold text-foreground mb-4">Session History</h3>
+              {client.sessionHistory.length === 0 ? (
+                <div className="text-center py-8">
+                  <Calendar className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">No session history yet.</p>
+                </div>
+              ) : (
               <div className="space-y-4">
                 {client.sessionHistory.map((session, idx) => (
                   <div key={idx} className="flex items-start justify-between p-4 glass-1 rounded-2xl">
@@ -313,6 +263,7 @@ export default function ClientDetail() {
                   </div>
                 ))}
               </div>
+              )}
             </GlassCard>
           )}
 
@@ -326,6 +277,12 @@ export default function ClientDetail() {
                   Add Task
                 </button>
               </div>
+              {client.activeTasks.length === 0 ? (
+                <div className="text-center py-8">
+                  <ClipboardList className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">No active tasks yet.</p>
+                </div>
+              ) : (
               <div className="space-y-3">
                 {client.activeTasks.map(task => (
                   <div key={task.id} className="flex items-center justify-between p-4 glass-1 rounded-2xl">
@@ -360,6 +317,7 @@ export default function ClientDetail() {
                   </div>
                 ))}
               </div>
+              )}
             </GlassCard>
           )}
 
@@ -431,6 +389,12 @@ export default function ClientDetail() {
               </AnimatePresence>
 
               {/* Notes list */}
+              {client.providerNotes.length === 0 ? (
+                <div className="text-center py-8">
+                  <FileText className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">No notes yet. Add a note to track client information.</p>
+                </div>
+              ) : (
               <div className="space-y-4">
                 {client.providerNotes.map(note => (
                   <div key={note.id} className={`p-4 rounded-2xl ${note.pinned ? "glass-accent-amber" : "glass-1"}`}>
@@ -458,6 +422,7 @@ export default function ClientDetail() {
                   </div>
                 ))}
               </div>
+              )}
             </GlassCard>
           )}
 
@@ -467,6 +432,12 @@ export default function ClientDetail() {
               {/* Prescriptions/Programs */}
               <GlassCard className="p-6">
                 <h3 className="font-semibold text-foreground mb-4">Active Programs</h3>
+                {client.prescriptions.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Target className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">No active programs yet.</p>
+                  </div>
+                ) : (
                 <div className="space-y-4">
                   {client.prescriptions.map(prescription => (
                     <div key={prescription.id} className="p-4 glass-1 rounded-2xl">
@@ -494,6 +465,7 @@ export default function ClientDetail() {
                     </div>
                   ))}
                 </div>
+                )}
               </GlassCard>
 
               {/* Rewards & Recognition */}

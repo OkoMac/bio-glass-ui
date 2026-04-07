@@ -5,10 +5,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-import provider1 from "@/assets/provider-1.jpg";
-import provider2 from "@/assets/provider-2.jpg";
-import provider3 from "@/assets/provider-3.jpg";
-import provider4 from "@/assets/provider-4.jpg";
+import { getProviderImage } from "@/lib/providerImages";
 
 // Import real data scraped from Pretoria service providers
 import realData from "@/data/bion_pretoria_data.json";
@@ -38,7 +35,7 @@ export interface Booking {
 
 // ── Real data from Pretoria service providers (scraped/replaced mock data) ───
 // Using real data scraped from Pretoria suburbs with at least 10 providers per suburb
-const REAL_BOOKINGS: Booking[] = realData.bookings.map((booking: any) => ({
+const REAL_BOOKINGS: Booking[] = (realData.bookings ?? []).map((booking: any) => ({
   id: booking.id,
   clientId: booking.clientId,
   clientName: booking.clientName,
@@ -78,7 +75,15 @@ export interface ServiceProvider {
   servicesOffered: string[];
 }
 
-export const REAL_PROVIDERS: ServiceProvider[] = realData.providers;
+export const REAL_PROVIDERS: ServiceProvider[] = realData.providers.map((p: any) => ({
+  ...p,
+  contact: {
+    email: p.contact?.email ?? "",
+    phone: p.contact?.phone ?? "",
+    website: p.contact?.website ?? "",
+  },
+  rating: typeof p.rating === "string" ? parseFloat(p.rating) || 0 : (p.rating ?? 0),
+}));
 
 type SupaRow = {
   id: string; client_id: string; provider_id: string;
@@ -92,7 +97,7 @@ type SupaRow = {
 function mapRow(r: SupaRow): Booking {
   return {
     id: r.id, clientId: r.client_id,
-    clientName: r.profiles?.full_name ?? "Client", clientImage: provider1,
+    clientName: r.profiles?.full_name ?? "Client", clientImage: getProviderImage(r.client_id, r.profiles?.full_name ?? "Client"),
     service: r.services?.title ?? "Session",
     date: r.booking_date, time: r.booking_time,
     duration: `${r.duration_minutes} min`,

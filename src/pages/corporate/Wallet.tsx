@@ -18,18 +18,8 @@ interface Tx {
   provider?: string;
 }
 
-const TRANSACTIONS: Tx[] = [
-  { id:"t1",  date:"28 Feb 2026", description:"Monthly budget allocation",      amount:+25000, type:"topup",      employee:undefined,           provider:undefined },
-  { id:"t2",  date:"27 Feb 2026", description:"Personal Training – Siya",       amount:-350,   type:"session",    employee:"Mpho Sithole",       provider:"Siya Ndlovu" },
-  { id:"t3",  date:"27 Feb 2026", description:"General Consultation",            amount:-800,   type:"session",    employee:"Zanele Khumalo",     provider:"Dr. Lerato Dlamini" },
-  { id:"t4",  date:"26 Feb 2026", description:"Wallet top-up – Bongani Ndlovu", amount:-500,   type:"allocation", employee:"Bongani Ndlovu",     provider:undefined },
-  { id:"t5",  date:"26 Feb 2026", description:"Facial – Precious Molefe",        amount:-650,   type:"session",    employee:"Sipho Mahlangu",     provider:"Precious Molefe" },
-  { id:"t6",  date:"25 Feb 2026", description:"Nutrition Consultation",          amount:-450,   type:"session",    employee:"Thandiwe Mkhize",    provider:"Kemi Adeyemi" },
-  { id:"t7",  date:"24 Feb 2026", description:"Session refund (cancelled)",      amount:+350,   type:"refund",     employee:"Ayanda Dube",        provider:undefined },
-  { id:"t8",  date:"24 Feb 2026", description:"Personal Training – Siya",       amount:-350,   type:"session",    employee:"Ayanda Dube",        provider:"Siya Ndlovu" },
-  { id:"t9",  date:"23 Feb 2026", description:"Budget top-up – corporate card", amount:+15000, type:"topup",      employee:undefined,            provider:undefined },
-  { id:"t10", date:"22 Feb 2026", description:"Yoga Class",                     amount:-280,   type:"session",    employee:"Nomsa Dlamini",      provider:"Ayasha Naidoo" },
-];
+// Transactions loaded from backend
+const TRANSACTIONS: Tx[] = [];
 
 const TOP_UP_AMOUNTS = [5000, 10000, 25000, 50000];
 
@@ -52,9 +42,9 @@ export default function CorporateWallet() {
   const [customAmount, setCustomAmount] = useState("");
   const [showSuccess, setShowSuccess]   = useState(false);
 
-  const companyBalance = 47_250;
-  const totalAllocated = 38_600;
-  const pendingClaims  = 2_840;
+  const companyBalance = 0;
+  const totalAllocated = 0;
+  const pendingClaims  = 0;
 
   const handleTopUp = () => {
     const amt = topUpAmount ?? Number(customAmount);
@@ -77,7 +67,7 @@ export default function CorporateWallet() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {[
             { label:"Company Balance",    value:`R${companyBalance.toLocaleString()}`, sub:"Available to allocate", color:"text-teal",  icon:Wallet },
-            { label:"Allocated to Employees", value:`R${totalAllocated.toLocaleString()}`, sub:"Across 187 employees", color:"text-amber", icon:ArrowDownLeft },
+            { label:"Allocated to Employees", value:`R${totalAllocated.toLocaleString()}`, sub:"Across employees", color:"text-amber", icon:ArrowDownLeft },
             { label:"Pending Claims",     value:`R${pendingClaims.toLocaleString()}`,  sub:"Awaiting confirmation",   color:"text-coral", icon:TrendingDown },
           ].map((card, i) => {
             const Icon = card.icon;
@@ -157,6 +147,12 @@ export default function CorporateWallet() {
             <span className="text-[10px] text-muted-foreground">{TRANSACTIONS.length} this month</span>
           </div>
           <div className="space-y-2">
+            {TRANSACTIONS.length === 0 && (
+              <GlassCard className="p-6 text-center">
+                <p className="text-sm font-medium text-foreground mb-1">No transactions yet</p>
+                <p className="text-xs text-muted-foreground">Top up your company wallet to get started. Transactions will appear here.</p>
+              </GlassCard>
+            )}
             {TRANSACTIONS.map((tx, i) => {
               const Icon   = TX_ICONS[tx.type];
               const colour = TX_COLORS[tx.type];

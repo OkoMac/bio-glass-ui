@@ -8,8 +8,6 @@ import {
   Bell, LogOut, Tag, ChevronRight, Banknote, ClipboardList,
 } from "lucide-react";
 
-import provider1 from "@/assets/provider-1.jpg";
-
 const navItems = [
   { to: "/pro/dashboard",     label: "Dashboard",   icon: LayoutDashboard },
   { to: "/pro/bookings",      label: "Bookings",    icon: BookOpen },

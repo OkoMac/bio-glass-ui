@@ -1,17 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import CoachAI from "@/components/CoachAI";
-import { ChevronLeft, ChevronRight, Clock, User, MessageSquare, X, Plus } from "lucide-react";
-
-import provider1 from "@/assets/provider-1.jpg";
-import provider2 from "@/assets/provider-2.jpg";
-import provider3 from "@/assets/provider-3.jpg";
-import provider4 from "@/assets/provider-4.jpg";
-
-// Import real data
-import realData from "@/data/bion_pretoria_data.json";
+import { ChevronLeft, ChevronRight, Clock, User, MessageSquare, X, Plus, Calendar } from "lucide-react";
 
 interface Booking {
   id: string;
@@ -26,9 +18,11 @@ interface Booking {
 
 // Generate week starting from a given monday offset
 function getWeekDates(offsetWeeks: number) {
-  const now = new Date(2026, 1, 23); // Monday Feb 23
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
   const monday = new Date(now);
-  monday.setDate(now.getDate() + offsetWeeks * 7);
+  monday.setDate(now.getDate() + mondayOffset + offsetWeeks * 7);
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
@@ -37,123 +31,12 @@ function getWeekDates(offsetWeeks: number) {
 }
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const HOURS = Array.from({ length: 14 }, (_, i) => i + 6); // 06:00 – 19:00
+const HOURS = Array.from({ length: 14 }, (_, i) => i + 6); // 06:00 - 19:00
 
-// Helper function to convert time and duration to start and end times
-function calculateEndTime(startTime: string, duration: string): string {
-  const [hours, minutes] = startTime.split(":").map(Number);
-  const durationMatch = duration.match(/(\d+)/);
-  const durationMinutes = durationMatch ? parseInt(durationMatch[1]) : 60;
-  
-  const totalMinutes = hours * 60 + minutes + durationMinutes;
-  const endHours = Math.floor(totalMinutes / 60);
-  const endMinutes = totalMinutes % 60;
-  
-  return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
-}
-
-// Color mapping for different services
-const SERVICE_COLORS: Record<string, string> = {
-  "Personal Training": "#6366F1", // Indigo
-  "Strength Assessment": "#2DD4BF", // Teal
-  "Yoga Instruction": "#A78BFA", // Purple
-  "Nutrition Counseling": "#F59E0B", // Amber
-  "Fitness Assessment": "#10B981", // Emerald
-  "Group Fitness Classes": "#EC4899", // Pink
-  "Weight Loss Coaching": "#F97316", // Orange
-  "Sports Rehabilitation": "#06B6D4", // Cyan
-  "Physiotherapy": "#8B5CF6", // Violet
-  "Massage Therapy": "#84CC16", // Lime
-  "Wellness Coaching": "#14B8A6", // Teal
-  "Health Screening": "#EF4444", // Red
-  "Corporate Wellness": "#3B82F6", // Blue
-  "Senior Fitness": "#64748B", // Slate
-  "Postnatal Fitness": "#F472B6", // Rose
-  "Prehabilitation": "#22C55E", // Green
-  "Sports Massage": "#06B6D4", // Cyan
-  "Diet Planning": "#F59E0B", // Amber
-  "Free Intro": "#A78BFA", // Purple
-  "Session": "#6366F1", // Default Indigo
+// Empty schedule - will be populated from real bookings
+const emptySchedule: Record<number, Booking[]> = {
+  0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: []
 };
-
-// Image mapping for clients
-const CLIENT_IMAGES = [provider1, provider2, provider3, provider4];
-
-// Generate realistic schedule data from real bookings
-function generateScheduleData() {
-  const scheduleData: Record<number, Booking[]> = {
-    0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: []
-  };
-  
-  // Use real bookings data
-  const realBookings = realData.bookings || [];
-  
-  // Distribute bookings across days (0-6 = Monday-Sunday)
-  realBookings.forEach((booking: any, index: number) => {
-    const dayIndex = index % 7; // Distribute across days
-    
-    // Convert booking data to schedule format
-    const startTime = booking.time || "09:00";
-    const duration = booking.duration || "60 min";
-    const endTime = calculateEndTime(startTime, duration);
-    
-    // Get color based on service
-    const serviceColor = SERVICE_COLORS[booking.service] || SERVICE_COLORS["Session"];
-    
-    // Get client image (cycle through available images)
-    const clientImageIndex = index % CLIENT_IMAGES.length;
-    
-    // Map status
-    let status: "confirmed" | "pending" | "completed" = "confirmed";
-    if (booking.status === "pending") status = "pending";
-    if (booking.status === "completed") status = "completed";
-    
-    const scheduleBooking: Booking = {
-      id: booking.id || `b${index + 1}`,
-      client: booking.clientName || `Client ${index + 1}`,
-      image: CLIENT_IMAGES[clientImageIndex],
-      service: booking.service || "Session",
-      start: startTime,
-      end: endTime,
-      color: serviceColor,
-      status: status
-    };
-    
-    if (!scheduleData[dayIndex]) {
-      scheduleData[dayIndex] = [];
-    }
-    scheduleData[dayIndex].push(scheduleBooking);
-  });
-  
-  // Add some additional bookings for demonstration
-  // Monday (day 0) - Busy day
-  if (scheduleData[0].length < 3) {
-    scheduleData[0].push(
-      { id: "b101", client: "Mpho Sithole", image: provider1, service: "Personal Training", start: "07:00", end: "08:00", color: SERVICE_COLORS["Personal Training"], status: "confirmed" },
-      { id: "b102", client: "Thandi Khumalo", image: provider2, service: "Strength Assessment", start: "09:00", end: "09:45", color: SERVICE_COLORS["Strength Assessment"], status: "confirmed" },
-      { id: "b103", client: "Kobus Pretorius", image: provider3, service: "Personal Training", start: "10:30", end: "11:30", color: SERVICE_COLORS["Personal Training"], status: "pending" }
-    );
-  }
-  
-  // Tuesday (day 1)
-  if (scheduleData[1].length < 2) {
-    scheduleData[1].push(
-      { id: "b104", client: "Naledi Moyo", image: provider4, service: "Yoga Instruction", start: "08:30", end: "09:30", color: SERVICE_COLORS["Yoga Instruction"], status: "confirmed" },
-      { id: "b105", client: "Amir K.", image: provider1, service: "Nutrition Counseling", start: "14:00", end: "15:00", color: SERVICE_COLORS["Nutrition Counseling"], status: "confirmed" }
-    );
-  }
-  
-  // Wednesday (day 2)
-  if (scheduleData[2].length < 2) {
-    scheduleData[2].push(
-      { id: "b106", client: "Busisiwe M.", image: provider2, service: "Group Fitness Classes", start: "16:00", end: "17:00", color: SERVICE_COLORS["Group Fitness Classes"], status: "completed" }
-    );
-  }
-  
-  return scheduleData;
-}
-
-const mockBookings = generateScheduleData();
 
 function timeToTop(time: string, hourH: number): number {
   const [h, m] = time.split(":").map(Number);
@@ -174,20 +57,15 @@ export default function ProviderSchedule() {
   const [viewDay, setViewDay]       = useState(0); // index 0-6 within week
   const [mode, setMode]             = useState<"week" | "day">("week");
   const [detail, setDetail]         = useState<Booking | null>(null);
-  const [scheduleData, setScheduleData] = useState<Record<number, Booking[]>>(mockBookings);
-
-  // Update schedule data when real data changes
-  useEffect(() => {
-    setScheduleData(generateScheduleData());
-  }, []);
+  const [scheduleData, setScheduleData] = useState<Record<number, Booking[]>>(emptySchedule);
 
   const weekDates = getWeekDates(weekOffset);
   const today     = new Date();
 
   const dayBookings = (dayIdx: number) =>
-    (scheduleData[weekOffset === 0 ? dayIdx : 99] ?? []).filter((_, i) => dayIdx === 0 || i < 1);
+    scheduleData[dayIdx] ?? [];
 
-  const currentDayBookings = scheduleData[weekOffset === 0 ? viewDay : 99] ?? [];
+  const currentDayBookings = scheduleData[viewDay] ?? [];
 
   const totalH = HOURS.length * HOUR_H;
 
@@ -204,7 +82,7 @@ export default function ProviderSchedule() {
               {weekDates[6].toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Showing real bookings from {realData.providers?.length || 0} Pretoria service providers
+              Your schedule will populate as clients book with you.
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -407,7 +285,9 @@ export default function ProviderSchedule() {
             {/* No bookings message */}
             {currentDayBookings.length === 0 && (
               <div className="text-center py-12">
-                <div className="text-muted-foreground mb-2">No bookings scheduled for this day</div>
+                <Calendar className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+                <div className="text-sm font-medium text-foreground mb-1">No bookings scheduled</div>
+                <div className="text-xs text-muted-foreground mb-3">Your schedule will populate as clients book with you.</div>
                 <button className="px-4 py-2 gradient-indigo rounded-full text-sm font-medium">
                   <Plus className="w-4 h-4 inline mr-1" />
                   Add Availability

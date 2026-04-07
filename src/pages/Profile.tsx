@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
@@ -12,28 +12,18 @@ import { useStreaks } from "@/hooks/useStreaks";
 import {
   Shield, FileText, Star, Award, Flame, Gift,
   ChevronRight, Download, Lock, Heart, Settings,
-  LogOut, CreditCard, Bell, Eye, Activity, Trophy
+  LogOut, CreditCard, Bell, Eye, Activity, Trophy,
+  Copy, Share2, CheckCircle,
 } from "lucide-react";
 import { ImagePickerOverlay } from "@/components/ImagePickerOverlay";
 
-import provider1 from "@/assets/provider-1.jpg";
-import provider2 from "@/assets/provider-2.jpg";
-import provider3 from "@/assets/provider-3.jpg";
-import provider4 from "@/assets/provider-4.jpg";
+import { getProviderImage } from "@/lib/providerImages";
 
-const connectedProviders = [
-  { id: "lisa", name: "Lisa D.", image: provider1, vertical: "teal" as const },
-  { id: "kagiso", name: "Kagiso S.", image: provider2, vertical: "indigo" as const },
-  { id: "sarah", name: "Sarah C.", image: provider3, vertical: "coral" as const },
-  { id: "amir", name: "Amir P.", image: provider4, vertical: "amber" as const },
-];
+// Connected providers loaded from backend
+const connectedProviders: { id: string; name: string; image: string; vertical: "teal" | "indigo" | "coral" | "amber" }[] = [];
 
-const documents = [
-  { name: "Training Plan — Week 3", provider: "Lisa Dlamini", date: "Feb 22", icon: "📋" },
-  { name: "Rehab Protocol", provider: "Dr. Kagiso Sithole", date: "Feb 18", icon: "🏥" },
-  { name: "Skin Analysis Report", provider: "Sarah Chen", date: "Feb 15", icon: "📄" },
-  { name: "Meal Plan — Feb", provider: "Lisa Dlamini", date: "Feb 10", icon: "🥗" },
-];
+// Documents loaded from backend
+const documents: { name: string; provider: string; date: string; icon: string }[] = [];
 
 const VERTICAL_PALETTE = ["teal", "indigo", "coral", "amber"] as const;
 
@@ -60,13 +50,45 @@ const rewardItems = [
   { name: "Charity Donation", cost: 300, icon: "❤️" },
 ];
 
+function getOrCreateReferralCode(userName: string): string {
+  const KEY = "bion_referral_code";
+  const stored = localStorage.getItem(KEY);
+  if (stored) return stored;
+  const prefix = (userName || "USR").replace(/\s/g, "").substring(0, 3).toUpperCase();
+  const rand = Math.floor(1000 + Math.random() * 9000);
+  const code = `BION-${prefix}${rand}`;
+  localStorage.setItem(KEY, code);
+  return code;
+}
+
 const Profile = () => {
   const [activeTab, setActiveTab] = useState<"passport" | "rewards">("passport");
+  const [referralCopied, setReferralCopied] = useState(false);
   const navigate = useNavigate();
   const { user, logout, switchRole, updateAvatar } = useAuth();
   const { bookings } = useBookings();
   const { balance: bioPoints } = useBioPoints();
   const { streak } = useStreaks("booking");
+
+  const referralCode = getOrCreateReferralCode(user?.name ?? "User");
+
+  const copyReferralCode = useCallback(() => {
+    navigator.clipboard.writeText(referralCode).then(() => {
+      setReferralCopied(true);
+      setTimeout(() => setReferralCopied(false), 2000);
+    });
+  }, [referralCode]);
+
+  const shareReferral = useCallback(() => {
+    const text = `Join BION with my code ${referralCode} and get 25 BIO Points!`;
+    if (navigator.share) {
+      navigator.share({ title: "Join BION", text }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(text);
+      setReferralCopied(true);
+      setTimeout(() => setReferralCopied(false), 2000);
+    }
+  }, [referralCode]);
 
   const bookingHistory = bookings.map((b, i) => ({
     provider: b.providerName ?? b.clientName,
@@ -83,7 +105,7 @@ const Profile = () => {
         <div className="flex items-center gap-4">
           <ImagePickerOverlay onChange={updateAvatar}>
             <BioAvatar
-              src={user?.avatar ?? provider1}
+              src={user?.avatar ?? getProviderImage(user?.id ?? "user", user?.name ?? "User")}
               alt="Oko"
               size="xl"
               verticalColor="indigo"
@@ -142,58 +164,76 @@ const Profile = () => {
             {/* Connected Providers */}
             <div>
               <h2 className="text-sm font-semibold text-foreground mb-3">Connected Providers</h2>
-              <div className="flex gap-4">
-                {connectedProviders.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => navigate(`/provider/${p.id}`)}
-                    className="flex flex-col items-center gap-1.5"
-                  >
-                    <BioAvatar src={p.image} alt={p.name} size="md" verticalColor={p.vertical} />
-                    <span className="text-[10px] text-muted-foreground">{p.name}</span>
-                  </button>
-                ))}
-              </div>
+              {connectedProviders.length === 0 ? (
+                <GlassCard className="p-4 text-center">
+                  <p className="text-xs text-muted-foreground">No connected providers yet. Book a session to connect with a provider.</p>
+                </GlassCard>
+              ) : (
+                <div className="flex gap-4">
+                  {connectedProviders.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => navigate(`/provider/${p.id}`)}
+                      className="flex flex-col items-center gap-1.5"
+                    >
+                      <BioAvatar src={p.image} alt={p.name} size="md" verticalColor={p.vertical} />
+                      <span className="text-[10px] text-muted-foreground">{p.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Documents */}
             <div>
               <h2 className="text-sm font-semibold text-foreground mb-3">Documents</h2>
-              <div className="space-y-2">
-                {documents.map((doc) => (
-                  <GlassCard key={doc.name} hover className="p-3 flex items-center gap-3">
-                    <span className="text-xl">{doc.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-foreground truncate">{doc.name}</p>
-                      <p className="text-[10px] text-muted-foreground">{doc.provider} · {doc.date}</p>
-                    </div>
-                    <Download className="w-4 h-4 text-muted-foreground shrink-0" />
-                  </GlassCard>
-                ))}
-              </div>
+              {documents.length === 0 ? (
+                <GlassCard className="p-4 text-center">
+                  <p className="text-xs text-muted-foreground">No documents yet. Documents from your providers will appear here.</p>
+                </GlassCard>
+              ) : (
+                <div className="space-y-2">
+                  {documents.map((doc) => (
+                    <GlassCard key={doc.name} hover className="p-3 flex items-center gap-3">
+                      <span className="text-xl">{doc.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-foreground truncate">{doc.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{doc.provider} · {doc.date}</p>
+                      </div>
+                      <Download className="w-4 h-4 text-muted-foreground shrink-0" />
+                    </GlassCard>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Booking History */}
             <div>
               <h2 className="text-sm font-semibold text-foreground mb-3">Booking History</h2>
-              <div className="space-y-2">
-                {bookingHistory.map((b, i) => (
-                  <GlassCard key={i} className="p-3 flex items-center gap-3">
-                    <div className={`w-1 h-8 rounded-full ${
-                      b.vertical === "teal" ? "bg-teal" : b.vertical === "indigo" ? "bg-indigo" : b.vertical === "coral" ? "bg-coral" : "bg-amber"
-                    }`} />
-                    <div className="flex-1">
-                      <p className="text-xs font-medium text-foreground">{b.service}</p>
-                      <p className="text-[10px] text-muted-foreground">{b.provider} · {b.date}</p>
-                    </div>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-pill ${
-                      b.status === "Upcoming" ? "glass-accent-teal text-teal" : "glass-1 text-muted-foreground"
-                    }`}>
-                      {b.status}
-                    </span>
-                  </GlassCard>
-                ))}
-              </div>
+              {bookingHistory.length === 0 ? (
+                <GlassCard className="p-4 text-center">
+                  <p className="text-xs text-muted-foreground">No recent bookings. Your booking history will appear here.</p>
+                </GlassCard>
+              ) : (
+                <div className="space-y-2">
+                  {bookingHistory.map((b, i) => (
+                    <GlassCard key={i} className="p-3 flex items-center gap-3">
+                      <div className={`w-1 h-8 rounded-full ${
+                        b.vertical === "teal" ? "bg-teal" : b.vertical === "indigo" ? "bg-indigo" : b.vertical === "coral" ? "bg-coral" : "bg-amber"
+                      }`} />
+                      <div className="flex-1">
+                        <p className="text-xs font-medium text-foreground">{b.service}</p>
+                        <p className="text-[10px] text-muted-foreground">{b.provider} · {b.date}</p>
+                      </div>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-pill ${
+                        b.status === "Upcoming" ? "glass-accent-teal text-teal" : "glass-1 text-muted-foreground"
+                      }`}>
+                        {b.status}
+                      </span>
+                    </GlassCard>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Quick links */}
@@ -212,8 +252,86 @@ const Profile = () => {
                   <span className="text-sm text-foreground">Challenges</span>
                   <p className="text-[10px] text-muted-foreground">Join group challenges, earn BIONPoints</p>
                 </div>
-                <span className="text-[10px] px-1.5 py-0.5 glass-accent-amber rounded-pill text-amber mr-1">2 active</span>
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </GlassCard>
+            </div>
+
+            {/* Free Tools */}
+            <div>
+              <p className="text-xs text-muted-foreground mb-2 px-1">Wellness Tools</p>
+              <div className="space-y-1">
+                <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={() => navigate("/water-tracker")}>
+                  <span className="text-lg">💧</span>
+                  <div className="flex-1">
+                    <span className="text-sm text-foreground">Water Tracker</span>
+                    <p className="text-[10px] text-muted-foreground">Track daily water intake</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </GlassCard>
+                <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={() => navigate("/sleep-tracker")}>
+                  <span className="text-lg">🌙</span>
+                  <div className="flex-1">
+                    <span className="text-sm text-foreground">Sleep Tracker</span>
+                    <p className="text-[10px] text-muted-foreground">Log & monitor sleep patterns</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </GlassCard>
+                <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={() => navigate("/medical-card")}>
+                  <span className="text-lg">🏥</span>
+                  <div className="flex-1">
+                    <span className="text-sm text-foreground">Digital Medical Card</span>
+                    <p className="text-[10px] text-muted-foreground">Your health passport & emergency info</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </GlassCard>
+                <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={() => navigate("/life-coach")}>
+                  <span className="text-lg">🤖</span>
+                  <div className="flex-1">
+                    <span className="text-sm text-foreground">BION Life Coach</span>
+                    <p className="text-[10px] text-muted-foreground">AI wellness advice & motivation</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </GlassCard>
+              </div>
+            </div>
+
+            {/* Referral Program */}
+            <div>
+              <p className="text-xs text-muted-foreground mb-2 px-1">Referral Program</p>
+              <GlassCard className="p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Gift className="w-4 h-4 text-amber" />
+                  <h3 className="text-sm font-semibold text-foreground">Invite Friends</h3>
+                </div>
+                <div className="glass-1 rounded-xl p-3 flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground">Your referral code</p>
+                    <p className="text-lg font-bold font-data text-indigo tracking-wider">{referralCode}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      onClick={copyReferralCode}
+                      className="w-9 h-9 rounded-xl glass-accent-indigo flex items-center justify-center"
+                    >
+                      {referralCopied ? (
+                        <CheckCircle className="w-4 h-4 text-teal" />
+                      ) : (
+                        <Copy className="w-4 h-4 text-indigo" />
+                      )}
+                    </motion.button>
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      onClick={shareReferral}
+                      className="w-9 h-9 rounded-xl gradient-indigo flex items-center justify-center"
+                    >
+                      <Share2 className="w-4 h-4 text-primary-foreground" />
+                    </motion.button>
+                  </div>
+                </div>
+                <p className="text-[10px] text-muted-foreground text-center">
+                  Earn 50 BIO Points for every friend who signs up
+                </p>
               </GlassCard>
             </div>
 
@@ -280,7 +398,7 @@ const Profile = () => {
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">Lifetime earned: 4,820</p>
+              <p className="text-xs text-muted-foreground mt-2">Lifetime earned</p>
             </div>
 
             {/* Streak Card */}
@@ -340,6 +458,7 @@ const Profile = () => {
                     <p className="text-[10px] font-data text-amber">{item.cost} pts</p>
                     <motion.button
                       whileTap={{ scale: 0.95 }}
+                      onClick={() => window.alert("Coming soon — redemption will be available when you have enough points.")}
                       className="rounded-pill px-3 py-1.5 text-[10px] font-semibold gradient-indigo text-primary-foreground w-full text-center"
                     >
                       Redeem

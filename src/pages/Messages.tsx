@@ -1,22 +1,14 @@
 import { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
 import CoachAI from "@/components/CoachAI";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMessages } from "@/hooks/useMessages";
-import { Send, Mic, Paperclip, Phone, Info, ChevronLeft, Check, CheckCheck } from "lucide-react";
+import { Send, Paperclip, Info, ChevronLeft, Check, CheckCheck, MessageSquare } from "lucide-react";
 
-import provider1 from "@/assets/provider-1.jpg";
-import provider2 from "@/assets/provider-2.jpg";
-import provider3 from "@/assets/provider-3.jpg";
-import provider4 from "@/assets/provider-4.jpg";
-
-// Import real provider data
-import realData from "@/data/bion_pretoria_data.json";
-
-// ── Real messaging data based on Pretoria service providers ────────
+// ── Message types ────────────────────────────────────────────────
 interface MockMsg {
   id: number; from: "client" | "provider";
   text?: string; type?: string; title?: string; exercises?: number;
@@ -24,116 +16,24 @@ interface MockMsg {
   providerId?: string;
 }
 
-// Get real providers for messaging
-const REAL_PROVIDERS = realData.providers || [];
+// Threads loaded from backend -- empty until real conversations exist
+const REAL_THREADS: Record<string, MockMsg[]> = {};
 
-// Helper to get a random provider
-const getRandomProvider = (index?: number) => {
-  if (REAL_PROVIDERS.length === 0) return { 
-    name: "Provider", 
-    id: "provider_1",
-    service: "Service",
-    location: "Pretoria"
-  };
-  const idx = index !== undefined ? index % REAL_PROVIDERS.length : Math.floor(Math.random() * REAL_PROVIDERS.length);
-  const provider = REAL_PROVIDERS[idx];
-  return {
-    name: provider.name,
-    id: provider.id,
-    service: provider.service,
-    location: provider.location || "Pretoria",
-    specialization: provider.specialization || "Fitness"
-  };
-};
-
-// Generate realistic message threads based on real providers
-const generateRealThreads = () => {
-  const threads: Record<string, MockMsg[]> = {};
-  
-  // Create threads for first 4 real providers
-  const providers = REAL_PROVIDERS.slice(0, 4);
-  
-  providers.forEach((provider, index) => {
-    const providerKey = provider.id.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-    
-    // Generate realistic conversation based on provider service
-    let conversation: MockMsg[] = [];
-    
-    switch (provider.service) {
-      case "Personal Training":
-        conversation = [
-          { id: 1, from: "provider", text: `Hi! How are you feeling after our ${provider.service} session yesterday?`, time: "9:15am", status: "read", providerId: provider.id },
-          { id: 2, from: "client", text: "Feeling good! A little sore but that's expected. The form cues really helped!", time: "9:22am", status: "read" },
-          { id: 3, from: "provider", text: "Great to hear! Remember to do the dynamic stretches I showed you before your next workout.", time: "9:24am", status: "read", providerId: provider.id },
-          { id: 4, from: "provider", text: "I've updated your 4-week strength program. Check the new exercises in your routine.", time: "9:25am", status: "read", providerId: provider.id },
-          { id: 5, from: "provider", type: "routine", title: "Week 3: Strength Focus", exercises: 8, time: "9:25am", status: "read", providerId: provider.id },
-          { id: 6, from: "client", text: "Just reviewed it. The progressive overload looks perfect! 🔥", time: "10:01am", status: "read" },
-          { id: 7, from: "provider", text: "See you tomorrow at 8 AM. Bring your workout log!", time: "2:30pm", status: "read", providerId: provider.id },
-        ];
-        break;
-        
-      case "Physiotherapy":
-      case "Sports Rehabilitation":
-        conversation = [
-          { id: 1, from: "provider", text: `Your ${provider.service} assessment shows excellent progress. Keep up the consistency!`, time: "Mon", status: "read", providerId: provider.id },
-          { id: 2, from: "client", text: "Thanks! The knee feels much more stable during my runs.", time: "Mon", status: "read" },
-          { id: 3, from: "provider", text: "That's great news. I've added new mobility exercises to your rehab plan.", time: "Tue", status: "read", providerId: provider.id },
-          { id: 4, from: "client", text: "The foam rolling techniques are really helping with recovery.", time: "Wed", status: "read" },
-          { id: 5, from: "provider", text: "Perfect! Remember to ice for 15 minutes after your sessions this week.", time: "Wed", status: "read", providerId: provider.id },
-        ];
-        break;
-        
-      case "Nutrition Counseling":
-      case "Diet Planning":
-        conversation = [
-          { id: 1, from: "provider", text: `Hi! How has your ${provider.service.toLowerCase()} plan been working for you?`, time: "Yesterday", status: "read", providerId: provider.id },
-          { id: 2, from: "client", text: "Really well! I've noticed more energy throughout the day.", time: "Yesterday", status: "read" },
-          { id: 3, from: "provider", text: "Excellent! I've adjusted your meal plan based on your feedback. More protein in the AM.", time: "3h ago", status: "read", providerId: provider.id },
-          { id: 4, from: "client", text: "The new recipes look delicious! Trying the quinoa bowl tonight.", time: "1h ago", status: "read" },
-        ];
-        break;
-        
-      default:
-        conversation = [
-          { id: 1, from: "provider", text: `Hope you're enjoying your ${provider.service} sessions! How can I help today?`, time: "Today", status: "read", providerId: provider.id },
-          { id: 2, from: "client", text: "Everything's going well! Just wanted to check about my next appointment.", time: "Today", status: "read" },
-          { id: 3, from: "provider", text: "Your next session is confirmed for Thursday at 10 AM. See you then!", time: "Today", status: "read", providerId: provider.id },
-        ];
-    }
-    
-    threads[providerKey] = conversation;
-  });
-  
-  return threads;
-};
-
-const REAL_THREADS = generateRealThreads();
-
-// Generate real conversations list
-const generateRealConversations = () => {
-  const providers = REAL_PROVIDERS.slice(0, 4);
-  const images = [provider1, provider2, provider3, provider4];
-  const verticals = ["teal", "indigo", "coral", "amber"] as const;
-  const times = ["2m ago", "1h ago", "3h ago", "Yesterday"];
-  const onlineStatus = [true, false, true, false];
-  
-  return providers.map((provider, index) => ({
-    id: provider.id.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase(),
-    supabaseId: null,
-    name: provider.name,
-    specialty: provider.service,
-    specialization: provider.specialization || "Wellness",
-    image: images[index % images.length],
-    vertical: verticals[index % verticals.length] as "teal" | "indigo" | "coral" | "amber",
-    time: times[index % times.length],
-    unread: index === 0 ? 2 : index === 2 ? 1 : 0,
-    online: onlineStatus[index % onlineStatus.length],
-    location: provider.location || "Pretoria",
-    providerId: provider.id
-  }));
-};
-
-const REAL_CONVERSATIONS = generateRealConversations();
+// Conversations loaded from backend
+const REAL_CONVERSATIONS: {
+  id: string;
+  supabaseId: string | null;
+  name: string;
+  specialty: string;
+  specialization: string;
+  image: string;
+  vertical: "teal" | "indigo" | "coral" | "amber";
+  time: string;
+  unread: number;
+  online: boolean;
+  location: string;
+  providerId: string;
+}[] = [];
 
 function getTime() {
   return new Date().toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit", hour12: false });
@@ -221,9 +121,6 @@ function ChatView({
         </div>
         <div className="flex items-center gap-2">
           <button className="p-2 rounded-full hover:bg-white/10">
-            <Phone className="w-5 h-5 text-foreground" />
-          </button>
-          <button className="p-2 rounded-full hover:bg-white/10">
             <Info className="w-5 h-5 text-foreground" />
           </button>
         </div>
@@ -273,7 +170,7 @@ function ChatView({
       {/* Input */}
       <div className="glass-2 px-4 py-3">
         <div className="flex items-center gap-2">
-          <button className="p-2 rounded-full hover:bg-white/10">
+          <button className="p-2 rounded-full hover:bg-white/10" onClick={() => window.alert("File sharing coming soon.")}>
             <Paperclip className="w-5 h-5 text-foreground" />
           </button>
           <div className="flex-1 glass-1 rounded-full px-4 py-2">
@@ -286,19 +183,13 @@ function ChatView({
               rows={1}
             />
           </div>
-          {draft.trim() ? (
-            <button
-              onClick={sendMessage}
-              disabled={sending}
-              className="p-3 gradient-indigo rounded-full"
-            >
-              <Send className="w-5 h-5 text-primary-foreground" />
-            </button>
-          ) : (
-            <button className="p-3 glass-1 rounded-full">
-              <Mic className="w-5 h-5 text-foreground" />
-            </button>
-          )}
+          <button
+            onClick={sendMessage}
+            disabled={sending || !draft.trim()}
+            className={`p-3 rounded-full ${draft.trim() ? "gradient-indigo" : "glass-1 opacity-50"}`}
+          >
+            <Send className={`w-5 h-5 ${draft.trim() ? "text-primary-foreground" : "text-foreground"}`} />
+          </button>
         </div>
       </div>
     </div>
@@ -319,14 +210,6 @@ export default function Messages() {
     (c.location && c.location.toLowerCase().includes(search.toLowerCase()))
   );
 
-  // Get provider stats
-  const providerStats = {
-    total: REAL_CONVERSATIONS.length,
-    online: REAL_CONVERSATIONS.filter(c => c.online).length,
-    locations: Array.from(new Set(REAL_CONVERSATIONS.map(c => c.location))).length,
-    specialties: Array.from(new Set(REAL_CONVERSATIONS.map(c => c.specialty))).length,
-  };
-
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28">
       <div className="max-w-3xl mx-auto px-4 pt-12 space-y-6">
@@ -335,37 +218,10 @@ export default function Messages() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Messages</h1>
             <p className="text-sm text-muted-foreground">
-              Connect with {REAL_PROVIDERS.length} Pretoria service providers
+              Connect with your service providers
             </p>
           </div>
         </div>
-
-        {/* Stats card */}
-        <GlassCard className="p-4">
-          <div className="grid grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">{providerStats.total}</div>
-              <div className="text-xs text-muted-foreground">Providers</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">{providerStats.online}</div>
-              <div className="text-xs text-muted-foreground">Online</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">{providerStats.locations}</div>
-              <div className="text-xs text-muted-foreground">Locations</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">{providerStats.specialties}</div>
-              <div className="text-xs text-muted-foreground">Specialties</div>
-            </div>
-          </div>
-          <div className="mt-3 pt-3 border-t border-white/5">
-            <p className="text-xs text-muted-foreground">
-              Real conversations with Pretoria providers across {providerStats.locations} locations
-            </p>
-          </div>
-        </GlassCard>
 
         {/* Search */}
         <div className="glass-1 rounded-full px-4 py-2">
@@ -380,11 +236,19 @@ export default function Messages() {
 
         {/* Conversations list */}
         <div className="space-y-3">
-          {filtered.length === 0 ? (
+          {filtered.length === 0 && REAL_CONVERSATIONS.length === 0 ? (
+            <GlassCard className="p-8 text-center">
+              <MessageSquare className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+              <p className="text-sm font-medium text-foreground mb-1">No conversations yet</p>
+              <p className="text-sm text-muted-foreground">
+                Book a session with a provider to start a conversation.
+              </p>
+            </GlassCard>
+          ) : filtered.length === 0 ? (
             <GlassCard className="p-8 text-center">
               <div className="text-muted-foreground mb-2">No providers match your search</div>
               <p className="text-sm text-muted-foreground">
-                Try searching for a different specialty or location in Pretoria
+                Try searching for a different specialty or location
               </p>
             </GlassCard>
           ) : (
@@ -435,7 +299,7 @@ export default function Messages() {
         </div>
 
         {/* Bottom navigation */}
-        <BottomNav active="messages" />
+        <BottomNav />
       </div>
 
       {/* Chat view */}
@@ -450,7 +314,7 @@ export default function Messages() {
 
       {/* Coach AI */}
       <CoachAI
-        context={`Messages page. ${filtered.length} Pretoria providers available. ${providerStats.online} currently online.`}
+        context={`Messages page. ${filtered.length} conversations.`}
         suggestions={[
           "How should I communicate my fitness goals to a new provider?",
           "What information should I share during my initial consultation?",

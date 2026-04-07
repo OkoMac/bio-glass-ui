@@ -30,6 +30,8 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
   { id: "maternity",     name: "Maternity & Fertility", icon: Baby,        color: "text-coral",   glowColor: "rgba(251,113,133,0.15)" },
   { id: "pharmacy",      name: "Pharmacy",              icon: Pill,        color: "text-indigo",  glowColor: "rgba(99,102,241,0.15)" },
   { id: "wellness",      name: "General Wellness",      icon: Heart,       color: "text-amber",   glowColor: "rgba(251,191,36,0.15)" },
+  { id: "veterinary",    name: "Veterinary Care",       icon: Leaf,        color: "text-teal",    glowColor: "rgba(45,212,191,0.15)" },
+  { id: "rehabilitation",name: "Rehabilitation",        icon: Bone,        color: "text-violet",  glowColor: "rgba(167,139,250,0.15)" },
 ];
 
 interface Props {
@@ -50,7 +52,7 @@ const ServiceCategoryBlock = ({ category, index, onClick }: Props) => {
       whileTap={{ scale: 0.96 }}
       onClick={() => onClick(category)}
       className={cn(
-        "relative group flex flex-col items-center justify-center gap-3 p-6",
+        "relative group flex flex-col items-center justify-center gap-2 p-4 md:p-5",
         "rounded-2xl border border-white/[0.08] overflow-hidden cursor-pointer",
         "transition-all duration-300",
         "hover:border-white/[0.16] hover:shadow-hover"

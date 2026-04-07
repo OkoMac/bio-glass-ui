@@ -10,81 +10,18 @@ import {
   Dumbbell, Apple, Stethoscope, Play, Lock
 } from "lucide-react";
 
-import provider1 from "@/assets/provider-1.jpg";
-import provider2 from "@/assets/provider-2.jpg";
-import provider3 from "@/assets/provider-3.jpg";
-
-const routines = [
-  {
-    id: "r1",
-    title: "Week 4 — Upper Body Strength",
-    provider: "Lisa Dlamini",
-    providerImage: provider1,
-    vertical: "teal" as const,
-    type: "workout",
-    daysCompleted: 3,
-    totalDays: 5,
-    exercises: [
-      { name: "Push-ups (wide grip)", sets: "4×12", done: true },
-      { name: "Dumbbell Row", sets: "3×10 each", done: true },
-      { name: "Shoulder Press", sets: "3×10", done: true },
-      { name: "Tricep Dips", sets: "3×15", done: false },
-      { name: "Bicep Curls", sets: "3×12", done: false },
-      { name: "Plank", sets: "3×45s", done: false },
-    ],
-  },
-  {
-    id: "r2",
-    title: "Knee Rehab Phase 2",
-    provider: "Dr. Kagiso Sithole",
-    providerImage: provider2,
-    vertical: "indigo" as const,
-    type: "rehab",
-    daysCompleted: 5,
-    totalDays: 7,
-    exercises: [
-      { name: "Quad Sets", sets: "3×20", done: true },
-      { name: "Straight Leg Raises", sets: "3×15", done: true },
-      { name: "Wall Slides", sets: "3×10", done: true },
-      { name: "Mini Squats", sets: "3×12", done: true },
-      { name: "Calf Raises", sets: "3×20", done: false },
-    ],
-  },
-  {
-    id: "r3",
-    title: "February Meal Plan",
-    provider: "Lisa Dlamini",
-    providerImage: provider1,
-    vertical: "teal" as const,
-    type: "meal",
-    daysCompleted: 18,
-    totalDays: 28,
-    exercises: [
-      { name: "Breakfast: Oats + banana + protein shake", sets: "", done: true },
-      { name: "Snack: Greek yoghurt + almonds", sets: "", done: true },
-      { name: "Lunch: Grilled chicken + brown rice + salad", sets: "", done: false },
-      { name: "Snack: Apple + peanut butter", sets: "", done: false },
-      { name: "Dinner: Salmon + sweet potato + greens", sets: "", done: false },
-    ],
-  },
-  {
-    id: "r4",
-    title: "Skin Care Routine — AM/PM",
-    provider: "Sarah Chen",
-    providerImage: provider3,
-    vertical: "coral" as const,
-    type: "skincare",
-    daysCompleted: 12,
-    totalDays: 30,
-    exercises: [
-      { name: "AM: Gentle cleanser", sets: "1×", done: true },
-      { name: "AM: Vitamin C serum", sets: "2 drops", done: true },
-      { name: "AM: SPF 50 moisturiser", sets: "pea size", done: false },
-      { name: "PM: Double cleanse", sets: "2 steps", done: false },
-      { name: "PM: Retinol (0.3%)", sets: "avoid 48h pre-session", done: false },
-    ],
-  },
-];
+// Routines loaded from backend
+const routines: {
+  id: string;
+  title: string;
+  provider: string;
+  providerImage: string;
+  vertical: "teal" | "indigo" | "coral" | "amber";
+  type: string;
+  daysCompleted: number;
+  totalDays: number;
+  exercises: { name: string; sets: string; done: boolean }[];
+}[] = [];
 
 const typeIcon: Record<string, React.ReactNode> = {
   workout:  <Dumbbell className="w-4 h-4" />,
@@ -119,11 +56,20 @@ export default function Routines() {
           </motion.button>
           <div>
             <h1 className="text-2xl font-bold text-foreground">My Routines</h1>
-            <p className="text-xs text-muted-foreground">{routines.length} active prescriptions</p>
+            <p className="text-xs text-muted-foreground">{routines.length === 0 ? "No active prescriptions" : `${routines.length} active prescriptions`}</p>
           </div>
         </div>
 
         {/* Routines */}
+        {routines.length === 0 ? (
+          <GlassCard className="p-8 text-center">
+            <Dumbbell className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+            <p className="text-sm font-medium text-foreground mb-1">No routines assigned yet</p>
+            <p className="text-xs text-muted-foreground">
+              Routines from your providers will appear here once assigned.
+            </p>
+          </GlassCard>
+        ) : null}
         {routines.map((r, ri) => {
           const isOpen = expanded === r.id;
           const completedCount = r.exercises.filter((e, ei) =>
@@ -244,19 +190,20 @@ export default function Routines() {
           );
         })}
 
-        {/* ServeAI nudge */}
-        <GlassCard variant="accent-indigo" className="p-4">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl">✦</span>
-            <div>
-              <p className="text-sm font-medium text-foreground">ServeAI Insight</p>
-              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                You're 67% through your upper body week. Completing tomorrow's session will unlock the
-                <span className="text-amber font-medium"> "Consistency King" badge</span>.
-              </p>
+        {/* ServeAI nudge — only shown when routines exist */}
+        {routines.length > 0 && (
+          <GlassCard variant="accent-indigo" className="p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">✦</span>
+              <div>
+                <p className="text-sm font-medium text-foreground">ServeAI Insight</p>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                  Keep up the consistency with your routines to unlock more badges!
+                </p>
+              </div>
             </div>
-          </div>
-        </GlassCard>
+          </GlassCard>
+        )}
       </div>
 
       <CoachAI />

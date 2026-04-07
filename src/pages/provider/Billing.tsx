@@ -1,112 +1,158 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import CoachAI from "@/components/CoachAI";
 import { useAuth } from "@/contexts/AuthContext";
-import { useSubscription } from "@/hooks/useSubscription";
 import {
   CreditCard, TrendingUp, CheckCircle, Download,
-  Building2, Zap, Shield, ChevronRight, Clock,
-  Check, Crown, Star,
+  Building2, Zap, Shield, Clock, Check, Loader2,
+  AlertCircle, Search, ChevronRight, Crown, Star,
 } from "lucide-react";
 
-// Import real Pretoria data
-import realData from "@/data/bion_pretoria_data.json";
+const API = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
 
-/* ── helpers ──────────────────────────────────────────────────────────────── */
-function SVGBar({ data, color = "#6366F1" }: { data: number[]; color?: string }) {
-  const max = Math.max(...data);
-  return (
-    <div className="flex items-end gap-1 h-16">
-      {data.map((v, i) => (
-        <div
-          key={i}
-          className="flex-1 rounded-t-sm transition-all"
-          style={{
-            height: `${(v / max) * 100}%`,
-            background: `linear-gradient(to top, ${color}80, ${color})`,
-            opacity: i === data.length - 1 ? 1 : 0.55 + (i / data.length) * 0.35,
-          }}
-        />
-      ))}
-    </div>
-  );
+interface Bank {
+  name: string;
+  code: string;
 }
 
-/* ── Real billing data based on Pretoria service providers ────────────── */
-// Calculate payouts using ONLY real data - no fake session counts
-const calculateRealPayouts = () => {
-  // Get real prices from Pretoria providers
-  const prices = realData.providers.map(p => {
-    const priceStr = p.price.replace('R', '').replace(',', '');
-    return parseInt(priceStr) || 0;
-  }).filter(p => p > 0);
-  
-  const avgPrice = prices.length > 0 ? prices.reduce((a, b) => a + b) / prices.length : 0;
-  
-  // No fake session data - show empty/placeholder until real data exists
-  const months = ["March 2026", "February 2026", "January 2026", "December 2025", "November 2025"];
-  
-  return months.map((period, index) => {
-    // No real session data yet - will be populated with actual usage
-    const sessions = 0; // Real sessions will be tracked when service is used
-    const gross = 0; // Real gross will be calculated from actual bookings
-    const fee = 0; // Real fees will be calculated from actual transactions
-    const net = 0; // Real net will be calculated from actual payouts
-    
-    return {
-      period,
-      sessions,
-      gross: `R${gross.toLocaleString('en-ZA')}`,
-      fee: `R${fee.toLocaleString('en-ZA', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
-      net: `R${net.toLocaleString('en-ZA', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
-      status: "No data yet",
-      date: "Will populate with real data",
-    };
-  });
-};
+interface BankDetails {
+  paystack_subaccount_code: string | null;
+  bank_name: string | null;
+  bank_account_number: string | null;
+  bank_account_name: string | null;
+}
 
-const PAYOUTS = calculateRealPayouts();
-
-// No real trend data yet - chart will show when real data exists
-const MONTHLY_NET = [0, 0, 0, 0, 0]; // Will be populated with real net values
-const MONTH_LABELS = ["Nov", "Dec", "Jan", "Feb", "Mar"];
-
-const PLANS = [
-  {
-    id: "starter",
-    name: "Starter",
-    price: "Free",
-    fee: "15%",
-    features: ["Up to 20 sessions/month", "Basic analytics", "1 service listing", "Standard support"],
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    price: "R499/mo",
-    fee: "10%",
-    features: ["Unlimited sessions", "Full analytics", "5 service listings", "Priority support", "Custom availability", "Client messaging"],
-    current: true,
-  },
-  {
-    id: "elite",
-    name: "Elite",
-    price: "R999/mo",
-    fee: "7%",
-    features: ["Everything in Pro", "Unlimited listings", "White-label booking page", "Dedicated account manager", "Early access to features", "Advanced reporting"],
-  },
-];
-
-/* ── ProviderBilling ──────────────────────────────────────────────────────── */
 export default function ProviderBilling() {
   const { user } = useAuth();
-  const [bankName, setBankName] = useState("Standard Bank");
-  const [accNumber, setAccNumber] = useState("•••• •••• 4821");
-  const [branchCode, setBranchCode] = useState("051001");
-  const [editBank, setEditBank] = useState(false);
 
-  const thisMonth = PAYOUTS[0];
+  // Bank setup state
+  const [banks, setBanks] = useState<Bank[]>([]);
+  const [selectedBank, setSelectedBank] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [businessName, setBusinessName] = useState(user?.name ?? "");
+  const [resolvedName, setResolvedName] = useState("");
+  const [savedDetails, setSavedDetails] = useState<BankDetails | null>(null);
+  const [loadingBanks, setLoadingBanks] = useState(true);
+  const [loadingDetails, setLoadingDetails] = useState(true);
+  const [resolving, setResolving] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [bankSearch, setBankSearch] = useState("");
+
+  // Load SA banks and saved details on mount
+  useEffect(() => {
+    loadBanks();
+    loadSavedDetails();
+  }, []);
+
+  const loadBanks = async () => {
+    try {
+      const res = await fetch(`${API}/api/paystack/banks`);
+      const json = await res.json();
+      if (json.ok) setBanks(json.data ?? []);
+    } catch {
+      // API might not be running — show manual entry
+    } finally {
+      setLoadingBanks(false);
+    }
+  };
+
+  const loadSavedDetails = async () => {
+    try {
+      const token = (await (await import("@/integrations/supabase/client")).supabase.auth.getSession()).data.session?.access_token;
+      if (!token) { setLoadingDetails(false); return; }
+      const res = await fetch(`${API}/api/paystack/provider/bank-details`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = await res.json();
+      if (json.ok && json.data?.paystack_subaccount_code) {
+        setSavedDetails(json.data);
+      }
+    } catch {
+      // Not connected yet
+    } finally {
+      setLoadingDetails(false);
+    }
+  };
+
+  // Verify account number with Paystack
+  const verifyAccount = async () => {
+    if (!selectedBank || accountNumber.length < 5) return;
+    setResolving(true);
+    setResolvedName("");
+    try {
+      const res = await fetch(
+        `${API}/api/paystack/resolve-account?account_number=${accountNumber}&bank_code=${selectedBank}`,
+      );
+      const json = await res.json();
+      if (json.ok) {
+        setResolvedName(json.data.account_name ?? "");
+        setBusinessName(json.data.account_name ?? businessName);
+      } else {
+        setMessage({ type: "error", text: "Could not verify account. Check the number and try again." });
+      }
+    } catch {
+      setMessage({ type: "error", text: "Verification failed. Is the backend running?" });
+    } finally {
+      setResolving(false);
+    }
+  };
+
+  // Save bank details to Paystack (creates subaccount)
+  const saveBankDetails = async () => {
+    if (!selectedBank || !accountNumber || !businessName) {
+      setMessage({ type: "error", text: "Please fill in all fields" });
+      return;
+    }
+    setSaving(true);
+    setMessage(null);
+    try {
+      const token = (await (await import("@/integrations/supabase/client")).supabase.auth.getSession()).data.session?.access_token;
+      const res = await fetch(`${API}/api/paystack/provider/setup-bank`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          bank_code: selectedBank,
+          account_number: accountNumber,
+          business_name: businessName,
+        }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        setMessage({ type: "success", text: "Bank details saved! You'll receive payouts automatically." });
+        setSavedDetails({
+          paystack_subaccount_code: json.data.subaccount_code,
+          bank_name: json.data.bank,
+          bank_account_number: accountNumber,
+          bank_account_name: json.data.account_name ?? businessName,
+        });
+      } else {
+        setMessage({ type: "error", text: json.error ?? "Failed to save bank details" });
+      }
+    } catch {
+      setMessage({ type: "error", text: "Failed to connect. Is the backend running?" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const filteredBanks = bankSearch
+    ? banks.filter((b) => b.name.toLowerCase().includes(bankSearch.toLowerCase()))
+    : banks;
+
+  const fees = {
+    service: "R100",
+    clientPays: "R105",
+    platformFee: "R5",
+    clientFee: "R5",
+    providerGets: "R95",
+    bionEarns: "R10",
+  };
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
@@ -114,186 +160,311 @@ export default function ProviderBilling() {
 
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Billing</h1>
-          <p className="text-xs text-muted-foreground">Payouts, subscription & banking details</p>
+          <h1 className="text-2xl font-bold text-foreground">Billing & Payouts</h1>
+          <p className="text-xs text-muted-foreground">Set up your bank account to receive payments from clients</p>
         </div>
 
-        {/* Summary cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[
-            { label: "This month (est.)",  value: thisMonth.net,     icon: TrendingUp, color: "text-teal"   },
-            { label: "Sessions",            value: `${thisMonth.sessions}`,icon: Zap,    color: "text-indigo" },
-            { label: "BION fee (10%)",       value: thisMonth.fee,     icon: Shield,     color: "text-amber"  },
-            { label: "Payout date",         value: "1 Mar 2026",      icon: Clock,      color: "text-coral"  },
-          ].map((card) => {
-            const Icon = card.icon;
-            return (
-              <motion.div key={card.label} initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }}>
-                <GlassCard className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <p className="text-[10px] text-muted-foreground">{card.label}</p>
-                    <Icon className={`w-4 h-4 ${card.color}`} />
-                  </div>
-                  <p className={`text-lg font-bold font-data ${card.color}`}>{card.value}</p>
-                </GlassCard>
-              </motion.div>
-            );
-          })}
-        </div>
+        {/* Messages */}
+        {message && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`rounded-xl p-3 text-sm flex items-center gap-2 ${
+              message.type === "success" ? "glass-accent-teal text-teal" : "glass-accent-coral text-coral"
+            }`}
+          >
+            {message.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+            {message.text}
+          </motion.div>
+        )}
 
-        {/* Payout trend */}
+        {/* Fee Breakdown */}
         <GlassCard className="p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-foreground">Net Payout Trend</h2>
-            <span className="text-[10px] text-muted-foreground">6 months</span>
-          </div>
-          <SVGBar data={MONTHLY_NET} color="#6366F1" />
-          <div className="flex justify-between mt-2">
-            {MONTH_LABELS.map((l, i) => (
-              <span key={i} className="flex-1 text-[10px] text-center text-muted-foreground">{l}</span>
-            ))}
-          </div>
-        </GlassCard>
-
-        {/* Payout history */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-foreground">Payout History</h2>
-            <button className="text-[10px] text-indigo flex items-center gap-1">
-              <Download className="w-3 h-3" /> Export CSV
-            </button>
-          </div>
+          <h2 className="text-sm font-semibold text-foreground mb-3">How Payments Work</h2>
           <div className="space-y-2">
-            {PAYOUTS.map((p, i) => (
-              <motion.div key={i} initial={{ opacity:0, x:-8 }} animate={{ opacity:1, x:0 }} transition={{ delay: i * 0.04 }}>
-                <GlassCard className="p-3.5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                        p.status === "Paid" ? "bg-teal/10" : "bg-amber/10"
-                      }`}>
-                        {p.status === "Paid"
-                          ? <CheckCircle className="w-4 h-4 text-teal" />
-                          : <Clock className="w-4 h-4 text-amber" />
-                        }
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{p.period}</p>
-                        <p className="text-[10px] text-muted-foreground">{p.sessions} sessions · fee {p.fee}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold font-data text-foreground">{p.net}</p>
-                      <span className={`text-[10px] font-medium ${
-                        p.status === "Paid" ? "text-teal" : "text-amber"
-                      }`}>{p.status}</span>
-                    </div>
-                  </div>
-                </GlassCard>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {/* Banking details */}
-        <GlassCard className="p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-indigo" />
-              <h2 className="text-sm font-semibold text-foreground">Banking Details</h2>
-            </div>
-            <button
-              onClick={() => setEditBank(!editBank)}
-              className="text-[10px] text-indigo font-medium"
-            >
-              {editBank ? "Save" : "Edit"}
-            </button>
-          </div>
-          <div className="space-y-3">
             {[
-              { label: "Bank",          value: bankName,   set: setBankName   },
-              { label: "Account number",value: accNumber,  set: setAccNumber  },
-              { label: "Branch code",   value: branchCode, set: setBranchCode },
-            ].map(f => (
-              <div key={f.label}>
-                <label className="text-[10px] text-muted-foreground">{f.label}</label>
-                {editBank ? (
-                  <input
-                    value={f.value}
-                    onChange={e => f.set(e.target.value)}
-                    className="w-full mt-1 glass-1 rounded-xl px-4 py-2.5 text-sm text-foreground outline-none border border-white/5 bg-transparent"
-                  />
-                ) : (
-                  <p className="mt-1 text-sm text-foreground">{f.value}</p>
-                )}
-              </div>
-            ))}
-          </div>
-          <p className="text-[10px] text-muted-foreground mt-4 leading-relaxed">
-            Payouts are processed on the 1st of each month. Bank verification required on first payout.
-          </p>
-        </GlassCard>
-
-        {/* Commission breakdown */}
-        <GlassCard className="p-5">
-          <h2 className="text-sm font-semibold text-foreground mb-4">Commission Breakdown</h2>
-          <div className="space-y-3">
-            {[
-              { label: "Gross session revenue", value: thisMonth.gross,  color: "text-foreground" },
-              { label: "BION platform fee (10%)",  value: `-${thisMonth.fee}`, color: "text-coral"    },
-              { label: "Net payout",              value: thisMonth.net,   color: "text-teal"     },
-            ].map(row => (
-              <div key={row.label} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-                <p className="text-sm text-muted-foreground">{row.label}</p>
+              { label: "Service price (you set this)", value: fees.service, color: "text-foreground" },
+              { label: "Client pays (service + 5% booking fee)", value: fees.clientPays, color: "text-foreground" },
+              { label: "Client booking fee (5%)", value: `-${fees.clientFee}`, color: "text-amber" },
+              { label: "Platform fee from provider (5%)", value: `-${fees.platformFee}`, color: "text-coral" },
+              { label: "You receive", value: fees.providerGets, color: "text-teal" },
+            ].map((row) => (
+              <div key={row.label} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+                <p className="text-xs text-muted-foreground">{row.label}</p>
                 <p className={`text-sm font-bold font-data ${row.color}`}>{row.value}</p>
               </div>
             ))}
           </div>
+          <p className="text-[10px] text-muted-foreground mt-3">
+            Payouts are automatic via Paystack. You receive your share directly into your bank account after each completed session.
+          </p>
         </GlassCard>
 
-        {/* Subscription plans */}
-        <div>
-          <h2 className="text-sm font-semibold text-foreground mb-3">Your Plan</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {PLANS.map((plan) => (
-              <GlassCard
-                key={plan.id}
-                className={`p-4 flex flex-col ${plan.current ? "border border-indigo/30" : ""}`}
-              >
-                {plan.current && (
-                  <span className="text-[10px] text-indigo font-semibold mb-2 uppercase tracking-wider">Current</span>
-                )}
-                <div className="flex items-baseline justify-between mb-1">
-                  <p className="text-sm font-bold text-foreground">{plan.name}</p>
-                  <p className="text-xs font-data text-muted-foreground">{plan.fee} fee</p>
+        {/* Banking Details */}
+        <GlassCard className="p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Building2 className="w-4 h-4 text-indigo" />
+            <h2 className="text-sm font-semibold text-foreground">Banking Details</h2>
+            {savedDetails?.paystack_subaccount_code && (
+              <span className="flex items-center gap-1 text-[10px] text-teal glass-accent-teal rounded-pill px-2 py-0.5">
+                <CheckCircle className="w-3 h-3" /> Connected
+              </span>
+            )}
+          </div>
+
+          {loadingDetails ? (
+            <div className="flex items-center gap-2 py-6 justify-center">
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Loading...</span>
+            </div>
+          ) : savedDetails?.paystack_subaccount_code ? (
+            /* Show saved details */
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Bank</p>
+                  <p className="text-sm text-foreground mt-0.5">{savedDetails.bank_name ?? "—"}</p>
                 </div>
-                <p className="text-xl font-bold font-data text-foreground mb-3">{plan.price}</p>
-                <ul className="space-y-1.5 flex-1 mb-4">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-1.5 text-[11px] text-muted-foreground">
-                      <CheckCircle className="w-3 h-3 text-teal shrink-0 mt-0.5" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  className={`w-full py-2 rounded-xl text-xs font-semibold transition-all ${
-                    plan.current
-                      ? "gradient-indigo text-primary-foreground"
-                      : "glass-1 text-muted-foreground hover:text-foreground"
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Account Number</p>
+                  <p className="text-sm text-foreground mt-0.5">
+                    ••••{savedDetails.bank_account_number?.slice(-4) ?? "••••"}
+                  </p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-[10px] text-muted-foreground">Account Name</p>
+                  <p className="text-sm text-foreground mt-0.5">{savedDetails.bank_account_name ?? "—"}</p>
+                </div>
+              </div>
+              <p className="text-[10px] text-teal">
+                ✓ Payouts will be sent to this account automatically after each completed session.
+              </p>
+              <button
+                onClick={() => setSavedDetails(null)}
+                className="text-xs text-indigo font-medium"
+              >
+                Change bank details
+              </button>
+            </div>
+          ) : (
+            /* Bank setup form */
+            <div className="space-y-4">
+              {/* Bank selection */}
+              <div>
+                <label className="text-[10px] text-muted-foreground">Bank</label>
+                {loadingBanks ? (
+                  <div className="flex items-center gap-2 mt-1">
+                    <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">Loading banks...</span>
+                  </div>
+                ) : banks.length > 0 ? (
+                  <div className="mt-1">
+                    <div className="relative mb-2">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+                      <input
+                        value={bankSearch}
+                        onChange={(e) => setBankSearch(e.target.value)}
+                        placeholder="Search bank..."
+                        className="w-full glass-1 rounded-xl pl-8 pr-3 py-2 text-xs text-foreground placeholder:text-muted-foreground outline-none bg-transparent"
+                      />
+                    </div>
+                    <select
+                      value={selectedBank}
+                      onChange={(e) => setSelectedBank(e.target.value)}
+                      className="w-full glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground outline-none bg-transparent appearance-none"
+                    >
+                      <option value="">Select your bank</option>
+                      {filteredBanks.map((b) => (
+                        <option key={b.code} value={b.code}>{b.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <input
+                    value={selectedBank}
+                    onChange={(e) => setSelectedBank(e.target.value)}
+                    placeholder="Bank code (e.g. 051 for Standard Bank)"
+                    className="w-full mt-1 glass-1 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none bg-transparent"
+                  />
+                )}
+              </div>
+
+              {/* Account number */}
+              <div>
+                <label className="text-[10px] text-muted-foreground">Account Number</label>
+                <div className="flex gap-2 mt-1">
+                  <input
+                    value={accountNumber}
+                    onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, ""))}
+                    placeholder="Enter account number"
+                    className="flex-1 glass-1 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none bg-transparent"
+                  />
+                  <button
+                    onClick={verifyAccount}
+                    disabled={resolving || !selectedBank || accountNumber.length < 5}
+                    className="px-4 py-2.5 rounded-xl glass-accent-indigo text-xs font-medium text-indigo disabled:opacity-40"
+                  >
+                    {resolving ? <Loader2 className="w-3 h-3 animate-spin" /> : "Verify"}
+                  </button>
+                </div>
+                {resolvedName && (
+                  <p className="text-xs text-teal mt-1.5 flex items-center gap-1">
+                    <CheckCircle className="w-3 h-3" /> {resolvedName}
+                  </p>
+                )}
+              </div>
+
+              {/* Business name */}
+              <div>
+                <label className="text-[10px] text-muted-foreground">Business / Account Name</label>
+                <input
+                  value={businessName}
+                  onChange={(e) => setBusinessName(e.target.value)}
+                  placeholder="Your name or business name"
+                  className="w-full mt-1 glass-1 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none bg-transparent"
+                />
+              </div>
+
+              {/* Save button */}
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={saveBankDetails}
+                disabled={saving || !selectedBank || !accountNumber || !businessName}
+                className="w-full py-3 rounded-pill text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta disabled:opacity-40 flex items-center justify-center gap-2"
+              >
+                {saving ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Connecting...</>
+                ) : (
+                  <><Building2 className="w-4 h-4" /> Connect Bank Account</>
+                )}
+              </motion.button>
+
+              <p className="text-[10px] text-muted-foreground text-center">
+                Secured by Paystack. Your bank details are encrypted and never stored on our servers.
+              </p>
+            </div>
+          )}
+        </GlassCard>
+
+        {/* Subscription Plan */}
+        <GlassCard className="p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Crown className="w-4 h-4 text-amber" />
+            <h2 className="text-sm font-semibold text-foreground">Subscription Plan</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {([
+              {
+                id: "free" as const,
+                name: "Free",
+                price: "R0",
+                period: "forever",
+                Icon: Star,
+                features: [
+                  "Up to 10 bookings/month",
+                  "Basic analytics",
+                  "Client messaging",
+                  "Standard support",
+                ],
+              },
+              {
+                id: "pro" as const,
+                name: "Pro",
+                price: "R499",
+                period: "/mo",
+                Icon: Zap,
+                features: [
+                  "Unlimited bookings",
+                  "Advanced analytics",
+                  "Priority in search",
+                  "Program builder",
+                  "Client CRM tools",
+                  "Priority support",
+                ],
+              },
+              {
+                id: "elite" as const,
+                name: "Elite",
+                price: "R999",
+                period: "/mo",
+                Icon: Crown,
+                features: [
+                  "Everything in Pro",
+                  "Dedicated account manager",
+                  "Custom branding",
+                  "API access",
+                  "Multi-location support",
+                  "Reduced platform fees (3%)",
+                  "Featured provider badge",
+                ],
+              },
+            ] as const).map((plan) => {
+              const currentPlan = "free";
+              const isActive = plan.id === currentPlan;
+              return (
+                <motion.div
+                  key={plan.id}
+                  whileHover={{ scale: 1.01 }}
+                  className={`rounded-2xl p-4 flex flex-col ${
+                    isActive ? "gradient-indigo text-primary-foreground shadow-cta" : "glass-1"
                   }`}
                 >
-                  {plan.current ? "Current Plan" : plan.id === "starter" ? "Downgrade" : "Upgrade"}
-                </motion.button>
-              </GlassCard>
-            ))}
+                  <div className="flex items-center gap-2 mb-2">
+                    <plan.Icon className={`w-4 h-4 ${isActive ? "text-primary-foreground" : plan.id === "elite" ? "text-amber" : plan.id === "pro" ? "text-indigo" : "text-muted-foreground"}`} />
+                    <h3 className={`text-sm font-bold ${isActive ? "text-primary-foreground" : "text-foreground"}`}>{plan.name}</h3>
+                    {isActive && (
+                      <span className="ml-auto text-[10px] bg-white/20 rounded-pill px-2 py-0.5 font-medium">
+                        Current
+                      </span>
+                    )}
+                  </div>
+                  <div className="mb-3">
+                    <span className={`text-2xl font-bold font-data ${isActive ? "text-primary-foreground" : "text-foreground"}`}>{plan.price}</span>
+                    <span className={`text-xs ${isActive ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{plan.period}</span>
+                  </div>
+                  <ul className="space-y-1.5 flex-1 mb-4">
+                    {plan.features.map((f) => (
+                      <li key={f} className={`text-[10px] flex items-start gap-1.5 ${isActive ? "text-primary-foreground/90" : "text-muted-foreground"}`}>
+                        <CheckCircle className="w-3 h-3 shrink-0 mt-0.5" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  {!isActive && (
+                    <motion.button
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => window.alert("Subscription payments coming soon \u2014 currently on Free plan")}
+                      className="w-full py-2.5 rounded-pill text-xs font-semibold glass-accent-indigo text-indigo"
+                    >
+                      Upgrade to {plan.name}
+                    </motion.button>
+                  )}
+                </motion.div>
+              );
+            })}
           </div>
-        </div>
+          <p className="text-[10px] text-muted-foreground mt-3 text-center">
+            All plans include Paystack payment processing. Upgrade anytime, cancel anytime.
+          </p>
+        </GlassCard>
 
+        {/* Payout history */}
+        <GlassCard className="p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-foreground">Payout History</h2>
+          </div>
+          <div className="text-center py-6">
+            <CreditCard className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+            <p className="text-sm font-medium text-foreground">No payouts yet</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Payout history will appear here once clients pay for sessions.
+            </p>
+          </div>
+        </GlassCard>
       </div>
-      <CoachAI />
+
       <ProviderNav />
+      <CoachAI />
     </div>
   );
 }

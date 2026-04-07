@@ -9,7 +9,7 @@ import {
   CheckCircle, Globe, Clock, Percent, MessageSquare, Sparkles,
 } from "lucide-react";
 
-import provider1 from "@/assets/provider-1.jpg";
+import { getProviderImage } from "@/lib/providerImages";
 
 type Tab = "profile" | "billing" | "notifications" | "privacy";
 
@@ -117,7 +117,7 @@ export default function ProviderSettings() {
               <GlassCard className="p-4 flex items-center gap-4">
                 <ImagePickerOverlay onChange={updateAvatar} className="shrink-0">
                   <img
-                    src={user?.avatar ?? provider1}
+                    src={user?.avatar ?? getProviderImage(user?.id ?? "provider", user?.name ?? "Provider")}
                     alt="Profile"
                     className="w-16 h-16 rounded-2xl object-cover"
                   />
