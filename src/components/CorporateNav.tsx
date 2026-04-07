@@ -1,10 +1,11 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, Users, BarChart2, Wallet, Settings, Building2, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, BarChart2, Wallet, Settings, Building2, LogOut, Briefcase } from "lucide-react";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Overview",   path: "/corporate/dashboard"  },
   { icon: Users,           label: "Employees",  path: "/corporate/employees"  },
+  { icon: Briefcase,       label: "Providers",  path: "/corporate/providers"  },
   { icon: BarChart2,       label: "Analytics",  path: "/corporate/analytics"  },
   { icon: Wallet,          label: "Wallet",     path: "/corporate/wallet"     },
   { icon: Settings,        label: "Settings",   path: "/corporate/settings"   },
@@ -72,7 +73,7 @@ export default function CorporateNav() {
           <img src="/bion-logo-color.jpg" alt="BION" className="h-5 w-auto" /><span className="text-[10px] text-muted-foreground ml-1">Corporate</span>
         </div>
         <div className="flex gap-1">
-          {navItems.slice(0, 4).map(item => (
+          {navItems.slice(0, 5).map(item => (
             <NavLink key={item.path} to={item.path}>
               {({ isActive }) => (
                 <div className={`p-2 rounded-lg ${isActive ? "text-amber" : "text-muted-foreground"}`}>

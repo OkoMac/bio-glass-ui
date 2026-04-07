@@ -97,6 +97,7 @@ import CorporateEmployees  from "./pages/corporate/Employees";
 import CorporateAnalytics  from "./pages/corporate/Analytics";
 import CorporateWallet     from "./pages/corporate/Wallet";
 import CorporateSettings   from "./pages/corporate/Settings";
+import CorporateProviders  from "./pages/corporate/Providers";
 
 // Sales rep portal
 import RepDashboard  from "./pages/rep/Dashboard";
@@ -245,6 +246,7 @@ function AppRoutes() {
       {/* Corporate portal */}
       <Route path="/corporate/dashboard" element={<RequireAuth allowedRoles={["corporate"]}><CorporateDashboard /></RequireAuth>} />
       <Route path="/corporate/employees" element={<RequireAuth allowedRoles={["corporate"]}><CorporateEmployees /></RequireAuth>} />
+      <Route path="/corporate/providers" element={<RequireAuth allowedRoles={["corporate"]}><CorporateProviders /></RequireAuth>} />
       <Route path="/corporate/analytics" element={<RequireAuth allowedRoles={["corporate"]}><CorporateAnalytics /></RequireAuth>} />
       <Route path="/corporate/wallet"    element={<RequireAuth allowedRoles={["corporate"]}><CorporateWallet /></RequireAuth>} />
       <Route path="/corporate/settings"  element={<RequireAuth allowedRoles={["corporate"]}><CorporateSettings /></RequireAuth>} />
