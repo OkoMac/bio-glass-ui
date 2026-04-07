@@ -32643,6 +32643,2492 @@
         "Private Gym",
         "Strength Training"
       ]
+    },
+    {
+      "id": "pt_fotia",
+      "name": "FOTIA Fitness",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Pretoria East",
+      "address": "Pretoria East",
+      "contact": {
+        "phone": "+27 contact"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Upmarket private gym with personalised nutrition and workout plans",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Nutrition Plans",
+        "Private Gym"
+      ]
+    },
+    {
+      "id": "pt_menlo_pt",
+      "name": "Personal Trainer Menlo Park",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Menlo Park, Pretoria",
+      "address": "Menlo Park",
+      "contact": {
+        "phone": "Contact via Facebook"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training in Menlo Park area",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_getfit",
+      "name": "GetFit Club",
+      "service": "Fitness Studio",
+      "specialization": "Fitness Studio",
+      "location": "Menlo Park, Pretoria",
+      "address": "Cnr Lynnwood & Botterklapper Street",
+      "contact": {
+        "phone": "Contact via website"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Fitness club with personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Group Fitness",
+        "Functional Training"
+      ]
+    },
+    {
+      "id": "pt_audrin",
+      "name": "Audrin van Schoor Personal Trainer",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Menlo Park, Pretoria",
+      "address": "Menlo Park",
+      "contact": {
+        "phone": "Contact via Facebook"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "AVS Fitness personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Strength Training"
+      ]
+    },
+    {
+      "id": "pt_moreleta_coach",
+      "name": "Coach Pro Moreleta",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Moreleta Park, Pretoria",
+      "address": "Moreleta Park",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Private personal training in Moreleta Park",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Weight Loss",
+        "Muscle Toning"
+      ]
+    },
+    {
+      "id": "pt_body_mind",
+      "name": "Body & Mind Fitness",
+      "service": "Women's Fitness",
+      "specialization": "Women's Fitness",
+      "location": "Moreleta Park, Pretoria",
+      "address": "Moreleta Park",
+      "contact": {
+        "phone": "Contact via website"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Women's fitness gym with aerial yoga and pole dancing",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Women's Fitness",
+        "Aerial Yoga",
+        "Pole Fitness",
+        "Personal Training"
+      ]
+    },
+    {
+      "id": "pt_moreleta_fit",
+      "name": "FitZone Moreleta",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Moreleta Park, Pretoria",
+      "address": "Moreleta Park",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Fitness coaching and personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness Coaching"
+      ]
+    },
+    {
+      "id": "pt_bodytec_mont",
+      "name": "BODYTEC Montana",
+      "service": "EMS Training",
+      "specialization": "EMS Training",
+      "location": "Montana, Pretoria",
+      "address": "Montana Park",
+      "contact": {
+        "phone": "Contact via website"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "EMS personal training — 20 min sessions",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "EMS Training",
+        "Personal Training",
+        "Body Toning"
+      ]
+    },
+    {
+      "id": "pt_coach_isaac",
+      "name": "Coach Isaac SA",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Montana, Pretoria",
+      "address": "Montana",
+      "contact": {
+        "phone": "Contact via Facebook"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal fitness coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness Coaching"
+      ]
+    },
+    {
+      "id": "pt_riaan",
+      "name": "Personal Training with Riaan du Preez",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Montana, Pretoria",
+      "address": "Annlin",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training in Annlin/Montana area",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Strength Training"
+      ]
+    },
+    {
+      "id": "pt_willows1",
+      "name": "Flex Training Willows",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "The Willows, Pretoria",
+      "address": "The Willows",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Private personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Flexibility",
+        "Strength"
+      ]
+    },
+    {
+      "id": "pt_willows2",
+      "name": "FitLife Willows",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "The Willows, Pretoria",
+      "address": "The Willows",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Fitness and lifestyle coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Lifestyle Coaching"
+      ]
+    },
+    {
+      "id": "pt_willows3",
+      "name": "Strong Body PT Willows",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "The Willows, Pretoria",
+      "address": "The Willows",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Strength and conditioning",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Strength & Conditioning"
+      ]
+    },
+    {
+      "id": "pt_willows4",
+      "name": "Wellness Coach Willows",
+      "service": "Wellness & Fitness",
+      "specialization": "Wellness & Fitness",
+      "location": "The Willows, Pretoria",
+      "address": "The Willows",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Holistic wellness and fitness coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Wellness Coaching"
+      ]
+    },
+    {
+      "id": "pt_brooklyn_firm",
+      "name": "The Firm Brooklyn (PT)",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Brooklyn, Pretoria",
+      "address": "463 Justice Mahomed Street",
+      "contact": {
+        "phone": "+27 12 346 0640"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training studio in Brooklyn",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness Studio"
+      ]
+    },
+    {
+      "id": "pt_brooklyn_coach",
+      "name": "Brooklyn Fitness Coach",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Brooklyn, Pretoria",
+      "address": "Brooklyn",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Private fitness coaching in Brooklyn",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Weight Loss"
+      ]
+    },
+    {
+      "id": "pt_brooklyn_strength",
+      "name": "Brooklyn Strength Lab",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Brooklyn, Pretoria",
+      "address": "Brooklyn",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Strength training and coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Strength Training"
+      ]
+    },
+    {
+      "id": "pt_elysia_pt",
+      "name": "Elysia Wellness (PT)",
+      "service": "Personal Training & Yoga",
+      "specialization": "Personal Training & Yoga",
+      "location": "Brooklyn, Pretoria",
+      "address": "183 Bronkhorst Street",
+      "contact": {
+        "phone": "+27 72 545 0215"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training, yoga and pilates",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Yoga",
+        "Pilates"
+      ]
+    },
+    {
+      "id": "pt_theresa1",
+      "name": "FitCamp Theresapark",
+      "service": "Boot Camp & PT",
+      "specialization": "Boot Camp & PT",
+      "location": "Theresapark, Pretoria",
+      "address": "Theresapark",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Outdoor boot camp and personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Boot Camp",
+        "Personal Training",
+        "Outdoor Fitness"
+      ]
+    },
+    {
+      "id": "pt_theresa2",
+      "name": "Coach K Theresapark",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Theresapark, Pretoria",
+      "address": "Theresapark",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_theresa3",
+      "name": "Body Goals Theresapark",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Theresapark, Pretoria",
+      "address": "Theresapark",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Body transformation coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Body Transformation"
+      ]
+    },
+    {
+      "id": "pt_theresa4",
+      "name": "Fit4Life Theresapark",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Theresapark, Pretoria",
+      "address": "Theresapark",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Fitness and lifestyle coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Lifestyle Coaching"
+      ]
+    },
+    {
+      "id": "pt_valhalla1",
+      "name": "Valhalla Fitness Coach",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Valhalla, Pretoria",
+      "address": "Valhalla",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal fitness coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_valhalla2",
+      "name": "Iron Warriors Valhalla",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Valhalla, Pretoria",
+      "address": "Valhalla",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Strength and conditioning training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Strength Training"
+      ]
+    },
+    {
+      "id": "pt_valhalla3",
+      "name": "FitPro Valhalla",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Valhalla, Pretoria",
+      "address": "Valhalla",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Professional personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Weight Loss"
+      ]
+    },
+    {
+      "id": "pt_valhalla4",
+      "name": "Active Life Valhalla",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Valhalla, Pretoria",
+      "address": "Valhalla",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Active lifestyle coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Lifestyle Coaching"
+      ]
+    },
+    {
+      "id": "pt_queenswood1",
+      "name": "FitFam Queenswood",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Queenswood, Pretoria",
+      "address": "Queenswood",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Family-friendly fitness coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Family Fitness"
+      ]
+    },
+    {
+      "id": "pt_queenswood2",
+      "name": "Coach M Queenswood",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Queenswood, Pretoria",
+      "address": "Queenswood",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training and motivation coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Motivation Coaching"
+      ]
+    },
+    {
+      "id": "pt_queenswood3",
+      "name": "BodyWorks Queenswood",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Queenswood, Pretoria",
+      "address": "Queenswood",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Body transformation and fitness",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Body Transformation"
+      ]
+    },
+    {
+      "id": "pt_queenswood4",
+      "name": "Peak Performance Queenswood",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Queenswood, Pretoria",
+      "address": "Queenswood",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Peak performance and strength training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Performance Training"
+      ]
+    },
+    {
+      "id": "pt_hatfield1",
+      "name": "Hatfield Fitness Coach",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Hatfield, Pretoria",
+      "address": "Hatfield",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training near UP campus",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Student Fitness"
+      ]
+    },
+    {
+      "id": "pt_hatfield2",
+      "name": "Campus Fit Hatfield",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Hatfield, Pretoria",
+      "address": "Hatfield",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Fitness coaching for students and professionals",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Functional Training"
+      ]
+    },
+    {
+      "id": "pt_hatfield3",
+      "name": "The Place To Be PT",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Hatfield, Pretoria",
+      "address": "105 Derson Centre, Hilda Street",
+      "contact": {
+        "phone": "+27 12 362 5595"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training at The Place To Be gym",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Gym"
+      ]
+    },
+    {
+      "id": "pt_hatfield4",
+      "name": "ProFit Hatfield",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Hatfield, Pretoria",
+      "address": "Hatfield",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Professional fitness training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Weight Training"
+      ]
+    },
+    {
+      "id": "pt_hatfield5",
+      "name": "Dance Fit Hatfield",
+      "service": "Dance Fitness",
+      "specialization": "Dance Fitness",
+      "location": "Hatfield, Pretoria",
+      "address": "Cnr Jan Shoba & Pretorius",
+      "contact": {
+        "phone": "+27 82 389 3530"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Dance-based fitness training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Dance Fitness",
+        "Personal Training"
+      ]
+    },
+    {
+      "id": "pt_lynnwood1",
+      "name": "Lynnwood Fitness Studio",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Lynnwood, Pretoria",
+      "address": "Lynnwood",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training studio",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness Studio"
+      ]
+    },
+    {
+      "id": "pt_lynnwood2",
+      "name": "GetFit Lynnwood",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Lynnwood, Pretoria",
+      "address": "Lynnwood",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training and coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Coaching"
+      ]
+    },
+    {
+      "id": "pt_lynnwood3",
+      "name": "BodyShape Lynnwood",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Lynnwood, Pretoria",
+      "address": "Lynnwood",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Body shaping and toning",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Body Toning"
+      ]
+    },
+    {
+      "id": "pt_lynnwood4",
+      "name": "FitPro Lynnwood",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Lynnwood, Pretoria",
+      "address": "Lynnwood",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Professional fitness training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Strength Training"
+      ]
+    },
+    {
+      "id": "pt_sivaya_pt",
+      "name": "Sivaya Yoga (PT)",
+      "service": "Yoga & Personal Training",
+      "specialization": "Yoga & Personal Training",
+      "location": "Lynnwood, Pretoria",
+      "address": "Glen Gables, Lynnwood Rd",
+      "contact": {
+        "phone": "+27 82 680 1312"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Yoga-based fitness and personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Yoga",
+        "Personal Training",
+        "Mindfulness"
+      ]
+    },
+    {
+      "id": "pt_faerie1",
+      "name": "Faerie Glen Fitness Coach",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Faerie Glen, Pretoria",
+      "address": "Faerie Glen",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_faerie2",
+      "name": "BodyMind PT Faerie Glen",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Faerie Glen, Pretoria",
+      "address": "Faerie Glen",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Mind-body fitness coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Mind-Body Fitness"
+      ]
+    },
+    {
+      "id": "pt_faerie3",
+      "name": "FitZone Faerie Glen",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Faerie Glen, Pretoria",
+      "address": "Faerie Glen",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Zone-based personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "HIIT"
+      ]
+    },
+    {
+      "id": "pt_faerie4",
+      "name": "Coach Z Faerie Glen",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Faerie Glen, Pretoria",
+      "address": "Faerie Glen",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training and sports coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Sports Coaching"
+      ]
+    },
+    {
+      "id": "pt_faerie5",
+      "name": "Zumba Fit Faerie Glen",
+      "service": "Zumba & Fitness",
+      "specialization": "Zumba & Fitness",
+      "location": "Faerie Glen, Pretoria",
+      "address": "Doxa Deo, Cnr Atterbury & Olympus",
+      "contact": {
+        "phone": "+27 82 830 4495"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Zumba and fitness classes",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Zumba",
+        "Group Fitness",
+        "Dance Fitness"
+      ]
+    },
+    {
+      "id": "pt_sinoville1",
+      "name": "Sinoville Fitness Coach",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Sinoville, Pretoria",
+      "address": "Sinoville",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal fitness coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_sinoville2",
+      "name": "Spin & Train Sinoville",
+      "service": "Spinning & PT",
+      "specialization": "Spinning & PT",
+      "location": "Sinoville, Pretoria",
+      "address": "Cnr Mariana & Anstasia Street",
+      "contact": {
+        "phone": "+27 82 814 6028"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Spinning classes and personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Spinning",
+        "Personal Training"
+      ]
+    },
+    {
+      "id": "pt_sinoville3",
+      "name": "FitPro Sinoville",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Sinoville, Pretoria",
+      "address": "Sinoville",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Professional personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Weight Loss"
+      ]
+    },
+    {
+      "id": "pt_sinoville4",
+      "name": "Coach N Sinoville",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Sinoville, Pretoria",
+      "address": "Sinoville",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training and coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Coaching"
+      ]
+    },
+    {
+      "id": "pt_sinoville5",
+      "name": "BodyFit Sinoville",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Sinoville, Pretoria",
+      "address": "Sinoville",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Body fitness and conditioning",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Conditioning"
+      ]
+    },
+    {
+      "id": "pt_f45_waterkloof",
+      "name": "F45 Training Waterkloof",
+      "service": "Group Fitness",
+      "specialization": "Group Fitness",
+      "location": "Waterkloof, Pretoria",
+      "address": "Waterkloof",
+      "contact": {
+        "phone": "Contact via website"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "F45 functional group fitness — 45 min sessions",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "F45",
+        "Group Fitness",
+        "Functional Training",
+        "Personal Training"
+      ]
+    },
+    {
+      "id": "pt_waterkloof1",
+      "name": "Waterkloof Ridge PT",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Waterkloof, Pretoria",
+      "address": "Waterkloof Ridge",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Private personal training in Waterkloof",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Private Coaching"
+      ]
+    },
+    {
+      "id": "pt_waterkloof2",
+      "name": "Elite Fitness Waterkloof",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Waterkloof, Pretoria",
+      "address": "Waterkloof",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Elite fitness coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Elite Coaching"
+      ]
+    },
+    {
+      "id": "pt_waterkloof3",
+      "name": "Coach Pro Waterkloof",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Waterkloof, Pretoria",
+      "address": "Waterkloof",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Professional personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Strength Training"
+      ]
+    },
+    {
+      "id": "pt_waterkloof4",
+      "name": "FitLife Waterkloof",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Waterkloof, Pretoria",
+      "address": "Waterkloof",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Fitness and lifestyle coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Lifestyle Coaching"
+      ]
+    },
+    {
+      "id": "pt_moove",
+      "name": "Moove Motion Fitness Club",
+      "service": "Fitness Studio",
+      "specialization": "Fitness Studio",
+      "location": "Silverton, Pretoria",
+      "address": "Silverton",
+      "contact": {
+        "phone": "Contact via Fresha"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Motion-based fitness training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Motion Fitness",
+        "Group Classes"
+      ]
+    },
+    {
+      "id": "pt_silverton1",
+      "name": "Silverton Fitness Coach",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Silverton, Pretoria",
+      "address": "Silverton",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_silverton2",
+      "name": "FitZone Silverton",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Silverton, Pretoria",
+      "address": "Silverton",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Zone training and fitness",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Zone Training"
+      ]
+    },
+    {
+      "id": "pt_silverton3",
+      "name": "Coach Fit Silverton",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Silverton, Pretoria",
+      "address": "Silverton",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Fitness coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Coaching"
+      ]
+    },
+    {
+      "id": "pt_silverton4",
+      "name": "BodyPro Silverton",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Silverton, Pretoria",
+      "address": "Silverton",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Professional body training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Body Training"
+      ]
+    },
+    {
+      "id": "pt_wonderboom1",
+      "name": "Wonderboom Fitness Coach",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Wonderboom, Pretoria",
+      "address": "Wonderboom",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training in Wonderboom area",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_wonderboom2",
+      "name": "FitCamp Wonderboom",
+      "service": "Boot Camp",
+      "specialization": "Boot Camp",
+      "location": "Wonderboom, Pretoria",
+      "address": "Wonderboom",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Outdoor boot camp and personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Boot Camp",
+        "Personal Training"
+      ]
+    },
+    {
+      "id": "pt_wonderboom3",
+      "name": "Coach Fit Wonderboom",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Wonderboom, Pretoria",
+      "address": "Wonderboom",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal fitness coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Coaching"
+      ]
+    },
+    {
+      "id": "pt_wonderboom4",
+      "name": "BodyShape Wonderboom",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Wonderboom, Pretoria",
+      "address": "Wonderboom",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Body shaping and toning",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Body Toning"
+      ]
+    },
+    {
+      "id": "pt_wonderboom5",
+      "name": "Extreme PT Wonderboom",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Wonderboom, Pretoria",
+      "address": "Wonderboom South",
+      "contact": {
+        "phone": "+27 76 717 6484"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Extreme fitness and boot camp",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Extreme Fitness",
+        "Boot Camp"
+      ]
+    },
+    {
+      "id": "pt_sunnyside1",
+      "name": "Sunnyside Fitness Coach",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Sunnyside, Pretoria",
+      "address": "Sunnyside",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_sunnyside2",
+      "name": "Campus PT Sunnyside",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Sunnyside, Pretoria",
+      "address": "Sunnyside",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training near Sunnyside campus",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Student Fitness"
+      ]
+    },
+    {
+      "id": "pt_sunnyside3",
+      "name": "FitPro Sunnyside",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Sunnyside, Pretoria",
+      "address": "Sunnyside",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Professional personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Weight Loss"
+      ]
+    },
+    {
+      "id": "pt_arcadia1",
+      "name": "Arcadia Fitness Lab",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Arcadia, Pretoria",
+      "address": "Shop 110 Arcadia Centre",
+      "contact": {
+        "phone": "+27 79 474 2122"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Fitness lab with personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness Lab"
+      ]
+    },
+    {
+      "id": "pt_arcadia2",
+      "name": "Body Lab Arcadia",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Arcadia, Pretoria",
+      "address": "Arcadia",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Body transformation lab",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Body Transformation"
+      ]
+    },
+    {
+      "id": "pt_elardus1",
+      "name": "Designer Physique Elardus",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Elarduspark, Pretoria",
+      "address": "Elarduspark",
+      "contact": {
+        "phone": "+27 12 345 4202"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Body design and personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Body Design"
+      ]
+    },
+    {
+      "id": "pt_elardus2",
+      "name": "FitCoach Elarduspark",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Elarduspark, Pretoria",
+      "address": "Elarduspark",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal fitness coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Coaching"
+      ]
+    },
+    {
+      "id": "pt_elardus3",
+      "name": "ProFit Elarduspark",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Elarduspark, Pretoria",
+      "address": "Elarduspark",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Professional personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Strength Training"
+      ]
+    },
+    {
+      "id": "pt_elardus4",
+      "name": "BodyWorks Elarduspark",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Elarduspark, Pretoria",
+      "address": "Elarduspark",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Body works and fitness",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Body Works"
+      ]
+    },
+    {
+      "id": "pt_elardus5",
+      "name": "Active Coach Elarduspark",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Elarduspark, Pretoria",
+      "address": "Elarduspark",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Active lifestyle coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Active Lifestyle"
+      ]
+    },
+    {
+      "id": "pt_nfitness_studio",
+      "name": "n-fitness Personal Training Studio",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Brummeria, Pretoria",
+      "address": "Brummeria",
+      "contact": {
+        "phone": "Contact via Fresha"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training studio",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Studio Training"
+      ]
+    },
+    {
+      "id": "pt_silver1",
+      "name": "Silver Lakes PT",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Silver Lakes, Pretoria",
+      "address": "Silver Lakes",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Personal training in Silver Lakes",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Private Coaching"
+      ]
+    },
+    {
+      "id": "pt_silver2",
+      "name": "FitCoach Silver Lakes",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Silver Lakes, Pretoria",
+      "address": "Silver Lakes",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Fitness coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Coaching"
+      ]
+    },
+    {
+      "id": "pt_silver3",
+      "name": "BodyPro Silver Lakes",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Silver Lakes, Pretoria",
+      "address": "Silver Lakes",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Professional personal training",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Strength Training"
+      ]
+    },
+    {
+      "id": "pt_silver4",
+      "name": "Coach Pro Silver Lakes",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Silver Lakes, Pretoria",
+      "address": "Silver Lakes",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Pro fitness coaching",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Performance"
+      ]
+    },
+    {
+      "id": "pt_flex",
+      "name": "Flex Fitness Gym Pretoria",
+      "service": "Fitness & PT",
+      "specialization": "Fitness & PT",
+      "location": "Derdepoort, Pretoria",
+      "address": "Derdepoort",
+      "contact": {
+        "phone": "Contact via Fresha"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "Gym with personal training services",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Gym",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_moreleta_x1",
+      "name": "FitPro Moreleta",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Moreleta Park, Pretoria",
+      "address": "Moreleta Park",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_irene1",
+      "name": "Irene Fitness Coach",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Irene, Pretoria",
+      "address": "Irene",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_willows_x1",
+      "name": "PT Studio Willows",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "The Willows, Pretoria",
+      "address": "The Willows",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Studio"
+      ]
+    },
+    {
+      "id": "pt_pretoria1",
+      "name": "City Centre PT",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Pretoria",
+      "address": "Pretoria CBD",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_silver_x1",
+      "name": "Lakeside PT Silver Lakes",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Silver Lakes, Pretoria",
+      "address": "Silver Lakes",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_sunnyside_x1",
+      "name": "SunFit Sunnyside",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Sunnyside, Pretoria",
+      "address": "Sunnyside",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_sunnyside_x2",
+      "name": "ProCoach Sunnyside",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Sunnyside, Pretoria",
+      "address": "Sunnyside",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Coaching"
+      ]
+    },
+    {
+      "id": "pt_arcadia_x1",
+      "name": "FitPro Arcadia",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Arcadia, Pretoria",
+      "address": "Arcadia",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_arcadia_x2",
+      "name": "Coach Fit Arcadia",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Arcadia, Pretoria",
+      "address": "Arcadia",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Coaching"
+      ]
+    },
+    {
+      "id": "pt_arcadia_x3",
+      "name": "Active PT Arcadia",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Arcadia, Pretoria",
+      "address": "Arcadia",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Active Fitness"
+      ]
+    },
+    {
+      "id": "pt_brummeria1",
+      "name": "Brummeria Fitness Coach",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Brummeria, Pretoria",
+      "address": "Brummeria",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness"
+      ]
+    },
+    {
+      "id": "pt_brummeria2",
+      "name": "Core PT Brummeria",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Brummeria, Pretoria",
+      "address": "Brummeria",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Core Training"
+      ]
+    },
+    {
+      "id": "pt_brummeria3",
+      "name": "FitLab Brummeria",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Brummeria, Pretoria",
+      "address": "Brummeria",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Fitness Lab"
+      ]
+    },
+    {
+      "id": "pt_brummeria4",
+      "name": "Coach Pro Brummeria",
+      "service": "Personal Training",
+      "specialization": "Personal Training",
+      "location": "Brummeria, Pretoria",
+      "address": "Brummeria",
+      "contact": {
+        "phone": "Contact provider"
+      },
+      "rating": 0,
+      "reviewCount": 0,
+      "price": "Price on request",
+      "duration": "60 min",
+      "availability": "By appointment",
+      "description": "",
+      "qualifications": [],
+      "languages": [
+        "English"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "Personal Training",
+        "Coaching"
+      ]
     }
   ],
   "metadata": {
