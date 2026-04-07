@@ -164,6 +164,5 @@ export async function signOutSupabase(): Promise<void> {
 export const DEMO_ACCOUNTS: BioUser[] = [
   { id: "demo_client",    name: "Oko Mthembu",  email: "client@bion.app",    role: "client"    },
   { id: "demo_provider",  name: "James Okafor", email: "provider@bion.app",  role: "provider"  },
-  { id: "demo_admin",     name: "Admin",         email: "admin@bion.app",     role: "admin"     },
   { id: "demo_corporate", name: "Capitec HR",    email: "corporate@bion.app", role: "corporate" },
 ];

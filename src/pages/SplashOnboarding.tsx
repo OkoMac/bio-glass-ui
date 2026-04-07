@@ -58,7 +58,6 @@ const ROLE_OPTIONS = [
   { role: "client"    as UserRole, label: "I'm a Client",       desc: "Discover and book health, beauty & wellness services",  icon: User,        color: "#6366F1" },
   { role: "provider"  as UserRole, label: "I'm a Provider",     desc: "Manage your bookings, clients and services",            icon: Briefcase,   color: "#2DD4BF" },
   { role: "corporate" as UserRole, label: "Corporate Wellness", desc: "Manage employee wellness budgets and track engagement", icon: Building2,   color: "#F59E0B" },
-  { role: "admin"     as UserRole, label: "Platform Admin",     desc: "Manage providers, clients and platform settings",       icon: ShieldCheck, color: "#F05A28" },
 ];
 
 const ROLE_HOME: Record<UserRole, string> = {
