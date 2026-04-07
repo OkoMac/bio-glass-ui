@@ -2,7 +2,8 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
   Stethoscope, Dumbbell, Scissors, Heart, Brain, Salad,
-  Eye, Smile, Bone, Sparkles, HandMetal, Baby, Leaf, Pill,
+  Eye, Smile, Bone, Sparkles, HandMetal, Baby, Pill,
+  PawPrint, PersonStanding, Activity,
   type LucideIcon,
 } from "lucide-react";
 
@@ -26,12 +27,12 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
   { id: "dental",        name: "Dental Care",           icon: Smile,       color: "text-coral",   glowColor: "rgba(251,113,133,0.15)" },
   { id: "optometry",     name: "Optometry",             icon: Eye,         color: "text-amber",   glowColor: "rgba(251,191,36,0.15)" },
   { id: "massage",       name: "Massage Therapy",       icon: HandMetal,   color: "text-violet",  glowColor: "rgba(167,139,250,0.15)" },
-  { id: "yoga",          name: "Yoga & Pilates",        icon: Leaf,        color: "text-teal",    glowColor: "rgba(45,212,191,0.15)" },
+  { id: "yoga",          name: "Yoga & Pilates",        icon: PersonStanding, color: "text-teal",  glowColor: "rgba(45,212,191,0.15)" },
   { id: "maternity",     name: "Maternity & Fertility", icon: Baby,        color: "text-coral",   glowColor: "rgba(251,113,133,0.15)" },
   { id: "pharmacy",      name: "Pharmacy",              icon: Pill,        color: "text-indigo",  glowColor: "rgba(99,102,241,0.15)" },
   { id: "wellness",      name: "General Wellness",      icon: Heart,       color: "text-amber",   glowColor: "rgba(251,191,36,0.15)" },
-  { id: "veterinary",    name: "Veterinary Care",       icon: Leaf,        color: "text-teal",    glowColor: "rgba(45,212,191,0.15)" },
-  { id: "rehabilitation",name: "Rehabilitation",        icon: Bone,        color: "text-violet",  glowColor: "rgba(167,139,250,0.15)" },
+  { id: "veterinary",    name: "Veterinary Care",       icon: PawPrint,    color: "text-teal",    glowColor: "rgba(45,212,191,0.15)" },
+  { id: "rehabilitation",name: "Rehabilitation",        icon: Activity,    color: "text-violet",  glowColor: "rgba(167,139,250,0.15)" },
 ];
 
 interface Props {
