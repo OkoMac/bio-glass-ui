@@ -98,6 +98,11 @@ import CorporateAnalytics  from "./pages/corporate/Analytics";
 import CorporateWallet     from "./pages/corporate/Wallet";
 import CorporateSettings   from "./pages/corporate/Settings";
 
+// Sales rep portal
+import RepDashboard  from "./pages/rep/Dashboard";
+import RepProviders  from "./pages/rep/Providers";
+import RepAgreement  from "./pages/rep/Agreement";
+
 const queryClient = new QueryClient();
 
 // ─── Onboarding check ─────────────────────────────────────────────────────────
@@ -107,14 +112,16 @@ const ONBOARDING_ROUTES: Record<string, string> = {
   provider: "/onboarding/provider",
   corporate: "/onboarding/corporate",
   admin: "/onboarding/admin",
+  sales_rep: "/onboarding/client",
 };
 
 function isOnboardingComplete(userId: string, role: string): boolean {
   // Demo accounts have id prefixed "demo_" — they bypass onboarding entirely
   if (userId.startsWith("demo_")) return true;
   
-  // Admin users skip onboarding
+  // Admin and sales_rep users skip onboarding
   if (role === "admin") return true;
+  if (role === "sales_rep") return true;
   
   try {
     const key = `bion_onboarding_${userId}_${role}`;
@@ -150,7 +157,8 @@ function RequireAuth({ children, allowedRoles, skipOnboardingCheck }: {
     const home =
       user.role === "admin"      ? "/admin/dashboard"     :
       user.role === "provider"   ? "/pro/dashboard"        :
-      user.role === "corporate"  ? "/corporate/dashboard"  : "/";
+      user.role === "corporate"  ? "/corporate/dashboard"  :
+      user.role === "sales_rep"  ? "/rep/dashboard"         : "/";
     return <Navigate to={home} replace />;
   }
 
@@ -179,6 +187,7 @@ function AppRoutes() {
         user.role === "admin"         ? <Navigate to="/admin/dashboard"    replace /> :
         user.role === "provider"      ? <Navigate to="/pro/dashboard"       replace /> :
         user.role === "corporate"     ? <Navigate to="/corporate/dashboard" replace /> :
+        user.role === "sales_rep"    ? <Navigate to="/rep/dashboard"       replace /> :
         <Navigate to="/home" replace />
       } />
       <Route path="/directory" element={<Directory />} />
@@ -239,6 +248,11 @@ function AppRoutes() {
       <Route path="/corporate/analytics" element={<RequireAuth allowedRoles={["corporate"]}><CorporateAnalytics /></RequireAuth>} />
       <Route path="/corporate/wallet"    element={<RequireAuth allowedRoles={["corporate"]}><CorporateWallet /></RequireAuth>} />
       <Route path="/corporate/settings"  element={<RequireAuth allowedRoles={["corporate"]}><CorporateSettings /></RequireAuth>} />
+
+      {/* Sales rep portal */}
+      <Route path="/rep/agreement" element={<RequireAuth allowedRoles={["sales_rep"]}><RepAgreement /></RequireAuth>} />
+      <Route path="/rep/dashboard" element={<RequireAuth allowedRoles={["sales_rep"]}><RepDashboard /></RequireAuth>} />
+      <Route path="/rep/providers" element={<RequireAuth allowedRoles={["sales_rep"]}><RepProviders /></RequireAuth>} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

@@ -6,7 +6,7 @@ import {
   DEMO_ACCOUNTS, BioUser, UserRole,
   signInWithEmail, signUpWithEmail, signInWithGoogle,
 } from "@/lib/auth";
-import { ShieldCheck, Briefcase, User, Building2, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ShieldCheck, Briefcase, User, Building2, TrendingUp, Eye, EyeOff, Loader2 } from "lucide-react";
 
 type OnboardingStep = {
   type: "default" | "flow";
@@ -58,10 +58,11 @@ const ROLE_OPTIONS = [
   { role: "client"    as UserRole, label: "I'm a Client",       desc: "Discover and book health, beauty & wellness services",  icon: User,        color: "#6366F1" },
   { role: "provider"  as UserRole, label: "I'm a Provider",     desc: "Manage your bookings, clients and services",            icon: Briefcase,   color: "#2DD4BF" },
   { role: "corporate" as UserRole, label: "Corporate Wellness", desc: "Manage employee wellness budgets and track engagement", icon: Building2,   color: "#F59E0B" },
+  { role: "sales_rep" as UserRole, label: "Sales Representative", desc: "Earn commissions by signing up providers to BION",      icon: TrendingUp, color: "#10B981" },
 ];
 
 const ROLE_HOME: Record<UserRole, string> = {
-  client: "/home", provider: "/pro/dashboard", admin: "/admin/dashboard", corporate: "/corporate/dashboard",
+  client: "/home", provider: "/pro/dashboard", admin: "/admin/dashboard", corporate: "/corporate/dashboard", sales_rep: "/rep/dashboard",
 };
 
 const ONBOARDING_ROUTES: Record<UserRole, string> = {
@@ -69,6 +70,7 @@ const ONBOARDING_ROUTES: Record<UserRole, string> = {
   provider: "/onboarding/provider",
   corporate: "/onboarding/corporate",
   admin: "/onboarding/admin",
+  sales_rep: "/onboarding/client",
 };
 
 export default function SplashOnboarding() {

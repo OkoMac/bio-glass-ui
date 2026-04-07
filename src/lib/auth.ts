@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Subscription, createDefaultSubscription, PROVIDER_TIER_FEATURES, CLIENT_TIER_FEATURES } from "./subscription";
 
-export type UserRole = "client" | "provider" | "admin" | "corporate";
+export type UserRole = "client" | "provider" | "admin" | "corporate" | "sales_rep";
 
 export interface BioUser {
   id?: string;          // Supabase auth user id (undefined for demo accounts)
@@ -128,8 +128,8 @@ export async function signUpWithEmail(
   const uid = data.user.id;
   await supabase.from("profiles").upsert({ user_id: uid, full_name: name, email });
 
-  // corporate stays in user_metadata; only DB-enum roles go into user_roles
-  if (role !== "corporate") {
+  // corporate and sales_rep stay in user_metadata; only DB-enum roles go into user_roles
+  if (role !== "corporate" && role !== "sales_rep") {
     await supabase.from("user_roles").upsert({
       user_id: uid,
       role: role as "admin" | "provider" | "client",
@@ -165,4 +165,5 @@ export const DEMO_ACCOUNTS: BioUser[] = [
   { id: "demo_client",    name: "Oko Mthembu",  email: "client@bion.app",    role: "client"    },
   { id: "demo_provider",  name: "James Okafor", email: "provider@bion.app",  role: "provider"  },
   { id: "demo_corporate", name: "Capitec HR",    email: "corporate@bion.app", role: "corporate" },
+  { id: "demo_sales_rep", name: "Thandi Nkosi", email: "rep@bion.app",       role: "sales_rep" },
 ];
