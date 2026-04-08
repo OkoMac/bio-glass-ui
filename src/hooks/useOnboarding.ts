@@ -204,16 +204,19 @@ export function useOnboarding(userId: string, role: string, steps: OnboardingSte
   // ── Complete Onboarding ──────────────────────────────────────────────────────
 
   const complete = useCallback(() => {
-    setProgress((p) => ({
-      ...p,
+    const updated = {
+      ...progress,
       completedSteps: steps.map((s) => s.id),
       scorm: {
-        ...p.scorm,
-        lessonStatus: "passed",
+        ...progress.scorm,
+        lessonStatus: "passed" as const,
         completedAt: new Date().toISOString(),
       },
-    }));
-  }, [steps]);
+    };
+    setProgress(updated);
+    // Save immediately so isOnboardingComplete sees it before navigation
+    saveProgress(updated);
+  }, [steps, progress]);
 
   // ── Reset ────────────────────────────────────────────────────────────────────
 

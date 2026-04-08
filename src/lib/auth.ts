@@ -50,9 +50,13 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
       supabase.auth.getUser(),
     ]);
 
-    // corporate role is stored in user_metadata.bio_role (not in the DB enum)
+    // Role priority: 1) user_metadata.bio_role (set at signup), 2) user_roles table, 3) fallback to client
     const metaRole = authData.user?.user_metadata?.bio_role as UserRole | undefined;
-    const role: UserRole = metaRole ?? (roleRow?.role as UserRole) ?? "client";
+    const dbRole = roleRow?.role as UserRole | undefined;
+    const role: UserRole = metaRole ?? dbRole ?? "client";
+
+    // If metaRole exists but DB role doesn't match, trust metaRole (RLS may block user_roles read)
+    console.log(`[auth] User ${supabaseUserId}: metaRole=${metaRole}, dbRole=${dbRole}, resolved=${role}`);
 
     const user: BioUser = {
       id:        supabaseUserId,
