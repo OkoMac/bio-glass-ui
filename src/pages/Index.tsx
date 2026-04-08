@@ -52,7 +52,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28">
-      <div className="w-full max-w-5xl mx-auto px-4 md:px-8 xl:px-12 pt-12 space-y-6">
+      <div className="w-full px-4 md:px-8 xl:px-12 pt-12 space-y-6">
         <SearchBar />
 
         <motion.h1

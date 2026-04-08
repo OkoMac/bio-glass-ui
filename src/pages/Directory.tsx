@@ -132,7 +132,7 @@ export default function Directory() {
         <div className="w-full px-4 md:px-8 xl:px-12 py-3">
           <div className="flex items-center justify-between">
             <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-              <img src="/bion-logo-white-sm.png" alt="BION" className="h-8 md:h-12 w-auto" />
+              <img src="/bion-logo-white-sm.png" alt="BION" className="h-14 md:h-20 w-auto" />
             </motion.div>
             <div className="flex items-center gap-2">
               {geo.permitted && (
@@ -150,10 +150,10 @@ export default function Directory() {
                 </div>
               ) : (
                 <div className="flex items-center gap-1.5">
-                  <button onClick={() => navigate("/welcome")} className="px-3 py-1.5 rounded-pill text-[11px] font-medium glass-2 text-foreground hover:bg-white/[0.08] transition-colors">
+                  <button onClick={() => navigate("/welcome")} className="px-2.5 py-1 rounded-pill text-[10px] font-medium glass-2 text-foreground hover:bg-white/[0.08] transition-colors">
                     Log In
                   </button>
-                  <button onClick={() => navigate("/welcome")} className="px-3 py-1.5 rounded-pill text-[11px] font-semibold gradient-indigo text-primary-foreground shadow-cta">
+                  <button onClick={() => navigate("/welcome")} className="px-2.5 py-1 rounded-pill text-[10px] font-semibold gradient-indigo text-primary-foreground shadow-cta">
                     Sign Up
                   </button>
                 </div>
@@ -219,7 +219,7 @@ export default function Directory() {
         </div>
       </motion.div>
 
-      <div className="w-full max-w-6xl mx-auto px-4 md:px-8 xl:px-12 py-6 space-y-8">
+      <div className="w-full px-4 md:px-8 xl:px-12 py-6 space-y-8">
 
         {/* ── GPS prompt ─────────────────────────────── */}
         {!geo.permitted && !geo.loading && (
