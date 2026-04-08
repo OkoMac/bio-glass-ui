@@ -26,6 +26,7 @@ const STEPS: OnboardingStep[] = [
     type: "form",
     title: "Company Details",
     subtitle: "Tell us about your organisation.",
+    canSkip: true,
     fields: [
       { id: "companyName", label: "Company Name", type: "text", placeholder: "e.g. Acme Holdings (Pty) Ltd", required: true, aiHint: "businessName" },
       {
@@ -57,6 +58,7 @@ const STEPS: OnboardingStep[] = [
     type: "form",
     title: "Wellness Programme Setup",
     subtitle: "Define your programme rules and budget.",
+    canSkip: true,
     fields: [
       { id: "monthlyBudgetPerEmployee", label: "Monthly Budget per Employee (R)", type: "number", placeholder: "e.g. 1200", required: true },
       {
@@ -113,6 +115,7 @@ const STEPS: OnboardingStep[] = [
     type: "quiz",
     title: "Corporate Platform Check",
     subtitle: "Confirm you understand how the programme works.",
+    canSkip: true,
     passScore: 60,
     questions: [
       {

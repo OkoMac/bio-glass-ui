@@ -70,7 +70,7 @@ const ONBOARDING_ROUTES: Record<UserRole, string> = {
   provider: "/onboarding/provider",
   corporate: "/onboarding/corporate",
   admin: "/onboarding/admin",
-  sales_rep: "/onboarding/client",
+  sales_rep: "/rep/agreement",
 };
 
 export default function SplashOnboarding() {

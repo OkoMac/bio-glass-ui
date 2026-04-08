@@ -16,7 +16,7 @@ const STEPS: OnboardingStep[] = [
     icon: "🏥",
     highlights: [
       { icon: "📅", title: "Effortless Bookings", desc: "Clients book you 24/7 — calendar, confirmations and reminders handled automatically." },
-      { icon: "💰", title: "92% Payout Rate", desc: "BION charges only 8%. The rest is yours. Fast payouts within 1–2 business days." },
+      { icon: "💰", title: "95% Payout Rate", desc: "BION charges only 5%. The rest is yours. Instant via Paystack split payment to your bank account after each completed session." },
       { icon: "📊", title: "Built-in Analytics", desc: "Track revenue, client retention, no-show rates and growth trends in real time." },
       { icon: "🤖", title: "AI-Powered Growth", desc: "ServeAI matches you with clients whose needs fit your services automatically." },
     ],
@@ -26,6 +26,7 @@ const STEPS: OnboardingStep[] = [
     type: "form",
     title: "Your Business Details",
     subtitle: "These appear on your public profile.",
+    canSkip: true,
     fields: [
       { id: "businessName", label: "Business / Practice Name", type: "text", placeholder: "e.g. FitLife Studio", required: true, aiHint: "businessName" },
       {
@@ -65,10 +66,10 @@ const STEPS: OnboardingStep[] = [
     title: "BION Fee & Payouts",
     subtitle: "Simple, transparent pricing.",
     highlights: [
-      { icon: "💸", title: "8% Platform Fee", desc: "BION charges 8% per completed booking — covering payment processing, client acquisition, insurance and platform infrastructure." },
-      { icon: "🏦", title: "Fast Payouts", desc: "Request a payout any time. Funds arrive within 1–2 business days via EFT to your registered bank account. Minimum payout: R100." },
+      { icon: "💸", title: "5% Platform Fee", desc: "BION charges 5% per completed booking — covering payment processing, client acquisition, insurance and platform infrastructure." },
+      { icon: "🏦", title: "Instant Payouts", desc: "Instant via Paystack split payment to your bank account after each completed session." },
       { icon: "🛡️", title: "No-Show Protection", desc: "Enable your cancellation policy to protect revenue. Late-cancellation fees (your choice) go directly to you." },
-      { icon: "📈", title: "Grow Your Revenue", desc: "Top providers on BION earn R25,000–R80,000/month. Analytics help you optimise pricing and availability." },
+      { icon: "📈", title: "Grow Your Revenue", desc: "Track your revenue growth with built-in analytics." },
     ],
   },
   {
@@ -88,6 +89,7 @@ const STEPS: OnboardingStep[] = [
     type: "quiz",
     title: "Provider Knowledge Check",
     subtitle: "Confirm you understand the key platform rules.",
+    canSkip: true,
     passScore: 66,
     questions: [
       {
@@ -96,10 +98,10 @@ const STEPS: OnboardingStep[] = [
         type: "single",
         required: true,
         isKnowledgeCheck: true,
-        explanation: "BION charges an 8% platform fee. You keep 92% of every completed booking.",
+        explanation: "BION charges a 5% platform fee. You keep 95% of every completed booking.",
         options: [
-          { id: "a", text: "5%" },
-          { id: "b", text: "8%", isCorrect: true },
+          { id: "a", text: "5%", isCorrect: true },
+          { id: "b", text: "8%" },
           { id: "c", text: "15%" },
           { id: "d", text: "20%" },
         ],
@@ -110,10 +112,10 @@ const STEPS: OnboardingStep[] = [
         type: "single",
         required: true,
         isKnowledgeCheck: true,
-        explanation: "Payouts are processed within 1–2 business days via EFT to your registered bank account.",
+        explanation: "Payouts are instant via Paystack split payment to your bank account after each completed session.",
         options: [
-          { id: "a", text: "Instantly" },
-          { id: "b", text: "1–2 business days", isCorrect: true },
+          { id: "a", text: "Instantly via Paystack split payment", isCorrect: true },
+          { id: "b", text: "1–2 business days" },
           { id: "c", text: "5–7 business days" },
           { id: "d", text: "Once a month" },
         ],

@@ -22,6 +22,7 @@ const STEPS: OnboardingStep[] = [
     type: "quiz",
     title: "Your Wellness Goals",
     subtitle: "Tell us about yourself so we can personalise your experience.",
+    canSkip: true,
     questions: [
       {
         id: "primary_goal",
@@ -70,6 +71,7 @@ const STEPS: OnboardingStep[] = [
     type: "form",
     title: "Set Up Your Profile",
     subtitle: "This helps providers personalise your experience.",
+    canSkip: true,
     fields: [
       { id: "displayName", label: "Display Name", type: "text", placeholder: "What should we call you?", required: true },
       { id: "phone", label: "Phone Number", type: "tel", placeholder: "+27 82 123 4567", required: false },
@@ -124,6 +126,7 @@ const STEPS: OnboardingStep[] = [
     type: "quiz",
     title: "Quick Knowledge Check",
     subtitle: "Let's make sure you're ready to get the most out of BION.",
+    canSkip: true,
     passScore: 60,
     questions: [
       {

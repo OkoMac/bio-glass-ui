@@ -113,7 +113,7 @@ const ONBOARDING_ROUTES: Record<string, string> = {
   provider: "/onboarding/provider",
   corporate: "/onboarding/corporate",
   admin: "/onboarding/admin",
-  sales_rep: "/onboarding/client",
+  sales_rep: "/rep/agreement",
 };
 
 function isOnboardingComplete(userId: string, role: string): boolean {

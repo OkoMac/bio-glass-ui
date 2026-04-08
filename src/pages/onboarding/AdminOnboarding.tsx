@@ -34,6 +34,7 @@ const STEPS: OnboardingStep[] = [
     type: "quiz",
     title: "Verification Process Check",
     subtitle: "Confirm you know the credential requirements by vertical.",
+    canSkip: true,
     passScore: 66,
     questions: [
       {
@@ -83,6 +84,7 @@ const STEPS: OnboardingStep[] = [
     type: "form",
     title: "Platform Configuration",
     subtitle: "Review and confirm key platform settings.",
+    canSkip: true,
     fields: [
       { id: "defaultCommission", label: "Default Platform Commission (%)", type: "number", placeholder: "8", required: true },
       {
