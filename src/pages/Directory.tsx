@@ -6,7 +6,7 @@ import BookingRequestForm from "@/components/BookingRequestForm";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import ServiceCategoryBlock, { SERVICE_CATEGORIES, type ServiceCategory } from "@/components/ServiceCategoryBlock";
 import { useAuth } from "@/contexts/AuthContext";
-import { getProviderImage } from "@/lib/providerImages";
+import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 import realData from "@/data/bion_pretoria_data.json";
 
 // ── Map scraped providers to categories ─────────────
@@ -35,18 +35,22 @@ function categorize(service: string): string {
 }
 
 // ── Build provider list from real scraped data ──────
-const ALL_PROVIDERS = realData.providers.map((p) => ({
-  id: p.id,
-  name: p.name,
-  specialty: p.service,
-  category: categorize(p.service),
-  rating: typeof p.rating === "string" ? parseFloat(p.rating) || 0 : p.rating,
-  reviews: p.reviewCount,
-  location: p.location,
-  price: p.price,
-  availability: p.availability,
-  avatar: getProviderImage(p.id, p.name),
-}));
+const ALL_PROVIDERS = realData.providers
+  .map((p) => ({
+    id: p.id,
+    name: p.name,
+    specialty: p.service,
+    category: categorize(p.service),
+    rating: typeof p.rating === "string" ? parseFloat(p.rating) || 0 : p.rating,
+    reviews: p.reviewCount,
+    location: p.location,
+    price: p.price,
+    availability: p.availability,
+    avatar: getProviderImage(p.id, p.name),
+    hasLogo: hasCustomImage(p.id),
+  }))
+  // Providers with logos show first
+  .sort((a, b) => (b.hasLogo ? 1 : 0) - (a.hasLogo ? 1 : 0));
 
 // ── Add counts to categories ────────────────────────
 const catCounts = ALL_PROVIDERS.reduce<Record<string, number>>((acc, p) => {
@@ -297,8 +301,9 @@ export default function Directory() {
                   <img
                     src={provider.avatar}
                     alt={provider.name}
-                    className="w-12 h-12 rounded-xl object-cover ring-2 ring-white/10 shrink-0"
+                    className="w-12 h-12 rounded-xl object-cover ring-2 ring-white/10 shrink-0 bg-white/5"
                     loading="lazy"
+                    onError={(e) => { (e.target as HTMLImageElement).src = getProviderImage("fallback_" + provider.id, provider.name); }}
                   />
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-semibold text-foreground truncate">{provider.name}</h3>

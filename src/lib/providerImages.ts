@@ -37,19 +37,6 @@ const PROVIDER_IMAGE_URLS: Record<string, string> = {
   gar_medihaven: "https://www.medihaven.co.za/sitepad-data/uploads/2022/01/Medi-2.jpg",
 
   // Gyms — Virgin Active (all locations)
-  fit_va_centurion: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Virgin_Active.svg/320px-Virgin_Active.svg.png",
-  fit_va_faerie: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Virgin_Active.svg/320px-Virgin_Active.svg.png",
-  fit_va_groenkloof: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Virgin_Active.svg/320px-Virgin_Active.svg.png",
-  fit_va_hatfield: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Virgin_Active.svg/320px-Virgin_Active.svg.png",
-  fit_va_menlyn: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Virgin_Active.svg/320px-Virgin_Active.svg.png",
-  fit_va_montana: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Virgin_Active.svg/320px-Virgin_Active.svg.png",
-  fit_va_moreleta: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Virgin_Active.svg/320px-Virgin_Active.svg.png",
-  fit_va_sunnypark: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Virgin_Active.svg/320px-Virgin_Active.svg.png",
-  fit_va_wonderpark: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Virgin_Active.svg/320px-Virgin_Active.svg.png",
-  fit_va_rooihuiskraal: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Virgin_Active.svg/320px-Virgin_Active.svg.png",
-  fit_va_watermeyer: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Virgin_Active.svg/320px-Virgin_Active.svg.png",
-  fit_va_ecopark: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Virgin_Active.svg/320px-Virgin_Active.svg.png",
-  fit_va_hazeldean: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Virgin_Active.svg/320px-Virgin_Active.svg.png",
 
   // Gyms — Planet Fitness (all locations)
   fit_pf_arcadia: "https://www.planetfitness.co.za/wp-content/uploads/2023/12/PF-no-icon.png",
@@ -66,23 +53,12 @@ const PROVIDER_IMAGE_URLS: Record<string, string> = {
   fit_curves_erasmuskloof: "https://www.curves.com/wp-content/uploads/2020/01/logo-curves.svg",
 
   // Gyms — CrossFit
-  fit_crossfit_pta: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/CrossFit_Logo.svg/320px-CrossFit_Logo.svg.png",
-  fit_crossfit_greenlyn: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/CrossFit_Logo.svg/320px-CrossFit_Logo.svg.png",
-  fit_crossfit_menlyn: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/CrossFit_Logo.svg/320px-CrossFit_Logo.svg.png",
-  fit_crossfit_real: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/CrossFit_Logo.svg/320px-CrossFit_Logo.svg.png",
 
   // Gyms — Other
-  fit_viva: "https://vivagym.co.za/wp-content/uploads/2023/01/viva-gym-logo.png",
   pt_f45_waterkloof: "https://f45training.com/wp-content/uploads/2026/01/F45_Logo_2023_Color-1.png",
   pt_bodytec_mont: "https://bodytec.co.za/wp-content/uploads/2025/05/bodytec-logo_emails.png",
 
   // Pharmacy chains — Clicks (all locations)
-  ph_clicks_brooklyn: "https://upload.wikimedia.org/wikipedia/en/thumb/4/4a/Clicks_Group_logo.svg/320px-Clicks_Group_logo.svg.png",
-  ph_clicks_cornwall: "https://upload.wikimedia.org/wikipedia/en/thumb/4/4a/Clicks_Group_logo.svg/320px-Clicks_Group_logo.svg.png",
-  ph_clicks_jakaranda: "https://upload.wikimedia.org/wikipedia/en/thumb/4/4a/Clicks_Group_logo.svg/320px-Clicks_Group_logo.svg.png",
-  ph_clicks_sunnypark: "https://upload.wikimedia.org/wikipedia/en/thumb/4/4a/Clicks_Group_logo.svg/320px-Clicks_Group_logo.svg.png",
-  ph_clicks_woodlands: "https://upload.wikimedia.org/wikipedia/en/thumb/4/4a/Clicks_Group_logo.svg/320px-Clicks_Group_logo.svg.png",
-  opt_clicks_silverwaters: "https://upload.wikimedia.org/wikipedia/en/thumb/4/4a/Clicks_Group_logo.svg/320px-Clicks_Group_logo.svg.png",
 
   // Pharmacy — Dischem
   ph_dischem_kol: "https://www.dischem.co.za/api/logo/stores/1/logo.png",
@@ -91,7 +67,6 @@ const PROVIDER_IMAGE_URLS: Record<string, string> = {
   opt_specsavers: "https://www.specsavers.co.za/img/SS-Logo.svg",
 
   // Sorbet Salon
-  h_sorbet: "https://sorbet.co.za/wp-content/uploads/2023/10/sorbet-logo.svg",
 
   // Annique (all locations)
   cen_annique: "https://annique.com/images/thumbs/0000714_logowhite.png",
@@ -107,61 +82,14 @@ const PROVIDER_IMAGE_URLS: Record<string, string> = {
   lyn_lynnwood_health: "https://naturallife.co.za/cdn/shop/files/Natural_life_logo_300x300.png?v=1613716170",
 
   // Mediclinic
-  gp_queenswood: "https://www.hirslanden.ch/renditions/mc-me-corporate/logos/re-design/4x3/768/1616241321261/logo-mediclinic-web.png",
 
   // RingPharm pharmacies (all locations)
-  ph_elardus: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_barclay: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_glenstantia: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_hazelwood: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_mooikloof: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_serene: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_riviera: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_murrayfield: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_wesmed: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_capital_park: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_danmed: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_erasmia: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_jabula: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_kramers: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_mimosa: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_sentra: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_rosslyn: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_rynepark: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_crown_ave: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_henda: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_anro: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_hope: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_groenkloof: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_medipost: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_medisquare: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_menlopark: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_olivewood: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_doornpoort: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_florauna: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_glen_medi: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_castle_walk: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_crest: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_denmar: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_faerie_glen_med: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_woolfson: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  hat_woolfson: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_arrie_nel: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_arrie_nel_wp: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_bronberg: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_bronberrik: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  ph_peptide: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
 
   // Optometrists — Vision Works
-  opt_vision_wonder: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
-  opt_vision_raslouw: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pharmacy_Green_Cross.svg/120px-Pharmacy_Green_Cross.svg.png",
 
   // Centuriomed medical centre
-  cen_centuriomed: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Caduceus.svg/120px-Caduceus.svg.png",
-  gp_centuriomed: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Caduceus.svg/120px-Caduceus.svg.png",
 
   // Viva Gym
-  fit_viva: "https://vivagym.co.za/wp-content/uploads/2023/01/viva-gym-logo.png",
 
   // Individual practitioner photos (scraped from their websites)
   dentist_ade_meyer: "https://images.squarespace-cdn.com/content/v1/5cc6bdcb809d8e4f8ac8a61f/1560423368271-GIX5V93AA6JNHOKOJRDD/Dr-Ade-Meyer.png",
