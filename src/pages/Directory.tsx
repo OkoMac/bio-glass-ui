@@ -129,14 +129,14 @@ export default function Directory() {
     <div className="min-h-screen bg-obsidian bg-obsidian-glow">
       {/* ── Sticky header ────────────────────────────── */}
       <div className="sticky top-0 z-40 bg-obsidian/80 backdrop-blur-xl border-b border-white/[0.06]">
-        <div className="w-full px-4 md:px-8 xl:px-12 py-4">
-          <div className="flex items-center justify-between mb-4">
+        <div className="w-full px-4 md:px-8 xl:px-12 py-3">
+          <div className="flex items-center justify-between">
             <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-              <img src="/bion-logo-white-sm.png" alt="BION" className="h-24 md:h-28 w-auto" />
+              <img src="/bion-logo-white-sm.png" alt="BION" className="h-8 md:h-12 w-auto" />
             </motion.div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {geo.permitted && (
-                <div className="flex items-center gap-1.5 text-xs text-teal">
+                <div className="hidden sm:flex items-center gap-1.5 text-xs text-teal">
                   <Navigation className="w-3 h-3" />
                   <span className="font-data">Pretoria</span>
                 </div>
@@ -144,17 +144,17 @@ export default function Directory() {
               {user ? (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground hidden sm:inline">Hi, {user.name?.split(" ")[0]}</span>
-                  <button onClick={() => navigate("/home")} className="px-4 py-2 rounded-pill text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta">
+                  <button onClick={() => navigate("/home")} className="px-3 py-1.5 md:px-4 md:py-2 rounded-pill text-[11px] md:text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta">
                     Dashboard
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
-                  <button onClick={() => navigate("/welcome")} className="px-4 py-2 rounded-pill text-xs font-medium glass-2 text-foreground hover:bg-white/[0.08] transition-colors">
+                <div className="flex items-center gap-1.5">
+                  <button onClick={() => navigate("/welcome")} className="px-3 py-1.5 rounded-pill text-[11px] font-medium glass-2 text-foreground hover:bg-white/[0.08] transition-colors">
                     Log In
                   </button>
-                  <button onClick={() => navigate("/welcome")} className="px-4 py-2 rounded-pill text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta">
-                    Sign Up Free
+                  <button onClick={() => navigate("/welcome")} className="px-3 py-1.5 rounded-pill text-[11px] font-semibold gradient-indigo text-primary-foreground shadow-cta">
+                    Sign Up
                   </button>
                 </div>
               )}
@@ -219,7 +219,7 @@ export default function Directory() {
         </div>
       </motion.div>
 
-      <div className="w-full px-4 md:px-8 xl:px-12 py-6 space-y-8">
+      <div className="w-full max-w-6xl mx-auto px-4 md:px-8 xl:px-12 py-6 space-y-8">
 
         {/* ── GPS prompt ─────────────────────────────── */}
         {!geo.permitted && !geo.loading && (
@@ -265,7 +265,7 @@ export default function Directory() {
               <button
                 key={tab}
                 onClick={() => setActiveFilter(tab)}
-                className={`shrink-0 rounded-pill px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${
+                className={`shrink-0 rounded-pill px-3 py-2.5 md:py-1.5 text-[11px] md:text-xs font-medium transition-all whitespace-nowrap ${
                   activeFilter === tab
                     ? "gradient-indigo text-primary-foreground shadow-cta"
                     : "glass-1 text-muted-foreground hover:text-foreground"
@@ -363,7 +363,7 @@ export default function Directory() {
         {/* ── Category Blocks Grid ───────────────────── */}
         <section>
           <div className="flex items-center gap-2 mb-4">
-            <h3 className="text-lg font-semibold text-foreground">Browse Services</h3>
+            <h3 className="text-lg md:text-xl font-semibold text-foreground">Browse Services</h3>
             <span className="text-xs text-muted-foreground">({ALL_PROVIDERS.length} providers)</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 md:gap-3">
@@ -413,7 +413,7 @@ export default function Directory() {
         transition={{ delay: 1 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setShowBookingForm(true)}
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-5 py-3 rounded-pill gradient-indigo text-primary-foreground shadow-cta text-sm font-semibold"
+        className="fixed bottom-6 right-4 md:right-6 z-40 flex items-center gap-2 px-4 md:px-5 py-3 rounded-pill gradient-indigo text-primary-foreground shadow-cta text-[11px] md:text-sm font-semibold"
       >
         <Plus className="w-4 h-4" />
         Can't find your provider?

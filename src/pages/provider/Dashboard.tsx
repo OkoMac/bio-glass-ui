@@ -28,13 +28,13 @@ export default function ProviderDashboard() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
-      <div className="mx-auto max-w-3xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
+      <div className="mx-auto max-w-5xl px-4 md:px-8 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
 
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
             <p className="text-xs text-muted-foreground">Good morning 👋</p>
-            <h1 className="text-2xl font-bold text-foreground">{user?.name ?? "Provider"}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">{user?.name ?? "Provider"}</h1>
             <p className="text-xs text-muted-foreground">
               {pending.length > 0 ? `${pending.length} request${pending.length > 1 ? "s" : ""} waiting` : "All caught up"}
             </p>
@@ -43,7 +43,7 @@ export default function ProviderDashboard() {
         </div>
 
         {/* KPI row */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { label: "Today's revenue", value: `R${todayRevenue.toLocaleString()}`, icon: TrendingUp, color: "#6366F1" },
             { label: "Sessions today",  value: String(todaySchedule.length),         icon: Calendar,  color: "#2DD4BF" },

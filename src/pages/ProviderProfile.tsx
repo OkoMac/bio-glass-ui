@@ -67,7 +67,7 @@ export default function ProviderProfile() {
   return (
     <div className="min-h-screen bg-obsidian pb-28">
       {/* Hero Cover */}
-      <div className="relative h-[300px] overflow-hidden">
+      <div className="relative h-[240px] md:h-[320px] overflow-hidden">
         <div
           className="absolute inset-0"
           style={{ background: `url(${provider.coverImage}) center/cover` }}
@@ -75,7 +75,7 @@ export default function ProviderProfile() {
         <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/50 to-obsidian/20" />
 
         {/* Nav */}
-        <div className="absolute top-12 left-4 right-4 flex justify-between">
+        <div className="absolute top-8 md:top-12 left-4 right-4 flex justify-between">
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => navigate(-1)} className="glass-2 rounded-full w-10 h-10 flex items-center justify-center">
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </motion.button>
@@ -101,7 +101,7 @@ export default function ProviderProfile() {
         </div>
       </div>
 
-      <div className="px-4 space-y-4 mt-4 max-w-lg mx-auto">
+      <div className="px-4 md:px-8 space-y-4 mt-4 max-w-2xl mx-auto">
         {/* Quick Stats */}
         <GlassCard className="flex divide-x divide-foreground/10">
           {[
@@ -203,7 +203,7 @@ export default function ProviderProfile() {
                 </p>
                 <button
                   onClick={() => navigate("/welcome")}
-                  className="px-5 py-2 gradient-indigo rounded-pill text-sm font-medium text-white shadow-cta"
+                  className="px-5 py-2.5 gradient-indigo rounded-pill text-sm font-medium text-white shadow-cta"
                 >
                   Sign Up Free
                 </button>
@@ -270,7 +270,7 @@ export default function ProviderProfile() {
       <motion.div
         initial={{ y: 100 }}
         animate={{ y: 0 }}
-        className="fixed bottom-0 left-0 right-0 z-40 bg-obsidian/90 backdrop-blur-xl border-t border-white/[0.06] px-4 py-3 flex items-center justify-between"
+        className="fixed bottom-0 left-0 right-0 z-40 bg-obsidian/90 backdrop-blur-xl border-t border-white/[0.06] px-4 md:px-8 py-3 flex items-center justify-between"
       >
         <span className="text-sm text-muted-foreground">
           From <span className="font-data text-foreground">{provider.price}</span>
@@ -278,7 +278,7 @@ export default function ProviderProfile() {
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={() => isSignedIn ? navigate("/quick-book") : navigate("/welcome")}
-          className="rounded-pill px-6 py-2.5 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta"
+          className="rounded-pill px-6 py-3 text-[13px] md:text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta"
         >
           {isSignedIn ? "Book Now" : "Sign Up to Book"}
         </motion.button>

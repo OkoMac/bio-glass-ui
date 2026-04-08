@@ -109,19 +109,19 @@ export default function AdminProviders() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
-      <div className="mx-auto max-w-5xl px-4 pt-16 pb-10 md:pt-8 space-y-5">
+      <div className="mx-auto max-w-5xl px-4 md:px-8 pt-16 pb-10 md:pt-8 space-y-5">
 
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Search or Add Provider</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Search or Add Provider</h1>
             <p className="text-xs text-muted-foreground">
               {ALL_PROVIDERS.length} providers · {Object.keys(catCounts).length} categories
             </p>
           </div>
           <button
             onClick={() => navigate("/welcome")}
-            className="flex items-center gap-2 px-4 py-2 rounded-pill text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta"
+            className="flex items-center gap-2 px-3 md:px-4 py-2.5 rounded-pill text-[11px] md:text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta"
           >
             <UserPlus className="w-3.5 h-3.5" />
             Add Provider
@@ -330,8 +330,8 @@ export default function AdminProviders() {
 
         {/* Category Blocks Grid */}
         <section>
-          <h3 className="text-lg font-semibold text-foreground mb-3">Browse by Category</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+          <h3 className="text-lg md:text-xl font-semibold text-foreground mb-3">Browse by Category</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 md:gap-3">
             {CATEGORIES_WITH_COUNTS.map((cat, i) => (
               <ServiceCategoryBlock
                 key={cat.id}

@@ -142,7 +142,7 @@ export default function SplashOnboarding() {
       <div className="fixed inset-0 z-[100] bg-obsidian flex flex-col items-center justify-center"
         style={{ background: "radial-gradient(ellipse at 50% 45%, rgba(99,102,241,0.12) 0%, #0A0A0F 65%)" }}>
         <motion.img src="/bion-logo-white.png" alt="BION" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="h-80 md:h-96 w-auto" />
+          className="h-32 md:h-48 w-auto" />
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
           className="text-base text-foreground/55 mt-3">Every Service. One Platform.</motion.p>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}
@@ -158,7 +158,7 @@ export default function SplashOnboarding() {
     return (
       <div className="fixed inset-0 z-[100] bg-obsidian flex flex-col"
         style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(99,102,241,0.06) 0%, #0A0A0F 65%)" }}>
-        <div className="flex-1 flex flex-col items-center justify-center px-8">
+        <div className="flex-1 flex flex-col items-center justify-center px-4 md:px-8">
           <AnimatePresence mode="wait">
             {(() => {
               const step = onboardingSteps[currentStep];
@@ -208,7 +208,7 @@ export default function SplashOnboarding() {
             })()}
           </AnimatePresence>
         </div>
-        <div className="px-8 pb-12 space-y-6">
+        <div className="px-4 md:px-8 pb-12 space-y-6">
           <div className="flex justify-center gap-2">
             {onboardingSteps.map((_, i) => (
               <div key={i} className={`h-1 rounded-full transition-all duration-300 ${i <= currentStep ? "w-6 bg-indigo" : "w-1.5 bg-foreground/15"}`} />
@@ -273,11 +273,11 @@ export default function SplashOnboarding() {
               {DEMO_ACCOUNTS.map(acc => (
                 <div key={acc.role} className="flex flex-col items-center gap-1">
                   <motion.button whileTap={{ scale: 0.95 }} onClick={() => handleDemoLogin(acc)}
-                    className="px-3 py-1.5 glass-1 rounded-pill text-[10px] font-medium text-muted-foreground capitalize hover:text-foreground transition-colors">
+                    className="px-3 py-2.5 glass-1 rounded-pill text-[11px] md:text-xs font-medium text-muted-foreground capitalize hover:text-foreground transition-colors">
                     {acc.role}
                   </motion.button>
                   <button onClick={() => handleDemoOnboarding(acc)}
-                    className="text-[9px] text-indigo/60 hover:text-indigo transition-colors leading-none">
+                    className="text-[10px] text-indigo/60 hover:text-indigo transition-colors leading-none py-1">
                     ↗ onboarding
                   </button>
                 </div>
@@ -293,9 +293,9 @@ export default function SplashOnboarding() {
   if (phase === "terms") {
     return (
       <div className="fixed inset-0 z-[100] bg-obsidian overflow-y-auto">
-        <div className="max-w-lg mx-auto px-5 py-12 space-y-6">
-          <button onClick={() => setPhase("auth")} className="text-sm text-muted-foreground">← Back to signup</button>
-          <img src="/bion-logo-white-sm.png" alt="BION" className="h-28 w-auto" />
+        <div className="max-w-lg mx-auto px-4 md:px-8 py-12 space-y-6">
+          <button onClick={() => setPhase("auth")} className="text-sm text-muted-foreground py-2">← Back to signup</button>
+          <img src="/bion-logo-white-sm.png" alt="BION" className="h-8 md:h-12 w-auto" />
           <h1 className="text-2xl font-bold text-foreground">Terms of Service & Privacy Policy</h1>
           <p className="text-xs text-muted-foreground">Last updated: April 2026</p>
 
@@ -457,11 +457,11 @@ export default function SplashOnboarding() {
             {DEMO_ACCOUNTS.map(acc => (
               <div key={acc.role} className="flex flex-col items-center gap-1">
                 <motion.button whileTap={{ scale: 0.95 }} onClick={() => handleDemoLogin(acc)}
-                  className="px-3 py-1.5 glass-1 rounded-pill text-[10px] font-medium text-muted-foreground capitalize hover:text-foreground transition-colors">
+                  className="px-3 py-2.5 glass-1 rounded-pill text-[11px] md:text-xs font-medium text-muted-foreground capitalize hover:text-foreground transition-colors">
                   {acc.role}
                 </motion.button>
                 <button onClick={() => handleDemoOnboarding(acc)}
-                  className="text-[9px] text-indigo/60 hover:text-indigo transition-colors leading-none">
+                  className="text-[10px] text-indigo/60 hover:text-indigo transition-colors leading-none py-1">
                   ↗ onboarding
                 </button>
               </div>

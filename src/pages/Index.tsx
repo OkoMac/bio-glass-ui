@@ -51,15 +51,15 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-24">
-      <div className="w-full px-4 md:px-8 xl:px-12 pt-12 space-y-6">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28">
+      <div className="w-full max-w-5xl mx-auto px-4 md:px-8 xl:px-12 pt-12 space-y-6">
         <SearchBar />
 
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="text-[28px] font-bold text-foreground"
+          className="text-[28px] md:text-3xl font-bold text-foreground"
         >
           {getGreeting()}, {user?.name?.split(" ")[0] ?? "there"}
         </motion.h1>
@@ -102,7 +102,7 @@ const Index = () => {
               </button>
             </GlassCard>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
               {PROVIDERS.map((p, i) => (
                 <motion.div
                   key={p.id}
