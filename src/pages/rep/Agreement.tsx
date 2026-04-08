@@ -17,9 +17,10 @@ const SECTIONS = [
     number: 2,
     title: "Commission Structure",
     items: [
-      "2% of all transaction fees from providers you sign up (standard tier)",
+      "2% of all transaction fees from providers AND clients you sign up (standard tier)",
       "1% of transaction fees when your providers are on the Elite tier (R999/mo)",
       "15% of all subscription fees from providers you sign up",
+      "You earn commission on BOTH sides — if a provider you signed up serves a client you also signed up, you earn on that transaction",
       "Commissions are calculated on the total transaction amount processed through Paystack",
     ],
   },
