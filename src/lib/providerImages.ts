@@ -162,6 +162,21 @@ const PROVIDER_IMAGE_URLS: Record<string, string> = {
 
   // Viva Gym
   fit_viva: "https://vivagym.co.za/wp-content/uploads/2023/01/viva-gym-logo.png",
+
+  // Individual practitioner photos (scraped from their websites)
+  dentist_ade_meyer: "https://images.squarespace-cdn.com/content/v1/5cc6bdcb809d8e4f8ac8a61f/1560423368271-GIX5V93AA6JNHOKOJRDD/Dr-Ade-Meyer.png",
+  fg_dr_ade_dent: "https://images.squarespace-cdn.com/content/v1/5cc6bdcb809d8e4f8ac8a61f/1560423368271-GIX5V93AA6JNHOKOJRDD/Dr-Ade-Meyer.png",
+
+  // Dr Trudi Nel — practice logo
+  brk_trudi_psych: "https://trudinel.weebly.com/uploads/1/2/5/0/125046761/published/trudi-website-logo-2_6.png?1556093350",
+  psych_trudi: "https://trudinel.weebly.com/uploads/1/2/5/0/125046761/published/trudi-website-logo-2_6.png?1556093350",
+
+  // Visser & Ball Physio team photos
+  sl_badenhorst_physio: "https://visserandball.co.za/wp-content/uploads/2025/04/Nadia-April2025-825x1024.jpg",
+  physio_badenhorst: "https://visserandball.co.za/wp-content/uploads/2025/04/Nadia-April2025-825x1024.jpg",
+
+  // Renee Badenhorst Physio
+  physio_carla: "https://reneebadenhorstphysio.wordpress.com/wp-content/uploads/2014/11/cropped-renee-badenhorst-wordress-header.jpg",
 };
 
 function hashString(str: string): number {
