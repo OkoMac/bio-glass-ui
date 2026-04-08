@@ -1,6 +1,6 @@
-import { CheckCircle, Crown, Star, Shield } from "lucide-react";
+import { CheckCircle, Crown, Star, Shield, BadgeCheck } from "lucide-react";
 
-type BadgeType = "verified" | "premium" | "elite" | "complete" | "pro";
+type BadgeType = "verified" | "premium" | "elite" | "complete" | "pro" | "accredited";
 
 interface UserBadgeProps {
   type: BadgeType;
@@ -43,6 +43,12 @@ const BADGE_CONFIG: Record<BadgeType, {
     icon: Crown,
     bg: "bg-violet/10 border-violet/20",
     text: "text-violet",
+  },
+  accredited: {
+    label: "Accredited",
+    icon: BadgeCheck,
+    bg: "bg-emerald-500/10 border-emerald-500/20",
+    text: "text-emerald-500",
   },
 };
 

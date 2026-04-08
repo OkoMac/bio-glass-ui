@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 type AvatarSize = "xs" | "sm" | "md" | "lg" | "xl";
 type VerticalColor = "indigo" | "teal" | "coral" | "amber" | "violet";
-type BadgeType = "verified" | "premium" | "elite" | "complete";
+type BadgeType = "verified" | "premium" | "elite" | "complete" | "accredited";
 
 interface BioAvatarProps {
   src: string;
@@ -44,6 +44,11 @@ const BADGE_CONFIG: Record<BadgeType, { bg: string; icon: string; title: string 
     icon: "check",
     title: "Onboarding 100% Complete",
   },
+  accredited: {
+    bg: "bg-emerald-500",
+    icon: "shield",
+    title: "Accredited — Qualifications verified",
+  },
 };
 
 function BadgeIcon({ type, className }: { type: BadgeType; className: string }) {
@@ -51,6 +56,14 @@ function BadgeIcon({ type, className }: { type: BadgeType; className: string }) 
     return (
       <svg className={className} viewBox="0 0 12 12" fill="white">
         <path d="M6 1l1.5 3.1L11 4.5 8.5 7l.6 3.5L6 8.8 2.9 10.5l.6-3.5L1 4.5l3.5-.4z" />
+      </svg>
+    );
+  }
+  if (type === "accredited") {
+    return (
+      <svg className={className} viewBox="0 0 12 12" fill="white">
+        <path d="M6 1L2 3v3c0 2.5 1.7 4.4 4 5 2.3-.6 4-2.5 4-5V3L6 1z" />
+        <path d="M4.5 6l1 1 2-2" stroke="#059669" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
       </svg>
     );
   }
