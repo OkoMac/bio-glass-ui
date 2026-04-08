@@ -210,9 +210,9 @@ export default function RepDashboard() {
             </div>
             <div className="space-y-3">
               {[
-                { label: "Standard Providers", rate: "2%", desc: "of all client transactions" },
-                { label: "Elite Providers",    rate: "1%", desc: "of client transactions" },
-                { label: "Subscription Fee",   rate: "15%", desc: "of provider subscription fees" },
+                { label: "Standard Providers", rate: "2%", desc: "of all transactions from your providers" },
+                { label: "Elite Providers",    rate: "1%", desc: "of transactions (reduced for Elite tier)" },
+                { label: "Subscription Fee",   rate: "20%", desc: "of provider subscription fees" },
               ].map((tier, i) => (
                 <div key={i} className="flex items-center justify-between glass-1 rounded-xl p-3">
                   <div>
