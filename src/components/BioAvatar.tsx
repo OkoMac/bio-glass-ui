@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 
 type AvatarSize = "xs" | "sm" | "md" | "lg" | "xl";
 type VerticalColor = "indigo" | "teal" | "coral" | "amber" | "violet";
+type BadgeType = "verified" | "premium" | "elite" | "complete";
 
 interface BioAvatarProps {
   src: string;
@@ -10,27 +11,72 @@ interface BioAvatarProps {
   verticalColor?: VerticalColor;
   verified?: boolean;
   online?: boolean;
+  badge?: BadgeType;
   className?: string;
 }
 
-const sizeMap: Record<AvatarSize, { container: string; ring: number; badge: string }> = {
-  xs: { container: "w-6 h-6", ring: 0, badge: "" },
-  sm: { container: "w-9 h-9", ring: 2, badge: "" },
-  md: { container: "w-12 h-12", ring: 3, badge: "w-2.5 h-2.5" },
-  lg: { container: "w-[72px] h-[72px]", ring: 4, badge: "w-[18px] h-[18px]" },
-  xl: { container: "w-24 h-24", ring: 5, badge: "w-6 h-6" },
+const sizeMap: Record<AvatarSize, { container: string; ring: number; badge: string; badgeIcon: string }> = {
+  xs: { container: "w-6 h-6", ring: 0, badge: "", badgeIcon: "" },
+  sm: { container: "w-9 h-9", ring: 2, badge: "w-4 h-4", badgeIcon: "w-2.5 h-2.5" },
+  md: { container: "w-12 h-12", ring: 3, badge: "w-5 h-5", badgeIcon: "w-3 h-3" },
+  lg: { container: "w-[72px] h-[72px]", ring: 4, badge: "w-6 h-6", badgeIcon: "w-3.5 h-3.5" },
+  xl: { container: "w-24 h-24", ring: 5, badge: "w-7 h-7", badgeIcon: "w-4 h-4" },
 };
 
-const colorMap: Record<VerticalColor, string> = {
-  indigo: "ring-indigo",
-  teal: "ring-teal",
-  coral: "ring-coral",
-  amber: "ring-amber",
-  violet: "ring-violet",
+const BADGE_CONFIG: Record<BadgeType, { bg: string; icon: string; title: string }> = {
+  verified: {
+    bg: "bg-indigo",
+    icon: "check",
+    title: "Verified — 100% onboarding complete",
+  },
+  premium: {
+    bg: "bg-amber-500",
+    icon: "star",
+    title: "Premium Subscriber",
+  },
+  elite: {
+    bg: "bg-gradient-to-br from-indigo to-teal",
+    icon: "crown",
+    title: "Elite Provider",
+  },
+  complete: {
+    bg: "bg-teal",
+    icon: "check",
+    title: "Onboarding 100% Complete",
+  },
 };
 
-const BioAvatar = ({ src, alt, size = "md", verticalColor = "indigo", verified, online, className }: BioAvatarProps) => {
+function BadgeIcon({ type, className }: { type: BadgeType; className: string }) {
+  if (type === "star" || type === "premium") {
+    return (
+      <svg className={className} viewBox="0 0 12 12" fill="white">
+        <path d="M6 1l1.5 3.1L11 4.5 8.5 7l.6 3.5L6 8.8 2.9 10.5l.6-3.5L1 4.5l3.5-.4z" />
+      </svg>
+    );
+  }
+  if (type === "crown" || type === "elite") {
+    return (
+      <svg className={className} viewBox="0 0 12 12" fill="white">
+        <path d="M2 9h8L9 4l-2 2-1-3-1 3-2-2z" />
+        <rect x="2" y="9" width="8" height="1.5" rx="0.5" />
+      </svg>
+    );
+  }
+  // check (verified, complete)
+  return (
+    <svg className={className} viewBox="0 0 12 12" fill="none">
+      <path d="M3 6l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+const BioAvatar = ({ src, alt, size = "md", verticalColor = "indigo", verified, online, badge, className }: BioAvatarProps) => {
   const s = sizeMap[size];
+
+  // Determine which badge to show (explicit badge prop takes priority over verified boolean)
+  const activeBadge = badge ?? (verified ? "verified" : undefined);
+  const showBadge = activeBadge && size !== "xs";
+  const badgeConfig = activeBadge ? BADGE_CONFIG[activeBadge] : null;
 
   return (
     <div className={cn("relative inline-flex shrink-0", className)}>
@@ -41,21 +87,25 @@ const BioAvatar = ({ src, alt, size = "md", verticalColor = "indigo", verified, 
           s.container,
           "rounded-full object-cover",
           s.ring > 0 && `ring-${s.ring}`,
-          s.ring > 0 && colorMap[verticalColor]
         )}
-        style={s.ring > 0 ? { 
+        style={s.ring > 0 ? {
           boxShadow: `0 0 0 ${s.ring}px var(--ring-color, #6366F1)`,
           ['--ring-color' as string]: verticalColor === 'teal' ? '#2DD4BF' : verticalColor === 'coral' ? '#FB7185' : verticalColor === 'amber' ? '#FBBF24' : verticalColor === 'violet' ? '#A78BFA' : '#6366F1'
         } : undefined}
       />
-      {online && size !== "xs" && size !== "sm" && (
+      {online && size !== "xs" && (
         <span className={cn("absolute bottom-0 right-0 rounded-full bg-emerald-400 ring-2 ring-obsidian", s.badge || "w-2.5 h-2.5")} />
       )}
-      {verified && (size === "lg" || size === "xl") && (
-        <span className={cn("absolute bottom-0 right-0 flex items-center justify-center rounded-full gradient-indigo", s.badge)}>
-          <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
-            <path d="M3 6l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+      {showBadge && badgeConfig && !online && (
+        <span
+          className={cn(
+            "absolute -bottom-0.5 -right-0.5 flex items-center justify-center rounded-full ring-2 ring-obsidian",
+            badgeConfig.bg,
+            s.badge,
+          )}
+          title={badgeConfig.title}
+        >
+          <BadgeIcon type={activeBadge!} className={s.badgeIcon} />
         </span>
       )}
     </div>
