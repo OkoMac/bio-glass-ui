@@ -236,13 +236,17 @@ export function useOnboarding(userId: string, role: string, steps: OnboardingSte
   const canProceed = (stepId: string): boolean => {
     const step = steps.find((s) => s.id === stepId);
     if (!step) return true;
-    if (step.type === "quiz" && step.passScore) {
-      return progress.scorm.score.raw >= step.passScore;
+    if (step.canSkip) return true;
+    if (step.type === "quiz") {
+      // For knowledge-check quizzes, just need to answer all required questions
+      if (!step.questions) return true;
+      const required = step.questions.filter((q) => q.required);
+      const answered = required.filter((q) => progress.answers[q.id] !== undefined);
+      return answered.length >= required.length;
     }
     if (step.type === "form" && step.fields) {
-      return step.fields
-        .filter((f) => f.required)
-        .every((f) => Boolean(progress.formData[f.id]?.trim()));
+      const required = step.fields.filter((f) => f.required);
+      return required.every((f) => Boolean(progress.formData[f.id]?.trim()));
     }
     return true;
   };
