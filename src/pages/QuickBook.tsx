@@ -16,13 +16,16 @@ function categoryToVertical(cat: string): "teal" | "coral" | "indigo" | "amber" 
 }
 
 const ALL_AVAILABLE = realData.providers
-  .filter(p => (p.availability ?? []).some(a => ["Weekdays", "Weekends"].includes(a)))
+  .filter(p => {
+    const avail = typeof p.availability === "string" ? p.availability : "";
+    return /weekday|weekend|daily|by appointment/i.test(avail);
+  })
   .map(p => ({
     id: p.id,
     name: p.name,
-    specialty: p.service ?? p.category ?? "",
-    nextSlot: p.availability?.[0] ?? "Available",
-    distance: p.suburb ?? p.location ?? "",
+    specialty: p.service ?? (p as any).category ?? "",
+    nextSlot: typeof p.availability === "string" ? p.availability : "Available",
+    distance: (p as any).suburb ?? p.location ?? "",
     rating: p.rating ?? 0,
     image: getProviderImage(p.id, p.name),
     vertical: categoryToVertical(p.category ?? ""),

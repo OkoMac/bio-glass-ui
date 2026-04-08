@@ -101,7 +101,7 @@ export default function RepDashboard() {
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <img src="/bion-logo-color.jpg" alt="BION" className="h-6 w-auto rounded" />
+              <img src="/bion-logo-white-sm.png" alt="BION" className="h-20 w-auto rounded" />
               <span className="text-xs font-semibold text-emerald-400/80 glass-1 px-2 py-0.5 rounded-pill">Sales Rep</span>
             </div>
             <h1 className="text-2xl font-bold text-foreground">Sales Dashboard</h1>

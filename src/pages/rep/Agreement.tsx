@@ -99,9 +99,9 @@ export default function RepAgreement() {
           className="text-center space-y-3"
         >
           <img
-            src="/bion-logo-color.jpg"
+            src="/bion-logo-white-sm.png"
             alt="BION"
-            className="h-12 w-auto mx-auto rounded-lg"
+            className="h-32 w-auto mx-auto rounded-lg"
           />
           <div className="flex items-center justify-center gap-2">
             <Shield className="w-5 h-5 text-indigo" />

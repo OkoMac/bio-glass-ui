@@ -32,7 +32,7 @@ const PROVIDERS = realData.providers
     specialty: p.service ?? p.category ?? "",
     rating: p.rating ?? 0,
     distance: p.suburb ?? p.location ?? "",
-    nextSlot: p.availability?.[0] ?? "Available",
+    nextSlot: typeof p.availability === "string" ? p.availability : "Available",
     avatar: getProviderImage(p.id, p.name),
     vertical: categoryToVertical(p.category ?? ""),
   }));

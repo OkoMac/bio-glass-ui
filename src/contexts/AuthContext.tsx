@@ -81,10 +81,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // ── Logout (Supabase + localStorage) ───────────────────────────
-  const logout = useCallback(async () => {
-    await signOutSupabase();
+  const logout = useCallback(() => {
     removeUser();
     setUser(null);
+    signOutSupabase().catch(() => {});
+    window.location.href = "/";
   }, []);
 
   // ── Demo-only role switch (doesn't touch DB) ───────────────────

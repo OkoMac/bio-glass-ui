@@ -141,8 +141,8 @@ export default function SplashOnboarding() {
     return (
       <div className="fixed inset-0 z-[100] bg-obsidian flex flex-col items-center justify-center"
         style={{ background: "radial-gradient(ellipse at 50% 45%, rgba(99,102,241,0.12) 0%, #0A0A0F 65%)" }}>
-        <motion.img src="/bion-logo-color.jpg" alt="BION" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="h-16 md:h-20 w-auto" />
+        <motion.img src="/bion-logo-white.png" alt="BION" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+          className="h-80 md:h-96 w-auto" />
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
           className="text-base text-foreground/55 mt-3">Every Service. One Platform.</motion.p>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}
@@ -295,7 +295,7 @@ export default function SplashOnboarding() {
       <div className="fixed inset-0 z-[100] bg-obsidian overflow-y-auto">
         <div className="max-w-lg mx-auto px-5 py-12 space-y-6">
           <button onClick={() => setPhase("auth")} className="text-sm text-muted-foreground">← Back to signup</button>
-          <img src="/bion-logo-color.jpg" alt="BION" className="h-8 w-auto" />
+          <img src="/bion-logo-white-sm.png" alt="BION" className="h-28 w-auto" />
           <h1 className="text-2xl font-bold text-foreground">Terms of Service & Privacy Policy</h1>
           <p className="text-xs text-muted-foreground">Last updated: April 2026</p>
 
