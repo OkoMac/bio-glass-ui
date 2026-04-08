@@ -284,16 +284,31 @@ function FormStepRenderer({
                 className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5 resize-none"
               />
             ) : field.type === "select" && field.options ? (
-              <select
-                value={formData[field.id] ?? ""}
-                onChange={(e) => onField(field.id, e.target.value)}
-                className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground outline-none border border-white/5 bg-transparent"
-              >
-                <option value="" className="bg-gray-900">{field.placeholder ?? "Select…"}</option>
-                {field.options.map((o) => (
-                  <option key={o} value={o} className="bg-gray-900">{o}</option>
-                ))}
-              </select>
+              <div className="flex flex-wrap gap-2">
+                {field.options.map((o) => {
+                  const selected = (formData[field.id] ?? "").split(",").filter(Boolean);
+                  const isSelected = selected.includes(o);
+                  return (
+                    <button
+                      key={o}
+                      type="button"
+                      onClick={() => {
+                        const cur = (formData[field.id] ?? "").split(",").filter(Boolean);
+                        const next = isSelected ? cur.filter((x) => x !== o) : [...cur, o];
+                        onField(field.id, next.join(","));
+                      }}
+                      className={`px-3 py-2 rounded-xl text-xs font-medium transition-all border ${
+                        isSelected
+                          ? "border-indigo/50 bg-indigo/15 text-foreground"
+                          : "border-white/10 glass-1 text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {isSelected && <span className="mr-1">✓</span>}
+                      {o}
+                    </button>
+                  );
+                })}
+              </div>
             ) : (
               <input
                 type={field.type}
