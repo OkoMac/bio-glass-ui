@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
 import ServiceCategoryBlock, { SERVICE_CATEGORIES, type ServiceCategory } from "@/components/ServiceCategoryBlock";
-import { getProviderImage } from "@/lib/providerImages";
+import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 import {
   Search, Star, MapPin, CheckCircle, XCircle, Eye, Pause, Play,
   MessageSquare, Plus, ChevronRight, X, Settings, Lock, Phone, Mail,
@@ -51,11 +51,12 @@ const ALL_PROVIDERS = realData.providers.map((p: any) => ({
   availability: p.availability ?? "",
   category: categorize(p.service),
   image: getProviderImage(p.id, p.name),
+  hasLogo: hasCustomImage(p.id),
   qualifications: p.qualifications ?? [],
   languages: p.languages ?? ["English"],
   experienceYears: p.experienceYears ?? 0,
   status: "active" as const,
-}));
+})).sort((a, b) => (b.hasLogo ? 1 : 0) - (a.hasLogo ? 1 : 0));
 
 // Category counts
 const catCounts = ALL_PROVIDERS.reduce<Record<string, number>>((acc, p) => {

@@ -106,6 +106,9 @@ export default function Directory() {
       list = [...list].sort((a, b) => a.location.localeCompare(b.location));
     }
 
+    // Always put providers with logos/images first — recognizable brands on top
+    list = [...list].sort((a, b) => (b.hasLogo ? 1 : 0) - (a.hasLogo ? 1 : 0));
+
     return list;
   }, [selectedCategoryId, search, activeFilter]);
 

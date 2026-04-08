@@ -10,7 +10,7 @@ import GlassCard from "@/components/GlassCard";
 import { Sparkles, MapPin, Star, Clock, Search as SearchIcon } from "lucide-react";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import realData from "@/data/bion_pretoria_data.json";
-import { getProviderImage } from "@/lib/providerImages";
+import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 
 const categories = ["All", "Fitness", "Medical", "Beauty", "Professional", "Free Sessions", "Available Now"];
 
@@ -24,17 +24,23 @@ function categoryToVertical(cat: string): "indigo" | "teal" | "coral" | "amber" 
 
 const PROVIDERS = realData.providers
   .slice()
-  .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
-  .slice(0, 6)
+  // Logo providers first, then by rating
+  .sort((a, b) => {
+    const aLogo = hasCustomImage(a.id) ? 1 : 0;
+    const bLogo = hasCustomImage(b.id) ? 1 : 0;
+    if (bLogo !== aLogo) return bLogo - aLogo;
+    return (b.rating ?? 0) - (a.rating ?? 0);
+  })
+  .slice(0, 12)
   .map(p => ({
     id: p.id,
     name: p.name,
-    specialty: p.service ?? p.category ?? "",
+    specialty: p.service ?? (p as any).category ?? "",
     rating: p.rating ?? 0,
-    distance: p.suburb ?? p.location ?? "",
+    distance: (p as any).suburb ?? p.location ?? "",
     nextSlot: typeof p.availability === "string" ? p.availability : "Available",
     avatar: getProviderImage(p.id, p.name),
-    vertical: categoryToVertical(p.category ?? ""),
+    vertical: categoryToVertical((p as any).category ?? ""),
   }));
 
 const Index = () => {
