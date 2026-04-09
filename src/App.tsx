@@ -90,6 +90,7 @@ import ProviderAvailability from "./pages/provider/Availability";
 import ProviderSettings     from "./pages/provider/Settings";
 import ProviderBilling      from "./pages/provider/Billing";
 import ProviderProgramBuilder from "./pages/provider/ProgramBuilder";
+import ProviderVerification  from "./pages/provider/Verification";
 
 // Admin portal
 import AdminDashboard  from "./pages/admin/Dashboard";
@@ -249,7 +250,8 @@ function AppRoutes() {
       <Route path="/pro/availability" element={<RequireAuth allowedRoles={["provider"]}><ProviderAvailability /></RequireAuth>} />
       <Route path="/pro/settings"     element={<RequireAuth allowedRoles={["provider"]}><ProviderSettings /></RequireAuth>} />
       <Route path="/pro/billing"      element={<RequireAuth allowedRoles={["provider"]}><ProviderBilling /></RequireAuth>} />
-      <Route path="/pro/programs"     element={<RequireAuth allowedRoles={["provider"]}><ProviderProgramBuilder /></RequireAuth>} />
+      <Route path="/pro/programs"       element={<RequireAuth allowedRoles={["provider"]}><ProviderProgramBuilder /></RequireAuth>} />
+      <Route path="/pro/verification"  element={<RequireAuth allowedRoles={["provider"]}><ProviderVerification /></RequireAuth>} />
 
       {/* Admin portal */}
       <Route path="/admin/dashboard" element={<RequireAuth allowedRoles={["admin"]}><AdminDashboard /></RequireAuth>} />

@@ -2,7 +2,8 @@ import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import BioAvatar from "./BioAvatar";
-import { Calendar, Clock, Share2 } from "lucide-react";
+import { Calendar, Clock, Share2, MessageCircle } from "lucide-react";
+import { getBookingConfirmationUrl, openWhatsApp } from "@/lib/whatsapp";
 
 interface BookingCelebrationProps {
   provider: {
@@ -166,21 +167,37 @@ const BookingCelebration = ({ provider, service, date, time, onClose }: BookingC
         </motion.button>
         <motion.button
           whileTap={{ scale: 0.95 }}
-          className="rounded-pill w-11 h-11 flex items-center justify-center glass-1"
+          onClick={() => openWhatsApp(getBookingConfirmationUrl({
+            providerName: provider.name,
+            serviceName: service,
+            date,
+            time,
+            price: totalPaid ?? price,
+          }))}
+          className="rounded-pill w-11 h-11 flex items-center justify-center bg-[#25D366]/20 border border-[#25D366]/30"
         >
-          <Share2 className="w-4 h-4 text-foreground" />
+          <MessageCircle className="w-4 h-4 text-[#25D366]" />
         </motion.button>
       </motion.div>
 
-      {/* WhatsApp reminder */}
-      <motion.p
+      {/* WhatsApp CTA */}
+      <motion.button
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.6 }}
-        className="text-xs text-teal mt-6"
+        whileTap={{ scale: 0.97 }}
+        onClick={() => openWhatsApp(getBookingConfirmationUrl({
+          providerName: provider.name,
+          serviceName: service,
+          date,
+          time,
+          price: totalPaid ?? price,
+        }))}
+        className="text-xs text-[#25D366] mt-6 flex items-center gap-1.5"
       >
-        ✓ A reminder has been sent to your WhatsApp
-      </motion.p>
+        <MessageCircle className="w-3.5 h-3.5" />
+        Confirm via WhatsApp
+      </motion.button>
     </motion.div>
   );
 };

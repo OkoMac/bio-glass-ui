@@ -4,7 +4,7 @@ import { useBookings } from "@/contexts/BookingsContext";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard, CalendarDays, BookOpen, Users,
-  MessageSquare, BarChart3, Clock, Settings,
+  MessageSquare, BarChart3, Clock, Settings, Shield,
   Bell, LogOut, Tag, ChevronRight, Banknote, ClipboardList,
 } from "lucide-react";
 
@@ -18,8 +18,9 @@ const navItems = [
   { to: "/pro/messages",      label: "Messages",    icon: MessageSquare,  badge: 3 },
   { to: "/pro/analytics",     label: "Analytics",   icon: BarChart3  },
   { to: "/pro/availability",  label: "Availability",icon: Clock      },
-  { to: "/pro/billing",       label: "Billing",     icon: Banknote   },
-  { to: "/pro/settings",      label: "Settings",    icon: Settings   },
+  { to: "/pro/billing",        label: "Billing",       icon: Banknote   },
+  { to: "/pro/verification",  label: "Verification",  icon: Shield     },
+  { to: "/pro/settings",      label: "Settings",      icon: Settings   },
 ];
 
 const mobileNav = [

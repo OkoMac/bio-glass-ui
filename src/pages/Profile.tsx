@@ -13,8 +13,9 @@ import {
   Shield, FileText, Star, Award, Flame, Gift,
   ChevronRight, Download, Lock, Heart, Settings,
   LogOut, CreditCard, Bell, Eye, Activity, Trophy,
-  Copy, Share2, CheckCircle,
+  Copy, Share2, CheckCircle, MessageCircle,
 } from "lucide-react";
+import { getReferralShareUrl, openWhatsApp } from "@/lib/whatsapp";
 import { ImagePickerOverlay } from "@/components/ImagePickerOverlay";
 
 import { getProviderImage } from "@/lib/providerImages";
@@ -310,10 +311,17 @@ const Profile = () => {
                     >
                       <Share2 className="w-4 h-4 text-primary-foreground" />
                     </motion.button>
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => openWhatsApp(getReferralShareUrl(referralCode, user?.name))}
+                      className="w-9 h-9 rounded-xl bg-[#25D366]/20 border border-[#25D366]/30 flex items-center justify-center"
+                    >
+                      <MessageCircle className="w-4 h-4 text-[#25D366]" />
+                    </motion.button>
                   </div>
                 </div>
                 <p className="text-[10px] text-muted-foreground text-center">
-                  Earn 50 BIO Points for every friend who signs up
+                  Earn 50 BIO Points for every friend who signs up · Share via WhatsApp
                 </p>
               </GlassCard>
             </div>
