@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
-import SubscriptionGate from "@/components/SubscriptionGate";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   ArrowLeft, AlertTriangle, CheckCircle, AlertCircle, TrendingUp,
@@ -111,7 +110,6 @@ export default function HealthInsights() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
-      <SubscriptionGate feature="biometricTracking" featureName="Health Insights" description="Get AI-powered health analysis, connect wearable devices, and pinpoint potential wellness issues across all your activities.">
       <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-5xl px-4 pt-12 space-y-5">
 
         {/* Header */}
@@ -318,7 +316,6 @@ export default function HealthInsights() {
         )}
       </div>
 
-      </SubscriptionGate>
       <BionAssistant />
       <BottomNav />
     </div>
