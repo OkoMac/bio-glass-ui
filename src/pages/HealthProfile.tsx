@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
@@ -7,7 +7,7 @@ import CoachAI from "@/components/CoachAI";
 import {
   ArrowLeft, Heart, Activity, Shield, Pill, AlertTriangle,
   Target, TrendingUp, Edit3, ChevronRight, CheckCircle,
-  Scale, Dna, Eye, Lock
+  Scale, Dna, Eye, Lock, X, Plus
 } from "lucide-react";
 
 type PrivacyLevel = "private" | "provider" | "all";
@@ -39,11 +39,18 @@ const METRICS: HealthMetric[] = [
   { label: "Sleep Avg",       value: "7.4",  unit: "h",   trend: "↑ 0.5 this month", color: "text-teal",   icon: Eye      },
 ];
 
-const GOALS: HealthGoal[] = [
+const INITIAL_GOALS: HealthGoal[] = [
   { id: "g1", label: "Reach 72kg",           target: "72 kg",   progress: 48, deadline: "Apr 2026", vertical: "fitness"     },
   { id: "g2", label: "Body fat under 15%",   target: "15%",     progress: 35, deadline: "Jun 2026", vertical: "fitness"     },
   { id: "g3", label: "Run 10km",             target: "10 km",   progress: 60, deadline: "May 2026", vertical: "fitness"     },
   { id: "g4", label: "Reduce stress score",  target: "< 4/10",  progress: 40, deadline: "Mar 2026", vertical: "mindfulness" },
+];
+
+const VERTICAL_OPTIONS = [
+  { value: "fitness",     label: "Fitness",     color: "text-teal"   },
+  { value: "mindfulness", label: "Mindfulness", color: "text-violet" },
+  { value: "nutrition",   label: "Nutrition",   color: "text-amber"  },
+  { value: "medical",     label: "Medical",     color: "text-indigo" },
 ];
 
 const CONDITIONS: { label: string; note: string; severity: "none" | "mild" | "managed" }[] = [
@@ -71,6 +78,8 @@ const SEV_COLOR = { none: "text-teal", mild: "text-amber", managed: "text-indigo
 const VERT_COLOR: Record<string, string> = {
   fitness: "from-teal to-emerald-400",
   mindfulness: "from-indigo to-violet",
+  nutrition: "from-amber to-orange-400",
+  medical: "from-indigo to-blue-400",
 };
 
 export default function HealthProfile() {
@@ -79,6 +88,26 @@ export default function HealthProfile() {
   const [privacy, setPrivacy] = useState<Record<string, PrivacyLevel>>({
     metrics: "provider", goals: "provider", medical: "private", documents: "private",
   });
+  const [goals, setGoals] = useState<HealthGoal[]>(INITIAL_GOALS);
+  const [showLogMetrics, setShowLogMetrics] = useState(false);
+  const [metricInputs, setMetricInputs] = useState<Record<string, string>>({});
+  const [showAddGoal, setShowAddGoal] = useState(false);
+  const [newGoal, setNewGoal] = useState({ label: "", target: "", deadline: "", vertical: "fitness" });
+
+  const handleAddGoal = () => {
+    if (!newGoal.label.trim()) return;
+    const goal: HealthGoal = {
+      id: `g${Date.now()}`,
+      label: newGoal.label.trim(),
+      target: newGoal.target.trim() || "—",
+      progress: 0,
+      deadline: newGoal.deadline.trim() || "No deadline",
+      vertical: newGoal.vertical,
+    };
+    setGoals(prev => [...prev, goal]);
+    setNewGoal({ label: "", target: "", deadline: "", vertical: "fitness" });
+    setShowAddGoal(false);
+  };
 
   const TABS: { id: Tab; label: string }[] = [
     { id: "metrics", label: "Metrics" },
@@ -170,20 +199,66 @@ export default function HealthProfile() {
                 );
               })}
             </div>
-            <GlassCard className="p-3.5 mt-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-indigo" />
-                <span className="text-sm text-foreground">Log today's metrics</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </GlassCard>
+            <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowLogMetrics(true)}
+              className="w-full mt-3">
+              <GlassCard className="p-3.5 flex items-center justify-between cursor-pointer hover:border-white/16 transition-colors">
+                <div className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-indigo" />
+                  <span className="text-sm text-foreground">Log today's metrics</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </GlassCard>
+            </motion.button>
+
+            {/* Log Metrics Modal */}
+            <AnimatePresence>
+              {showLogMetrics && (
+                <>
+                  <motion.div key="log-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    onClick={() => setShowLogMetrics(false)} className="fixed inset-0 bg-obsidian/60 z-[60]" />
+                  <motion.div key="log-sheet"
+                    initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "100%", opacity: 0 }}
+                    transition={{ type: "spring", damping: 28, stiffness: 280 }}
+                    className="fixed bottom-0 left-0 right-0 z-[70] rounded-t-[2rem] p-5 space-y-4"
+                    style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold text-foreground">Log Today's Metrics</h3>
+                      <button onClick={() => setShowLogMetrics(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="space-y-3 max-h-[50vh] overflow-y-auto">
+                      {METRICS.map(m => (
+                        <div key={m.label} className="flex items-center gap-3">
+                          <div className="flex-1">
+                            <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">{m.label} ({m.unit})</label>
+                            <input
+                              type="number"
+                              placeholder={m.value}
+                              value={metricInputs[m.label] ?? ""}
+                              onChange={e => setMetricInputs(prev => ({ ...prev, [m.label]: e.target.value }))}
+                              className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <motion.button whileTap={{ scale: 0.97 }}
+                      onClick={() => { setMetricInputs({}); setShowLogMetrics(false); }}
+                      className="w-full py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400">
+                      Save Today's Log
+                    </motion.button>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
           </div>
         )}
 
         {/* ── Goals ── */}
         {tab === "goals" && (
           <div className="space-y-3">
-            {GOALS.map(g => (
+            {goals.map(g => (
               <GlassCard key={g.id} className="p-4">
                 <div className="flex items-start justify-between mb-2">
                   <div>
@@ -202,9 +277,99 @@ export default function HealthProfile() {
               </GlassCard>
             ))}
             <motion.button whileTap={{ scale: 0.97 }}
-              className="w-full py-3 glass-1 rounded-2xl text-sm text-muted-foreground flex items-center justify-center gap-2 border border-white/08">
-              <Target className="w-4 h-4" /> Add a Goal
+              onClick={() => setShowAddGoal(true)}
+              className="w-full py-3 glass-1 rounded-2xl text-sm text-muted-foreground flex items-center justify-center gap-2 border border-white/08 hover:border-white/16 transition-colors">
+              <Plus className="w-4 h-4" /> Add a Goal
             </motion.button>
+
+            {/* Add Goal Modal */}
+            <AnimatePresence>
+              {showAddGoal && (
+                <>
+                  <motion.div
+                    key="goal-overlay"
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    onClick={() => setShowAddGoal(false)}
+                    className="fixed inset-0 bg-obsidian/60 z-[60]"
+                  />
+                  <motion.div
+                    key="goal-sheet"
+                    initial={{ y: "100%", opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: "100%", opacity: 0 }}
+                    transition={{ type: "spring", damping: 28, stiffness: 280 }}
+                    className="fixed bottom-0 left-0 right-0 z-[70] rounded-t-[2rem] p-5 space-y-4"
+                    style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", borderTop: "1px solid rgba(255,255,255,0.06)" }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold text-foreground">New Goal</h3>
+                      <button onClick={() => setShowAddGoal(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Goal name *</label>
+                        <input
+                          value={newGoal.label}
+                          onChange={e => setNewGoal(prev => ({ ...prev, label: e.target.value }))}
+                          placeholder="e.g. Run a half marathon"
+                          className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Target</label>
+                          <input
+                            value={newGoal.target}
+                            onChange={e => setNewGoal(prev => ({ ...prev, target: e.target.value }))}
+                            placeholder="e.g. 21 km"
+                            className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Deadline</label>
+                          <input
+                            value={newGoal.deadline}
+                            onChange={e => setNewGoal(prev => ({ ...prev, deadline: e.target.value }))}
+                            placeholder="e.g. Dec 2026"
+                            className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5 block">Category</label>
+                        <div className="flex gap-2 flex-wrap">
+                          {VERTICAL_OPTIONS.map(v => (
+                            <button
+                              key={v.value}
+                              onClick={() => setNewGoal(prev => ({ ...prev, vertical: v.value }))}
+                              className={`px-3 py-1.5 rounded-pill text-xs font-medium border transition-all ${
+                                newGoal.vertical === v.value
+                                  ? `${v.color} border-current bg-white/05`
+                                  : "border-white/08 text-muted-foreground"
+                              }`}
+                            >
+                              {v.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <motion.button
+                      whileTap={{ scale: 0.97 }}
+                      onClick={handleAddGoal}
+                      disabled={!newGoal.label.trim()}
+                      className="w-full py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-indigo to-violet disabled:opacity-40 transition-opacity"
+                    >
+                      Add Goal
+                    </motion.button>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
           </div>
         )}
 
