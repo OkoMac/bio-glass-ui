@@ -8,7 +8,7 @@ import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import GlassCard from "@/components/GlassCard";
 import {
-  Sparkles, MapPin, Star, Clock, Search as SearchIcon,
+  Sparkles, MapPin, Star, Clock, Search as SearchIcon, Flame,
   Utensils, Calendar as CalendarIcon, BarChart3, Dumbbell,
   Droplets, Moon, HeartPulse, Activity
 } from "lucide-react";
@@ -94,14 +94,26 @@ const Index = () => {
       <div className="w-full px-4 md:px-8 xl:px-12 pt-12 space-y-6">
         <SearchBar />
 
-        <motion.h1
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="text-[28px] md:text-3xl font-bold text-foreground"
-        >
-          {getGreeting()}, {user?.name?.split(" ")[0] ?? "there"}
-        </motion.h1>
+        {/* ── Hero section ───────────────────────────── */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+          className="rounded-3xl border border-white/[0.08] bg-gradient-to-br from-indigo/10 via-white/[0.02] to-teal/10 p-5 md:p-6 relative overflow-hidden"
+          style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)" }}>
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-teal/5 blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-indigo/5 blur-3xl" />
+          <p className="text-xs text-teal font-medium tracking-widest uppercase mb-1">{getGreeting()}</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">{user?.name?.split(" ")[0] ?? "Welcome"}</h1>
+          <p className="text-xs text-muted-foreground mt-1">Commit to yourself. You've got this.</p>
+          <div className="flex items-center gap-4 mt-4">
+            <div className="flex items-center gap-1.5 text-xs">
+              <Flame className="w-3.5 h-3.5 text-amber" style={{ filter: "drop-shadow(0 0 4px #F59E0B)" }} />
+              <span className="text-foreground font-data">{(() => { try { return JSON.parse(localStorage.getItem("bion_routines") ?? "[]").length; } catch { return 0; } })()} routines</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs">
+              <Droplets className="w-3.5 h-3.5 text-blue-400" style={{ filter: "drop-shadow(0 0 4px #60A5FA)" }} />
+              <span className="text-foreground font-data">{(() => { try { return localStorage.getItem(`bion_water_${new Date().toISOString().split("T")[0]}`) ?? "0"; } catch { return "0"; } })()} glasses</span>
+            </div>
+          </div>
+        </motion.div>
 
         <div className="flex items-center gap-2 text-sm">
           <MapPin className="w-4 h-4 text-muted-foreground" />

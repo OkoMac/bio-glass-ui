@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
@@ -10,22 +9,15 @@ import { useBookings, BookingStatus } from "@/contexts/BookingsContext";
 import { useBioPoints } from "@/hooks/useBioPoints";
 import { useStreaks } from "@/hooks/useStreaks";
 import {
-  Shield, FileText, Star, Award, Flame, Gift,
-  ChevronRight, Download, Lock, Heart as HeartIcon, Settings,
-  LogOut, CreditCard, Bell, Eye, Activity, Trophy,
+  Shield, Star, Award, Flame, Gift, Lock,
+  LogOut, CreditCard, Bell, Eye, Activity, Trophy, Settings,
   Copy, Share2, CheckCircle, MessageCircle,
-  Droplets, Moon, HeartPulse, Brain, Utensils, CalendarDays, BarChart3,
+  Droplets, Moon, HeartPulse, Brain, Utensils, CalendarDays,
+  BarChart3, Dumbbell, FileText, Wallet,
 } from "lucide-react";
 import { getReferralShareUrl, openWhatsApp } from "@/lib/whatsapp";
 import { ImagePickerOverlay } from "@/components/ImagePickerOverlay";
-
 import { getProviderImage } from "@/lib/providerImages";
-
-// Connected providers loaded from backend
-const connectedProviders: { id: string; name: string; image: string; vertical: "teal" | "indigo" | "coral" | "amber" }[] = [];
-
-// Documents loaded from backend
-const documents: { name: string; provider: string; date: string; icon: string }[] = [];
 
 const VERTICAL_PALETTE = ["teal", "indigo", "coral", "amber"] as const;
 
@@ -35,22 +27,6 @@ function statusLabel(s: BookingStatus): string {
   if (s === "no_show") return "No Show";
   return "Declined";
 }
-
-const badges = [
-  { name: "First Session", icon: "🎯", earned: true },
-  { name: "5-Day Streak", icon: "🔥", earned: true },
-  { name: "Multi-Vertical", icon: "🌈", earned: true },
-  { name: "Early Bird", icon: "🌅", earned: false },
-  { name: "Social Butterfly", icon: "🦋", earned: false },
-  { name: "Fitness Pro", icon: "💪", earned: false },
-];
-
-const rewardItems = [
-  { name: "R50 Wallet Credit", cost: 500, icon: "💰" },
-  { name: "Free Session", cost: 1000, icon: "🎁" },
-  { name: "Premium Theme", cost: 250, icon: "🎨" },
-  { name: "Charity Donation", cost: 300, icon: "❤️" },
-];
 
 function getOrCreateReferralCode(userName: string): string {
   const KEY = "bion_referral_code";
@@ -63,8 +39,33 @@ function getOrCreateReferralCode(userName: string): string {
   return code;
 }
 
+/* ── Glass tile component ──────────────────────────── */
+function Tile({ icon, label, color, onClick }: { icon: React.ReactNode; label: string; color: string; onClick: () => void }) {
+  return (
+    <motion.button whileTap={{ scale: 0.93 }} onClick={onClick}
+      className="group rounded-2xl py-4 flex flex-col items-center gap-2 border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm hover:border-white/[0.16] hover:bg-white/[0.04] transition-all duration-200"
+      style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+      <span className={`${color} transition-all group-hover:scale-110`} style={{ filter: "drop-shadow(0 0 6px currentColor)" }}>
+        {icon}
+      </span>
+      <span className="text-[10px] text-muted-foreground font-medium tracking-wide">{label}</span>
+    </motion.button>
+  );
+}
+
+/* ── Stat tile ─────────────────────────────────────── */
+function StatTile({ value, label, color }: { value: string; label: string; color: string }) {
+  return (
+    <div className="rounded-2xl py-3 px-2 border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm text-center"
+      style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+      <p className={`text-xl font-bold font-data ${color}`}>{value}</p>
+      <p className="text-[9px] text-muted-foreground uppercase tracking-widest mt-0.5">{label}</p>
+    </div>
+  );
+}
+
 const Profile = () => {
-  const [activeTab, setActiveTab] = useState<"passport" | "rewards">("passport");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "rewards">("dashboard");
   const [referralCopied, setReferralCopied] = useState(false);
   const navigate = useNavigate();
   const { user, logout, switchRole, updateAvatar } = useAuth();
@@ -92,18 +93,14 @@ const Profile = () => {
     }
   }, [referralCode]);
 
-  const bookingHistory = bookings.map((b, i) => ({
-    provider: b.providerName ?? b.clientName,
-    service:  b.service,
-    date:     b.date,
-    status:   statusLabel(b.status),
-    vertical: VERTICAL_PALETTE[i % VERTICAL_PALETTE.length],
-  }));
+  const upcomingCount = bookings.filter(b => b.status === "pending" || b.status === "confirmed").length;
+  const completedCount = bookings.filter(b => b.status === "completed").length;
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
-      <div className="w-full px-4 md:px-8 xl:px-12 pt-12 space-y-5">
-        {/* Profile Header */}
+      <div className="w-full max-w-lg md:max-w-3xl xl:max-w-5xl mx-auto px-4 md:px-8 pt-12 space-y-6">
+
+        {/* ── Profile Header ──────────────────────────── */}
         <div className="flex items-center gap-4">
           <ImagePickerOverlay onChange={updateAvatar}>
             <BioAvatar
@@ -114,378 +111,226 @@ const Profile = () => {
               verified
             />
           </ImagePickerOverlay>
-          <div>
+          <div className="flex-1">
             <h1 className="text-xl font-bold text-foreground">{user?.name ?? "User"}</h1>
-            <p className="text-xs text-muted-foreground">Member since Jan 2026</p>
-            <div className="flex items-center gap-1.5 mt-1">
-              <Shield className="w-3 h-3 text-indigo" />
-              <span className="text-xs text-indigo font-medium">Verified</span>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <Shield className="w-3 h-3 text-teal" />
+              <span className="text-xs text-teal font-medium">Verified</span>
             </div>
           </div>
+          <motion.button whileTap={{ scale: 0.9 }} onClick={() => navigate("/settings")}
+            className="w-10 h-10 rounded-xl border border-white/[0.08] bg-white/[0.02] flex items-center justify-center">
+            <Settings className="w-4 h-4 text-muted-foreground" />
+          </motion.button>
         </div>
 
-        {/* Tab Toggle */}
-        <div className="glass-1 rounded-pill p-1 flex">
-          {(["passport", "rewards"] as const).map((tab) => (
-            <motion.button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              whileTap={{ scale: 0.95 }}
-              className={`flex-1 rounded-pill py-2 text-sm font-medium transition-all capitalize ${
-                activeTab === tab ? "gradient-indigo text-primary-foreground" : "text-muted-foreground"
-              }`}
-            >
-              {tab === "passport" ? "BION Passport" : "Rewards"}
-            </motion.button>
+        {/* ── Stats row ───────────────────────────────── */}
+        <div className="grid grid-cols-4 gap-2.5">
+          <StatTile value={String(bioPoints)} label="Points" color="text-amber" />
+          <StatTile value={`${streak.currentStreak}d`} label="Streak" color="text-coral" />
+          <StatTile value={String(upcomingCount)} label="Upcoming" color="text-teal" />
+          <StatTile value={String(completedCount)} label="Sessions" color="text-indigo" />
+        </div>
+
+        {/* ── Tab Toggle ──────────────────────────────── */}
+        <div className="flex gap-2">
+          {(["dashboard", "rewards"] as const).map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab)}
+              className={`flex-1 py-2.5 rounded-2xl text-xs font-medium border transition-all duration-200 capitalize ${
+                activeTab === tab
+                  ? "border-teal/40 bg-teal/10 text-teal"
+                  : "border-white/[0.08] bg-white/[0.02] text-muted-foreground"
+              }`}>
+              {tab}
+            </button>
           ))}
         </div>
 
-        {activeTab === "passport" && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-4"
-          >
-            {/* Health Summary */}
-            <GlassCard className="p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <HeartIcon className="w-4 h-4 text-coral" />
-                  Health Summary
-                </h2>
-                <Lock className="w-3.5 h-3.5 text-muted-foreground" />
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                <span className="glass-1 rounded-pill px-2.5 py-1 text-[10px] text-foreground">No known allergies</span>
-                <span className="glass-accent-amber rounded-pill px-2.5 py-1 text-[10px] text-amber">Lactose intolerant</span>
-                <span className="glass-1 rounded-pill px-2.5 py-1 text-[10px] text-foreground">Blood Type: O+</span>
-              </div>
-              <p className="text-[10px] text-muted-foreground">Emergency: +27 82 555 0100</p>
-            </GlassCard>
+        {/* ═══════ DASHBOARD TAB ═══════ */}
+        {activeTab === "dashboard" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
 
-            {/* Connected Providers */}
+            {/* ── Wellness Tools ─────────────────────── */}
             <div>
-              <h2 className="text-sm font-semibold text-foreground mb-3">Connected Providers</h2>
-              {connectedProviders.length === 0 ? (
-                <GlassCard className="p-4 text-center">
-                  <p className="text-xs text-muted-foreground">No connected providers yet. Book a session to connect with a provider.</p>
-                </GlassCard>
-              ) : (
-                <div className="flex gap-4">
-                  {connectedProviders.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => navigate(`/provider/${p.id}`)}
-                      className="flex flex-col items-center gap-1.5"
-                    >
-                      <BioAvatar src={p.image} alt={p.name} size="md" verticalColor={p.vertical} />
-                      <span className="text-[10px] text-muted-foreground">{p.name}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Documents */}
-            <div>
-              <h2 className="text-sm font-semibold text-foreground mb-3">Documents</h2>
-              {documents.length === 0 ? (
-                <GlassCard className="p-4 text-center">
-                  <p className="text-xs text-muted-foreground">No documents yet. Documents from your providers will appear here.</p>
-                </GlassCard>
-              ) : (
-                <div className="space-y-2">
-                  {documents.map((doc) => (
-                    <GlassCard key={doc.name} hover className="p-3 flex items-center gap-3">
-                      <span className="text-xl">{doc.icon}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-foreground truncate">{doc.name}</p>
-                        <p className="text-[10px] text-muted-foreground">{doc.provider} · {doc.date}</p>
-                      </div>
-                      <Download className="w-4 h-4 text-muted-foreground shrink-0" />
-                    </GlassCard>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Booking History */}
-            <div>
-              <h2 className="text-sm font-semibold text-foreground mb-3">Booking History</h2>
-              {bookingHistory.length === 0 ? (
-                <GlassCard className="p-4 text-center">
-                  <p className="text-xs text-muted-foreground">No recent bookings. Your booking history will appear here.</p>
-                </GlassCard>
-              ) : (
-                <div className="space-y-2">
-                  {bookingHistory.map((b, i) => (
-                    <GlassCard key={i} className="p-3 flex items-center gap-3">
-                      <div className={`w-1 h-8 rounded-full ${
-                        b.vertical === "teal" ? "bg-teal" : b.vertical === "indigo" ? "bg-indigo" : b.vertical === "coral" ? "bg-coral" : "bg-amber"
-                      }`} />
-                      <div className="flex-1">
-                        <p className="text-xs font-medium text-foreground">{b.service}</p>
-                        <p className="text-[10px] text-muted-foreground">{b.provider} · {b.date}</p>
-                      </div>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-pill ${
-                        b.status === "Upcoming" ? "glass-accent-teal text-teal" : "glass-1 text-muted-foreground"
-                      }`}>
-                        {b.status}
-                      </span>
-                    </GlassCard>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Quick links */}
-            <div className="space-y-1">
-              <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={() => navigate("/health-profile")}>
-                <Activity className="w-4 h-4 text-teal" />
-                <div className="flex-1">
-                  <span className="text-sm text-foreground">Health Profile</span>
-                  <p className="text-[10px] text-muted-foreground">Metrics, goals, medical info & privacy</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </GlassCard>
-              <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={() => navigate("/challenges")}>
-                <Trophy className="w-4 h-4 text-amber" />
-                <div className="flex-1">
-                  <span className="text-sm text-foreground">Challenges</span>
-                  <p className="text-[10px] text-muted-foreground">Join group challenges, earn BIONPoints</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </GlassCard>
-            </div>
-
-            {/* Wellness Tools — ITSON glass-card grid */}
-            <div>
-              <p className="text-xs text-muted-foreground mb-2 px-1">Wellness Tools</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Wellness Tools</p>
               <div className="grid grid-cols-4 gap-2.5">
-                {[
-                  { icon: <Droplets className="w-5 h-5" />,    label: "Water",     path: "/water-tracker",   color: "text-blue-400" },
-                  { icon: <Moon className="w-5 h-5" />,         label: "Sleep",     path: "/sleep-tracker",   color: "text-violet" },
-                  { icon: <HeartPulse className="w-5 h-5" />,   label: "Med Card",  path: "/medical-card",    color: "text-coral" },
-                  { icon: <Brain className="w-5 h-5" />,        label: "Coach",     path: "/life-coach",      color: "text-indigo" },
-                  { icon: <Utensils className="w-5 h-5" />,     label: "Food",      path: "/food-tracker",    color: "text-teal" },
-                  { icon: <CalendarDays className="w-5 h-5" />, label: "Calendar",  path: "/calendar",        color: "text-indigo" },
-                  { icon: <BarChart3 className="w-5 h-5" />,    label: "Insights",  path: "/health-insights", color: "text-violet" },
-                  { icon: <HeartIcon className="w-5 h-5" />,    label: "Health",    path: "/health-profile",  color: "text-teal" },
-                ].map(tool => (
-                  <motion.button key={tool.path} whileTap={{ scale: 0.93 }}
-                    onClick={() => navigate(tool.path)}
-                    className="group rounded-2xl py-4 flex flex-col items-center gap-2 border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm hover:border-white/[0.16] hover:bg-white/[0.04] transition-all duration-200"
-                    style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
-                    <span className={`${tool.color} transition-all group-hover:scale-110`} style={{ filter: "drop-shadow(0 0 6px currentColor)" }}>
-                      {tool.icon}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground font-medium tracking-wide">{tool.label}</span>
-                  </motion.button>
-                ))}
+                <Tile icon={<Utensils className="w-5 h-5" />}     label="Food"     color="text-teal"      onClick={() => navigate("/food-tracker")} />
+                <Tile icon={<CalendarDays className="w-5 h-5" />} label="Calendar" color="text-indigo"    onClick={() => navigate("/calendar")} />
+                <Tile icon={<BarChart3 className="w-5 h-5" />}    label="Insights" color="text-violet"    onClick={() => navigate("/health-insights")} />
+                <Tile icon={<Dumbbell className="w-5 h-5" />}     label="Routines" color="text-teal"      onClick={() => navigate("/routines")} />
+                <Tile icon={<Droplets className="w-5 h-5" />}     label="Water"    color="text-blue-400"  onClick={() => navigate("/water-tracker")} />
+                <Tile icon={<Moon className="w-5 h-5" />}          label="Sleep"    color="text-violet"    onClick={() => navigate("/sleep-tracker")} />
+                <Tile icon={<HeartPulse className="w-5 h-5" />}   label="Med Card" color="text-coral"     onClick={() => navigate("/medical-card")} />
+                <Tile icon={<Brain className="w-5 h-5" />}         label="Coach"    color="text-indigo"    onClick={() => navigate("/life-coach")} />
               </div>
             </div>
 
-            {/* Referral Program */}
+            {/* ── Quick Access ───────────────────────── */}
             <div>
-              <p className="text-xs text-muted-foreground mb-2 px-1">Referral Program</p>
-              <GlassCard className="p-4 space-y-3">
-                <div className="flex items-center gap-2">
-                  <Gift className="w-4 h-4 text-amber" />
-                  <h3 className="text-sm font-semibold text-foreground">Invite Friends</h3>
-                </div>
-                <div className="glass-1 rounded-xl p-3 flex items-center justify-between">
-                  <div>
-                    <p className="text-[10px] text-muted-foreground">Your referral code</p>
-                    <p className="text-lg font-bold font-data text-indigo tracking-wider">{referralCode}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <motion.button
-                      whileTap={{ scale: 0.9 }}
-                      onClick={copyReferralCode}
-                      className="w-9 h-9 rounded-xl glass-accent-indigo flex items-center justify-center"
-                    >
-                      {referralCopied ? (
-                        <CheckCircle className="w-4 h-4 text-teal" />
-                      ) : (
-                        <Copy className="w-4 h-4 text-indigo" />
-                      )}
-                    </motion.button>
-                    <motion.button
-                      whileTap={{ scale: 0.9 }}
-                      onClick={shareReferral}
-                      className="w-9 h-9 rounded-xl gradient-indigo flex items-center justify-center"
-                    >
-                      <Share2 className="w-4 h-4 text-primary-foreground" />
-                    </motion.button>
-                    <motion.button
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => openWhatsApp(getReferralShareUrl(referralCode, user?.name))}
-                      className="w-9 h-9 rounded-xl bg-[#25D366]/20 border border-[#25D366]/30 flex items-center justify-center"
-                    >
-                      <MessageCircle className="w-4 h-4 text-[#25D366]" />
-                    </motion.button>
-                  </div>
-                </div>
-                <p className="text-[10px] text-muted-foreground text-center">
-                  Earn 50 BIO Points for every friend who signs up · Share via WhatsApp
-                </p>
-              </GlassCard>
+              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Quick Access</p>
+              <div className="grid grid-cols-4 gap-2.5">
+                <Tile icon={<Activity className="w-5 h-5" />}    label="Health"       color="text-teal"   onClick={() => navigate("/health-profile")} />
+                <Tile icon={<Trophy className="w-5 h-5" />}      label="Challenges"   color="text-amber"  onClick={() => navigate("/challenges")} />
+                <Tile icon={<Wallet className="w-5 h-5" />}      label="Wallet"       color="text-indigo" onClick={() => navigate("/wallet")} />
+                <Tile icon={<Bell className="w-5 h-5" />}         label="Alerts"       color="text-coral"  onClick={() => navigate("/notifications")} />
+              </div>
             </div>
 
-            {/* Settings */}
-            <div className="space-y-1">
-              {[
-                { icon: Bell,       label: "Notifications",   tab: "notifications" },
-                { icon: CreditCard, label: "BIONWallet",        tab: "wallet"        },
-                { icon: Eye,        label: "Privacy & Data",  tab: "privacy"       },
-                { icon: Settings,   label: "Settings",        tab: "account"       },
-              ].map((item) => (
-                <GlassCard
-                  key={item.label}
-                  hover
-                  className="p-3.5 flex items-center gap-3 cursor-pointer"
-                  onClick={() =>
-                    item.tab === "wallet" ? navigate("/wallet") :
-                    item.tab === "notifications" ? navigate("/notifications") :
-                    navigate(`/settings?tab=${item.tab}`)
-                  }
-                >
-                  <item.icon className="w-4 h-4 text-muted-foreground" />
-                  <span className="flex-1 text-sm text-foreground">{item.label}</span>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </GlassCard>
-              ))}
-              <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={() => { switchRole("provider"); navigate("/pro/dashboard"); }}>
-                <span className="text-base">💼</span>
-                <div className="flex-1">
-                  <span className="text-sm text-foreground">Switch to Provider Mode</span>
-                  <p className="text-[10px] text-muted-foreground">Manage bookings, clients & revenue</p>
+            {/* ── Booking History (compact) ──────────── */}
+            {bookings.length > 0 && (
+              <div>
+                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Recent Bookings</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {bookings.slice(0, 4).map((b, i) => {
+                    const vertical = VERTICAL_PALETTE[i % VERTICAL_PALETTE.length];
+                    const status = statusLabel(b.status);
+                    return (
+                      <div key={i} className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-3 flex items-center gap-3"
+                        style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+                        <div className={`w-1 h-10 rounded-full shrink-0 ${
+                          vertical === "teal" ? "bg-teal" : vertical === "indigo" ? "bg-indigo" : vertical === "coral" ? "bg-coral" : "bg-amber"
+                        }`} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-foreground truncate">{b.service}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{b.providerName ?? b.clientName} · {b.date}</p>
+                        </div>
+                        <span className={`text-[9px] px-2 py-0.5 rounded-full border shrink-0 ${
+                          status === "Upcoming" ? "border-teal/30 text-teal bg-teal/10" : "border-white/[0.08] text-muted-foreground"
+                        }`}>{status}</span>
+                      </div>
+                    );
+                  })}
                 </div>
-                <ChevronRight className="w-4 h-4 text-indigo" />
-              </GlassCard>
-              <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={logout}>
-                <LogOut className="w-4 h-4 text-coral" />
-                <span className="flex-1 text-sm text-coral">Sign Out</span>
-              </GlassCard>
+              </div>
+            )}
+
+            {/* ── Referral ───────────────────────────── */}
+            <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4"
+              style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+              <div className="flex items-center gap-2 mb-3">
+                <Gift className="w-4 h-4 text-amber" style={{ filter: "drop-shadow(0 0 6px #F59E0B)" }} />
+                <span className="text-xs text-muted-foreground uppercase tracking-widest">Invite Friends</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 rounded-xl border border-white/[0.08] bg-white/[0.02] px-3 py-2">
+                  <p className="text-[9px] text-muted-foreground">Your code</p>
+                  <p className="text-sm font-bold font-data text-indigo tracking-wider">{referralCode}</p>
+                </div>
+                <div className="flex gap-1.5">
+                  <motion.button whileTap={{ scale: 0.9 }} onClick={copyReferralCode}
+                    className="w-9 h-9 rounded-xl border border-white/[0.08] bg-white/[0.02] flex items-center justify-center hover:border-indigo/30 transition-colors">
+                    {referralCopied ? <CheckCircle className="w-3.5 h-3.5 text-teal" /> : <Copy className="w-3.5 h-3.5 text-indigo" />}
+                  </motion.button>
+                  <motion.button whileTap={{ scale: 0.9 }} onClick={shareReferral}
+                    className="w-9 h-9 rounded-xl border border-white/[0.08] bg-white/[0.02] flex items-center justify-center hover:border-indigo/30 transition-colors">
+                    <Share2 className="w-3.5 h-3.5 text-indigo" />
+                  </motion.button>
+                  <motion.button whileTap={{ scale: 0.9 }} onClick={() => openWhatsApp(getReferralShareUrl(referralCode, user?.name))}
+                    className="w-9 h-9 rounded-xl border border-[#25D366]/20 bg-[#25D366]/5 flex items-center justify-center hover:border-[#25D366]/40 transition-colors">
+                    <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
+                  </motion.button>
+                </div>
+              </div>
             </div>
+
+            {/* ── Account ────────────────────────────── */}
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Account</p>
+              <div className="grid grid-cols-3 gap-2.5">
+                <Tile icon={<Eye className="w-5 h-5" />}     label="Privacy" color="text-muted-foreground" onClick={() => navigate("/settings?tab=privacy")} />
+                <Tile icon={<CreditCard className="w-5 h-5" />} label="Billing" color="text-muted-foreground" onClick={() => navigate("/billing")} />
+                <Tile icon={<LogOut className="w-5 h-5" />}  label="Sign Out" color="text-coral" onClick={logout} />
+              </div>
+            </div>
+
+            {/* Switch to provider */}
+            <motion.button whileTap={{ scale: 0.97 }}
+              onClick={() => { switchRole("provider"); navigate("/pro/dashboard"); }}
+              className="w-full rounded-2xl py-3 border border-indigo/20 bg-indigo/5 text-sm text-indigo font-medium flex items-center justify-center gap-2 hover:bg-indigo/10 transition-colors">
+              <Star className="w-4 h-4" /> Switch to Provider Mode
+            </motion.button>
           </motion.div>
         )}
 
+        {/* ═══════ REWARDS TAB ═══════ */}
         {activeTab === "rewards" && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-5"
-          >
-            {/* BIONPoints Hero */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+
+            {/* Points hero */}
             <div className="flex flex-col items-center py-4">
-              <div className="relative">
-                <div className="w-32 h-32 rounded-full flex items-center justify-center shadow-glow-amber"
-                  style={{ background: "radial-gradient(circle, rgba(251,191,36,0.15), transparent 70%)" }}
-                >
-                  <div className="text-center">
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-4xl font-bold font-data text-amber"
-                    >
-                      {bioPoints.toLocaleString()}
-                    </motion.p>
-                    <p className="text-[10px] text-muted-foreground">BIONPoints</p>
-                  </div>
+              <div className="w-28 h-28 rounded-full flex items-center justify-center"
+                style={{ background: "radial-gradient(circle, rgba(251,191,36,0.12), transparent 70%)" }}>
+                <div className="text-center">
+                  <p className="text-3xl font-bold font-data text-amber">{bioPoints.toLocaleString()}</p>
+                  <p className="text-[9px] text-muted-foreground uppercase tracking-widest">BIONPoints</p>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">Lifetime earned</p>
             </div>
 
-            {/* Streak Card */}
-            <GlassCard variant="accent-amber" className="p-4">
-              <div className="flex items-center gap-3">
-                <motion.span
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="text-3xl"
-                >
-                  🔥
-                </motion.span>
-                <div className="flex-1">
-                  <p className="text-lg font-bold text-foreground">{streak.currentStreak}-day streak!</p>
-                  <p className="text-xs text-muted-foreground">Booking Streak · You're on fire</p>
+            {/* Streak */}
+            <div className="rounded-2xl border border-amber/20 bg-amber/5 p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <Flame className="w-5 h-5 text-amber" style={{ filter: "drop-shadow(0 0 6px #F59E0B)" }} />
+                <div>
+                  <p className="text-sm font-bold text-foreground">{streak.currentStreak}-day streak</p>
+                  <p className="text-[10px] text-muted-foreground">Keep booking to grow your streak</p>
                 </div>
               </div>
-              <div className="flex gap-1.5 mt-3">
+              <div className="flex gap-1.5">
                 {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-                  <div
-                    key={i}
-                    className={`flex-1 py-1.5 rounded-lg text-center text-[10px] font-medium ${
-                      i < Math.min(streak.currentStreak, 7) ? "gradient-amber text-obsidian" : "glass-1 text-muted-foreground"
-                    }`}
-                  >
-                    {d}
-                  </div>
+                  <div key={i} className={`flex-1 py-1.5 rounded-xl text-center text-[10px] font-medium border ${
+                    i < Math.min(streak.currentStreak, 7)
+                      ? "border-amber/30 bg-amber/10 text-amber"
+                      : "border-white/[0.08] bg-white/[0.02] text-muted-foreground"
+                  }`}>{d}</div>
                 ))}
               </div>
-            </GlassCard>
+            </div>
 
             {/* Badges */}
             <div>
-              <h2 className="text-sm font-semibold text-foreground mb-3">Badges</h2>
-              <div className="grid grid-cols-3 gap-2">
-                {badges.map((badge) => (
-                  <GlassCard
-                    key={badge.name}
-                    className={`p-3 flex flex-col items-center gap-1.5 ${!badge.earned ? "opacity-30" : ""}`}
-                  >
-                    <span className="text-2xl">{badge.icon}</span>
-                    <span className="text-[10px] text-foreground text-center">{badge.name}</span>
-                    {badge.earned && <div className="w-1 h-1 rounded-full bg-amber animate-pulse-glow" />}
-                  </GlassCard>
-                ))}
-              </div>
-            </div>
-
-            {/* Rewards Catalogue */}
-            <div>
-              <h2 className="text-sm font-semibold text-foreground mb-3">Redeem</h2>
-              <div className="flex gap-3 overflow-x-auto scrollbar-none -mx-4 px-4">
-                {rewardItems.map((item) => (
-                  <GlassCard key={item.name} hover className="p-4 w-[140px] shrink-0 flex flex-col items-center gap-2">
-                    <span className="text-2xl">{item.icon}</span>
-                    <p className="text-xs font-medium text-foreground text-center">{item.name}</p>
-                    <p className="text-[10px] font-data text-amber">{item.cost} pts</p>
-                    <motion.button
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => window.alert("Coming soon — redemption will be available when you have enough points.")}
-                      className="rounded-pill px-3 py-1.5 text-[10px] font-semibold gradient-indigo text-primary-foreground w-full text-center"
-                    >
-                      Redeem
-                    </motion.button>
-                  </GlassCard>
-                ))}
-              </div>
-            </div>
-
-            {/* Earn More */}
-            <div>
-              <h2 className="text-sm font-semibold text-foreground mb-3">Earn More</h2>
-              <div className="space-y-2">
+              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Badges</p>
+              <div className="grid grid-cols-3 gap-2.5">
                 {[
-                  { label: "Refer a Friend", points: 500, progress: 0 },
-                  { label: "Book a New Vertical", points: 300, progress: 66 },
-                  { label: "Complete Profile", points: 250, progress: 80 },
-                ].map((action) => (
-                  <GlassCard key={action.label} hover className="p-3.5 flex items-center gap-3">
-                    <div className="flex-1">
-                      <p className="text-xs font-medium text-foreground">{action.label}</p>
-                      <div className="w-full h-1 rounded-full bg-foreground/5 mt-1.5">
-                        <div
-                          className="h-full rounded-full gradient-amber"
-                          style={{ width: `${action.progress}%` }}
-                        />
-                      </div>
-                    </div>
-                    <span className="text-xs font-data text-amber shrink-0">+{action.points}</span>
-                  </GlassCard>
+                  { name: "First Session", icon: <Award className="w-5 h-5" />, earned: true, color: "text-teal" },
+                  { name: "5-Day Streak", icon: <Flame className="w-5 h-5" />, earned: true, color: "text-amber" },
+                  { name: "Multi-Vertical", icon: <Star className="w-5 h-5" />, earned: true, color: "text-violet" },
+                  { name: "Early Bird", icon: <Moon className="w-5 h-5" />, earned: false, color: "text-muted-foreground" },
+                  { name: "Social", icon: <MessageCircle className="w-5 h-5" />, earned: false, color: "text-muted-foreground" },
+                  { name: "Fitness Pro", icon: <Dumbbell className="w-5 h-5" />, earned: false, color: "text-muted-foreground" },
+                ].map(badge => (
+                  <div key={badge.name}
+                    className={`rounded-2xl py-4 flex flex-col items-center gap-2 border bg-white/[0.02] ${
+                      badge.earned ? "border-white/[0.12]" : "border-white/[0.06] opacity-40"
+                    }`} style={{ boxShadow: badge.earned ? "inset 0 1px 0 rgba(255,255,255,0.04)" : "none" }}>
+                    <span className={badge.color} style={badge.earned ? { filter: "drop-shadow(0 0 6px currentColor)" } : {}}>
+                      {badge.icon}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground font-medium">{badge.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Redeem */}
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Redeem Points</p>
+              <div className="grid grid-cols-2 gap-2.5">
+                {[
+                  { name: "R50 Credit", cost: 500, icon: <Wallet className="w-5 h-5" />, color: "text-teal" },
+                  { name: "Free Session", cost: 1000, icon: <Gift className="w-5 h-5" />, color: "text-indigo" },
+                  { name: "Premium Theme", cost: 250, icon: <Star className="w-5 h-5" />, color: "text-violet" },
+                  { name: "Charity", cost: 300, icon: <HeartPulse className="w-5 h-5" />, color: "text-coral" },
+                ].map(item => (
+                  <motion.button key={item.name} whileTap={{ scale: 0.95 }}
+                    className="rounded-2xl py-4 border border-white/[0.08] bg-white/[0.02] flex flex-col items-center gap-2 hover:border-white/[0.16] transition-colors"
+                    style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+                    <span className={item.color} style={{ filter: "drop-shadow(0 0 6px currentColor)" }}>
+                      {item.icon}
+                    </span>
+                    <span className="text-xs text-foreground font-medium">{item.name}</span>
+                    <span className="text-[10px] font-data text-amber">{item.cost} pts</span>
+                  </motion.button>
                 ))}
               </div>
             </div>
