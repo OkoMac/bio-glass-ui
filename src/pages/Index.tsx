@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import SearchBar from "@/components/SearchBar";
 import CategoryChip from "@/components/CategoryChip";
 import BottomNav from "@/components/BottomNav";
@@ -22,16 +22,28 @@ function categoryToVertical(cat: string): "indigo" | "teal" | "coral" | "amber" 
   return "amber";
 }
 
-const PROVIDERS = realData.providers
+function categorizeService(service: string): string {
+  const s = service.toLowerCase();
+  if (/fitness|train|gym|yoga|pilates|crossfit|boot camp|spinning|zumba|dance|martial|ems|f45/i.test(s)) return "Fitness";
+  if (/doctor|physician|medical|gp|general pract|centre|center|hospital|nursing|paediatrician/i.test(s)) return "Medical";
+  if (/hair|beauty|nail|skin|facial|laser|aesthetic|spa|massage|lash|brow|waxing/i.test(s)) return "Beauty";
+  if (/dentist|dental|teeth|smile/i.test(s)) return "Medical";
+  if (/physio|chiro|rehab|biokin/i.test(s)) return "Medical";
+  if (/psycho|mental|counsel|therapy|coach/i.test(s)) return "Professional";
+  if (/nutrition|diet|weight|slim/i.test(s)) return "Professional";
+  if (/pharmacy|apteek|health shop|optom|optic|eye|vision/i.test(s)) return "Medical";
+  if (/vet|animal/i.test(s)) return "Professional";
+  return "Professional";
+}
+
+const ALL_HOME_PROVIDERS = realData.providers
   .slice()
-  // Logo providers first, then by rating
   .sort((a, b) => {
     const aLogo = hasCustomImage(a.id) ? 1 : 0;
     const bLogo = hasCustomImage(b.id) ? 1 : 0;
     if (bLogo !== aLogo) return bLogo - aLogo;
     return (b.rating ?? 0) - (a.rating ?? 0);
   })
-  .slice(0, 12)
   .map(p => ({
     id: p.id,
     name: p.name,
@@ -41,6 +53,9 @@ const PROVIDERS = realData.providers
     nextSlot: typeof p.availability === "string" ? p.availability : "Available",
     avatar: getProviderImage(p.id, p.name),
     vertical: categoryToVertical((p as any).category ?? ""),
+    serviceCategory: categorizeService(p.service ?? ""),
+    price: p.price ?? "",
+    availability: typeof p.availability === "string" ? p.availability : "",
   }));
 
 const Index = () => {
@@ -48,6 +63,20 @@ const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const geo = useGeolocation();
+
+  const filteredProviders = useMemo(() => {
+    let list = ALL_HOME_PROVIDERS;
+
+    if (activeCategory === "Free Sessions") {
+      list = list.filter(p => /free|r0|R0/i.test(p.price));
+    } else if (activeCategory === "Available Now") {
+      list = list.filter(p => /weekday|daily|today|by appointment/i.test(p.availability));
+    } else if (activeCategory !== "All") {
+      list = list.filter(p => p.serviceCategory === activeCategory);
+    }
+
+    return list.slice(0, 12);
+  }, [activeCategory]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -98,7 +127,7 @@ const Index = () => {
             <Sparkles className="w-4 h-4 text-violet" />
             <h2 className="text-lg font-semibold text-foreground">For You</h2>
           </div>
-          {PROVIDERS.length === 0 ? (
+          {filteredProviders.length === 0 ? (
             <GlassCard className="p-8 text-center">
               <SearchIcon className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
               <p className="text-sm font-medium text-foreground mb-1">No providers to show yet</p>
@@ -109,7 +138,7 @@ const Index = () => {
             </GlassCard>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-              {PROVIDERS.map((p, i) => (
+              {filteredProviders.map((p, i) => (
                 <motion.div
                   key={p.id}
                   initial={{ opacity: 0, y: 20 }}
