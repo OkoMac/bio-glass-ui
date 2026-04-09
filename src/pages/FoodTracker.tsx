@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
+import SubscriptionGate from "@/components/SubscriptionGate";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   ArrowLeft, Camera, Plus, X, Flame, TrendingUp, TrendingDown,
@@ -231,6 +232,7 @@ export default function FoodTracker() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
+      <SubscriptionGate feature="mealPlanTracking" featureName="Food Tracker" description="Track meals, calories, macros, and get AI-powered nutrition insights. Take photos of your food for instant calorie estimates.">
       <div className="mx-auto max-w-lg px-4 pt-12 space-y-5">
 
         {/* Header */}
@@ -593,6 +595,7 @@ export default function FoodTracker() {
         )}
       </AnimatePresence>
 
+      </SubscriptionGate>
       <BionAssistant />
       <BottomNav />
     </div>

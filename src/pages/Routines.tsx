@@ -339,13 +339,19 @@ export default function Routines() {
   const { user } = useAuth();
   const firstName = user?.name?.split(" ")[0] ?? "there";
 
+  const isDemo = user?.id?.startsWith("demo_") ?? false;
+
   // Load routines from localStorage (persist across sessions)
+  // Only show sample routines for demo accounts — real users start empty
   const [routines, setRoutines] = useState<Routine[]>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) return JSON.parse(stored);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.length > 0) return parsed;
+      }
     } catch { /* ignore */ }
-    return buildSampleRoutines();
+    return isDemo ? buildSampleRoutines() : [];
   });
 
   const [expanded, setExpanded] = useState<string | null>(routines[0]?.id ?? null);

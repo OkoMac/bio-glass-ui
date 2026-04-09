@@ -256,66 +256,25 @@ const Profile = () => {
               </GlassCard>
             </div>
 
-            {/* Free Tools */}
+            {/* Wellness Tools — compact grid */}
             <div>
               <p className="text-xs text-muted-foreground mb-2 px-1">Wellness Tools</p>
-              <div className="space-y-1">
-                <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={() => navigate("/water-tracker")}>
-                  <span className="text-lg">💧</span>
-                  <div className="flex-1">
-                    <span className="text-sm text-foreground">Water Tracker</span>
-                    <p className="text-[10px] text-muted-foreground">Track daily water intake</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </GlassCard>
-                <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={() => navigate("/sleep-tracker")}>
-                  <span className="text-lg">🌙</span>
-                  <div className="flex-1">
-                    <span className="text-sm text-foreground">Sleep Tracker</span>
-                    <p className="text-[10px] text-muted-foreground">Log & monitor sleep patterns</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </GlassCard>
-                <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={() => navigate("/medical-card")}>
-                  <span className="text-lg">🏥</span>
-                  <div className="flex-1">
-                    <span className="text-sm text-foreground">Digital Medical Card</span>
-                    <p className="text-[10px] text-muted-foreground">Your health passport & emergency info</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </GlassCard>
-                <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={() => navigate("/life-coach")}>
-                  <span className="text-lg">🤖</span>
-                  <div className="flex-1">
-                    <span className="text-sm text-foreground">BION Life Coach</span>
-                    <p className="text-[10px] text-muted-foreground">AI wellness advice & motivation</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </GlassCard>
-                <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={() => navigate("/food-tracker")}>
-                  <span className="text-lg">🍽️</span>
-                  <div className="flex-1">
-                    <span className="text-sm text-foreground">Food Tracker</span>
-                    <p className="text-[10px] text-muted-foreground">Track meals, calories & macros</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </GlassCard>
-                <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={() => navigate("/calendar")}>
-                  <span className="text-lg">📅</span>
-                  <div className="flex-1">
-                    <span className="text-sm text-foreground">BION Calendar</span>
-                    <p className="text-[10px] text-muted-foreground">All health, beauty & wellness events</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </GlassCard>
-                <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={() => navigate("/health-insights")}>
-                  <span className="text-lg">📊</span>
-                  <div className="flex-1">
-                    <span className="text-sm text-foreground">Health Insights</span>
-                    <p className="text-[10px] text-muted-foreground">B_ analysis & device sync</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </GlassCard>
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { emoji: "💧", label: "Water",     path: "/water-tracker" },
+                  { emoji: "🌙", label: "Sleep",     path: "/sleep-tracker" },
+                  { emoji: "🏥", label: "Med Card",  path: "/medical-card" },
+                  { emoji: "🤖", label: "Coach",     path: "/life-coach" },
+                  { emoji: "🍽️", label: "Food",      path: "/food-tracker" },
+                  { emoji: "📅", label: "Calendar",  path: "/calendar" },
+                  { emoji: "📊", label: "Insights",  path: "/health-insights" },
+                  { emoji: "❤️", label: "Health",    path: "/health-profile" },
+                ].map(tool => (
+                  <GlassCard key={tool.path} hover className="py-3 flex flex-col items-center gap-1.5 cursor-pointer" onClick={() => navigate(tool.path)}>
+                    <span className="text-xl">{tool.emoji}</span>
+                    <span className="text-[10px] text-muted-foreground">{tool.label}</span>
+                  </GlassCard>
+                ))}
               </div>
             </div>
 

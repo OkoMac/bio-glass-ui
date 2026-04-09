@@ -724,6 +724,39 @@ export default function ProgramBuilder() {
     } else {
       setPrograms(prev => [editing, ...prev]);
     }
+
+    // Push assigned programs to client-facing routines (localStorage bridge)
+    if (editing.assignedTo.length > 0) {
+      try {
+        const existing = JSON.parse(localStorage.getItem("bion_routines") ?? "[]");
+        const routineType = editing.type === "workout" ? "workout" : editing.type === "meal" ? "meal" : "rehab";
+        const exercises = editing.type === "workout"
+          ? editing.days.flatMap(d => d.exercises.map(e => ({ name: e.name, sets: `${e.sets}×${e.reps}`, done: false })))
+          : editing.type === "meal"
+          ? editing.meals.flatMap(m => m.items.map(i => ({ name: `${m.label}: ${i.name}`, sets: `${i.qty} · ${i.kcal} kcal`, done: false })))
+          : editing.careSteps.map(s => ({ name: s.name, sets: `${s.durationMins} min`, done: false }));
+
+        // Only add if not already assigned
+        if (!existing.find((r: any) => r.id === `pro_${editing.id}`)) {
+          const newRoutine = {
+            id: `pro_${editing.id}`,
+            title: editing.title || `${editing.type} Programme`,
+            type: routineType,
+            provider: "Your Provider",
+            vertical: routineType === "workout" ? "teal" : routineType === "meal" ? "amber" : "indigo",
+            daysCompleted: 0,
+            totalDays: editing.durationWeeks * 7,
+            exercises: exercises.length > 0 ? exercises : [{ name: "Follow provider instructions", sets: "—", done: false }],
+            createdBy: "provider",
+            sharedWith: [],
+            schedule: editing.type === "workout" ? "Mon, Wed, Fri" : "Daily",
+          };
+          existing.unshift(newRoutine);
+          localStorage.setItem("bion_routines", JSON.stringify(existing));
+        }
+      } catch { /* ignore */ }
+    }
+
     setSavedId(editing.id);
     setTimeout(() => setSavedId(null), 2000);
     setEditing(null);
