@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import ProviderNav from "@/components/ProviderNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
+import SubscriptionGate from "@/components/SubscriptionGate";
 import { Search, MessageSquare, ChevronRight, AlertTriangle, Star, Plus, X, Send, UserPlus } from "lucide-react";
 
 interface Client {
@@ -256,7 +257,7 @@ export default function ProviderClients() {
         )}
       </AnimatePresence>
 
-      <CoachAI />
+      <BionAssistant />
       <ProviderNav />
     </div>
   );

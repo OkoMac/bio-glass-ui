@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import {
   ArrowLeft, MessageSquare, Calendar, Star, AlertTriangle,
   CheckCircle, Plus, Send, Award, Flame, ClipboardList,
@@ -54,7 +54,7 @@ export default function ClientDetail() {
             </button>
           </GlassCard>
         </div>
-        <CoachAI />
+        <BionAssistant />
         <ProviderNav />
       </div>
     );

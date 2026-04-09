@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
+import SubscriptionGate from "@/components/SubscriptionGate";
 import { useSubscription } from "@/hooks/useSubscription";
 import {
   Plus, Trash2, ChevronDown, ChevronUp, Check, X,
@@ -761,7 +762,7 @@ export default function ProgramBuilder() {
             onCancel={() => { setShowForm(false); setEditing(null); }}
           />
         </div>
-        <CoachAI />
+        <BionAssistant />
         <ProviderNav />
       </div>
     );
@@ -897,7 +898,7 @@ export default function ProgramBuilder() {
         </div>
       </div>
 
-      <CoachAI />
+      <BionAssistant />
       <ProviderNav />
     </div>
   );

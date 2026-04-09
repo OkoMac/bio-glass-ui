@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import { Wallet, ArrowUpRight, ArrowDownLeft, TrendingDown, Plus, Building2, CheckCircle } from "lucide-react";
 
 /* ─── types & data ──────────────────────────────────────────────────────── */
@@ -191,7 +191,7 @@ export default function CorporateWallet() {
         </div>
 
       </div>
-      <CoachAI />
+      <BionAssistant />
       <CorporateNav/>
     </div>
   );

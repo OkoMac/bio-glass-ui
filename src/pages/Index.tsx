@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import SearchBar from "@/components/SearchBar";
 import CategoryChip from "@/components/CategoryChip";
 import BottomNav from "@/components/BottomNav";
-import ServeAIChat from "@/components/ServeAIChat";
+import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import GlassCard from "@/components/GlassCard";
 import { Sparkles, MapPin, Star, Clock, Search as SearchIcon } from "lucide-react";
@@ -170,27 +170,33 @@ const Index = () => {
           )}
         </section>
 
-        {/* ServeAI Advisory */}
-        <GlassCard variant="accent-indigo" className="p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg gradient-indigo flex items-center justify-center shrink-0">
-              <Sparkles className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-foreground">ServeAI Insight</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Based on your goals, we recommend adding a yoga session to balance your training routine.
-              </p>
-              <button onClick={() => navigate("/directory")} className="text-xs text-indigo-light font-medium mt-2">
-                Browse directory →
-              </button>
-            </div>
+        {/* Your Tools */}
+        <section>
+          <h2 className="text-lg font-semibold text-foreground mb-3">Your Tools</h2>
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { emoji: "🍽️", label: "Food",      path: "/food-tracker" },
+              { emoji: "📅", label: "Calendar",   path: "/calendar" },
+              { emoji: "📊", label: "Insights",   path: "/health-insights" },
+              { emoji: "💪", label: "Routines",   path: "/routines" },
+              { emoji: "💧", label: "Water",      path: "/water-tracker" },
+              { emoji: "😴", label: "Sleep",      path: "/sleep-tracker" },
+              { emoji: "🏥", label: "Med Card",   path: "/medical-card" },
+              { emoji: "❤️", label: "Health",     path: "/health-profile" },
+            ].map(tool => (
+              <motion.button key={tool.path} whileTap={{ scale: 0.95 }}
+                onClick={() => navigate(tool.path)}
+                className="glass-1 rounded-2xl py-3 flex flex-col items-center gap-1.5 border border-white/[0.06] hover:border-white/[0.12] transition-colors">
+                <span className="text-xl">{tool.emoji}</span>
+                <span className="text-[10px] text-muted-foreground">{tool.label}</span>
+              </motion.button>
+            ))}
           </div>
-        </GlassCard>
+        </section>
       </div>
 
       <BottomNav />
-      <ServeAIChat />
+      <BionAssistant />
     </div>
   );
 };

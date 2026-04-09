@@ -55,8 +55,8 @@ export const PROVIDER_TIER_FEATURES: Record<ProviderSubscriptionTier, Subscripti
     featuredListing: false,
     messaging: false,
     clientNotifications: false,
-    advanceBooking: false,
-    bookingManagement: false,
+    advanceBooking: true,           // Booking is free for all providers
+    bookingManagement: true,         // Booking management is free
     calendarSync: false,
     basicAnalytics: false,
     advancedAnalytics: false,

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import { useBookings, BookingStatus } from "@/contexts/BookingsContext";
 import {
   CheckCircle, XCircle, MessageSquare, Search,
@@ -181,7 +181,7 @@ export default function ProviderBookings() {
         </AnimatePresence>
       </div>
 
-      <CoachAI />
+      <BionAssistant />
       <ProviderNav />
     </div>
   );

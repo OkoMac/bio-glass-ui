@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Users, TrendingUp, Wallet, Star, ChevronRight,
@@ -401,7 +401,7 @@ export default function CorporateDashboard() {
         )}
       </AnimatePresence>
 
-      <CoachAI />
+      <BionAssistant />
       <CorporateNav />
     </div>
   );

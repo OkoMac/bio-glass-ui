@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import ProviderNav from "@/components/ProviderNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
 import {
@@ -190,7 +190,7 @@ export default function ProviderDashboard() {
         </div>
       </div>
 
-      <CoachAI />
+      <BionAssistant />
       <ProviderNav />
     </div>
   );

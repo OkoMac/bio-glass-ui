@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Building2, Users, Bell, CreditCard, Save, Check,
@@ -340,7 +340,7 @@ export default function CorporateSettings() {
         )}
 
       </div>
-      <CoachAI />
+      <BionAssistant />
       <CorporateNav/>
     </div>
   );

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   CreditCard, TrendingUp, CheckCircle, Download,
@@ -464,7 +464,7 @@ export default function ProviderBilling() {
       </div>
 
       <ProviderNav />
-      <CoachAI />
+      <BionAssistant />
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import { Search, Users, Wallet, AlertTriangle, CheckCircle, ChevronRight, Plus, Minus, Filter, UserPlus, X, Trash2, Mail } from "lucide-react";
 
 type EmployeeStatus = "active" | "inactive" | "pending";
@@ -392,7 +392,7 @@ export default function CorporateEmployees() {
         )}
       </AnimatePresence>
 
-      <CoachAI />
+      <BionAssistant />
       <CorporateNav />
     </div>
   );

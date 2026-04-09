@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import { Clock, Plus, X, ChevronDown, CheckCircle, Calendar, AlertTriangle } from "lucide-react";
 
 type Day = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
@@ -342,7 +342,7 @@ export default function ProviderAvailability() {
         </section>
       </div>
 
-      <CoachAI />
+      <BionAssistant />
       <ProviderNav />
     </div>
   );

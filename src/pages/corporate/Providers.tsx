@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import {
   Search, Briefcase, MapPin, Star, Plus, X, Trash2, CheckCircle,
 } from "lucide-react";
@@ -266,7 +266,7 @@ export default function CorporateProviders() {
         )}
       </AnimatePresence>
 
-      <CoachAI />
+      <BionAssistant />
       <CorporateNav />
     </div>
   );

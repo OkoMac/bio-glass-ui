@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import { TrendingUp, TrendingDown, Users, Zap, Target, Award } from "lucide-react";
 
 // SVG line chart
@@ -238,7 +238,7 @@ export default function CorporateAnalytics() {
         </div>
       </div>
 
-      <CoachAI />
+      <BionAssistant />
       <CorporateNav />
     </div>
   );
