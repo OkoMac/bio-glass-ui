@@ -57,6 +57,11 @@ import Notifications   from "./pages/Notifications";
 import SplashOnboarding from "./pages/SplashOnboarding";
 import NotFound        from "./pages/NotFound";
 
+// Legal pages
+import AcceptableUse     from "./pages/legal/AcceptableUse";
+import PaymentFlow       from "./pages/legal/PaymentFlow";
+import DisputeResolution from "./pages/legal/DisputeResolution";
+
 // Client free tools
 import WaterTracker from "./pages/WaterTracker";
 import SleepTracker from "./pages/SleepTracker";
@@ -196,6 +201,11 @@ function AppRoutes() {
       } />
       <Route path="/directory" element={<Directory />} />
       <Route path="/welcome" element={<SplashOnboarding />} />
+
+      {/* Public legal pages */}
+      <Route path="/legal/acceptable-use"     element={<AcceptableUse />} />
+      <Route path="/legal/payment-flow"       element={<PaymentFlow />} />
+      <Route path="/legal/dispute-resolution" element={<DisputeResolution />} />
 
       {/* Client home (authenticated) */}
       <Route path="/home" element={<RequireAuth allowedRoles={["client"]}><Index /></RequireAuth>} />
