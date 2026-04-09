@@ -203,24 +203,24 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
     );
   }
 
-  const sheetHeight = step === 1 ? "44%" : step === 2 ? "78%" : step === 3 ? "88%" : "92%";
+  const sheetHeight = step === 1 ? "55%" : step === 2 ? "80%" : step === 3 ? "90%" : "92%";
 
   return (
     <AnimatePresence>
       {open && (
         <>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={onClose} className="fixed inset-0 z-50 bg-obsidian/60" />
+            onClick={onClose} className="fixed inset-0 z-[60] bg-obsidian/60" />
           <motion.div
             initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 120, damping: 16 }}
-            className="fixed bottom-0 left-0 right-0 z-50 glass-2 rounded-t-[2rem] overflow-hidden"
+            className="fixed bottom-0 left-0 right-0 z-[60] glass-2 rounded-t-[2rem] overflow-hidden"
             style={{ height: sheetHeight }}
           >
             <div className="flex justify-center pt-3 pb-2">
               <div className="w-8 h-1 rounded-full bg-foreground/20" />
             </div>
-            <div className="px-5 pb-6 overflow-y-auto h-full">
+            <div className="px-5 pb-24 overflow-y-auto h-full">
 
               {/* ── Step 1: Select Service ── */}
               {step === 1 && (
