@@ -244,7 +244,7 @@ export default function BionAssistant() {
                     <p className="text-sm font-bold text-foreground">B_ Assistant</p>
                     <div className="flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-teal" />
-                      <span className="text-[10px] text-teal">Online · Full access to your data</span>
+                      <span className="text-[10px] text-teal">Online · Commit to yourself</span>
                     </div>
                   </div>
                 </div>

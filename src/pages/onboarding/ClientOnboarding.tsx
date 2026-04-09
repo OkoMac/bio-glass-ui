@@ -8,7 +8,7 @@ const STEPS: OnboardingStep[] = [
     id: "welcome",
     type: "welcome",
     title: "Welcome to BION",
-    subtitle: "Your health & wellness journey starts here.",
+    subtitle: "Commit to your health, your wellness and your beauty. Commit to yourself.",
     icon: "🌟",
     highlights: [
       { icon: "🩺", title: "Medical & Health", desc: "GP consults, physiotherapy, nutrition and specialist care" },
@@ -103,9 +103,9 @@ const STEPS: OnboardingStep[] = [
     id: "how_bion_works",
     type: "info",
     title: "How BION Works",
-    subtitle: "Three simple steps to better health.",
+    subtitle: "Three simple steps to commit to yourself.",
     highlights: [
-      { icon: "🔍", title: "1. Discover", desc: "Browse hundreds of verified providers by category, location, rating and price. Use ServeAI to get personalised recommendations in plain English." },
+      { icon: "🔍", title: "1. Discover", desc: "Browse hundreds of verified providers by category, location, rating and price. Use B_ to get personalised recommendations in plain English." },
       { icon: "📅", title: "2. Book", desc: "Pick a service, choose a time slot, pay with BIONWallet or card. Get a WhatsApp confirmation and a calendar reminder — all in under 60 seconds." },
       { icon: "📊", title: "3. Track", desc: "Log your progress, follow your prescriptions, earn BIONPoints for every session and watch your wellness journey unfold." },
     ],

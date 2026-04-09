@@ -19,8 +19,8 @@ type OnboardingStep = {
 const onboardingSteps: OnboardingStep[] = [
   {
     type: "default",
-    headline: "All your health &\nwellness needs.",
-    sub: "Health. Beauty. Medical. Professional. All in one place — for individuals, teams, and providers.",
+    headline: "Commit to yourself.",
+    sub: "Commit to your health, your wellness and your beauty. Commit to yourself.",
     emoji: "🌟",
   },
   {
@@ -35,7 +35,7 @@ const onboardingSteps: OnboardingStep[] = [
   },
   {
     type: "default",
-    headline: "Book any certified\nwellness provider.",
+    headline: "Your health.\nYour beauty.\nYour wellness.",
     sub: "Doctors, trainers, therapists, nutritionists — browse, book, and track progress all in one place.",
     emoji: "🤝",
   },
@@ -144,7 +144,7 @@ export default function SplashOnboarding() {
         <motion.img src="/bion-logo-white.png" alt="BION" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
           className="h-32 md:h-48 w-auto" />
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
-          className="text-base text-foreground/55 mt-3">Every Service. One Platform.</motion.p>
+          className="text-base text-foreground/55 mt-3">Commit to yourself.</motion.p>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}
           className="w-32 h-0.5 bg-foreground/10 rounded-full mt-6 overflow-hidden">
           <div className="h-full gradient-indigo rounded-full transition-all" style={{ width: `${progress}%` }} />

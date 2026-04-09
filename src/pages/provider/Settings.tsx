@@ -245,14 +245,14 @@ export default function ProviderSettings() {
                 </div>
               </GlassCard>
 
-              {/* ServeAI toggle */}
+              {/* B_ toggle */}
               <GlassCard className="p-4 flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl glass-accent-indigo flex items-center justify-center shrink-0">
                   <Sparkles className="w-5 h-5 text-indigo" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">ServeAI booking assistant</p>
-                  <p className="text-[11px] text-muted-foreground">Let ServeAI handle client enquiries and bookings</p>
+                  <p className="text-sm font-medium text-foreground">B_ booking assistant</p>
+                  <p className="text-[11px] text-muted-foreground">Let B_ handle client enquiries and bookings</p>
                 </div>
                 <button className="w-9 h-5 rounded-full bg-indigo-500 flex items-center px-0.5">
                   <motion.div animate={{ x: 16 }} className="w-4 h-4 rounded-full bg-white shadow-sm" />
@@ -329,7 +329,7 @@ export default function ProviderSettings() {
                   { key: "cancellation", label: "Cancellation",           desc: "When a client cancels" },
                   { key: "reminder",     label: "Session reminders",      desc: "1 hour before each session" },
                   { key: "payment",      label: "Payout processed",       desc: "When funds are transferred" },
-                  { key: "serveAI",      label: "ServeAI activity",       desc: "AI handled a booking for you" },
+                  { key: "serveAI",      label: "B_ activity",       desc: "AI handled a booking for you" },
                   { key: "marketing",    label: "Tips & promotions",       desc: "Platform updates and offers" },
                 ] .map((item, i) => (
                   <div key={item.key} className={`flex items-center justify-between py-3 ${i > 0 ? "border-t border-white/5" : ""}`}>

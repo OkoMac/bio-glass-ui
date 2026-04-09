@@ -18,7 +18,7 @@ const STEPS: OnboardingStep[] = [
       { icon: "📅", title: "Effortless Bookings", desc: "Clients book you 24/7 — calendar, confirmations and reminders handled automatically." },
       { icon: "💰", title: "95% Payout Rate", desc: "BION charges only 5%. The rest is yours. Instant via Paystack split payment to your bank account after each completed session." },
       { icon: "📊", title: "Built-in Analytics", desc: "Track revenue, client retention, no-show rates and growth trends in real time." },
-      { icon: "🤖", title: "AI-Powered Growth", desc: "ServeAI matches you with clients whose needs fit your services automatically." },
+      { icon: "🤖", title: "AI-Powered Growth", desc: "B_ matches you with clients whose needs fit your services automatically." },
     ],
   },
   {
