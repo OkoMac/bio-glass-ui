@@ -64,7 +64,7 @@ export default function Wallet() {
         style={{ background: "radial-gradient(ellipse 70% 40% at 50% 0%, rgba(45,212,191,0.08), transparent)" }}
       />
 
-      <div className="mx-auto max-w-lg px-4 pt-12 space-y-5">
+      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-5xl px-4 pt-12 space-y-5">
         {/* Header */}
         <div className="flex items-center gap-3">
           <motion.button

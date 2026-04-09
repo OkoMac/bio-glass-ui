@@ -355,7 +355,7 @@ function ChallengeDetailModal({ challenge, onClose }: { challenge: Challenge; on
         initial={{ scale: 0.9, y: 20 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.9, y: 20 }}
-        className="glass-2 rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+        className="glass-2 rounded-3xl max-w-lg md:max-w-3xl xl:max-w-5xl w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6">

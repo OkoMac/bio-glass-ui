@@ -94,7 +94,7 @@ export default function SleepTracker() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
-      <div className="mx-auto max-w-lg px-4 pt-12 space-y-5">
+      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-5xl px-4 pt-12 space-y-5">
         {/* Header */}
         <div className="flex items-center gap-3">
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => navigate(-1)}

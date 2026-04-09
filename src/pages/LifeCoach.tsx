@@ -149,7 +149,7 @@ export default function LifeCoach() {
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow flex flex-col">
       {/* Header */}
-      <div className="mx-auto max-w-lg w-full px-4 pt-12 pb-3">
+      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-5xl w-full px-4 pt-12 pb-3">
         <div className="flex items-center gap-3">
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => navigate(-1)}
             className="w-9 h-9 glass-1 rounded-full flex items-center justify-center">
@@ -170,7 +170,7 @@ export default function LifeCoach() {
       {/* Chat area */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 pb-4 mx-auto max-w-lg w-full space-y-3"
+        className="flex-1 overflow-y-auto px-4 pb-4 mx-auto max-w-lg md:max-w-3xl xl:max-w-5xl w-full space-y-3"
       >
         <AnimatePresence initial={false}>
           {messages.map((msg) => (
@@ -237,7 +237,7 @@ export default function LifeCoach() {
       </div>
 
       {/* Input bar */}
-      <div className="mx-auto max-w-lg w-full px-4 pb-40 pt-2">
+      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-5xl w-full px-4 pb-40 pt-2">
         {/* Quick prompt chips always available */}
         {messages.length > 2 && (
           <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
