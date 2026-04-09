@@ -1,0 +1,153 @@
+import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+
+interface FoodEntry {
+  id: string;
+  name: string;
+  calories: number;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
+  meal: "breakfast" | "lunch" | "dinner" | "snack";
+  time: string;
+  photo?: string;
+  date: string;
+}
+
+interface DailyGoal {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  water: number;
+}
+
+const FOOD_KEY = "bion_food_tracker";
+const GOALS_KEY = "bion_food_goals";
+
+function getToday(): string {
+  return new Date().toISOString().split("T")[0];
+}
+
+/**
+ * Syncs food entries and goals between localStorage and Supabase.
+ */
+export function useFoodSync() {
+  const { user } = useAuth();
+  const supabaseId = user?.id && !user.id.startsWith("demo_") ? user.id : null;
+
+  const [entries, setEntries] = useState<FoodEntry[]>(() => {
+    try { return JSON.parse(localStorage.getItem(FOOD_KEY) ?? "[]"); }
+    catch { return []; }
+  });
+
+  const [goals, setGoals] = useState<DailyGoal>(() => {
+    try { return JSON.parse(localStorage.getItem(GOALS_KEY) ?? "null") ?? { calories: 2000, protein: 120, carbs: 250, fat: 65, water: 8 }; }
+    catch { return { calories: 2000, protein: 120, carbs: 250, fat: 65, water: 8 }; }
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  // Load from Supabase
+  useEffect(() => {
+    if (!supabaseId) { setLoading(false); return; }
+    const load = async () => {
+      try {
+        // Load today's food entries
+        const { data } = await supabase
+          .from("food_entries" as any)
+          .select("*")
+          .eq("user_id", supabaseId)
+          .gte("date", getToday())
+          .order("created_at", { ascending: true });
+
+        if (data && data.length > 0) {
+          const mapped: FoodEntry[] = (data as any[]).map(e => ({
+            id: e.id,
+            name: e.name,
+            calories: e.calories,
+            protein: e.protein,
+            carbs: e.carbs,
+            fat: e.fat,
+            meal: e.meal,
+            time: e.time ?? "",
+            photo: e.photo_url,
+            date: e.date,
+          }));
+          setEntries(mapped);
+          localStorage.setItem(FOOD_KEY, JSON.stringify(mapped));
+        }
+
+        // Load goals
+        const { data: goalsData } = await supabase
+          .from("daily_goals" as any)
+          .select("*")
+          .eq("user_id", supabaseId)
+          .single();
+
+        if (goalsData) {
+          const g: DailyGoal = {
+            calories: (goalsData as any).calories,
+            protein: (goalsData as any).protein,
+            carbs: (goalsData as any).carbs,
+            fat: (goalsData as any).fat,
+            water: (goalsData as any).water,
+          };
+          setGoals(g);
+          localStorage.setItem(GOALS_KEY, JSON.stringify(g));
+        }
+      } catch { /* localStorage fallback */ }
+      setLoading(false);
+    };
+    load();
+  }, [supabaseId]);
+
+  const addEntry = useCallback((entry: FoodEntry) => {
+    const updated = [...entries, entry];
+    setEntries(updated);
+    localStorage.setItem(FOOD_KEY, JSON.stringify(updated));
+
+    if (supabaseId) {
+      supabase.from("food_entries" as any).insert({
+        id: entry.id,
+        user_id: supabaseId,
+        name: entry.name,
+        calories: entry.calories,
+        protein: entry.protein ?? 0,
+        carbs: entry.carbs ?? 0,
+        fat: entry.fat ?? 0,
+        meal: entry.meal,
+        time: entry.time,
+        photo_url: entry.photo,
+        date: entry.date,
+      } as any).then(() => {});
+    }
+  }, [entries, supabaseId]);
+
+  const deleteEntry = useCallback((id: string) => {
+    const updated = entries.filter(e => e.id !== id);
+    setEntries(updated);
+    localStorage.setItem(FOOD_KEY, JSON.stringify(updated));
+
+    if (supabaseId) {
+      supabase.from("food_entries" as any).delete().eq("id", id).then(() => {});
+    }
+  }, [entries, supabaseId]);
+
+  const saveGoals = useCallback((g: DailyGoal) => {
+    setGoals(g);
+    localStorage.setItem(GOALS_KEY, JSON.stringify(g));
+
+    if (supabaseId) {
+      supabase.from("daily_goals" as any).upsert({
+        user_id: supabaseId,
+        ...g,
+      } as any, { onConflict: "user_id" }).then(() => {});
+    }
+  }, [supabaseId]);
+
+  const todayEntries = entries.filter(e => e.date === getToday());
+
+  return { entries, todayEntries, goals, addEntry, deleteEntry, saveGoals, loading };
+}

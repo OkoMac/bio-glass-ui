@@ -205,23 +205,43 @@ export default function FoodTracker() {
     setShowAdd(false);
   };
 
+  const API_URL = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+
   const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       const result = reader.result as string;
       setPhotoPreview(result);
-      // Simulate AI calorie estimation from photo
-      const estimated = 300 + Math.floor(Math.random() * 400);
-      setManualEntry(prev => ({
-        ...prev,
-        name: prev.name || "Meal (photo)",
-        calories: String(estimated),
-        protein: String(Math.round(estimated * 0.2 / 4)),
-        carbs: String(Math.round(estimated * 0.5 / 4)),
-        fat: String(Math.round(estimated * 0.3 / 9)),
-      }));
+
+      // Call AI calorie estimation API
+      try {
+        const res = await fetch(`${API_URL}/api/ai/estimate-calories`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: result, description: manualEntry.name || undefined }),
+        });
+        const data = await res.json();
+        setManualEntry(prev => ({
+          ...prev,
+          name: prev.name || data.name || "Meal (photo)",
+          calories: String(data.calories ?? 400),
+          protein: String(data.protein ?? 20),
+          carbs: String(data.carbs ?? 45),
+          fat: String(data.fat ?? 15),
+        }));
+      } catch {
+        // Fallback if API unavailable
+        setManualEntry(prev => ({
+          ...prev,
+          name: prev.name || "Meal (photo)",
+          calories: "400",
+          protein: "20",
+          carbs: "45",
+          fat: "15",
+        }));
+      }
     };
     reader.readAsDataURL(file);
   };
