@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings, BookingStatus } from "@/contexts/BookingsContext";
@@ -292,6 +292,30 @@ const Profile = () => {
                   </div>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </GlassCard>
+                <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={() => navigate("/food-tracker")}>
+                  <span className="text-lg">🍽️</span>
+                  <div className="flex-1">
+                    <span className="text-sm text-foreground">Food Tracker</span>
+                    <p className="text-[10px] text-muted-foreground">Track meals, calories & macros</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </GlassCard>
+                <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={() => navigate("/calendar")}>
+                  <span className="text-lg">📅</span>
+                  <div className="flex-1">
+                    <span className="text-sm text-foreground">BION Calendar</span>
+                    <p className="text-[10px] text-muted-foreground">All health, beauty & wellness events</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </GlassCard>
+                <GlassCard hover className="p-3.5 flex items-center gap-3 cursor-pointer" onClick={() => navigate("/health-insights")}>
+                  <span className="text-lg">📊</span>
+                  <div className="flex-1">
+                    <span className="text-sm text-foreground">Health Insights</span>
+                    <p className="text-[10px] text-muted-foreground">B_ analysis & device sync</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </GlassCard>
               </div>
             </div>
 
@@ -497,7 +521,7 @@ const Profile = () => {
       </div>
 
       <BottomNav />
-      <CoachAI />
+      <BionAssistant />
     </div>
   );
 };

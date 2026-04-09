@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMessages } from "@/hooks/useMessages";
 import { Send, Paperclip, Info, ChevronLeft, Check, CheckCheck, MessageSquare } from "lucide-react";

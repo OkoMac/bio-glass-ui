@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import { ArrowLeft, Moon, Sun, Star, Clock, TrendingUp, Lightbulb } from "lucide-react";
 
 const STORAGE_KEY = "bion_sleep_tracker";
@@ -226,7 +226,7 @@ export default function SleepTracker() {
       </div>
 
       <BottomNav />
-      <CoachAI />
+      <BionAssistant />
     </div>
   );
 }

@@ -3,13 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { getProviderImage } from "@/lib/providerImages";
 import realData from "@/data/bion_pretoria_data.json";
 import {
   ArrowLeft, ChevronRight, CheckCircle, Circle, Plus, X,
-  Dumbbell, Apple, Stethoscope, Play, Eye, EyeOff, Shield, Pill,
+  Dumbbell, Apple, Stethoscope, Play, Eye, EyeOff, Shield, Pill, Heart,
   Clock, Calendar, Flame, ChevronDown, Trash2, Share2
 } from "lucide-react";
 
@@ -23,7 +23,7 @@ interface Exercise {
 interface Routine {
   id: string;
   title: string;
-  type: "workout" | "rehab" | "meal" | "skincare" | "medication" | "custom";
+  type: "workout" | "rehab" | "meal" | "skincare" | "medication" | "wellness" | "beauty" | "custom";
   provider?: string;         // undefined = self-created
   providerId?: string;
   providerImage?: string;
@@ -112,6 +112,22 @@ const EXERCISE_TEMPLATES: Record<string, Exercise[]> = {
     { name: "Midday supplement", sets: "12:00", done: false },
     { name: "Evening medication (after dinner)", sets: "PM", done: false },
     { name: "Before bed supplement", sets: "Before sleep", done: false },
+  ],
+  wellness: [
+    { name: "Morning gratitude journaling", sets: "5 min", done: false },
+    { name: "Box breathing (4-4-4-4)", sets: "3 rounds", done: false },
+    { name: "Body scan meditation", sets: "10 min", done: false },
+    { name: "Mindful walking", sets: "15 min", done: false },
+    { name: "Progressive muscle relaxation", sets: "10 min", done: false },
+    { name: "Evening reflection + mood log", sets: "5 min", done: false },
+  ],
+  beauty: [
+    { name: "Hair treatment / mask", sets: "1× per week", done: false },
+    { name: "Nail care (file, buff, cuticles)", sets: "15 min", done: false },
+    { name: "Face mask (clay/sheet/peel)", sets: "20 min", done: false },
+    { name: "Body exfoliation", sets: "1× per week", done: false },
+    { name: "Moisturise full body", sets: "After shower", done: false },
+    { name: "Lip scrub + balm", sets: "PM", done: false },
   ],
   custom: [],
 };
@@ -226,6 +242,52 @@ function buildSampleRoutines(): Routine[] {
     schedule: "Daily",
   });
 
+  // Wellness: Mindfulness routine (self-created)
+  routines.push({
+    id: "self_wellness_1",
+    title: "Daily Mindfulness",
+    type: "wellness",
+    vertical: "indigo",
+    daysCompleted: 7,
+    totalDays: 30,
+    exercises: [
+      { name: "Morning gratitude journaling", sets: "5 min", done: false },
+      { name: "Box breathing (4-4-4-4)", sets: "3 rounds", done: false },
+      { name: "Guided meditation", sets: "10 min", done: false },
+      { name: "Mindful walk (no phone)", sets: "15 min", done: false },
+      { name: "Evening mood log + reflection", sets: "5 min", done: false },
+    ],
+    createdBy: "self",
+    sharedWith: [],
+    schedule: "Daily",
+  });
+
+  // Beauty: Full beauty routine
+  if (bp) {
+    routines.push({
+      id: "assigned_beauty_2",
+      title: "Weekly Beauty Routine",
+      type: "beauty",
+      provider: bp.name,
+      providerId: bp.id,
+      providerImage: bp.image,
+      vertical: "coral",
+      daysCompleted: 2,
+      totalDays: 30,
+      exercises: [
+        { name: "Deep cleansing facial wash", sets: "AM + PM", done: false },
+        { name: "Clay mask (detox)", sets: "1× per week", done: false },
+        { name: "Hair mask / deep conditioning", sets: "1× per week", done: false },
+        { name: "Body scrub (exfoliate)", sets: "2× per week", done: false },
+        { name: "Manicure maintenance", sets: "1× per week", done: false },
+        { name: "Full body moisturiser", sets: "After shower", done: false },
+      ],
+      createdBy: "provider",
+      sharedWith: [bp.id],
+      schedule: "Weekly",
+    });
+  }
+
   // Medical: Medication routine
   if (mp) {
     routines.push({
@@ -260,11 +322,13 @@ const typeIcon: Record<string, React.ReactNode> = {
   meal:       <Apple className="w-4 h-4" />,
   skincare:   <span className="text-sm">✨</span>,
   medication: <Pill className="w-4 h-4" />,
+  wellness:   <Heart className="w-4 h-4" />,
+  beauty:     <span className="text-sm">💅</span>,
   custom:     <Flame className="w-4 h-4" />,
 };
 
 const typeLabel: Record<string, string> = {
-  workout: "Workout", rehab: "Rehab", meal: "Meal Plan", skincare: "Skincare", medication: "Medication", custom: "Custom",
+  workout: "Workout", rehab: "Rehab", meal: "Meal Plan", skincare: "Skincare", medication: "Medication", wellness: "Wellness", beauty: "Beauty", custom: "Custom",
 };
 
 const STORAGE_KEY = "bion_routines";
@@ -336,7 +400,7 @@ export default function Routines() {
       id: `self_${Date.now()}`,
       title: newRoutine.title.trim(),
       type: newRoutine.type,
-      vertical: newRoutine.type === "workout" ? "teal" : newRoutine.type === "rehab" || newRoutine.type === "medication" ? "indigo" : newRoutine.type === "meal" ? "amber" : "coral",
+      vertical: newRoutine.type === "workout" ? "teal" : newRoutine.type === "rehab" || newRoutine.type === "medication" ? "indigo" : newRoutine.type === "meal" ? "amber" : newRoutine.type === "wellness" ? "indigo" : "coral",
       daysCompleted: 0,
       totalDays: newRoutine.totalDays,
       exercises,
@@ -623,7 +687,7 @@ export default function Routines() {
                 <div>
                   <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5 block">Type</label>
                   <div className="flex gap-2 flex-wrap">
-                    {(["workout", "rehab", "meal", "skincare", "medication", "custom"] as const).map(t => (
+                    {(["workout", "rehab", "meal", "skincare", "medication", "wellness", "beauty", "custom"] as const).map(t => (
                       <button key={t} onClick={() => setNewRoutine(prev => ({ ...prev, type: t }))}
                         className={`px-3 py-1.5 rounded-pill text-xs font-medium border flex items-center gap-1.5 transition-all ${
                           newRoutine.type === t
@@ -727,7 +791,7 @@ export default function Routines() {
         )}
       </AnimatePresence>
 
-      <CoachAI />
+      <BionAssistant />
       <BottomNav />
     </div>
   );

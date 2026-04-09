@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import { Calendar, ChevronLeft, ChevronRight, Clock, Star } from "lucide-react";
 import { useBookings } from "@/contexts/BookingsContext";
 
@@ -222,7 +222,7 @@ const Schedule = () => {
       </div>
 
       <BottomNav />
-      <CoachAI />
+      <BionAssistant />
     </div>
   );
 };

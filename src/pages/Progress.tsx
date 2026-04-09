@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import { ArrowLeft, TrendingUp, TrendingDown, Minus, Plus } from "lucide-react";
 
 // Simple SVG sparkline
@@ -210,7 +210,7 @@ export default function Progress() {
         </section>
       </div>
 
-      <CoachAI />
+      <BionAssistant />
       <BottomNav />
     </div>
   );

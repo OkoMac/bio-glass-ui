@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
-import CoachAI from "@/components/CoachAI";
+import BionAssistant from "@/components/BionAssistant";
 import {
   ArrowLeft, Heart, Activity, Shield, Pill, AlertTriangle,
   Target, TrendingUp, Edit3, ChevronRight, CheckCircle,
@@ -472,7 +472,7 @@ export default function HealthProfile() {
         )}
       </div>
 
-      <CoachAI />
+      <BionAssistant />
       <BottomNav />
     </div>
   );

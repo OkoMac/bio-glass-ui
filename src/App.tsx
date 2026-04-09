@@ -62,6 +62,9 @@ import WaterTracker from "./pages/WaterTracker";
 import SleepTracker from "./pages/SleepTracker";
 import MedicalCard  from "./pages/MedicalCard";
 import LifeCoach    from "./pages/LifeCoach";
+import FoodTracker  from "./pages/FoodTracker";
+import BionCalendar from "./pages/BionCalendar";
+import HealthInsights from "./pages/HealthInsights";
 
 // Role onboarding
 import ClientOnboarding    from "./pages/onboarding/ClientOnboarding";
@@ -218,8 +221,11 @@ function AppRoutes() {
       <Route path="/water-tracker"  element={<RequireAuth allowedRoles={["client"]}><WaterTracker /></RequireAuth>} />
       <Route path="/sleep-tracker"  element={<RequireAuth allowedRoles={["client"]}><SleepTracker /></RequireAuth>} />
       <Route path="/medical-card"   element={<RequireAuth allowedRoles={["client"]}><MedicalCard /></RequireAuth>} />
-      <Route path="/life-coach"     element={<RequireAuth allowedRoles={["client"]}><LifeCoach /></RequireAuth>} />
-      <Route path="/notifications"  element={<RequireAuth><Notifications /></RequireAuth>} />
+      <Route path="/life-coach"       element={<RequireAuth allowedRoles={["client"]}><LifeCoach /></RequireAuth>} />
+      <Route path="/food-tracker"    element={<RequireAuth allowedRoles={["client"]}><FoodTracker /></RequireAuth>} />
+      <Route path="/calendar"        element={<RequireAuth allowedRoles={["client"]}><BionCalendar /></RequireAuth>} />
+      <Route path="/health-insights" element={<RequireAuth allowedRoles={["client"]}><HealthInsights /></RequireAuth>} />
+      <Route path="/notifications"   element={<RequireAuth><Notifications /></RequireAuth>} />
 
       {/* Provider portal */}
       <Route path="/pro/dashboard"    element={<RequireAuth allowedRoles={["provider"]}><ProviderDashboard /></RequireAuth>} />
