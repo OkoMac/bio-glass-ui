@@ -93,7 +93,7 @@ export default function SleepTracker() {
   const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
       <div className="mx-auto max-w-lg px-4 pt-12 space-y-5">
         {/* Header */}
         <div className="flex items-center gap-3">

@@ -60,7 +60,7 @@ export default function QuickBook() {
   }, [search]);
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
       <div className="max-w-lg mx-auto px-4 pt-12 space-y-5">
 
         {/* Header */}

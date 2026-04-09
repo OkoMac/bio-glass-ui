@@ -99,7 +99,7 @@ export default function Notifications() {
   );
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
       <div className="max-w-3xl mx-auto px-4 pt-12 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">

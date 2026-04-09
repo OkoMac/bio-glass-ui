@@ -89,10 +89,21 @@ export default function CoachAI() {
     { id: "init", role: "coach", text: buildGreeting(role, user?.name), ts: new Date() },
   ]);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Focus input when chat opens
+  useEffect(() => {
+    if (open) setTimeout(() => inputRef.current?.focus(), 300);
+  }, [open]);
+
+  const handleClose = () => {
+    setOpen(false);
+    setInput("");
+  };
 
   const send = (text: string) => {
     if (!text.trim()) return;
@@ -118,7 +129,7 @@ export default function CoachAI() {
         onClick={() => setOpen(true)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className={`fixed bottom-24 right-4 z-40 w-12 h-12 rounded-full bg-gradient-to-br ${accentCls} shadow-lg flex items-center justify-center`}
+        className={`fixed bottom-28 right-4 z-[55] w-12 h-12 rounded-full bg-gradient-to-br ${accentCls} shadow-lg flex items-center justify-center`}
         aria-label="Open Coach AI"
       >
         <span className="text-xl">{persona.emoji}</span>
@@ -132,7 +143,7 @@ export default function CoachAI() {
             <motion.div
               key="overlay"
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setOpen(false)}
+              onClick={handleClose}
               className="fixed inset-0 bg-obsidian/50 z-50"
             />
             <motion.div
@@ -141,7 +152,7 @@ export default function CoachAI() {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: "100%", opacity: 0 }}
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="fixed bottom-0 left-0 right-0 z-50 rounded-t-[2rem] flex flex-col"
+              className="fixed bottom-0 left-0 right-0 z-[70] rounded-t-[2rem] flex flex-col"
               style={{
                 height: "82vh",
                 background: "rgba(12,12,20,0.97)",
@@ -163,7 +174,7 @@ export default function CoachAI() {
                     </div>
                   </div>
                 </div>
-                <button onClick={() => setOpen(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+                <button onClick={handleClose} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -209,10 +220,10 @@ export default function CoachAI() {
               )}
 
               {/* Input */}
-              <div className="px-4 pb-8 pt-2 shrink-0">
+              <div className="px-4 pb-12 pt-2 shrink-0">
                 <div className="flex items-center gap-2 glass-1 rounded-2xl px-3 py-2">
                   <input
-                    value={input}
+                    ref={inputRef} value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={e => e.key === "Enter" && send(input)}
                     placeholder={`Ask ${persona.name} anything…`}

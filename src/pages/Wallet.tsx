@@ -58,7 +58,7 @@ export default function Wallet() {
   const visible = filter === "all" ? transactions : transactions.filter(t => t.type === filter);
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
       <div
         className="absolute inset-0 pointer-events-none"
         style={{ background: "radial-gradient(ellipse 70% 40% at 50% 0%, rgba(45,212,191,0.08), transparent)" }}

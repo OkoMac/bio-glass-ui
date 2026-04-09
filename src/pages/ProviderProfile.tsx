@@ -65,7 +65,7 @@ export default function ProviderProfile() {
     : provider.servicesOffered.slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-obsidian pb-28">
+    <div className="min-h-screen bg-obsidian pb-40">
       {/* Hero Cover */}
       <div className="relative h-[240px] md:h-[320px] overflow-hidden">
         <div

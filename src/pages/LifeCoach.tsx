@@ -237,7 +237,7 @@ export default function LifeCoach() {
       </div>
 
       {/* Input bar */}
-      <div className="mx-auto max-w-lg w-full px-4 pb-28 pt-2">
+      <div className="mx-auto max-w-lg w-full px-4 pb-40 pt-2">
         {/* Quick prompt chips always available */}
         {messages.length > 2 && (
           <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
