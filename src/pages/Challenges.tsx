@@ -210,7 +210,7 @@ export default function Challenges() {
       </div>
 
       {/* Coach AI */}
-      <CoachAI
+      <BionAssistant
         context={`Challenges page. Viewing ${filter === "all" ? "all" : filter} challenges. ${filtered.length} challenges available.`}
         suggestions={[
           "How do I choose the right challenge for my fitness level?",

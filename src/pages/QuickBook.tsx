@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Zap, Clock, MapPin, Search, Sparkles } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
+import BionAssistant from "@/components/BionAssistant";
 import BookingSheet from "@/components/BookingSheet";
 import GlassCard from "@/components/GlassCard";
 import realData from "@/data/bion_pretoria_data.json";
@@ -168,6 +169,7 @@ export default function QuickBook() {
         )}
       </AnimatePresence>
 
+      <BionAssistant />
       <BottomNav />
     </div>
   );

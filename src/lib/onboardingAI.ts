@@ -52,7 +52,7 @@ const KB: Record<string, string> = {
     "Earnings appear in Pro → Billing → Payout. Request a payout at any time and funds arrive within 1–2 business days via EFT to your registered bank account. A minimum payout threshold of R100 applies.",
 
   "how do clients find me":
-    "Clients find you via Search (by service, location, rating), Category browsing, Featured placements (for top-rated providers), and ServeAI — our AI that recommends you to clients whose needs match your services.",
+    "Clients find you via Search (by service, location, rating), Category browsing, Featured placements (for top-rated providers), and B_ — our AI that recommends you to clients whose needs match your services.",
 
   "can bion set up my account":
     "Yes! Use the AI Setup Agent during onboarding. It analyses your website, pre-fills your profile, creates your service list with market-rate pricing, and sets up your availability. You review and confirm everything before it goes live.",

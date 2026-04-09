@@ -30,7 +30,7 @@ export default function AdminSettings() {
   const [supportEmail, setSupportEmail]  = useState("");
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [whatsappEnabled, setWhatsappEnabled] = useState(false);
-  const [serveAIEnabled, setServeAIEnabled]   = useState(false);
+  const [bAssistantEnabled, setB_Enabled]   = useState(false);
   const [corpWellness, setCorpWellness]       = useState(false);
   const [maxProviders, setMaxProviders]       = useState("");
 
@@ -74,7 +74,7 @@ export default function AdminSettings() {
         setSupportEmail(settings["support_email"] || "");
         setMaintenanceMode(settings["maintenance_mode"] === "true");
         setWhatsappEnabled(settings["whatsapp_enabled"] === "true");
-        setServeAIEnabled(settings["serve_ai_enabled"] === "true");
+        setB_Enabled(settings["b_assistant_enabled"] === "true");
         setCorpWellness(settings["corp_wellness"] === "true");
         setMaxProviders(settings["max_providers"] || "");
         setMfaRequired(settings["mfa_required"] === "true");
@@ -118,7 +118,7 @@ export default function AdminSettings() {
         support_email: supportEmail,
         maintenance_mode: String(maintenanceMode),
         whatsapp_enabled: String(whatsappEnabled),
-        serve_ai_enabled: String(serveAIEnabled),
+        b_assistant_enabled: String(bAssistantEnabled),
         corp_wellness: String(corpWellness),
         max_providers: maxProviders,
         mfa_required: String(mfaRequired),
@@ -231,7 +231,7 @@ export default function AdminSettings() {
               <p className="text-sm font-semibold text-foreground">Feature Flags</p>
               {[
                 { label: "WhatsApp Bot Integration", sub: "Allow bookings via WhatsApp", value: whatsappEnabled, set: setWhatsappEnabled },
-                { label: "ServeAI Assistant",         sub: "AI-powered recommendations",  value: serveAIEnabled,   set: setServeAIEnabled   },
+                { label: "B_ Assistant",         sub: "AI-powered recommendations",  value: bAssistantEnabled,   set: setB_Enabled   },
                 { label: "Corporate Wellness Portal", sub: "Enable B2B employer access",  value: corpWellness,     set: setCorpWellness     },
                 { label: "Maintenance Mode",          sub: "Block all public access",      value: maintenanceMode,  set: setMaintenanceMode, danger: true },
               ].map(f => (

@@ -221,7 +221,7 @@ export default function CorporateAnalytics() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <Zap className="w-4 h-4 text-amber" />
-            <h2 className="text-sm font-semibold text-foreground">ServeAI Insights</h2>
+            <h2 className="text-sm font-semibold text-foreground">B_ Insights</h2>
           </div>
           <div className="space-y-2">
             {INSIGHTS.map((ins, i) => (

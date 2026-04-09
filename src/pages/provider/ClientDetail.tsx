@@ -503,7 +503,7 @@ export default function ClientDetail() {
       </div>
 
       {/* Coach AI */}
-      <CoachAI
+      <BionAssistant
         context={`Client detail view: ${client.name}. ${client.sessions} sessions, ${client.wellnessScore} wellness score, ${client.risk} risk. Based in ${client.location}, Pretoria.`}
         suggestions={[
           `How can I better support ${client.name}'s ${client.goal} goals?`,

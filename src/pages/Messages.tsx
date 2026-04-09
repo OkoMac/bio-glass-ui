@@ -313,7 +313,7 @@ export default function Messages() {
       </AnimatePresence>
 
       {/* Coach AI */}
-      <CoachAI
+      <BionAssistant
         context={`Messages page. ${filtered.length} conversations.`}
         suggestions={[
           "How should I communicate my fitness goals to a new provider?",

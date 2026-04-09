@@ -346,7 +346,7 @@ export default function Notifications() {
       </div>
 
       {/* Coach AI */}
-      <CoachAI
+      <BionAssistant
         context={`Notifications page. ${unreadCount} unread notifications. Filter: ${filter}.`}
         suggestions={[
           "How can I manage notification overload from multiple providers?",

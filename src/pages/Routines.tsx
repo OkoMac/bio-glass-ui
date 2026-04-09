@@ -636,7 +636,7 @@ export default function Routines() {
           );
         })}
 
-        {/* ServeAI nudge */}
+        {/* B_ nudge */}
         {routines.length > 0 && (
           <GlassCard variant="accent-indigo" className="p-4">
             <div className="flex items-start gap-3">

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
-import SubscriptionGate from "@/components/SubscriptionGate";
+
 import { ServiceCoverPicker } from "@/components/ImagePickerOverlay";
 import { Plus, Pencil, Trash2, Check, X, Star, Clock, Zap } from "lucide-react";
 import { useBookings } from "@/contexts/BookingsContext";

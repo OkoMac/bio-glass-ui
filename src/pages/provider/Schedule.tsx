@@ -367,7 +367,7 @@ export default function ProviderSchedule() {
       </div>
 
       {/* Coach AI */}
-      <CoachAI
+      <BionAssistant
         context={`Provider schedule view. ${
           currentDayBookings.length > 0 
             ? `Showing ${currentDayBookings.length} bookings for ${DAY_LABELS[viewDay]}.`

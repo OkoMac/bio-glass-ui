@@ -46,6 +46,7 @@ export default function ProviderClients() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+      <SubscriptionGate feature="clientNotifications" featureName="Client Management" description="View client profiles, track session history, and manage your client relationships. Upgrade to Pro to unlock.">
       <div className="mx-auto max-w-2xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
 
         {/* Header */}
@@ -257,6 +258,7 @@ export default function ProviderClients() {
         )}
       </AnimatePresence>
 
+      </SubscriptionGate>
       <BionAssistant />
       <ProviderNav />
     </div>
