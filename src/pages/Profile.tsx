@@ -11,9 +11,10 @@ import { useBioPoints } from "@/hooks/useBioPoints";
 import { useStreaks } from "@/hooks/useStreaks";
 import {
   Shield, FileText, Star, Award, Flame, Gift,
-  ChevronRight, Download, Lock, Heart, Settings,
+  ChevronRight, Download, Lock, Heart as HeartIcon, Settings,
   LogOut, CreditCard, Bell, Eye, Activity, Trophy,
   Copy, Share2, CheckCircle, MessageCircle,
+  Droplets, Moon, HeartPulse, Brain, Utensils, CalendarDays, BarChart3,
 } from "lucide-react";
 import { getReferralShareUrl, openWhatsApp } from "@/lib/whatsapp";
 import { ImagePickerOverlay } from "@/components/ImagePickerOverlay";
@@ -149,7 +150,7 @@ const Profile = () => {
             <GlassCard className="p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Heart className="w-4 h-4 text-coral" />
+                  <HeartIcon className="w-4 h-4 text-coral" />
                   Health Summary
                 </h2>
                 <Lock className="w-3.5 h-3.5 text-muted-foreground" />
@@ -257,24 +258,29 @@ const Profile = () => {
               </GlassCard>
             </div>
 
-            {/* Wellness Tools — compact grid */}
+            {/* Wellness Tools — ITSON glass-card grid */}
             <div>
               <p className="text-xs text-muted-foreground mb-2 px-1">Wellness Tools</p>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-2.5">
                 {[
-                  { emoji: "💧", label: "Water",     path: "/water-tracker" },
-                  { emoji: "🌙", label: "Sleep",     path: "/sleep-tracker" },
-                  { emoji: "🏥", label: "Med Card",  path: "/medical-card" },
-                  { emoji: "🤖", label: "Coach",     path: "/life-coach" },
-                  { emoji: "🍽️", label: "Food",      path: "/food-tracker" },
-                  { emoji: "📅", label: "Calendar",  path: "/calendar" },
-                  { emoji: "📊", label: "Insights",  path: "/health-insights" },
-                  { emoji: "❤️", label: "Health",    path: "/health-profile" },
+                  { icon: <Droplets className="w-5 h-5" />,    label: "Water",     path: "/water-tracker",   color: "text-blue-400" },
+                  { icon: <Moon className="w-5 h-5" />,         label: "Sleep",     path: "/sleep-tracker",   color: "text-violet" },
+                  { icon: <HeartPulse className="w-5 h-5" />,   label: "Med Card",  path: "/medical-card",    color: "text-coral" },
+                  { icon: <Brain className="w-5 h-5" />,        label: "Coach",     path: "/life-coach",      color: "text-indigo" },
+                  { icon: <Utensils className="w-5 h-5" />,     label: "Food",      path: "/food-tracker",    color: "text-teal" },
+                  { icon: <CalendarDays className="w-5 h-5" />, label: "Calendar",  path: "/calendar",        color: "text-indigo" },
+                  { icon: <BarChart3 className="w-5 h-5" />,    label: "Insights",  path: "/health-insights", color: "text-violet" },
+                  { icon: <HeartIcon className="w-5 h-5" />,    label: "Health",    path: "/health-profile",  color: "text-teal" },
                 ].map(tool => (
-                  <GlassCard key={tool.path} hover className="py-3 flex flex-col items-center gap-1.5 cursor-pointer" onClick={() => navigate(tool.path)}>
-                    <span className="text-xl">{tool.emoji}</span>
-                    <span className="text-[10px] text-muted-foreground">{tool.label}</span>
-                  </GlassCard>
+                  <motion.button key={tool.path} whileTap={{ scale: 0.93 }}
+                    onClick={() => navigate(tool.path)}
+                    className="group rounded-2xl py-4 flex flex-col items-center gap-2 border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm hover:border-white/[0.16] hover:bg-white/[0.04] transition-all duration-200"
+                    style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+                    <span className={`${tool.color} transition-all group-hover:scale-110`} style={{ filter: "drop-shadow(0 0 6px currentColor)" }}>
+                      {tool.icon}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground font-medium tracking-wide">{tool.label}</span>
+                  </motion.button>
                 ))}
               </div>
             </div>

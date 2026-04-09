@@ -7,7 +7,11 @@ import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import GlassCard from "@/components/GlassCard";
-import { Sparkles, MapPin, Star, Clock, Search as SearchIcon } from "lucide-react";
+import {
+  Sparkles, MapPin, Star, Clock, Search as SearchIcon,
+  Utensils, Calendar as CalendarIcon, BarChart3, Dumbbell,
+  Droplets, Moon, HeartPulse, Activity
+} from "lucide-react";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import realData from "@/data/bion_pretoria_data.json";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
@@ -170,25 +174,58 @@ const Index = () => {
           )}
         </section>
 
-        {/* Your Tools */}
+        {/* Calendar preview */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-foreground">Today</h2>
+            <button onClick={() => navigate("/calendar")} className="text-xs text-teal font-medium">View Calendar →</button>
+          </div>
+          <div className="flex gap-2 overflow-x-auto scrollbar-none -mx-4 px-4 pb-1">
+            {(() => {
+              try {
+                const events = JSON.parse(localStorage.getItem("bion_calendar_events") ?? "[]");
+                const today = new Date().toISOString().split("T")[0];
+                const todayEvents = events.filter((e: any) => e.date === today && !e.completed).slice(0, 4);
+                if (todayEvents.length === 0) return (
+                  <div className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 text-center">
+                    <p className="text-xs text-muted-foreground">No events today</p>
+                  </div>
+                );
+                return todayEvents.map((evt: any) => (
+                  <div key={evt.id} onClick={() => navigate("/calendar")}
+                    className="min-w-[140px] rounded-2xl border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm p-3 cursor-pointer hover:border-teal/20 transition-colors shrink-0">
+                    <p className="text-[10px] text-teal font-medium">{evt.time ?? "All day"}</p>
+                    <p className="text-xs text-foreground font-medium mt-0.5 truncate">{evt.title}</p>
+                    {evt.provider && <p className="text-[10px] text-muted-foreground truncate">{evt.provider}</p>}
+                  </div>
+                ));
+              } catch { return null; }
+            })()}
+          </div>
+        </section>
+
+        {/* Your Tools — ITSON glass-card grid */}
         <section>
           <h2 className="text-lg font-semibold text-foreground mb-3">Your Tools</h2>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-4 gap-2.5">
             {[
-              { emoji: "🍽️", label: "Food",      path: "/food-tracker" },
-              { emoji: "📅", label: "Calendar",   path: "/calendar" },
-              { emoji: "📊", label: "Insights",   path: "/health-insights" },
-              { emoji: "💪", label: "Routines",   path: "/routines" },
-              { emoji: "💧", label: "Water",      path: "/water-tracker" },
-              { emoji: "😴", label: "Sleep",      path: "/sleep-tracker" },
-              { emoji: "🏥", label: "Med Card",   path: "/medical-card" },
-              { emoji: "❤️", label: "Health",     path: "/health-profile" },
+              { icon: <Utensils className="w-5 h-5" />,     label: "Food",      path: "/food-tracker",    color: "text-teal" },
+              { icon: <CalendarIcon className="w-5 h-5" />,  label: "Calendar",  path: "/calendar",        color: "text-indigo" },
+              { icon: <BarChart3 className="w-5 h-5" />,     label: "Insights",  path: "/health-insights", color: "text-violet" },
+              { icon: <Dumbbell className="w-5 h-5" />,      label: "Routines",  path: "/routines",        color: "text-teal" },
+              { icon: <Droplets className="w-5 h-5" />,      label: "Water",     path: "/water-tracker",   color: "text-blue-400" },
+              { icon: <Moon className="w-5 h-5" />,          label: "Sleep",     path: "/sleep-tracker",   color: "text-violet" },
+              { icon: <HeartPulse className="w-5 h-5" />,    label: "Med Card",  path: "/medical-card",    color: "text-coral" },
+              { icon: <Activity className="w-5 h-5" />,      label: "Health",    path: "/health-profile",  color: "text-teal" },
             ].map(tool => (
-              <motion.button key={tool.path} whileTap={{ scale: 0.95 }}
+              <motion.button key={tool.path} whileTap={{ scale: 0.93 }}
                 onClick={() => navigate(tool.path)}
-                className="glass-1 rounded-2xl py-3 flex flex-col items-center gap-1.5 border border-white/[0.06] hover:border-white/[0.12] transition-colors">
-                <span className="text-xl">{tool.emoji}</span>
-                <span className="text-[10px] text-muted-foreground">{tool.label}</span>
+                className="group rounded-2xl py-4 flex flex-col items-center gap-2 border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm hover:border-white/[0.16] hover:bg-white/[0.04] transition-all duration-200"
+                style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+                <span className={`${tool.color} drop-shadow-[0_0_6px_currentColor] transition-all group-hover:scale-110`} style={{ filter: "drop-shadow(0 0 6px currentColor)" }}>
+                  {tool.icon}
+                </span>
+                <span className="text-[10px] text-muted-foreground font-medium tracking-wide">{tool.label}</span>
               </motion.button>
             ))}
           </div>
