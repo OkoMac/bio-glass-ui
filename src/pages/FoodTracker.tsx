@@ -196,14 +196,36 @@ export default function FoodTracker() {
   };
 
   const API_URL = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+  const PHOTO_LIMIT = 6;
+  const PHOTO_COUNT_KEY = `bion_photo_count_${getToday()}`;
+
+  const getPhotoCount = () => {
+    try { return parseInt(localStorage.getItem(PHOTO_COUNT_KEY) ?? "0"); }
+    catch { return 0; }
+  };
+  const [photoCount, setPhotoCount] = useState(getPhotoCount);
+  const photosRemaining = PHOTO_LIMIT - photoCount;
 
   const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Rate limit: 6 photos per day
+    if (photoCount >= PHOTO_LIMIT) {
+      alert(`You've used all ${PHOTO_LIMIT} photo scans for today. You can still log meals manually using the text search or manual entry below.`);
+      e.target.value = "";
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = async () => {
       const result = reader.result as string;
       setPhotoPreview(result);
+
+      // Increment photo count
+      const newCount = photoCount + 1;
+      setPhotoCount(newCount);
+      localStorage.setItem(PHOTO_COUNT_KEY, String(newCount));
 
       // Call AI calorie estimation API
       try {
@@ -450,7 +472,9 @@ export default function FoodTracker() {
                   className="flex-1 py-4 glass-1 rounded-2xl flex flex-col items-center gap-2 border border-dashed border-white/10 hover:border-teal/30 transition-colors">
                   <Camera className="w-6 h-6 text-teal" />
                   <span className="text-xs text-muted-foreground">Take Photo</span>
-                  <span className="text-[9px] text-teal">AI estimates calories</span>
+                  <span className={`text-[9px] ${photosRemaining > 0 ? "text-teal" : "text-coral"}`}>
+                    {photosRemaining > 0 ? `${photosRemaining} scans left today` : "Limit reached — use text"}
+                  </span>
                 </motion.button>
                 <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handlePhoto} className="hidden" />
 
