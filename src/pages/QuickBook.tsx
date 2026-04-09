@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, X, Zap, Clock, MapPin, Search } from "lucide-react";
+import { X, Zap, Clock, MapPin, Search } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import BookingSheet from "@/components/BookingSheet";
 import GlassCard from "@/components/GlassCard";
@@ -45,7 +45,6 @@ const VERTICAL_ACCENT: Record<string, string> = {
 
 export default function QuickBook() {
   const [selectedProvider, setSelectedProvider] = useState<typeof ALL_AVAILABLE[number] | null>(null);
-  const [prompt, setPrompt] = useState("");
   const [search, setSearch] = useState("");
 
   const AVAILABLE_NOW = useMemo(() => {
@@ -75,29 +74,13 @@ export default function QuickBook() {
           <p className="text-xs text-muted-foreground">Available providers right now · Book in 30 seconds</p>
         </div>
 
-        {/* ServeAI prompt */}
+        {/* Search */}
         <GlassCard className="p-3 flex items-center gap-3">
-          <Sparkles className="w-4 h-4 text-violet shrink-0"/>
-          <input
-            value={prompt}
-            onChange={e => setPrompt(e.target.value)}
-            placeholder='Try "yoga near me" or "facial today"…'
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
-          />
-          {prompt && (
-            <button onClick={() => setPrompt("")} className="text-muted-foreground hover:text-foreground transition-colors">
-              <X className="w-3.5 h-3.5"/>
-            </button>
-          )}
-        </GlassCard>
-
-        {/* Search filter */}
-        <div className="glass-1 rounded-full px-4 py-2 flex items-center gap-2">
           <Search className="w-4 h-4 text-muted-foreground shrink-0"/>
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by name or service..."
+            placeholder='Search "yoga", "facial", "personal trainer"…'
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
           />
           {search && (
@@ -105,7 +88,7 @@ export default function QuickBook() {
               <X className="w-3.5 h-3.5"/>
             </button>
           )}
-        </div>
+        </GlassCard>
 
         {/* Available now list */}
         <div>
