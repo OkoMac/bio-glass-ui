@@ -65,7 +65,7 @@ const PaymentForm: React.FC<StripePaymentFormProps & { stripe: Stripe | null }> 
 
     try {
       // 1. Create payment intent on our backend
-      const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
+      const apiUrl = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
       const response = await fetch(`${apiUrl}/api/stripe/create-payment-intent`, {
         method: 'POST',
         headers: {

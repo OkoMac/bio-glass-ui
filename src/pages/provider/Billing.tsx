@@ -10,7 +10,7 @@ import {
   AlertCircle, Search, ChevronRight, Crown, Star,
 } from "lucide-react";
 
-const API = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
+const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
 interface Bank {
   name: string;

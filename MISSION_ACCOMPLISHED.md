@@ -29,7 +29,7 @@
 - **Signup-gated** contact details
 - **5%+5% transaction fees** (provider + client)
 - **Provider subscriptions**: Free, Pro (R499), Elite (R999)
-- **Client subscriptions**: Free, Premium (R100/month)
+- **Client subscriptions**: Free, Premium (R29/month)
 - **One demo account** for feature showcase
 
 ## 🛡️ Safety & Quality Assurance

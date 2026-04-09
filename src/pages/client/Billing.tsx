@@ -11,7 +11,7 @@ import {
   Crown, Star, CheckCircle, Loader2
 } from "lucide-react";
 
-const API = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
+const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
 export default function ClientBilling() {
   const { user } = useAuth();

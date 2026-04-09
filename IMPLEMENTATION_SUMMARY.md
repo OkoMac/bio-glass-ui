@@ -16,7 +16,7 @@
 - 5%+5% transaction fees (provider + client)
 - Demo account for feature showcase
 - Provider subscription tiers (Free, Pro R499, Elite R999)
-- Client subscription (R100/month for health tracking)
+- Client subscription (R29/month for health tracking)
 
 #### **2. Gym Provider Tools Suite** ✅
 - **Enhanced Dashboard V2** (`/pro/dashboard-v2`) - Advanced analytics and insights
@@ -80,7 +80,7 @@
 ### **Revenue Streams:**
 1. **Transaction Fees**: 5% from providers + 5% from clients
 2. **Provider Subscriptions**: R499-R999/month per provider
-3. **Client Subscriptions**: R100/month per client
+3. **Client Subscriptions**: R29/month per client
 4. **Vertical Add-ons**: Additional revenue from beauty/medical verticals
 
 ### **Growth Drivers:**
