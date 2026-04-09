@@ -210,7 +210,7 @@ export default function RepDashboard() {
             </div>
             <div className="space-y-3">
               {[
-                { label: "Standard Providers", rate: "2%", desc: "of all transactions from your providers" },
+                { label: "Standard Providers", rate: "2%", desc: "of transactions (first 12 months, then 1%)" },
                 { label: "Elite Providers",    rate: "1%", desc: "of transactions (reduced for Elite tier)" },
                 { label: "Subscription Fee",   rate: "20%", desc: "of provider subscription fees" },
               ].map((tier, i) => (

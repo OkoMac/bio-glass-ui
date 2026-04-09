@@ -17,7 +17,7 @@ const SECTIONS = [
     number: 2,
     title: "Commission Structure",
     items: [
-      "2% of all transaction fees from providers you sign up (standard tier)",
+      "2% of all transaction fees from providers you sign up (first 12 months, then 1%)",
       "1% of transaction fees when your providers are on the Elite tier (R999/mo)",
       "20% of all subscription fees from providers you sign up",
       "You earn commission on every booking made with providers you signed up",
