@@ -34,7 +34,7 @@ export default function SubscriptionGate({ feature, featureName, description, ch
   const upgradeUrl = getUpgradeUrl();
   const nextTier = isProvider
     ? currentTier === "Free" ? "Pro (R499/month)" : "Elite (R999/month)"
-    : "Premium (R99/month)";
+    : "Premium (R29/month)";
 
   return (
     <div className="flex-1 flex items-center justify-center p-8">

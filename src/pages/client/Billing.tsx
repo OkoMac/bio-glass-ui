@@ -86,7 +86,7 @@ export default function ClientBilling() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground">Health Tracking Subscription</h1>
           <p className="text-sm text-muted-foreground">
-            Upgrade to unlock advanced health tracking features
+            Upgrade to reduce your booking fee from 5% to 3.5%
           </p>
         </div>
         
@@ -124,10 +124,10 @@ export default function ClientBilling() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-foreground">Premium Health Tracking</p>
-                  <p className="text-xs text-muted-foreground">All features unlocked</p>
+                  <p className="text-xs text-muted-foreground">Lower booking fees active</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg font-bold text-foreground">R100<span className="text-sm font-normal text-muted-foreground">/month</span></p>
+                  <p className="text-lg font-bold text-foreground">R29<span className="text-sm font-normal text-muted-foreground">/month</span></p>
                   <p className="text-xs text-muted-foreground">Next billing: 28 Apr 2026</p>
                 </div>
               </div>
@@ -227,11 +227,11 @@ export default function ClientBilling() {
                   <h3 className="text-lg font-semibold text-foreground">Premium</h3>
                   <Star className="w-4 h-4 text-amber" />
                 </div>
-                <p className="text-sm text-muted-foreground">Advanced health features</p>
+                <p className="text-sm text-muted-foreground">Lower booking fees</p>
               </div>
               <div className="text-right">
                 <p className="text-2xl font-bold text-foreground">
-                  R{selectedPlan === 'monthly' ? '100' : '999'}
+                  R{selectedPlan === 'monthly' ? '29' : '290'}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   per {selectedPlan === 'monthly' ? 'month' : 'year'}
@@ -291,7 +291,7 @@ export default function ClientBilling() {
                 className="w-full gradient-indigo rounded-pill py-3 text-sm font-semibold text-white flex items-center justify-center gap-2"
               >
                 <CreditCard className="w-4 h-4" />
-                Upgrade to Premium - R{selectedPlan === 'monthly' ? '100' : '999'}/{selectedPlan === 'monthly' ? 'month' : 'year'}
+                Upgrade to Premium - R{selectedPlan === 'monthly' ? '29' : '290'}/{selectedPlan === 'monthly' ? 'month' : 'year'}
               </button>
             )}
           </GlassCard>
@@ -376,7 +376,7 @@ export default function ClientBilling() {
             <div>
               <h4 className="text-sm font-medium text-foreground mb-1">What's the difference between Free and Premium?</h4>
               <p className="text-xs text-muted-foreground">
-                Free includes basic platform access and health tracking. Premium unlocks all advanced health tracking features, analytics, wearable integration, and premium support.
+                All tools are free for every BION user. Premium reduces your booking fee from 5% to 3.5% on every transaction — saving you money the more you book.
               </p>
             </div>
             
@@ -397,7 +397,7 @@ export default function ClientBilling() {
             <div>
               <h4 className="text-sm font-medium text-foreground mb-1">Is there a free trial?</h4>
               <p className="text-xs text-muted-foreground">
-                New users get a 7-day free trial of Premium features to experience all the advanced health tracking capabilities.
+                Premium pays for itself after just 2 bookings per month at R300. The more you book, the more you save.
               </p>
             </div>
           </div>

@@ -84,7 +84,7 @@ export default function PaymentFlow() {
             <p className="mt-2"><span className="text-foreground font-medium">Client subscriptions:</span></p>
             <ul className="list-disc ml-5 mt-1 space-y-1">
               <li>Free: Basic health tracking + booking</li>
-              <li>Premium: R99/month — food tracker, health insights, device sync, advanced metrics</li>
+              <li>Premium: R29/month — reduced transaction fee (3.5% instead of 5%)</li>
             </ul>
             <p className="mt-2">Subscriptions are billed monthly via Paystack recurring payments. Users can cancel at any time from their billing settings.</p>
           </section>

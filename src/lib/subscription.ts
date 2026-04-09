@@ -240,9 +240,9 @@ export const CLIENT_TIER_PRICING: Record<ClientSubscriptionTier, { monthly: numb
     description: 'Free platform access + basic health tracking'
   },
   premium: {
-    monthly: 100, // R100/month
-    yearly: 999, // R999/year (17% discount)
-    description: 'All advanced health tracking features'
+    monthly: 29, // R29/month
+    yearly: 290, // R290/year (17% discount)
+    description: 'Reduced transaction fee (3.5% instead of 5%)'
   },
 };
 
