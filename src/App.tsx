@@ -56,6 +56,7 @@ import Wallet          from "./pages/Wallet";
 import Notifications   from "./pages/Notifications";
 import SplashOnboarding from "./pages/SplashOnboarding";
 import NotFound        from "./pages/NotFound";
+import NotificationBell from "./components/NotificationBell";
 
 // Legal pages
 import AcceptableUse     from "./pages/legal/AcceptableUse";
@@ -290,6 +291,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <NotificationBell />
               <AppRoutes />
             </BrowserRouter>
           </TooltipProvider>
