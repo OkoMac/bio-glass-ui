@@ -319,7 +319,7 @@ export default function BionAssistant() {
               )}
 
               {/* Input */}
-              <div className="px-4 pt-2 shrink-0" style={{ paddingBottom: "max(3rem, env(safe-area-inset-bottom, 3rem))" }}
+              <div className="px-4 pt-2 shrink-0" style={{ paddingBottom: "max(3rem, env(safe-area-inset-bottom, 3rem))" }}>
                 <div className="flex items-center gap-2 glass-1 rounded-2xl px-3 py-2">
                   <input ref={inputRef} value={input}
                     onChange={e => setInput(e.target.value)}
