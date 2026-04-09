@@ -76,7 +76,7 @@ export default function Wallet() {
           </motion.button>
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-foreground">BIONWallet</h1>
-            <p className="text-xs text-muted-foreground">{user?.name ?? "Oko Mthembu"}</p>
+            <p className="text-xs text-muted-foreground">{user?.name ?? "User"}</p>
           </div>
           <Shield className="w-4 h-4 text-teal" />
           <span className="text-[10px] text-teal font-medium">Secure</span>

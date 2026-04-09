@@ -67,7 +67,8 @@ import WaterTracker from "./pages/WaterTracker";
 import SleepTracker from "./pages/SleepTracker";
 import MedicalCard  from "./pages/MedicalCard";
 import LifeCoach    from "./pages/LifeCoach";
-import FoodTracker  from "./pages/FoodTracker";
+import FoodTracker    from "./pages/FoodTracker";
+import ClientBilling  from "./pages/client/Billing";
 import BionCalendar from "./pages/BionCalendar";
 import HealthInsights from "./pages/HealthInsights";
 
@@ -236,6 +237,7 @@ function AppRoutes() {
       <Route path="/food-tracker"    element={<RequireAuth allowedRoles={["client"]}><FoodTracker /></RequireAuth>} />
       <Route path="/calendar"        element={<RequireAuth allowedRoles={["client"]}><BionCalendar /></RequireAuth>} />
       <Route path="/health-insights" element={<RequireAuth allowedRoles={["client"]}><HealthInsights /></RequireAuth>} />
+      <Route path="/billing"          element={<RequireAuth allowedRoles={["client"]}><ClientBilling /></RequireAuth>} />
       <Route path="/notifications"   element={<RequireAuth><Notifications /></RequireAuth>} />
 
       {/* Provider portal */}

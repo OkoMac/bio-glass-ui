@@ -62,9 +62,9 @@ export default function Settings() {
   const [twoFactorEnabled, set2FA]                    = useState(false);
 
   /* ── Account ── */
-  const [name,  setName]  = useState(user?.name  ?? "Oko Mthembu");
-  const [email, setEmail] = useState(user?.email ?? "oko@example.com");
-  const [phone, setPhone] = useState("+27 82 555 0190");
+  const [name,  setName]  = useState(user?.name  ?? "");
+  const [email, setEmail] = useState(user?.email ?? "");
+  const [phone, setPhone] = useState("");
 
   const save = () => {
     setSaved(true);

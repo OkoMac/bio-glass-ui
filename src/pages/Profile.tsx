@@ -107,14 +107,14 @@ const Profile = () => {
           <ImagePickerOverlay onChange={updateAvatar}>
             <BioAvatar
               src={user?.avatar ?? getProviderImage(user?.id ?? "user", user?.name ?? "User")}
-              alt="Oko"
+              alt={user?.name ?? "User"}
               size="xl"
               verticalColor="indigo"
               verified
             />
           </ImagePickerOverlay>
           <div>
-            <h1 className="text-xl font-bold text-foreground">{user?.name ?? "Oko Mthembu"}</h1>
+            <h1 className="text-xl font-bold text-foreground">{user?.name ?? "User"}</h1>
             <p className="text-xs text-muted-foreground">Member since Jan 2026</p>
             <div className="flex items-center gap-1.5 mt-1">
               <Shield className="w-3 h-3 text-indigo" />

@@ -11,9 +11,7 @@ import {
   Users, Calendar, AlertTriangle, ChevronRight,
 } from "lucide-react";
 
-const todaySchedule: { time: string; client: string; service: string; image: string; vertical: "teal" | "indigo" | "coral" | "amber"; confirmed: boolean }[] = [];
-
-const churnRisk: { name: string; days: number; risk: "high" | "medium" }[] = [];
+// No longer hardcoded — computed from bookings context below
 
 export default function ProviderDashboard() {
   const navigate = useNavigate();
@@ -22,9 +20,19 @@ export default function ProviderDashboard() {
 
   const pending  = getByStatus("pending");
   const upcoming = getByStatus("confirmed");
+  const completed = getByStatus("completed");
 
   const todayRevenue = upcoming.filter(b => b.price !== "FREE")
     .reduce((sum, b) => sum + parseInt(b.price.replace("R", "").replace(",",""), 10), 0);
+
+  // Active clients = unique client names from all non-declined bookings
+  const allBookings = [...pending, ...upcoming, ...completed];
+  const uniqueClients = new Set(allBookings.map(b => b.clientName ?? b.providerName).filter(Boolean));
+  const activeClientCount = uniqueClients.size;
+
+  // Today's sessions = confirmed bookings for today
+  const today = new Date().toISOString().split("T")[0];
+  const todaySessions = upcoming.filter(b => b.date === today);
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
@@ -46,8 +54,8 @@ export default function ProviderDashboard() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { label: "Today's revenue", value: `R${todayRevenue.toLocaleString()}`, icon: TrendingUp, color: "#6366F1" },
-            { label: "Sessions today",  value: String(todaySchedule.length),         icon: Calendar,  color: "#2DD4BF" },
-            { label: "Active clients",  value: "0",                                   icon: Users,     color: "#FBBF24" },
+            { label: "Sessions today",  value: String(todaySessions.length),          icon: Calendar,  color: "#2DD4BF" },
+            { label: "Active clients",  value: String(activeClientCount),             icon: Users,     color: "#FBBF24" },
             { label: "Pending requests",value: String(pendingCount),                  icon: AlertTriangle, color: "#FB7185" },
           ].map((k, i) => (
             <motion.div key={k.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>

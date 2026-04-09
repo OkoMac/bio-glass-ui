@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Sparkles, Flame, Target, Calendar, TrendingUp, Brain,
-  Apple, Dumbbell, Heart, Pill, Clock, ChevronRight } from "lucide-react";
+  Apple, Dumbbell, Heart, Pill, Clock, ChevronRight, Bell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { getReminderSummary, getActiveReminders, requestNotificationPermission } from "@/lib/reminders";
 
 interface Message {
   id: string;
@@ -34,6 +35,7 @@ const CLIENT_QUICK: { label: string; icon: typeof Target; prompt: string }[] = [
   { label: "Health check",     icon: Heart,    prompt: "Analyse my overall health and flag any issues" },
   { label: "Medication",       icon: Pill,     prompt: "What medication do I need to take today?" },
   { label: "This week",        icon: Calendar, prompt: "Show me my calendar for this week" },
+  { label: "Reminders",        icon: Bell,     prompt: "What do I need to do today?" },
 ];
 
 const PROVIDER_QUICK: { label: string; icon: typeof Target; prompt: string }[] = [
@@ -102,6 +104,11 @@ function getSmartResponse(input: string, role: string, userName?: string): strin
     return `B_ admin mode. I can pull platform metrics, review provider applications, flag compliance issues, or help draft communications. What do you need?`;
   }
 
+  // Reminders — reads from reminder engine
+  if (/remind|need to do|pending|to.?do|what.*today|upcoming|don.?t forget/i.test(key)) {
+    return getReminderSummary();
+  }
+
   // Food/calories — reads real data
   if (/calori|food|eat|ate|meal|diet|nutrition/i.test(key)) {
     const pct = Math.round((data.totalCal / data.calGoal) * 100);
@@ -146,9 +153,15 @@ function getSmartResponse(input: string, role: string, userName?: string): strin
   if (/mental|stress|anxiety|meditation|mindful|mood/i.test(key))
     return `**Mental Wellness Check:**\n\nYour stress score is 4.2/10 — that's improved from 5.8 two weeks ago! Your goal is under 4.\n\n🧘 **Recommended today:**\n  • 10-min guided meditation (breathing focus)\n  • 15-min nature walk\n  • Evening journaling\n\n📊 Mood patterns show you feel best on days you exercise before noon and get 7+ hours of sleep. Today checks both boxes!`;
 
-  // Focus/plan
-  if (/focus|plan|today|priority/i.test(key))
-    return `**${first}'s Plan for Today:**\n\n1. 💊 Take morning supplements ✅\n2. 🏋️ Strength & Conditioning (Mon routine) — 7 exercises\n3. 🥗 Track meals (you're at 1,450/2,000 kcal)\n4. 💧 Drink 8 glasses of water (currently 5)\n5. ✨ PM skincare routine\n6. 💊 Evening supplements\n7. 😴 In bed by 10:30pm for 7.5h target\n\nYou're 1 session away from the 🏆 Consistency badge! Let's make it count.`;
+  // Focus/plan — powered by real reminders
+  if (/focus|plan|priority/i.test(key)) {
+    const active = getActiveReminders();
+    if (active.length > 0) {
+      const lines = active.slice(0, 7).map((r, i) => `${i + 1}. ${r.icon} ${r.title} — ${r.body}`);
+      return `**${first}'s Plan for Today:**\n\n${lines.join("\n")}\n\n${active.length > 7 ? `...and ${active.length - 7} more.` : ""}\nAsk me to check any of these in detail!`;
+    }
+    return `**${first}'s Plan for Today:**\n\nNo pending reminders! You're all caught up. Here's what you could do:\n\n1. 🥗 Log your meals in the Food Tracker\n2. 💧 Track your water intake\n3. 📅 Check your calendar for upcoming appointments\n4. 💪 Start a routine session\n\nKeep the momentum going!`;
+  }
 
   // Biometrics
   if (/biometric|heart|step|weight|bmi|body/i.test(key))
@@ -171,6 +184,11 @@ export default function BionAssistant() {
 
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
+  const reminderCount = role === "client" ? getActiveReminders().length : 0;
+
+  // Request notification permission on first render
+  useEffect(() => { requestNotificationPermission(); }, []);
+
   const [messages, setMessages] = useState<Message[]>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -216,10 +234,16 @@ export default function BionAssistant() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         className="fixed bottom-28 right-4 z-[55] w-12 h-12 rounded-full bg-gradient-to-br from-violet to-indigo shadow-lg flex items-center justify-center"
-        aria-label="Open B_ Assistant"
+        aria-label={`Open B_ Assistant${reminderCount > 0 ? ` (${reminderCount} reminders)` : ""}`}
       >
         <span className="text-sm font-bold text-white">B_</span>
-        <span className="absolute top-0.5 right-0.5 w-3 h-3 rounded-full bg-teal border-2 border-obsidian" />
+        {reminderCount > 0 ? (
+          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-coral text-white text-[10px] font-bold flex items-center justify-center border-2 border-obsidian px-1">
+            {reminderCount}
+          </span>
+        ) : (
+          <span className="absolute top-0.5 right-0.5 w-3 h-3 rounded-full bg-teal border-2 border-obsidian" />
+        )}
       </motion.button>
 
       {/* Panel */}

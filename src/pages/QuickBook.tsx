@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Zap, Clock, MapPin, Search } from "lucide-react";
+import { X, Zap, Clock, MapPin, Search, Sparkles } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import BookingSheet from "@/components/BookingSheet";
 import GlassCard from "@/components/GlassCard";

@@ -8,8 +8,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Bell, Calendar, MessageSquare, Flame,
-  Gift, Zap, CheckCheck, Trash2, Settings, BellOff,
+  Gift, Zap, CheckCheck, Trash2, Settings, BellOff, Pill,
 } from "lucide-react";
+import { getActiveReminders, dismissReminder, type Reminder } from "@/lib/reminders";
 
 // ── Types ────────────────────────────────────────────────────────────
 
@@ -47,7 +48,20 @@ const CATEGORY_CONFIG: Record<NotifCategory, { icon: React.ReactNode; color: str
 export default function Notifications() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
+  // Seed with B_ reminders converted to notifications
+  const [notifications, setNotifications] = useState<Notification[]>(() => {
+    const reminders = getActiveReminders();
+    const reminderNotifs: Notification[] = reminders.map(r => ({
+      id: r.id,
+      category: r.type === "medication" ? "system" as const : r.type === "workout" ? "streak" as const : r.type === "appointment" ? "booking" as const : "system" as const,
+      title: `B_ Reminder: ${r.title}`,
+      body: r.body,
+      time: "Just now",
+      read: false,
+      actionUrl: r.actionUrl,
+    }));
+    return [...reminderNotifs, ...INITIAL_NOTIFICATIONS];
+  });
   const [filter, setFilter] = useState<NotifCategory | "all">("all");
   const [showSettings, setShowSettings] = useState(false);
   const [muteAll, setMuteAll] = useState(false);
