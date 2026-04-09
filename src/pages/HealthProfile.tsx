@@ -465,7 +465,7 @@ export default function HealthProfile() {
                 <p className="text-sm font-semibold text-foreground">POPIA Compliant</p>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                You have the right to access, correct, or delete your health data at any time. Data is never sold to third parties.
+                Your health data is stored securely in South Africa and classified as special personal information under POPIA Section 26. You have the right to access, correct, or delete your data at any time. Data is never sold to third parties. Food images for calorie estimation are processed by AI and immediately discarded.
               </p>
             </GlassCard>
           </div>

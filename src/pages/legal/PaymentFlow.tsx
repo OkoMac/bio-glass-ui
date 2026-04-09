@@ -129,7 +129,7 @@ export default function PaymentFlow() {
           <div className="pt-4 border-t border-white/5 text-xs text-muted-foreground">
             <p>BION (Pty) Ltd · Pretoria, South Africa</p>
             <p>Payment processor: Paystack Payments (Pty) Ltd</p>
-            <p>Contact: finance@bion.africa</p>
+            <p>Contact: finance@bion.club</p>
           </div>
         </GlassCard>
       </div>

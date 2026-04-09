@@ -190,7 +190,7 @@ export function paymentReceiptEmail(data: {
       </table>
 
       <p style="color:${BRAND.muted};font-size:12px;margin:16px 0 0;">
-        Payment processed by Paystack. If you have any questions, contact support@bion.africa.
+        Payment processed by Paystack. If you have any questions, contact support@bion.club.
       </p>
     `, `Payment receipt: ${data.totalPaid} for ${data.service}`),
   };

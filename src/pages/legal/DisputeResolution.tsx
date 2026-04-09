@@ -45,7 +45,7 @@ export default function DisputeResolution() {
             <div className="space-y-3 mt-2">
               {[
                 { step: "1", title: "In-app reporting", desc: "Navigate to your booking history, select the relevant booking, and tap 'Report an Issue'. Provide a description and any supporting evidence (photos, messages)." },
-                { step: "2", title: "Email support", desc: "Email disputes@bion.africa with your booking reference, provider name, date of service, and a description of the issue." },
+                { step: "2", title: "Email support", desc: "Email disputes@bion.club with your booking reference, provider name, date of service, and a description of the issue." },
                 { step: "3", title: "Deadline", desc: "Disputes must be raised within 7 days of the service date. Billing disputes may be raised within 30 days of the transaction." },
               ].map(item => (
                 <div key={item.step} className="flex gap-3">
@@ -133,7 +133,7 @@ export default function DisputeResolution() {
 
           <div className="pt-4 border-t border-white/5 text-xs text-muted-foreground">
             <p>BION (Pty) Ltd · Pretoria, South Africa</p>
-            <p>Disputes: disputes@bion.africa · Support: support@bion.africa</p>
+            <p>Disputes: disputes@bion.club · Support: support@bion.club</p>
           </div>
         </GlassCard>
       </div>
