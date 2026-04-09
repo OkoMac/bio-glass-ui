@@ -211,15 +211,48 @@ export default function BionAssistant() {
     setInput("");
   };
 
-  const send = (text: string) => {
+  const API_URL = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+
+  const send = async (text: string) => {
     if (!text.trim()) return;
     const userMsg: Message = { id: Date.now() + "u", role: "user", text: text.trim(), ts: new Date() };
     setMessages(prev => [...prev, userMsg]);
     setInput("");
-    setTimeout(() => {
+
+    // Build user data context for the AI
+    const data = getUserData();
+    const today = new Date().toISOString().split("T")[0];
+    let calendarEvents: any[] = [];
+    try { calendarEvents = JSON.parse(localStorage.getItem("bion_calendar_events") ?? "[]").filter((e: any) => e.date === today); } catch {}
+
+    try {
+      const res = await fetch(`${API_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: text.trim(),
+          userName: user?.name,
+          role,
+          userId: user?.id,
+          userData: {
+            calories: data.totalCal,
+            calGoal: data.calGoal,
+            protein: data.totalProtein,
+            water: data.waterCount,
+            routines: data.routines.map((r: any) => ({ title: r.title, type: r.type, daysCompleted: r.daysCompleted, totalDays: r.totalDays })),
+            reminders: getActiveReminders().map(r => ({ title: r.title, body: r.body })),
+            events: calendarEvents.map((e: any) => ({ title: e.title, time: e.time, provider: e.provider })),
+          },
+        }),
+      });
+      const result = await res.json();
+      const reply: Message = { id: Date.now() + "a", role: "assistant", text: result.reply, ts: new Date() };
+      setMessages(prev => [...prev, reply]);
+    } catch {
+      // Fallback to local regex engine if API unavailable
       const reply: Message = { id: Date.now() + "a", role: "assistant", text: getSmartResponse(text, role, user?.name), ts: new Date() };
       setMessages(prev => [...prev, reply]);
-    }, 800);
+    }
   };
 
   const resetChat = () => {
