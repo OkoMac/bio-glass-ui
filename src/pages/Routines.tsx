@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRoutinesSync } from "@/hooks/useRoutinesSync";
 import { getProviderImage } from "@/lib/providerImages";
 import realData from "@/data/bion_pretoria_data.json";
 import {
@@ -341,18 +342,15 @@ export default function Routines() {
 
   const isDemo = user?.id?.startsWith("demo_") ?? false;
 
-  // Load routines from localStorage (persist across sessions)
-  // Only show sample routines for demo accounts — real users start empty
-  const [routines, setRoutines] = useState<Routine[]>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed.length > 0) return parsed;
-      }
-    } catch { /* ignore */ }
-    return isDemo ? buildSampleRoutines() : [];
-  });
+  // Sync routines with Supabase (authenticated users) or localStorage (demo)
+  const { routines, setRoutines, addRoutine: syncAddRoutine, deleteRoutine: syncDeleteRoutine, loading: routinesLoading } = useRoutinesSync();
+
+  // Seed demo accounts with sample data if empty
+  useEffect(() => {
+    if (isDemo && routines.length === 0) {
+      setRoutines(buildSampleRoutines());
+    }
+  }, [isDemo]);
 
   const [expanded, setExpanded] = useState<string | null>(routines[0]?.id ?? null);
   const [checked, setChecked] = useState<Record<string, boolean>>({});
@@ -372,18 +370,13 @@ export default function Routines() {
   const [newExName, setNewExName] = useState("");
   const [newExSets, setNewExSets] = useState("");
 
-  // Persist routines
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(routines));
-  }, [routines]);
-
   const toggle = (routineId: string, idx: number) => {
     const key = `${routineId}-${idx}`;
     setChecked(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   const deleteRoutine = (id: string) => {
-    setRoutines(prev => prev.filter(r => r.id !== id));
+    syncDeleteRoutine(id);
     if (expanded === id) setExpanded(null);
   };
 
@@ -414,7 +407,7 @@ export default function Routines() {
       sharedWith: [],
       schedule: newRoutine.schedule || undefined,
     };
-    setRoutines(prev => [routine, ...prev]);
+    syncAddRoutine(routine);
     setNewRoutine({ title: "", type: "workout", schedule: "", totalDays: 28 });
     setCustomExercises([]);
     setShowCreate(false);

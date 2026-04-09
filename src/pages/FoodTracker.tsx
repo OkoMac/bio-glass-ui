@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
@@ -6,6 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import SubscriptionGate from "@/components/SubscriptionGate";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFoodSync } from "@/hooks/useFoodSync";
 import {
   ArrowLeft, Camera, Plus, X, Flame, TrendingUp, TrendingDown,
   Utensils, Droplets, Apple, Coffee, Moon, Sun, ChevronRight,
@@ -128,15 +129,8 @@ export default function FoodTracker() {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [entries, setEntries] = useState<FoodEntry[]>(() => {
-    try { const s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : []; }
-    catch { return []; }
-  });
-
-  const [goals, setGoals] = useState<DailyGoal>(() => {
-    try { const s = localStorage.getItem(GOALS_KEY); return s ? JSON.parse(s) : null; }
-    catch { return null; }
-  } ?? { calories: 2000, protein: 120, carbs: 250, fat: 65, water: 8 });
+  // Sync with Supabase for authenticated users
+  const { entries, todayEntries, goals, addEntry: syncAddEntry, deleteEntry: syncDeleteEntry, saveGoals: syncSaveGoals } = useFoodSync();
 
   const [showAdd, setShowAdd] = useState(false);
   const [showGoals, setShowGoals] = useState(false);
@@ -150,12 +144,8 @@ export default function FoodTracker() {
     catch { return 0; }
   });
 
-  // Persist
-  useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); }, [entries]);
-  useEffect(() => { localStorage.setItem(GOALS_KEY, JSON.stringify(goals)); }, [goals]);
+  // Persist water count locally (also synced via water_log table)
   useEffect(() => { localStorage.setItem(`bion_water_${getToday()}`, String(waterCount)); }, [waterCount]);
-
-  const todayEntries = entries.filter(e => e.date === getToday());
   const totalCal = todayEntries.reduce((s, e) => s + e.calories, 0);
   const totalProtein = todayEntries.reduce((s, e) => s + (e.protein ?? 0), 0);
   const totalCarbs = todayEntries.reduce((s, e) => s + (e.carbs ?? 0), 0);
@@ -181,7 +171,7 @@ export default function FoodTracker() {
       time: new Date().toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" }),
       date: getToday(),
     };
-    setEntries(prev => [...prev, entry]);
+    syncAddEntry(entry);
     setSearchQuery("");
   };
 
@@ -199,7 +189,7 @@ export default function FoodTracker() {
       photo: photoPreview ?? undefined,
       date: getToday(),
     };
-    setEntries(prev => [...prev, entry]);
+    syncAddEntry(entry);
     setManualEntry({ name: "", calories: "", protein: "", carbs: "", fat: "" });
     setPhotoPreview(null);
     setShowAdd(false);
@@ -246,7 +236,7 @@ export default function FoodTracker() {
     reader.readAsDataURL(file);
   };
 
-  const deleteEntry = (id: string) => setEntries(prev => prev.filter(e => e.id !== id));
+  const deleteEntry = (id: string) => syncDeleteEntry(id);
 
   const burnActivities = getBurnSuggestions(Math.max(0, totalCal > goals.calories ? totalCal - goals.calories : 500));
 
@@ -601,7 +591,7 @@ export default function FoodTracker() {
                   <div key={g.key}>
                     <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">{g.label}</label>
                     <input type="number" value={g.val}
-                      onChange={e => setGoals(prev => ({ ...prev, [g.key]: parseInt(e.target.value) || 0 }))}
+                      onChange={e => syncSaveGoals({ ...goals, [g.key]: parseInt(e.target.value) || 0 })}
                       className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground outline-none border border-white/08 focus:border-teal/40 transition-colors" />
                   </div>
                 ))}

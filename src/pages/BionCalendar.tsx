@@ -6,6 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import SubscriptionGate from "@/components/SubscriptionGate";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCalendarSync } from "@/hooks/useCalendarSync";
 import {
   ArrowLeft, ChevronLeft, ChevronRight, Plus, X, Calendar,
   Dumbbell, Apple, Pill, Heart, Stethoscope, Sparkles, Eye,
@@ -225,11 +226,15 @@ export default function BionCalendar() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [events, setEvents] = useState<CalendarEvent[]>(() => {
-    try { const s = localStorage.getItem(STORAGE_KEY); if (s) return JSON.parse(s); }
-    catch { /* ignore */ }
-    return buildSampleEvents();
-  });
+  const isDemo = user?.id?.startsWith("demo_") ?? false;
+  const { events, addEvent: syncAddEvent, toggleComplete: syncToggleComplete, deleteEvent: syncDeleteEvent } = useCalendarSync();
+
+  // Seed demo accounts with sample events if empty
+  const [seeded, setSeeded] = useState(false);
+  if (isDemo && events.length === 0 && !seeded) {
+    buildSampleEvents().forEach(e => syncAddEvent(e));
+    setSeeded(true);
+  }
 
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
@@ -238,9 +243,6 @@ export default function BionCalendar() {
   const [showAdd, setShowAdd] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<EventCategory | "all">("all");
   const [newEvent, setNewEvent] = useState<Partial<CalendarEvent>>({ category: "fitness", date: fmt(today) });
-
-  // Persist
-  useState(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(events)); });
 
   const monthDays = getMonthDays(currentYear, currentMonth);
   const firstDayOfWeek = monthDays[0].getDay();
@@ -254,9 +256,7 @@ export default function BionCalendar() {
     return dayEvents.filter(e => e.category === categoryFilter);
   }, [selectedDate, categoryFilter, events]);
 
-  const toggleComplete = (id: string) => {
-    setEvents(prev => prev.map(e => e.id === id ? { ...e, completed: !e.completed } : e));
-  };
+  const toggleComplete = (id: string) => syncToggleComplete(id);
 
   const addEvent = () => {
     if (!newEvent.title?.trim()) return;
@@ -272,17 +272,12 @@ export default function BionCalendar() {
       notes: newEvent.notes,
       completed: false,
     };
-    setEvents(prev => [...prev, event]);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([...events, event]));
+    syncAddEvent(event);
     setNewEvent({ category: "fitness", date: selectedDate });
     setShowAdd(false);
   };
 
-  const deleteEvent = (id: string) => {
-    const updated = events.filter(e => e.id !== id);
-    setEvents(updated);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-  };
+  const deleteEvent = (id: string) => syncDeleteEvent(id);
 
   const prevMonth = () => {
     if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); }
