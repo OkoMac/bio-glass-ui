@@ -20,7 +20,7 @@ const CONNECTED_PROVIDERS = realData.providers.slice(0, 8).map(p => ({
   category: p.category ?? "",
 }));
 
-type PrivacyLevel = "private" | "provider" | "all";
+type PrivacyLevel = "private" | "provider";
 
 interface ProviderAccess {
   [providerId: string]: boolean;
@@ -83,7 +83,6 @@ const MEDICATIONS: { name: string; dose: string; frequency: string }[] = [
 const PRIVACY_LABELS: Record<PrivacyLevel, { label: string; icon: typeof Lock; color: string }> = {
   private:  { label: "Only me",         icon: Lock,   color: "text-coral"  },
   provider: { label: "My providers",    icon: Shield, color: "text-indigo" },
-  
 };
 
 type Tab = "metrics" | "goals" | "medical" | "privacy";
