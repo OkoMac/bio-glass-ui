@@ -1,11 +1,3 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#6366F1"/>
-      <stop offset="50%" stop-color="#4F46E5"/>
-      <stop offset="100%" stop-color="#2DD4BF"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <text x="256" y="380" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" font-size="320" font-weight="800" text-anchor="middle" fill="white" letter-spacing="-10">B</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADyklEQVR4nO2WTUxcVRTHz30fM2/efDADHRQC7YDT2hZraYBUHMqMrQvjQtMYtRsXamJcmiYGmy5qotFEo5u6NzGoDbioqQaNUQoFa1ugfJS2GaAM5WMGhjfDzJv3cd+7714zY9KFiWsWzn9x7u7c//39c3IukuUaBrsobjcvrxqoEqgSqBKoEihLKJeGvgt3bJtKNL8D4DCEEALKGGOU2CQ5t1W6OR7nPF6l5qVXU+pvV2pITokKskcLvvLGlLf3+VZ/pEnwuZiRHby0svTVxTgAYvKhtunOzz/lUt98qz4cuNTD8QJhjHKMUu6Zs+euRh/zof6+8/GKgeLIcIEByjmlEmKEAgJgjAEgj0R9R2JdHC9dLd0a6YaCAUKgViV5hQYTr6f4QEO9+vuVBc12wN3wOPfk6TfbgsEnxiY/fq/HHQhr/uaenmPvdwOvOuPLQ4Mx3uXGjoXd/ujxuoMvJI5A3/l/CGh/jcb+a1m4i94ZT1u0SefHbakY6tB1bVEKHbjGss5hrI8u6wsLUZLPh8TakGIml++cOnMxsRrtnzczighDC8r1gQtzL577PkHSyuTq9B8dCCG2PTZnpgPtuNy+YiB64MyoIPh4QkzeMlWwTA2IpTMAQfaxfUfTw5fnqEUcLqUAVQ3HD801CO8sYTUdttbXmhDHEbym7XW3RB7iqaQZqT+VvXv3B2/dhhTcmhpKDH/4zujp1wZ7B7dP3kuvzRyyHmQ5SDr8oyloorFevlRzsKSksL6zgc1SBmM9a5mljTzbzKxF5M5cOVchZwIQijgVM85wABxSacIorZyaqXrJvXRByiGEMAV3UudcLllbmR/o/XPgkxtvJX6K+ORwVt9Yx9IiqzxeKBeXRkkq88uCxubj/45ApOgqWIdPcIjPCgRRRh3REHLF0INwm/zs3hXHMFyOWvJCfX2u3r2/0LwdPXY5/dmmwEQD8phQ4kAZ+8T8Fx21bE/y7e4f/dcWv5bZVtEAAE/FQFhqERKRd1uSuaERy9aBUMxsx0Ai72Zhof1oBk+PMea0y0KYEy1PUYPVWJDuu197s65O3t+1SBt5JqqS0LZ0onOafTeeKczEGqSuUVzURUDMZrQyWfyv8x80Cc6XmZejH7Urekp/RGDLvH1DdtVJUf9zDTpWkUEKYFo7zGYYb9pTsxn7VlxAUg5zym1A1A/AhDS63rrHfmoiMNvYyoPbI4qgzbr6J1eNsTgCxDDd8Sa3hyYoo09XUDJEEUKBn++fBVVfHwl5GiUAOI6qf0LYZXFVA1CNYJfFVQ3A/z2CvwFFJubQdKnITAAAAABJRU5ErkJggg==" width="32" height="32"/>
 </svg>
