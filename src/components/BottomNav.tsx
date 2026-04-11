@@ -1,14 +1,14 @@
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { Compass, Calendar, MessageCircle, User, Dumbbell } from "lucide-react";
+import { Compass, MessageCircle, Dumbbell, Zap } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const tabs = [
   { icon: Compass,       label: "Discover",  path: "/home" },
   { icon: Dumbbell,      label: "Routines",  path: "/routines" },
-  { label: "BION",       path: "/quick-book", isFab: true },
+  { label: "BION",       path: "/profile",   isFab: true },   // ← center FAB now opens Me tab
   { icon: MessageCircle, label: "Messages",  path: "/messages" },
-  { icon: User,          label: "Me",        path: "/profile" },
+  { icon: Zap,           label: "Quick",     path: "/quick-book" },
 ];
 
 const BottomNav = () => {

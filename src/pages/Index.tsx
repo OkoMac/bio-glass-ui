@@ -8,7 +8,7 @@ import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import GlassCard from "@/components/GlassCard";
 import {
-  Sparkles, MapPin, Star, Clock, Search as SearchIcon, Flame,
+  Sparkles, MapPin, Star, Clock, Search as SearchIcon, Flame, Camera,
   Utensils, Calendar as CalendarIcon, BarChart3, Dumbbell,
   Droplets, Moon, HeartPulse, Activity
 } from "lucide-react";
@@ -64,7 +64,7 @@ const ALL_HOME_PROVIDERS = realData.providers
 
 const Index = () => {
   const [activeCategory, setActiveCategory] = useState("All");
-  const { user } = useAuth();
+  const { user, updateAvatar } = useAuth();
   const navigate = useNavigate();
   const geo = useGeolocation();
 
@@ -89,28 +89,90 @@ const Index = () => {
     return "Good evening";
   };
 
+  // Cover banner image (uploadable)
+  const coverImage = (() => {
+    try { return localStorage.getItem(`bion_cover_${user?.id ?? "guest"}`); }
+    catch { return null; }
+  })();
+
+  const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user?.id) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      localStorage.setItem(`bion_cover_${user.id}`, reader.result as string);
+      window.location.reload();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      updateAvatar(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
       <div className="w-full px-4 md:px-8 xl:px-12 pt-12 space-y-6">
         <SearchBar />
 
-        {/* ── Hero section ───────────────────────────── */}
+        {/* ── Facebook-style hero with cover + avatar ── */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-          className="rounded-3xl border border-white/[0.08] bg-gradient-to-br from-indigo/10 via-white/[0.02] to-teal/10 p-5 md:p-6 relative overflow-hidden"
+          className="rounded-3xl border border-white/[0.08] bg-white/[0.02] overflow-hidden"
           style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)" }}>
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-teal/5 blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-indigo/5 blur-3xl" />
-          <p className="text-xs text-teal font-medium tracking-widest uppercase mb-1">{getGreeting()}</p>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">{user?.name?.split(" ")[0] ?? "Welcome"}</h1>
-          <p className="text-xs text-muted-foreground mt-1">Commit to yourself. You've got this.</p>
-          <div className="flex items-center gap-4 mt-4">
-            <div className="flex items-center gap-1.5 text-xs">
-              <Flame className="w-3.5 h-3.5 text-amber" style={{ filter: "drop-shadow(0 0 4px #F59E0B)" }} />
-              <span className="text-foreground font-data">{(() => { try { return JSON.parse(localStorage.getItem("bion_routines") ?? "[]").length; } catch { return 0; } })()} routines</span>
+
+          {/* Cover banner */}
+          <div className="relative h-32 md:h-48 group cursor-pointer overflow-hidden"
+            style={coverImage
+              ? { backgroundImage: `url(${coverImage})`, backgroundSize: "cover", backgroundPosition: "center" }
+              : { background: "linear-gradient(135deg, rgba(99,102,241,0.4), rgba(13,148,136,0.3), rgba(139,92,246,0.3))" }}>
+            {!coverImage && (
+              <>
+                <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-teal/20 blur-3xl" />
+                <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full bg-indigo/20 blur-3xl" />
+              </>
+            )}
+            <label className="absolute top-3 right-3 w-9 h-9 rounded-full bg-obsidian/60 backdrop-blur-md border border-white/[0.12] flex items-center justify-center cursor-pointer hover:bg-obsidian/80 transition-colors z-10">
+              <Camera className="w-4 h-4 text-white" />
+              <input type="file" accept="image/*" onChange={handleCoverUpload} className="hidden" />
+            </label>
+          </div>
+
+          {/* Avatar + name section */}
+          <div className="px-5 pb-5 relative">
+            {/* Avatar — overlapping cover */}
+            <div className="relative -mt-12 md:-mt-16 mb-3 inline-block">
+              <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden border-4 border-obsidian bg-obsidian relative group">
+                <img
+                  src={user?.avatar ?? getProviderImage(user?.id ?? "user", user?.name ?? "User")}
+                  alt={user?.name ?? "User"}
+                  className="w-full h-full object-cover"
+                />
+                <label className="absolute inset-0 bg-obsidian/0 hover:bg-obsidian/60 backdrop-blur-0 hover:backdrop-blur-sm transition-all flex items-center justify-center cursor-pointer opacity-0 hover:opacity-100">
+                  <Camera className="w-5 h-5 text-white" />
+                  <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                </label>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 text-xs">
-              <Droplets className="w-3.5 h-3.5 text-blue-400" style={{ filter: "drop-shadow(0 0 4px #60A5FA)" }} />
-              <span className="text-foreground font-data">{(() => { try { return localStorage.getItem(`bion_water_${new Date().toISOString().split("T")[0]}`) ?? "0"; } catch { return "0"; } })()} glasses</span>
+
+            <p className="text-xs text-teal font-medium tracking-widest uppercase mb-1">{getGreeting()}</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">{user?.name ?? "Welcome"}</h1>
+            <p className="text-xs text-muted-foreground mt-1">Commit to yourself. You've got this.</p>
+
+            <div className="flex items-center gap-4 mt-4">
+              <div className="flex items-center gap-1.5 text-xs">
+                <Flame className="w-3.5 h-3.5 text-amber" style={{ filter: "drop-shadow(0 0 4px #F59E0B)" }} />
+                <span className="text-foreground font-data">{(() => { try { return JSON.parse(localStorage.getItem("bion_routines") ?? "[]").length; } catch { return 0; } })()} routines</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs">
+                <Droplets className="w-3.5 h-3.5 text-blue-400" style={{ filter: "drop-shadow(0 0 4px #60A5FA)" }} />
+                <span className="text-foreground font-data">{(() => { try { return localStorage.getItem(`bion_water_${new Date().toISOString().split("T")[0]}`) ?? "0"; } catch { return "0"; } })()} glasses</span>
+              </div>
             </div>
           </div>
         </motion.div>
