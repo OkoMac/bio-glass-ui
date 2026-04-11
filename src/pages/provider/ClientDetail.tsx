@@ -1,14 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
+import { useAuth } from "@/contexts/AuthContext";
+import { useBookings } from "@/contexts/BookingsContext";
+import { supabase } from "@/integrations/supabase/client";
+import { getProviderImage } from "@/lib/providerImages";
 import {
   ArrowLeft, MessageSquare, Calendar, Star, AlertTriangle,
   CheckCircle, Plus, Send, Award, Flame, ClipboardList,
   TrendingUp, Activity, FileText, Gift, ChevronRight,
-  Clock, Target, Edit3, Trash2, X, Users
+  Clock, Target, Edit3, Trash2, X, Users, Loader2
 } from "lucide-react";
 
 /* ── Client CRM data types ─────────── */
@@ -27,19 +31,143 @@ interface ClientData {
   rewardsGiven: { label: string; points: number; date: string }[];
 }
 
-// No hardcoded clients - will be fetched from Supabase when real data exists
-const REAL_CLIENTS: Record<string, ClientData> = {};
-
 // ── Main component ──────────────────────────────────────────────
 export default function ClientDetail() {
   const { clientId } = useParams<{ clientId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { bookings } = useBookings();
   const [activeTab, setActiveTab] = useState<"overview" | "history" | "tasks" | "notes">("overview");
   const [showNoteForm, setShowNoteForm] = useState(false);
   const [newNote, setNewNote] = useState("");
   const [pinned, setPinned] = useState(false);
+  const [client, setClient] = useState<ClientData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const client = clientId ? REAL_CLIENTS[clientId] : undefined;
+  /* Build client data from real bookings + Supabase profile */
+  useEffect(() => {
+    if (!clientId) { setLoading(false); return; }
+
+    const buildClient = async () => {
+      // 1) Find all bookings for this client (provider's view)
+      const clientBookings = bookings.filter(b =>
+        b.clientId === clientId ||
+        b.id === clientId ||
+        (b.clientName && b.clientName.replace(/\s/g, "_").toLowerCase() === clientId)
+      );
+
+      // 2) Try to fetch the client's profile from Supabase
+      let profile: any = null;
+      let notesData: any[] = [];
+      try {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", clientId)
+          .single();
+        profile = profileData;
+
+        // Fetch provider notes if any
+        if (user?.id) {
+          const { data: notesResult } = await supabase
+            .from("client_notes")
+            .select("*")
+            .eq("client_id", clientId)
+            .eq("provider_id", user.id)
+            .order("created_at", { ascending: false });
+          notesData = notesResult ?? [];
+        }
+      } catch (err) {
+        // No profile in Supabase (demo or new client) — derive from bookings
+      }
+
+      // 3) Build client object
+      const firstBooking = clientBookings[0];
+      const clientName = profile?.full_name ?? firstBooking?.clientName ?? "Client";
+      const image = profile?.avatar_url ?? getProviderImage(clientId, clientName);
+
+      const sessionHistory = clientBookings
+        .filter(b => b.status === "completed")
+        .map(b => ({
+          date: b.date ?? "",
+          service: b.service ?? "Session",
+          notes: b.notes ?? "",
+          rating: 5,
+        }));
+
+      const totalSpend = clientBookings
+        .filter(b => b.status === "completed" && b.price)
+        .reduce((sum, b) => {
+          const num = parseInt((b.price ?? "0").replace(/[^0-9]/g, ""));
+          return sum + (isNaN(num) ? 0 : num);
+        }, 0);
+
+      const nextBooking = clientBookings
+        .filter(b => b.status === "confirmed" || b.status === "pending")
+        .sort((a, b) => (a.date ?? "").localeCompare(b.date ?? ""))[0]?.date ?? "—";
+
+      const lastVisit = sessionHistory[0]?.date ?? "—";
+      const joinedAt = clientBookings[clientBookings.length - 1]?.date ?? "—";
+
+      // Risk: high if no booking in 30+ days, medium if 14-30 days
+      const daysSinceLastVisit = lastVisit !== "—"
+        ? Math.floor((Date.now() - new Date(lastVisit).getTime()) / (1000 * 60 * 60 * 24))
+        : 999;
+      const risk = daysSinceLastVisit > 30 ? "high" : daysSinceLastVisit > 14 ? "medium" : "low";
+
+      const builtClient: ClientData = {
+        id: clientId,
+        name: clientName,
+        image,
+        vertical: "teal",
+        email: profile?.email ?? "",
+        phone: profile?.phone ?? "",
+        goal: profile?.goal ?? "",
+        risk,
+        sessions: sessionHistory.length,
+        totalSpend,
+        nextBooking,
+        joinedAt,
+        lastVisit,
+        wellnessScore: 0,
+        streak: 0,
+        bioPoints: 0,
+        tags: [],
+        location: profile?.location ?? "Pretoria",
+        providerType: "",
+        sessionHistory,
+        activeTasks: [],
+        providerNotes: notesData.map((n: any) => ({
+          id: n.id,
+          text: n.note ?? n.text ?? "",
+          date: new Date(n.created_at).toLocaleDateString("en-ZA"),
+          pinned: n.pinned ?? false,
+        })),
+        prescriptions: [],
+        rewardsGiven: [],
+      };
+
+      setClient(builtClient);
+      setLoading(false);
+    };
+
+    buildClient();
+  }, [clientId, bookings, user?.id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+        <div className="mx-auto max-w-3xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8">
+          <GlassCard className="p-12 text-center">
+            <Loader2 className="w-8 h-8 text-muted-foreground animate-spin mx-auto mb-2" />
+            <p className="text-xs text-muted-foreground">Loading client data...</p>
+          </GlassCard>
+        </div>
+        <BionAssistant />
+        <ProviderNav />
+      </div>
+    );
+  }
 
   if (!client) {
     return (
@@ -60,12 +188,36 @@ export default function ClientDetail() {
     );
   }
 
-  const addNote = () => {
-    if (!newNote.trim()) return;
-    // In a real app, this would update the database
+  const addNote = async () => {
+    if (!newNote.trim() || !client || !user?.id) return;
+    const text = newNote.trim();
+    const isDemo = user.id.startsWith("demo_");
+
+    // Optimistic UI update
+    const tempNote = {
+      id: `temp_${Date.now()}`,
+      text,
+      date: new Date().toLocaleDateString("en-ZA"),
+      pinned,
+    };
+    setClient(prev => prev ? { ...prev, providerNotes: [tempNote, ...prev.providerNotes] } : prev);
     setShowNoteForm(false);
     setNewNote("");
     setPinned(false);
+
+    // Save to Supabase (skip for demo)
+    if (!isDemo) {
+      try {
+        await supabase.from("client_notes").insert({
+          client_id: client.id,
+          provider_id: user.id,
+          note: text,
+          pinned,
+        });
+      } catch (err) {
+        console.warn("[client notes] save failed:", err);
+      }
+    }
   };
 
   const markTaskDone = (taskId: string) => {

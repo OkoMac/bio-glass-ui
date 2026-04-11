@@ -165,9 +165,10 @@ export async function signOutSupabase(): Promise<void> {
 
 // ── Demo accounts (localStorage-only, no Supabase session) ─────────
 // id prefixed "demo_" so isOnboardingComplete() can skip the redirect for them.
+// profileId is set to the same id so hooks like useMessages don't crash on undefined.
 export const DEMO_ACCOUNTS: BioUser[] = [
-  { id: "demo_client",    name: "Oko Mthembu",  email: "client@bion.app",    role: "client"    },
-  { id: "demo_provider",  name: "James Okafor", email: "provider@bion.app",  role: "provider"  },
-  { id: "demo_corporate", name: "Capitec HR",    email: "corporate@bion.app", role: "corporate" },
-  { id: "demo_sales_rep", name: "Thandi Nkosi", email: "rep@bion.app",       role: "sales_rep" },
+  { id: "demo_client",    profileId: "demo_client",    name: "Oko Mthembu",  email: "client@bion.app",    role: "client"    },
+  { id: "demo_provider",  profileId: "demo_provider",  name: "James Okafor", email: "provider@bion.app",  role: "provider"  },
+  { id: "demo_corporate", profileId: "demo_corporate", name: "Capitec HR",    email: "corporate@bion.app", role: "corporate" },
+  { id: "demo_sales_rep", profileId: "demo_sales_rep", name: "Thandi Nkosi", email: "rep@bion.app",       role: "sales_rep" },
 ];
