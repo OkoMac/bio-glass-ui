@@ -64,6 +64,8 @@ const ALL_HOME_PROVIDERS = realData.providers
 
 const Index = () => {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterVersion, setFilterVersion] = useState(0); // bumped when filters change
   const { user, updateAvatar } = useAuth();
   const navigate = useNavigate();
   const geo = useGeolocation();
@@ -71,16 +73,37 @@ const Index = () => {
   const filteredProviders = useMemo(() => {
     let list = ALL_HOME_PROVIDERS;
 
-    if (activeCategory === "Free Sessions") {
+    // Read filters from localStorage (set by SearchBar filter sheet)
+    let filters: any = {};
+    try { filters = JSON.parse(localStorage.getItem("bion_search_filters") ?? "{}"); } catch {}
+
+    // Search query (matches name OR specialty)
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(p =>
+        p.name.toLowerCase().includes(q) || p.specialty.toLowerCase().includes(q)
+      );
+    }
+
+    // Category from chips OR from filter sheet
+    const cat = activeCategory !== "All" ? activeCategory : (filters.category && filters.category !== "All" ? filters.category : null);
+    if (cat === "Free Sessions" || filters.freeOnly) {
       list = list.filter(p => /free|r0|R0/i.test(p.price));
-    } else if (activeCategory === "Available Now") {
+    }
+    if (cat === "Available Now" || filters.availableNow) {
       list = list.filter(p => /weekday|daily|today|by appointment/i.test(p.availability));
-    } else if (activeCategory !== "All") {
-      list = list.filter(p => p.serviceCategory === activeCategory);
+    }
+    if (cat && cat !== "Free Sessions" && cat !== "Available Now") {
+      list = list.filter(p => p.serviceCategory === cat);
+    }
+
+    // Min rating
+    if (filters.minRating > 0) {
+      list = list.filter(p => p.rating >= filters.minRating);
     }
 
     return list.slice(0, 12);
-  }, [activeCategory]);
+  }, [activeCategory, searchQuery, filterVersion]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -119,7 +142,11 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
       <div className="w-full px-4 md:px-8 xl:px-12 pt-20 space-y-6">
-        <SearchBar />
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onFiltersChange={() => setFilterVersion(v => v + 1)}
+        />
 
         {/* ── Cover banner — full height with avatar on top ── */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}

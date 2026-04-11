@@ -7,6 +7,7 @@ interface SearchBarProps {
   value?: string;
   onChange?: (value: string) => void;
   onFilterClick?: () => void;
+  onFiltersChange?: () => void;
   placeholder?: string;
 }
 
@@ -28,7 +29,7 @@ const DEFAULT_FILTERS: FilterState = {
 
 const CATEGORIES = ["All", "Fitness", "Medical", "Beauty", "Wellness", "Professional"];
 
-const SearchBar = ({ value: externalValue, onChange, onFilterClick, placeholder = "Find a service or provider..." }: SearchBarProps) => {
+const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersChange, placeholder = "Find a service or provider..." }: SearchBarProps) => {
   const navigate = useNavigate();
   const [internalValue, setInternalValue] = useState("");
   const value = externalValue ?? internalValue;
@@ -63,28 +64,59 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, placeholder 
       setValue(transcript);
       setListening(false);
     };
-    recognition.onerror = () => setListening(false);
+    recognition.onerror = (event: any) => {
+      console.error("[voice search] error:", event.error);
+      setListening(false);
+      const errorMessages: Record<string, string> = {
+        "not-allowed": "Microphone permission denied. Please enable microphone access in your browser settings and try again.",
+        "no-speech": "I didn't hear anything. Please try again and speak clearly.",
+        "audio-capture": "No microphone detected. Please connect a microphone and try again.",
+        "network": "Network error. Voice recognition requires an internet connection.",
+        "aborted": "",  // user cancelled — no message needed
+      };
+      const msg = errorMessages[event.error] ?? `Voice search error: ${event.error}`;
+      if (msg) alert(msg);
+    };
     recognition.onend = () => setListening(false);
 
     recognitionRef.current = recognition;
   }, []);
 
-  const handleMicClick = () => {
+  const handleMicClick = async () => {
     const recognition = recognitionRef.current;
     if (!recognition) {
-      alert("Voice search is not supported in your browser. Try Chrome or Safari.");
+      alert("Voice search is not supported in your browser. Try Chrome on Android/Desktop or Safari on iOS.");
       return;
     }
+
+    // Check HTTPS requirement
+    if (window.location.protocol !== "https:" && window.location.hostname !== "localhost") {
+      alert("Voice search requires HTTPS. This site must be accessed over a secure connection.");
+      return;
+    }
+
     if (listening) {
       recognition.stop();
       setListening(false);
-    } else {
+      return;
+    }
+
+    // Request mic permission explicitly first
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Permission granted — close the test stream and start recognition
+      stream.getTracks().forEach(t => t.stop());
       try {
         recognition.start();
         setListening(true);
-      } catch {
+      } catch (err: any) {
+        console.error("[voice search] start error:", err);
         setListening(false);
+        alert(`Could not start voice recognition: ${err.message}`);
       }
+    } catch (err: any) {
+      console.error("[voice search] permission error:", err);
+      alert("Microphone permission is required for voice search. Please allow microphone access in your browser and try again.");
     }
   };
 
@@ -103,6 +135,7 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, placeholder 
   const saveFilters = (newFilters: FilterState) => {
     setFilters(newFilters);
     localStorage.setItem("bion_search_filters", JSON.stringify(newFilters));
+    if (onFiltersChange) onFiltersChange();
   };
 
   const resetFilters = () => saveFilters(DEFAULT_FILTERS);
