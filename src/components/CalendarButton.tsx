@@ -3,6 +3,7 @@ import { CalendarDays } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
+import Tooltip from "./Tooltip";
 
 /**
  * Floating calendar shortcut button — top-left corner.
@@ -35,20 +36,24 @@ export default function CalendarButton() {
                       "/calendar";
 
   return (
-    <motion.button
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      whileTap={{ scale: 0.9 }}
-      onClick={() => navigate(targetRoute)}
-      className="fixed top-4 left-4 z-[45] w-10 h-10 rounded-full glass-2 flex items-center justify-center shadow-card"
-      aria-label={`Calendar${upcomingCount > 0 ? ` (${upcomingCount} upcoming)` : ""}`}
-    >
-      <CalendarDays className="w-4 h-4 text-foreground" strokeWidth={1.5} />
-      {upcomingCount > 0 && (
-        <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] rounded-full bg-teal text-white text-[9px] font-bold flex items-center justify-center border-2 border-obsidian px-0.5">
-          {upcomingCount > 9 ? "9+" : upcomingCount}
-        </span>
-      )}
-    </motion.button>
+    <div className="fixed top-4 left-4 z-[45]">
+      <Tooltip text={upcomingCount > 0 ? `Calendar · ${upcomingCount} upcoming` : "Calendar"} side="bottom">
+        <motion.button
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => navigate(targetRoute)}
+          className="w-10 h-10 rounded-full glass-2 flex items-center justify-center shadow-card relative"
+          aria-label={`Calendar${upcomingCount > 0 ? ` (${upcomingCount} upcoming)` : ""}`}
+        >
+          <CalendarDays className="w-4 h-4 text-foreground" strokeWidth={1.5} />
+          {upcomingCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] rounded-full bg-teal text-white text-[9px] font-bold flex items-center justify-center border-2 border-obsidian px-0.5">
+              {upcomingCount > 9 ? "9+" : upcomingCount}
+            </span>
+          )}
+        </motion.button>
+      </Tooltip>
+    </div>
   );
 }

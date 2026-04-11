@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Download, Smartphone, Share, X, Check, RefreshCw } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import Tooltip from "./Tooltip";
 
 const APP_VERSION = "1.0.0";
 
@@ -112,28 +113,32 @@ export default function InstallButton() {
   // ── Installed: show version badge ──
   if (installed) {
     return (
-      <motion.button
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={updateAvailable ? handleUpdate : undefined}
-        className={`fixed top-4 right-16 z-[45] h-10 px-3 rounded-full glass-2 flex items-center gap-1.5 shadow-card ${
-          updateAvailable ? "border border-teal/40" : ""
-        }`}
-        aria-label={updateAvailable ? "Update available" : `BION version ${APP_VERSION}`}
-      >
-        {updateAvailable ? (
-          <>
-            <RefreshCw className="w-3.5 h-3.5 text-teal animate-spin" style={{ animationDuration: "3s" }} />
-            <span className="text-[10px] font-bold text-teal">Update</span>
-          </>
-        ) : (
-          <>
-            <Check className="w-3 h-3 text-teal" />
-            <span className="text-[10px] font-data text-muted-foreground">v{APP_VERSION}</span>
-          </>
-        )}
-      </motion.button>
+      <div className="fixed top-4 right-16 z-[45]">
+        <Tooltip text={updateAvailable ? "New version available — tap to update" : `BION app v${APP_VERSION}`} side="bottom">
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={updateAvailable ? handleUpdate : undefined}
+            className={`h-10 px-3 rounded-full glass-2 flex items-center gap-1.5 shadow-card ${
+              updateAvailable ? "border border-teal/40" : ""
+            }`}
+            aria-label={updateAvailable ? "Update available" : `BION version ${APP_VERSION}`}
+          >
+            {updateAvailable ? (
+              <>
+                <RefreshCw className="w-3.5 h-3.5 text-teal animate-spin" style={{ animationDuration: "3s" }} />
+                <span className="text-[10px] font-bold text-teal">Update</span>
+              </>
+            ) : (
+              <>
+                <Check className="w-3 h-3 text-teal" />
+                <span className="text-[10px] font-data text-muted-foreground">v{APP_VERSION}</span>
+              </>
+            )}
+          </motion.button>
+        </Tooltip>
+      </div>
     );
   }
 
@@ -143,17 +148,21 @@ export default function InstallButton() {
   // ── Not installed: show install button ──
   return (
     <>
-      <motion.button
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={handleInstall}
-        className="fixed top-4 right-16 z-[45] h-10 px-3 rounded-full bg-gradient-to-r from-indigo to-violet flex items-center gap-1.5 shadow-cta"
-        aria-label="Install BION app"
-      >
-        <Download className="w-3.5 h-3.5 text-white" />
-        <span className="text-[10px] font-bold text-white">Install</span>
-      </motion.button>
+      <div className="fixed top-4 right-16 z-[45]">
+        <Tooltip text="Install BION as an app on your device" side="bottom">
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleInstall}
+            className="h-10 px-3 rounded-full bg-gradient-to-r from-indigo to-violet flex items-center gap-1.5 shadow-cta"
+            aria-label="Install BION app"
+          >
+            <Download className="w-3.5 h-3.5 text-white" />
+            <span className="text-[10px] font-bold text-white">Install</span>
+          </motion.button>
+        </Tooltip>
+      </div>
 
       {/* Platform-specific instructions modal */}
       <AnimatePresence>

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Sparkles, Flame, Target, Calendar, TrendingUp, Brain,
-  Apple, Dumbbell, Heart, Pill, Clock, ChevronRight, Bell } from "lucide-react";
+  Apple, Dumbbell, Heart, Pill, Clock, ChevronRight, Bell, UserCheck, Mail, ExternalLink } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getReminderSummary, getActiveReminders, requestNotificationPermission } from "@/lib/reminders";
 
@@ -184,6 +184,8 @@ export default function BionAssistant() {
 
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
+  const [showHumanModal, setShowHumanModal] = useState(false);
+  const [humanReason, setHumanReason] = useState("");
   const reminderCount = role === "client" ? getActiveReminders().length : 0;
 
   // Request notification permission on first render
@@ -213,11 +215,40 @@ export default function BionAssistant() {
 
   const API_URL = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
+  /* Detect when user wants a human or shows frustration */
+  function detectsHumanRequest(text: string): boolean {
+    const t = text.toLowerCase();
+    const explicit = /talk to (a |an )?(human|person|agent|representative|someone real|real person)|speak to (a |an )?(human|person|agent)|human support|human help|live (chat|agent|support)|customer service|customer support|contact (support|bion|someone)/i;
+    const frustration = /you'?re (useless|stupid|wrong|broken|not helping)|this (sucks|is broken|doesn'?t work|isn'?t working)|stop (giving|telling) me|that'?s not what i (asked|wanted|meant)|frustrated|angry|fed up|wtf|what the (hell|fuck)/i;
+    return explicit.test(t) || frustration.test(t);
+  }
+
+  const requestHuman = (reason?: string) => {
+    setHumanReason(reason ?? "");
+    setShowHumanModal(true);
+  };
+
   const send = async (text: string) => {
     if (!text.trim()) return;
     const userMsg: Message = { id: Date.now() + "u", role: "user", text: text.trim(), ts: new Date() };
     setMessages(prev => [...prev, userMsg]);
     setInput("");
+
+    // Detect human-request or frustration → offer escalation
+    if (detectsHumanRequest(text)) {
+      setTimeout(() => {
+        const reply: Message = {
+          id: Date.now() + "h",
+          role: "assistant",
+          text: `I hear you. Let me connect you with a real person from our support team. They'll get back to you within a few hours during business hours (Mon-Fri 8am-6pm SAST).\n\nTap the **"Talk to Human"** button below to send your question to **support@bionhealth.co.za**.`,
+          ts: new Date(),
+        };
+        setMessages(prev => [...prev, reply]);
+        // Pre-fill the escalation reason with their last message
+        setHumanReason(text);
+      }, 600);
+      return;
+    }
 
     // Build user data context for the AI
     const data = getUserData();
@@ -305,7 +336,12 @@ export default function BionAssistant() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
+                  <button onClick={() => requestHuman()}
+                    className="flex items-center gap-1 text-[10px] text-teal px-2.5 py-1.5 rounded-lg border border-teal/20 bg-teal/5 hover:bg-teal/10 transition-colors"
+                    aria-label="Talk to a human agent">
+                    <UserCheck className="w-3 h-3" /> Human
+                  </button>
                   <button onClick={resetChat} className="text-[10px] text-muted-foreground hover:text-foreground px-2 py-1 glass-1 rounded-lg transition-colors">
                     Clear
                   </button>
@@ -364,6 +400,96 @@ export default function BionAssistant() {
                     <Send className="w-3.5 h-3.5 text-white" />
                   </button>
                 </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ── Talk to Human escalation modal ── */}
+      <AnimatePresence>
+        {showHumanModal && (
+          <>
+            <motion.div key="hm-ov" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowHumanModal(false)} className="fixed inset-0 bg-obsidian/70 z-[80]" />
+            <motion.div key="hm-modal"
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-[90] max-w-md mx-auto rounded-3xl p-6"
+              style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", border: "1px solid rgba(255,255,255,0.08)" }}>
+
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal to-emerald-400 flex items-center justify-center">
+                    <UserCheck className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-foreground">Talk to a Human</h3>
+                    <p className="text-[10px] text-muted-foreground">Our support team will reply via email</p>
+                  </div>
+                </div>
+                <button onClick={() => setShowHumanModal(false)}
+                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1 block">What do you need help with?</label>
+                  <textarea
+                    value={humanReason}
+                    onChange={e => setHumanReason(e.target.value)}
+                    placeholder="Describe your issue or question..."
+                    rows={5}
+                    className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-teal/40 transition-colors resize-none"
+                  />
+                </div>
+
+                <div className="rounded-xl bg-white/[0.02] border border-white/[0.06] p-3 text-[11px] text-muted-foreground space-y-1">
+                  <p>📧 <span className="text-foreground">support@bionhealth.co.za</span></p>
+                  <p>⏱ Reply within a few hours · Mon-Fri 8am-6pm SAST</p>
+                  <p>🆘 For urgent medical issues, call your provider directly</p>
+                </div>
+              </div>
+
+              <div className="flex gap-2 mt-5">
+                <button onClick={() => setShowHumanModal(false)}
+                  className="flex-1 py-2.5 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground">
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    // Build mailto link with context
+                    const subject = `BION Support Request — ${user?.name ?? "User"}`;
+                    const body = [
+                      `Hi BION Support team,`,
+                      ``,
+                      humanReason || "I need help with the BION app.",
+                      ``,
+                      `---`,
+                      `User: ${user?.name ?? "Unknown"}`,
+                      `Email: ${user?.email ?? "Unknown"}`,
+                      `Role: ${role}`,
+                      `Sent from: B_ Assistant`,
+                      `Date: ${new Date().toLocaleString("en-ZA")}`,
+                    ].join("\n");
+                    const mailto = `mailto:support@bionhealth.co.za?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                    window.location.href = mailto;
+                    // Add a confirmation message in chat
+                    const confirmMsg: Message = {
+                      id: Date.now() + "c",
+                      role: "assistant",
+                      text: `📧 Opening your email app to send your message to **support@bionhealth.co.za**. Our team will reply within a few hours during business hours. In the meantime, I'm still here if you need anything else.`,
+                      ts: new Date(),
+                    };
+                    setMessages(prev => [...prev, confirmMsg]);
+                    setShowHumanModal(false);
+                    setHumanReason("");
+                  }}
+                  disabled={!humanReason.trim()}
+                  className="flex-1 py-2.5 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 flex items-center justify-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5" /> Send Email
+                </button>
               </div>
             </motion.div>
           </>
