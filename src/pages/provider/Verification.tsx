@@ -1,12 +1,13 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Upload, FileText, Shield, CheckCircle, AlertCircle,
-  Clock, Camera, X, Eye, Trash2, CreditCard, Award, Building2
+  Clock, Camera, X, Eye, Trash2, CreditCard, Award, Building2, Loader2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -16,6 +17,7 @@ interface Document {
   name: string;
   status: "pending" | "verified" | "rejected";
   uploadedAt: string;
+  fileUrl?: string;
   preview?: string;
 }
 
@@ -28,64 +30,259 @@ const REQUIRED_DOCS = [
   { type: "proof_address", label: "Proof of Address", desc: "Utility bill or bank statement (not older than 3 months)", icon: FileText, required: false },
 ];
 
-const STORAGE_KEY = "bion_provider_docs";
+const BUCKET_NAME = "provider-documents";
 
 export default function ProviderVerification() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeDocType, setActiveDocType] = useState<string | null>(null);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [uploadingType, setUploadingType] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [regNumber, setRegNumber] = useState("");
 
-  const [documents, setDocuments] = useState<Document[]>(() => {
-    try { const s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : []; }
-    catch { return []; }
-  });
+  const isDemo = user?.id?.startsWith("demo_") ?? false;
+  const supabaseId = !isDemo && user?.id ? user.id : null;
 
-  const [regNumber, setRegNumber] = useState(() => localStorage.getItem("bion_provider_reg_number") ?? "");
+  // Load existing documents on mount
+  useEffect(() => {
+    const load = async () => {
+      if (!supabaseId) {
+        // Demo mode: load from localStorage
+        try {
+          const stored = localStorage.getItem("bion_provider_docs");
+          if (stored) setDocuments(JSON.parse(stored));
+        } catch { /* ignore */ }
+        try {
+          setRegNumber(localStorage.getItem("bion_provider_reg_number") ?? "");
+        } catch { /* ignore */ }
+        setLoading(false);
+        return;
+      }
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+      try {
+        // Load documents from Supabase
+        const { data, error: dbError } = await supabase
+          .from("provider_documents" as any)
+          .select("*")
+          .eq("provider_id", supabaseId)
+          .order("uploaded_at", { ascending: false });
+
+        if (dbError) throw dbError;
+
+        if (data) {
+          const mapped: Document[] = (data as any[]).map(d => ({
+            id: d.id,
+            type: d.doc_type,
+            name: d.file_name,
+            status: d.status,
+            uploadedAt: new Date(d.uploaded_at).toLocaleDateString("en-ZA"),
+            fileUrl: d.file_url,
+          }));
+          setDocuments(mapped);
+        }
+
+        // Load reg number from profile
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("professional_reg_number")
+          .eq("id", supabaseId)
+          .single();
+        if (profile && (profile as any).professional_reg_number) {
+          setRegNumber((profile as any).professional_reg_number);
+        }
+      } catch (err: any) {
+        console.error("[verification] load error:", err);
+        setError("Could not load existing documents. They will still be saved when you upload.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [supabaseId]);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !activeDocType) return;
+    e.target.value = ""; // reset so same file can be re-selected
 
-    const reader = new FileReader();
-    reader.onload = () => {
+    // Validate file size (10 MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setError("File too large. Maximum size is 10 MB.");
+      setTimeout(() => setError(null), 5000);
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/heic", "application/pdf"];
+    if (!allowedTypes.includes(file.type)) {
+      setError("Unsupported file type. Please upload JPEG, PNG, WEBP, HEIC, or PDF.");
+      setTimeout(() => setError(null), 5000);
+      return;
+    }
+
+    setUploadingType(activeDocType);
+    setError(null);
+
+    // Demo mode: store in localStorage
+    if (!supabaseId) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const newDoc: Document = {
+          id: `doc_${Date.now()}`,
+          type: activeDocType,
+          name: file.name,
+          status: "pending",
+          uploadedAt: new Date().toLocaleDateString("en-ZA"),
+          preview: file.type.startsWith("image/") ? (reader.result as string) : undefined,
+        };
+        const updated = [...documents.filter(d => d.type !== activeDocType), newDoc];
+        setDocuments(updated);
+        localStorage.setItem("bion_provider_docs", JSON.stringify(updated));
+        setUploadingType(null);
+        setActiveDocType(null);
+        setSuccess("Document saved (demo mode)");
+        setTimeout(() => setSuccess(null), 3000);
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    try {
+      // Upload to Supabase Storage
+      const ext = file.name.split(".").pop() ?? "bin";
+      const filePath = `${supabaseId}/${activeDocType}_${Date.now()}.${ext}`;
+
+      // Delete any existing file for this doc type first
+      const existing = documents.find(d => d.type === activeDocType);
+      if (existing?.fileUrl) {
+        // Extract path from URL
+        const urlParts = existing.fileUrl.split(`${BUCKET_NAME}/`);
+        if (urlParts[1]) {
+          await supabase.storage.from(BUCKET_NAME).remove([urlParts[1]]);
+        }
+        await supabase.from("provider_documents" as any).delete().eq("id", existing.id);
+      }
+
+      const { error: uploadError } = await supabase.storage
+        .from(BUCKET_NAME)
+        .upload(filePath, file, {
+          contentType: file.type,
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get the URL (signed since bucket is private)
+      const { data: signedData, error: signedError } = await supabase.storage
+        .from(BUCKET_NAME)
+        .createSignedUrl(filePath, 60 * 60 * 24 * 365); // 1 year
+
+      if (signedError) throw signedError;
+      const fileUrl = signedData.signedUrl;
+
+      // Save metadata to provider_documents table
+      const { data: insertData, error: insertError } = await supabase
+        .from("provider_documents" as any)
+        .insert({
+          provider_id: supabaseId,
+          doc_type: activeDocType,
+          file_name: file.name,
+          file_url: fileUrl,
+          status: "pending",
+        } as any)
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+
+      // Update local state
       const newDoc: Document = {
-        id: `doc_${Date.now()}`,
+        id: (insertData as any).id,
         type: activeDocType,
         name: file.name,
         status: "pending",
         uploadedAt: new Date().toLocaleDateString("en-ZA"),
-        preview: file.type.startsWith("image/") ? (reader.result as string) : undefined,
+        fileUrl,
       };
-      const updated = [...documents.filter(d => d.type !== activeDocType), newDoc];
-      setDocuments(updated);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+
+      setDocuments(prev => [...prev.filter(d => d.type !== activeDocType), newDoc]);
+      setSuccess(`${REQUIRED_DOCS.find(r => r.type === activeDocType)?.label} uploaded successfully`);
+      setTimeout(() => setSuccess(null), 4000);
+    } catch (err: any) {
+      console.error("[verification] upload error:", err);
+      setError(err.message ?? "Upload failed. Please try again.");
+      setTimeout(() => setError(null), 6000);
+    } finally {
+      setUploadingType(null);
       setActiveDocType(null);
-    };
-    reader.readAsDataURL(file);
-    e.target.value = "";
+    }
   };
 
-  const deleteDoc = (id: string) => {
-    const updated = documents.filter(d => d.id !== id);
-    setDocuments(updated);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  const deleteDoc = async (doc: Document) => {
+    if (!confirm(`Delete ${doc.name}? This cannot be undone.`)) return;
+
+    if (!supabaseId) {
+      // Demo mode
+      const updated = documents.filter(d => d.id !== doc.id);
+      setDocuments(updated);
+      localStorage.setItem("bion_provider_docs", JSON.stringify(updated));
+      return;
+    }
+
+    try {
+      // Delete from storage
+      if (doc.fileUrl) {
+        const urlParts = doc.fileUrl.split(`${BUCKET_NAME}/`);
+        if (urlParts[1]) {
+          const path = urlParts[1].split("?")[0]; // strip query string
+          await supabase.storage.from(BUCKET_NAME).remove([path]);
+        }
+      }
+      // Delete metadata
+      await supabase.from("provider_documents" as any).delete().eq("id", doc.id);
+      setDocuments(prev => prev.filter(d => d.id !== doc.id));
+    } catch (err: any) {
+      console.error("[verification] delete error:", err);
+      setError("Could not delete document. Please try again.");
+    }
   };
 
-  const saveRegNumber = () => {
-    localStorage.setItem("bion_provider_reg_number", regNumber);
+  const saveRegNumber = async () => {
+    if (!supabaseId) {
+      localStorage.setItem("bion_provider_reg_number", regNumber);
+      setSuccess("Saved");
+      setTimeout(() => setSuccess(null), 2000);
+      return;
+    }
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ professional_reg_number: regNumber } as any)
+        .eq("id", supabaseId);
+      if (error) {
+        // Column may not exist — fall back to localStorage
+        localStorage.setItem("bion_provider_reg_number", regNumber);
+      }
+      setSuccess("Registration number saved");
+      setTimeout(() => setSuccess(null), 2500);
+    } catch {
+      localStorage.setItem("bion_provider_reg_number", regNumber);
+    }
   };
 
   const uploadedTypes = new Set(documents.map(d => d.type));
   const requiredDone = REQUIRED_DOCS.filter(d => d.required).every(d => uploadedTypes.has(d.type));
   const totalUploaded = documents.length;
-  const totalRequired = REQUIRED_DOCS.filter(d => d.required).length;
   const verifiedCount = documents.filter(d => d.status === "verified").length;
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
-      <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
-        <input ref={fileInputRef} type="file" accept="image/*,.pdf,.doc,.docx" onChange={handleFileSelect} className="hidden" />
+      <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
+        <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic,application/pdf" onChange={handleFileSelect} className="hidden" />
 
         {/* Header */}
         <div className="flex items-center gap-3">
@@ -99,19 +296,34 @@ export default function ProviderVerification() {
           </div>
         </div>
 
+        {/* Error / Success banners */}
+        {error && (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl border border-coral/30 bg-coral/10 p-3 flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-coral shrink-0 mt-0.5" />
+            <p className="text-xs text-coral">{error}</p>
+          </motion.div>
+        )}
+        {success && (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl border border-teal/30 bg-teal/10 p-3 flex items-start gap-2">
+            <CheckCircle className="w-4 h-4 text-teal shrink-0 mt-0.5" />
+            <p className="text-xs text-teal">{success}</p>
+          </motion.div>
+        )}
+
         {/* Status card */}
         <GlassCard className="p-4">
           <div className="flex items-center gap-4">
             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${
               requiredDone ? "bg-teal/10" : "bg-amber/10"
             }`}>
-              {requiredDone
-                ? <CheckCircle className="w-6 h-6 text-teal" />
-                : <Clock className="w-6 h-6 text-amber" />}
+              {loading ? <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" /> :
+                requiredDone ? <CheckCircle className="w-6 h-6 text-teal" /> : <Clock className="w-6 h-6 text-amber" />}
             </div>
             <div className="flex-1">
               <p className="text-sm font-bold text-foreground">
-                {requiredDone ? "Documents Submitted" : "Verification Pending"}
+                {loading ? "Loading documents..." : requiredDone ? "Documents Submitted" : "Verification Pending"}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {totalUploaded} of {REQUIRED_DOCS.length} documents uploaded
@@ -134,9 +346,8 @@ export default function ProviderVerification() {
           <div className="flex gap-2">
             <input value={regNumber}
               onChange={e => setRegNumber(e.target.value)}
-              onBlur={saveRegNumber}
               placeholder="e.g. MP 0123456 (HPCSA)"
-              className="flex-1 px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors" />
+              className="flex-1 px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-indigo/40 transition-colors" />
             <button onClick={saveRegNumber}
               className="px-4 py-2.5 rounded-xl gradient-indigo text-white text-xs font-semibold">
               Save
@@ -152,6 +363,7 @@ export default function ProviderVerification() {
           {REQUIRED_DOCS.map(docType => {
             const uploaded = documents.find(d => d.type === docType.type);
             const Icon = docType.icon;
+            const isUploading = uploadingType === docType.type;
 
             return (
               <GlassCard key={docType.type} className="p-4">
@@ -160,14 +372,13 @@ export default function ProviderVerification() {
                     uploaded?.status === "verified" ? "bg-teal/10" :
                     uploaded ? "bg-amber/10" : "bg-white/[0.03]"
                   }`}>
-                    {uploaded?.status === "verified"
-                      ? <CheckCircle className="w-4 h-4 text-teal" />
-                      : uploaded
-                      ? <Clock className="w-4 h-4 text-amber" />
-                      : <Icon className="w-4 h-4 text-muted-foreground" />}
+                    {isUploading ? <Loader2 className="w-4 h-4 text-indigo animate-spin" /> :
+                      uploaded?.status === "verified" ? <CheckCircle className="w-4 h-4 text-teal" /> :
+                      uploaded ? <Clock className="w-4 h-4 text-amber" /> :
+                      <Icon className="w-4 h-4 text-muted-foreground" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-sm font-semibold text-foreground">{docType.label}</p>
                       {docType.required && (
                         <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-coral/10 text-coral border border-coral/20">Required</span>
@@ -177,9 +388,6 @@ export default function ProviderVerification() {
 
                     {uploaded && (
                       <div className="mt-2 flex items-center gap-2">
-                        {uploaded.preview && (
-                          <img src={uploaded.preview} alt={uploaded.name} className="w-12 h-12 rounded-lg object-cover" />
-                        )}
                         <div className="flex-1 min-w-0">
                           <p className="text-xs text-foreground truncate">{uploaded.name}</p>
                           <p className="text-[10px] text-muted-foreground">
@@ -193,7 +401,13 @@ export default function ProviderVerification() {
                             </span>
                           </p>
                         </div>
-                        <button onClick={() => deleteDoc(uploaded.id)}
+                        {uploaded.fileUrl && (
+                          <a href={uploaded.fileUrl} target="_blank" rel="noopener noreferrer"
+                            className="text-muted-foreground hover:text-teal transition-colors">
+                            <Eye className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                        <button onClick={() => deleteDoc(uploaded)}
                           className="text-muted-foreground hover:text-coral transition-colors">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -202,14 +416,15 @@ export default function ProviderVerification() {
                   </div>
 
                   <motion.button whileTap={{ scale: 0.95 }}
+                    disabled={isUploading}
                     onClick={() => { setActiveDocType(docType.type); fileInputRef.current?.click(); }}
                     className={`px-3 py-2 rounded-xl text-xs font-semibold shrink-0 ${
-                      uploaded
-                        ? "glass-1 text-muted-foreground hover:text-foreground"
-                        : "bg-gradient-to-r from-indigo to-violet text-white"
+                      isUploading ? "glass-1 text-muted-foreground" :
+                      uploaded ? "glass-1 text-muted-foreground hover:text-foreground" :
+                      "bg-gradient-to-r from-indigo to-violet text-white"
                     }`}>
-                    <Upload className="w-3 h-3 inline mr-1" />
-                    {uploaded ? "Replace" : "Upload"}
+                    {isUploading ? <Loader2 className="w-3 h-3 inline animate-spin" /> : <Upload className="w-3 h-3 inline mr-1" />}
+                    {isUploading ? " Uploading..." : uploaded ? "Replace" : "Upload"}
                   </motion.button>
                 </div>
               </GlassCard>
@@ -224,7 +439,7 @@ export default function ProviderVerification() {
             <div>
               <p className="text-sm font-medium text-foreground">Why we verify</p>
               <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                Verification protects both you and your clients. Verified providers receive a badge on their profile, appear higher in search results, and build trust with potential clients. Your documents are stored securely and processed in compliance with POPIA.
+                Verification protects both you and your clients. Verified providers receive a badge on their profile, appear higher in search results, and build trust with potential clients. Documents are stored securely in South Africa and processed in compliance with POPIA.
               </p>
             </div>
           </div>
