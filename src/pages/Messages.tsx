@@ -1,12 +1,16 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMessages } from "@/hooks/useMessages";
-import { Send, Paperclip, Info, ChevronLeft, Check, CheckCheck, MessageSquare } from "lucide-react";
+import { useBookings } from "@/contexts/BookingsContext";
+import { useMessages, useUnreadCount } from "@/hooks/useMessages";
+import { supabase } from "@/integrations/supabase/client";
+import { getProviderImage } from "@/lib/providerImages";
+import realData from "@/data/bion_pretoria_data.json";
+import { Send, Paperclip, Info, ChevronLeft, Check, CheckCheck, MessageSquare, Loader2 } from "lucide-react";
 
 // ── Message types ────────────────────────────────────────────────
 interface MockMsg {
@@ -16,13 +20,9 @@ interface MockMsg {
   providerId?: string;
 }
 
-// Threads loaded from backend -- empty until real conversations exist
-const REAL_THREADS: Record<string, MockMsg[]> = {};
-
-// Conversations loaded from backend
-const REAL_CONVERSATIONS: {
+interface Conversation {
   id: string;
-  supabaseId: string | null;
+  supabaseId: string | null;  // partner's profile ID for real-time messaging
   name: string;
   specialty: string;
   specialization: string;
@@ -33,7 +33,18 @@ const REAL_CONVERSATIONS: {
   online: boolean;
   location: string;
   providerId: string;
-}[] = [];
+  lastMessage?: string;
+}
+
+const VERTICAL_PALETTE: Array<"teal" | "indigo" | "coral" | "amber"> = ["teal", "indigo", "coral", "amber"];
+
+function categorizeVertical(category: string): "teal" | "indigo" | "coral" | "amber" {
+  const lower = category.toLowerCase();
+  if (/gym|fitness|yoga|pilates|train|crossfit/i.test(lower)) return "teal";
+  if (/medical|doctor|clinic|dental|physio|chiro/i.test(lower)) return "indigo";
+  if (/beauty|salon|spa|hair|nail/i.test(lower)) return "coral";
+  return "amber";
+}
 
 function getTime() {
   return new Date().toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit", hour12: false });
@@ -44,7 +55,7 @@ function ChatView({
   conversation,
   onClose,
 }: {
-  conversation: typeof REAL_CONVERSATIONS[0];
+  conversation: Conversation;
   onClose: () => void;
 }) {
   const { user } = useAuth();
@@ -199,20 +210,121 @@ function ChatView({
 // ── Main component ────────────────────────────────────────────────
 export default function Messages() {
   const { user } = useAuth();
+  const { bookings } = useBookings();
   const [selected, setSelected] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const selectedConv = REAL_CONVERSATIONS.find(c => c.id === selected);
+  const isDemo = user?.id?.startsWith("demo_") ?? false;
 
-  const filtered = REAL_CONVERSATIONS.filter(c =>
+  /* ── Build conversations list from booking history ────────────── */
+  useEffect(() => {
+    const loadConversations = async () => {
+      setLoading(true);
+
+      // Build provider map from bookings (unique providers user has interacted with)
+      const providerMap = new Map<string, Conversation>();
+
+      bookings.forEach((b, i) => {
+        const providerName = b.providerName ?? b.clientName ?? "Unknown";
+        const providerId = b.providerId ?? providerName.replace(/\s/g, "_").toLowerCase();
+        if (providerMap.has(providerId)) return;
+
+        // Try to find provider in real Pretoria data
+        const realProvider = realData.providers.find(
+          p => p.id === providerId || p.name === providerName
+        );
+
+        providerMap.set(providerId, {
+          id: providerId,
+          supabaseId: null,    // Updated below if Supabase profile exists
+          name: providerName,
+          specialty: realProvider?.service ?? (realProvider as any)?.category ?? "Provider",
+          specialization: realProvider?.service ?? "",
+          image: realProvider ? getProviderImage(realProvider.id, realProvider.name) : getProviderImage(providerId, providerName),
+          vertical: categorizeVertical((realProvider as any)?.category ?? ""),
+          time: b.date ?? "Recently",
+          unread: 0,
+          online: false,
+          location: (realProvider as any)?.suburb ?? realProvider?.location ?? "",
+          providerId,
+          lastMessage: `${b.service ?? "Booking"} on ${b.date}`,
+        });
+      });
+
+      const list = Array.from(providerMap.values());
+
+      // For real users (not demo), try to fetch profile IDs and last messages from Supabase
+      if (!isDemo && user?.id && list.length > 0) {
+        try {
+          // Look up provider profile IDs by name (best-effort match)
+          const names = list.map(c => c.name);
+          const { data: profiles } = await supabase
+            .from("profiles")
+            .select("id, full_name, avatar_url")
+            .in("full_name", names);
+
+          const profileMap = new Map<string, { id: string; avatar: string | null }>();
+          (profiles as any[] ?? []).forEach(p => {
+            profileMap.set(p.full_name, { id: p.id, avatar: p.avatar_url });
+          });
+
+          // Update conversations with real profile IDs
+          list.forEach(conv => {
+            const profile = profileMap.get(conv.name);
+            if (profile) {
+              conv.supabaseId = profile.id;
+              if (profile.avatar) conv.image = profile.avatar;
+            }
+          });
+
+          // Fetch the most recent message for each conversation that has a profile ID
+          const conversationsWithProfiles = list.filter(c => c.supabaseId);
+          if (conversationsWithProfiles.length > 0) {
+            const partnerIds = conversationsWithProfiles.map(c => c.supabaseId!);
+            const { data: recentMsgs } = await supabase
+              .from("messages")
+              .select("sender_id, receiver_id, content, created_at, is_read")
+              .or(`sender_id.in.(${partnerIds.join(",")}),receiver_id.in.(${partnerIds.join(",")})`)
+              .order("created_at", { ascending: false })
+              .limit(100);
+
+            (recentMsgs as any[] ?? []).forEach(msg => {
+              const partnerId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
+              const conv = list.find(c => c.supabaseId === partnerId);
+              if (conv && !conv.lastMessage?.startsWith(msg.content)) {
+                conv.lastMessage = msg.content;
+                conv.time = new Date(msg.created_at).toLocaleString("en-ZA", { hour: "2-digit", minute: "2-digit" });
+                if (msg.receiver_id === user.id && !msg.is_read) {
+                  conv.unread = (conv.unread ?? 0) + 1;
+                }
+              }
+            });
+          }
+        } catch (err) {
+          console.warn("[messages] Supabase enrichment failed:", err);
+        }
+      }
+
+      setConversations(list);
+      setLoading(false);
+    };
+
+    loadConversations();
+  }, [bookings, user?.id, isDemo]);
+
+  const selectedConv = conversations.find(c => c.id === selected);
+
+  const filtered = useMemo(() => conversations.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.specialty.toLowerCase().includes(search.toLowerCase()) ||
     (c.location && c.location.toLowerCase().includes(search.toLowerCase()))
-  );
+  ), [conversations, search]);
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
-      <div className="max-w-3xl mx-auto px-4 pt-12 space-y-6">
+      <div className="max-w-3xl xl:max-w-7xl mx-auto px-4 md:px-8 pt-20 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -236,7 +348,12 @@ export default function Messages() {
 
         {/* Conversations list */}
         <div className="space-y-3">
-          {filtered.length === 0 && REAL_CONVERSATIONS.length === 0 ? (
+          {loading ? (
+            <GlassCard className="p-8 text-center">
+              <Loader2 className="w-8 h-8 text-muted-foreground animate-spin mx-auto mb-2" />
+              <p className="text-xs text-muted-foreground">Loading conversations...</p>
+            </GlassCard>
+          ) : filtered.length === 0 && conversations.length === 0 ? (
             <GlassCard className="p-8 text-center">
               <MessageSquare className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
               <p className="text-sm font-medium text-foreground mb-1">No conversations yet</p>

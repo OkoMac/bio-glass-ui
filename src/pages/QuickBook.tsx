@@ -122,7 +122,7 @@ export default function QuickBook() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
-      <div className="max-w-lg md:max-w-3xl xl:max-w-5xl mx-auto px-4 pt-20 space-y-5">
+      <div className="max-w-lg md:max-w-3xl xl:max-w-7xl mx-auto px-4 pt-20 space-y-5">
 
         {/* Header */}
         <div className="flex items-center justify-between">
