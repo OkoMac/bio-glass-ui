@@ -57,6 +57,7 @@ import Notifications   from "./pages/Notifications";
 import SplashOnboarding from "./pages/SplashOnboarding";
 import NotFound        from "./pages/NotFound";
 import NotificationBell from "./components/NotificationBell";
+import InstallButton    from "./components/InstallButton";
 
 // Legal pages
 import AcceptableUse     from "./pages/legal/AcceptableUse";
@@ -292,6 +293,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <NotificationBell />
+              <InstallButton />
               <AppRoutes />
             </BrowserRouter>
           </TooltipProvider>
