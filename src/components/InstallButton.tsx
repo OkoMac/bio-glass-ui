@@ -4,7 +4,7 @@ import { Download, Smartphone, Share, X, Check, RefreshCw } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import Tooltip from "./Tooltip";
 
-const APP_VERSION = "1.0.0";
+const APP_VERSION = "2.4.0";
 
 // Detect device type
 function getDeviceType(): "android" | "ios" | "desktop" | "other" {
