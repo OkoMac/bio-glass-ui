@@ -69,7 +69,7 @@ export function getReferralShareUrl(referralCode: string, userName?: string): st
     ``,
     `Use my referral code ${referralCode} to get bonus BIONPoints when you sign up.`,
     ``,
-    `Download: https://bion-app.vercel.app`,
+    `Download: https://bionhealth.co.za`,
     ``,
     `Commit to your health, your wellness and your beauty. Commit to yourself. ✨`,
   ].join("\n");

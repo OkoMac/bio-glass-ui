@@ -108,7 +108,7 @@ export default function AcceptableUse() {
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-2">9. Reporting Violations</h2>
-            <p>Users may report AUP violations via the in-app reporting feature, by contacting support at <span className="text-teal">support@bion.club</span>, or by emailing <span className="text-teal">legal@bion.club</span>.</p>
+            <p>Users may report AUP violations via the in-app reporting feature, by contacting support at <span className="text-teal">support@bionhealth.co.za</span>, or by emailing <span className="text-teal">support@bionhealth.co.za</span>.</p>
           </section>
 
           <section>
@@ -118,7 +118,7 @@ export default function AcceptableUse() {
 
           <div className="pt-4 border-t border-white/5 text-xs text-muted-foreground">
             <p>BION (Pty) Ltd · Pretoria, South Africa</p>
-            <p>Contact: legal@bion.club</p>
+            <p>Contact: support@bionhealth.co.za</p>
           </div>
         </GlassCard>
       </div>

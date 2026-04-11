@@ -28,7 +28,7 @@ function baseLayout(content: string, preheader?: string): string {
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:${BRAND.card};border-radius:16px;border:1px solid ${BRAND.border};">
         <!-- Logo -->
         <tr><td style="padding:24px 24px 16px;text-align:center;">
-          <img src="https://bion-app.vercel.app/bion-logo-white-sm.png" alt="BION" width="80" style="display:inline-block" />
+          <img src="https://bionhealth.co.za/bion-logo-white-sm.png" alt="BION" width="80" style="display:inline-block" />
         </td></tr>
         <!-- Content -->
         <tr><td style="padding:0 24px 24px;color:${BRAND.text};font-size:14px;line-height:1.6;">
@@ -39,7 +39,7 @@ function baseLayout(content: string, preheader?: string): string {
           <p style="color:${BRAND.muted};font-size:11px;margin:0;">
             BION (Pty) Ltd · Pretoria, South Africa<br/>
             Commit to your health, your wellness and your beauty.<br/>
-            <a href="https://bion-app.vercel.app" style="color:${BRAND.teal};text-decoration:none;">bion-app.vercel.app</a>
+            <a href="https://bionhealth.co.za" style="color:${BRAND.teal};text-decoration:none;">bionhealth.co.za</a>
           </p>
         </td></tr>
       </table>
@@ -98,7 +98,7 @@ export function bookingConfirmationEmail(data: {
         </td></tr>
       </table>
 
-      ${button("View in Schedule", "https://bion-app.vercel.app/schedule")}
+      ${button("View in Schedule", "https://bionhealth.co.za/schedule")}
 
       <p style="color:${BRAND.muted};font-size:12px;margin:16px 0 0;">
         Need to cancel? You can do so up to 24 hours before your appointment from the app.
@@ -131,7 +131,7 @@ export function bookingReminderEmail(data: {
         </td></tr>
       </table>
 
-      ${button("View Appointment", "https://bion-app.vercel.app/schedule")}
+      ${button("View Appointment", "https://bionhealth.co.za/schedule")}
     `, `Reminder: ${data.service} with ${data.providerName} tomorrow at ${data.time}`),
   };
 }
@@ -190,7 +190,7 @@ export function paymentReceiptEmail(data: {
       </table>
 
       <p style="color:${BRAND.muted};font-size:12px;margin:16px 0 0;">
-        Payment processed by Paystack. If you have any questions, contact support@bion.club.
+        Payment processed by Paystack. If you have any questions, contact support@bionhealth.co.za.
       </p>
     `, `Payment receipt: ${data.totalPaid} for ${data.service}`),
   };
@@ -202,10 +202,10 @@ export function welcomeEmail(data: {
   role: "client" | "provider" | "corporate";
 }): { subject: string; html: string } {
   const roleCta = data.role === "provider"
-    ? { text: "Set Up Your Profile", url: "https://bion-app.vercel.app/pro/settings" }
+    ? { text: "Set Up Your Profile", url: "https://bionhealth.co.za/pro/settings" }
     : data.role === "corporate"
-    ? { text: "Add Your Team", url: "https://bion-app.vercel.app/corporate/employees" }
-    : { text: "Browse Providers", url: "https://bion-app.vercel.app/directory" };
+    ? { text: "Add Your Team", url: "https://bionhealth.co.za/corporate/employees" }
+    : { text: "Browse Providers", url: "https://bionhealth.co.za/directory" };
 
   return {
     subject: `Welcome to BION, ${data.name}!`,
