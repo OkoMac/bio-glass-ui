@@ -103,6 +103,7 @@ import AdminClients    from "./pages/admin/Clients";
 import AdminAnalytics  from "./pages/admin/Analytics";
 import AdminSettings   from "./pages/admin/Settings";
 import AdminUsers      from "./pages/admin/Users";
+import AdminVerification from "./pages/admin/Verification";
 
 // Corporate portal
 import CorporateDashboard  from "./pages/corporate/Dashboard";
@@ -264,7 +265,8 @@ function AppRoutes() {
       <Route path="/admin/clients"   element={<RequireAuth allowedRoles={["admin"]}><AdminClients /></RequireAuth>} />
       <Route path="/admin/analytics" element={<RequireAuth allowedRoles={["admin"]}><AdminAnalytics /></RequireAuth>} />
       <Route path="/admin/settings"  element={<RequireAuth allowedRoles={["admin"]}><AdminSettings /></RequireAuth>} />
-      <Route path="/admin/users"     element={<RequireAuth allowedRoles={["admin"]}><AdminUsers /></RequireAuth>} />
+      <Route path="/admin/users"        element={<RequireAuth allowedRoles={["admin"]}><AdminUsers /></RequireAuth>} />
+      <Route path="/admin/verification" element={<RequireAuth allowedRoles={["admin"]}><AdminVerification /></RequireAuth>} />
 
       {/* Corporate portal */}
       <Route path="/corporate/dashboard" element={<RequireAuth allowedRoles={["corporate"]}><CorporateDashboard /></RequireAuth>} />

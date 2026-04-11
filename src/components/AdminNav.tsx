@@ -2,16 +2,17 @@ import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Users, Briefcase, BarChart2,
-  Settings, ShieldCheck, LogOut, UserCog,
+  Settings, ShieldCheck, LogOut, UserCog, FileCheck,
 } from "lucide-react";
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Overview",   path: "/admin/dashboard"  },
-  { icon: Briefcase,       label: "Providers",  path: "/admin/providers"  },
-  { icon: Users,           label: "Clients",    path: "/admin/clients"    },
-  { icon: UserCog,         label: "Users",      path: "/admin/users"      },
-  { icon: BarChart2,       label: "Analytics",  path: "/admin/analytics"  },
-  { icon: Settings,        label: "Settings",   path: "/admin/settings"   },
+  { icon: LayoutDashboard, label: "Overview",     path: "/admin/dashboard"      },
+  { icon: Briefcase,       label: "Providers",    path: "/admin/providers"      },
+  { icon: FileCheck,       label: "Verification", path: "/admin/verification"   },
+  { icon: Users,           label: "Clients",      path: "/admin/clients"        },
+  { icon: UserCog,         label: "Users",        path: "/admin/users"          },
+  { icon: BarChart2,       label: "Analytics",    path: "/admin/analytics"      },
+  { icon: Settings,        label: "Settings",     path: "/admin/settings"       },
 ];
 
 export default function AdminNav() {
