@@ -1,14 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBookings } from "@/contexts/BookingsContext";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Bell, Calendar, MessageSquare, Flame,
-  Gift, Zap, CheckCheck, Trash2, Settings, BellOff, Pill,
+  Gift, Zap, CheckCheck, Trash2, Settings, BellOff, Pill, Loader2,
 } from "lucide-react";
 import { getActiveReminders, dismissReminder, type Reminder } from "@/lib/reminders";
 
@@ -43,40 +44,199 @@ const CATEGORY_CONFIG: Record<NotifCategory, { icon: React.ReactNode; color: str
   provider: { icon: <Bell className="w-4 h-4" />, color: "text-purple",     bg: "bg-purple/10" },
 };
 
+// ── Helpers ────────────────────────────────────────────────────────
+
+function relativeTime(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  const diff = Date.now() - d.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return d.toLocaleDateString("en-ZA", { day: "numeric", month: "short" });
+}
+
 // ── Main component ────────────────────────────────────────────────
 
 export default function Notifications() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  // Seed with B_ reminders converted to notifications
-  const [notifications, setNotifications] = useState<Notification[]>(() => {
-    const reminders = getActiveReminders();
-    const reminderNotifs: Notification[] = reminders.map(r => ({
-      id: r.id,
-      category: r.type === "medication" ? "system" as const : r.type === "workout" ? "streak" as const : r.type === "appointment" ? "booking" as const : "system" as const,
-      title: `B_ Reminder: ${r.title}`,
-      body: r.body,
-      time: "Just now",
-      read: false,
-      actionUrl: r.actionUrl,
-    }));
-    return [...reminderNotifs, ...INITIAL_NOTIFICATIONS];
-  });
+  const { bookings } = useBookings();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<NotifCategory | "all">("all");
   const [showSettings, setShowSettings] = useState(false);
-  const [muteAll, setMuteAll] = useState(false);
+  const [muteAll, setMuteAll] = useState(() => {
+    try { return localStorage.getItem("bion_notifs_muted") === "1"; }
+    catch { return false; }
+  });
 
-  // Fetch real notifications from Supabase when user is logged in
+  // Read dismissed notification IDs from localStorage
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem("bion_dismissed_notifs");
+      return new Set(stored ? JSON.parse(stored) : []);
+    } catch { return new Set(); }
+  });
+  // Read read notification IDs from localStorage
+  const [readIds, setReadIds] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem("bion_read_notifs");
+      return new Set(stored ? JSON.parse(stored) : []);
+    } catch { return new Set(); }
+  });
+
+  // ── Build real notifications from data sources ──
   useEffect(() => {
-    if (!user?.id) return; // demo mode — keep real seed data
+    const build = async () => {
+      const list: Notification[] = [];
+      const now = Date.now();
+      const today = new Date().toISOString().split("T")[0];
 
-    const fetchNotifications = async () => {
-      // In a real app, you would fetch notifications from Supabase
-      // For now, we keep the real seed data
+      // 1) B_ reminders (today's pending tasks)
+      const reminders = getActiveReminders();
+      reminders.forEach(r => {
+        const id = `reminder_${r.id}`;
+        if (dismissedIds.has(id)) return;
+        list.push({
+          id,
+          category: r.type === "medication" ? "system" :
+                    r.type === "workout" ? "streak" :
+                    r.type === "appointment" ? "booking" :
+                    r.type === "meal" ? "system" : "system",
+          title: `B_ Reminder · ${r.title}`,
+          body: r.body,
+          time: r.time ?? "Today",
+          createdAt: now,
+          read: readIds.has(id),
+          actionUrl: r.actionUrl,
+        });
+      });
+
+      // 2) Booking events (last 30 days)
+      const recentBookings = bookings
+        .filter(b => {
+          const bDate = new Date(b.date ?? "");
+          return !isNaN(bDate.getTime()) && (now - bDate.getTime()) < 30 * 24 * 60 * 60 * 1000;
+        })
+        .slice(0, 20);
+
+      recentBookings.forEach((b, i) => {
+        const partnerName = b.providerName ?? b.clientName ?? "Provider";
+        const isUpcoming = b.status === "confirmed" || b.status === "pending";
+        const isCompleted = b.status === "completed";
+        const id = `booking_${b.id ?? i}_${b.status}`;
+        if (dismissedIds.has(id)) return;
+
+        if (isUpcoming) {
+          const isToday = b.date === today;
+          list.push({
+            id,
+            category: "booking",
+            title: isToday ? `Today: ${b.service ?? "Booking"}` : `Upcoming: ${b.service ?? "Booking"}`,
+            body: `with ${partnerName}${b.time ? ` at ${b.time}` : ""}${b.date ? ` on ${b.date}` : ""}`,
+            time: b.date ?? "",
+            createdAt: new Date(b.date ?? Date.now()).getTime(),
+            read: readIds.has(id),
+            actionUrl: "/schedule",
+          });
+        } else if (isCompleted) {
+          list.push({
+            id,
+            category: "booking",
+            title: `Session completed`,
+            body: `${b.service ?? "Booking"} with ${partnerName} — leave a review?`,
+            time: b.date ?? "",
+            createdAt: new Date(b.date ?? Date.now()).getTime() + 1000,
+            read: readIds.has(id),
+            actionUrl: "/schedule",
+          });
+        } else if (b.status === "declined") {
+          list.push({
+            id,
+            category: "booking",
+            title: `Booking declined`,
+            body: `${partnerName} declined your ${b.service ?? "session"} request`,
+            time: b.date ?? "",
+            createdAt: new Date(b.date ?? Date.now()).getTime(),
+            read: readIds.has(id),
+            actionUrl: "/schedule",
+          });
+        }
+      });
+
+      // 3) Welcome notification for new users (no bookings yet)
+      if (bookings.length === 0 && user?.id && !user.id.startsWith("demo_")) {
+        const id = `welcome_${user.id}`;
+        if (!dismissedIds.has(id)) {
+          list.push({
+            id,
+            category: "system",
+            title: "Welcome to BION! 👋",
+            body: "Browse the directory to book your first session and start your wellness journey.",
+            time: "Today",
+            createdAt: now - 60000,
+            read: readIds.has(id),
+            actionUrl: "/directory",
+          });
+        }
+      }
+
+      // 4) Real-time message notifications (only for authenticated users)
+      const isDemo = user?.id?.startsWith("demo_") ?? false;
+      if (user?.id && !isDemo) {
+        try {
+          const { data: unreadMsgs } = await supabase
+            .from("messages")
+            .select("id, sender_id, content, created_at")
+            .eq("receiver_id", user.id)
+            .eq("is_read", false)
+            .order("created_at", { ascending: false })
+            .limit(10);
+
+          (unreadMsgs as any[] ?? []).forEach(msg => {
+            const id = `message_${msg.id}`;
+            if (dismissedIds.has(id)) return;
+
+            list.push({
+              id,
+              category: "message",
+              title: "New message",
+              body: msg.content?.substring(0, 80) ?? "You have a new message",
+              time: relativeTime(msg.created_at),
+              createdAt: new Date(msg.created_at).getTime(),
+              read: false,
+              actionUrl: "/messages",
+            });
+          });
+        } catch (err) {
+          console.warn("[notifications] message fetch failed:", err);
+        }
+      }
+
+      // Sort by createdAt (newest first)
+      list.sort((a, b) => b.createdAt - a.createdAt);
+
+      setNotifications(list);
+      setLoading(false);
     };
 
-    fetchNotifications();
-  }, [user?.id]);
+    build();
+  }, [user?.id, bookings, dismissedIds, readIds]);
+
+  // Persist read/dismissed state
+  useEffect(() => {
+    localStorage.setItem("bion_read_notifs", JSON.stringify([...readIds]));
+  }, [readIds]);
+  useEffect(() => {
+    localStorage.setItem("bion_dismissed_notifs", JSON.stringify([...dismissedIds]));
+  }, [dismissedIds]);
+  useEffect(() => {
+    localStorage.setItem("bion_notifs_muted", muteAll ? "1" : "0");
+  }, [muteAll]);
 
   const filtered = filter === "all"
     ? notifications
@@ -87,18 +247,22 @@ export default function Notifications() {
   const bookingNotifications = notifications.filter(n => n.category === "booking").length;
 
   const markAsRead = (id: string) => {
+    setReadIds(prev => new Set([...prev, id]));
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
   };
 
   const markAllAsRead = () => {
+    setReadIds(prev => new Set([...prev, ...notifications.map(n => n.id)]));
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   };
 
   const deleteNotification = (id: string) => {
+    setDismissedIds(prev => new Set([...prev, id]));
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
   const clearAll = () => {
+    setDismissedIds(prev => new Set([...prev, ...notifications.map(n => n.id)]));
     setNotifications([]);
   };
 
@@ -188,13 +352,18 @@ export default function Notifications() {
 
         {/* Notifications list */}
         <div className="space-y-3">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <GlassCard className="p-8 text-center">
+              <Loader2 className="w-8 h-8 text-muted-foreground animate-spin mx-auto mb-2" />
+              <p className="text-xs text-muted-foreground">Loading notifications...</p>
+            </GlassCard>
+          ) : filtered.length === 0 ? (
             <GlassCard className="p-8 text-center">
               <BellOff className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-semibold text-foreground mb-2">No notifications yet</h3>
               <p className="text-sm text-muted-foreground">
                 {filter === "all"
-                  ? "Notifications from bookings, providers, and rewards will appear here."
+                  ? "Notifications from bookings, reminders, and messages will appear here."
                   : `No ${filter} notifications`}
               </p>
             </GlassCard>
