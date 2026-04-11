@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Sparkles, Flame, Target, Calendar, TrendingUp, Brain,
   Apple, Dumbbell, Heart, Pill, Clock, ChevronRight, Bell, UserCheck, Mail, ExternalLink } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { getReminderSummary, getActiveReminders, requestNotificationPermission } from "@/lib/reminders";
+import { getReminderSummary, getActiveReminders, requestNotificationPermission, fireReminderNotifications } from "@/lib/reminders";
 
 interface Message {
   id: string;
@@ -188,8 +188,18 @@ export default function BionAssistant() {
   const [humanReason, setHumanReason] = useState("");
   const reminderCount = role === "client" ? getActiveReminders().length : 0;
 
-  // Request notification permission on first render
-  useEffect(() => { requestNotificationPermission(); }, []);
+  // Request notification permission on first render + fire pending reminders
+  useEffect(() => {
+    requestNotificationPermission();
+    if (role !== "client") return;
+
+    // Fire any active reminders that haven't been shown today
+    fireReminderNotifications();
+
+    // Check every 10 minutes for new reminders
+    const interval = setInterval(fireReminderNotifications, 10 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [role]);
 
   const [messages, setMessages] = useState<Message[]>(() => {
     try {

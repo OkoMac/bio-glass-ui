@@ -304,15 +304,71 @@ export function requestNotificationPermission(): void {
 }
 
 /**
- * Show a browser notification
+ * Show a browser notification — uses service worker if available (better mobile support),
+ * otherwise falls back to direct Notification API.
  */
-export function showNotification(title: string, body: string, icon?: string): void {
-  if ("Notification" in window && Notification.permission === "granted") {
+export function showNotification(title: string, body: string, options?: { icon?: string; tag?: string; url?: string }): void {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+  // Use service worker for delivery (works on mobile, persists when tab is closed)
+  if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: "SHOW_NOTIFICATION",
+      title,
+      body,
+      tag: options?.tag ?? title,
+      url: options?.url ?? "/",
+    });
+  } else {
+    // Fallback to direct API (desktop only)
     new Notification(title, {
       body,
-      icon: icon ?? "/icon-192.png",
+      icon: options?.icon ?? "/icon-192.png",
       badge: "/icon-192.png",
-      tag: title,
+      tag: options?.tag ?? title,
     });
   }
+}
+
+/**
+ * Fire any active reminders that haven't been notified yet today.
+ * Uses localStorage to track which reminders we've already pushed,
+ * so the user doesn't get spammed every time the page mounts.
+ */
+const NOTIFIED_KEY = "bion_notified_reminders";
+
+function getNotifiedToday(): Set<string> {
+  const today = new Date().toISOString().split("T")[0];
+  try {
+    const raw = localStorage.getItem(`${NOTIFIED_KEY}_${today}`);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch { return new Set(); }
+}
+
+function markNotified(id: string): void {
+  const today = new Date().toISOString().split("T")[0];
+  const set = getNotifiedToday();
+  set.add(id);
+  localStorage.setItem(`${NOTIFIED_KEY}_${today}`, JSON.stringify([...set]));
+}
+
+/**
+ * Check active reminders and fire notifications for ones we haven't shown yet today.
+ * Call this on app mount + at intervals (every 5-15 min).
+ */
+export function fireReminderNotifications(): void {
+  if (Notification.permission !== "granted") return;
+  const notified = getNotifiedToday();
+  const active = getActiveReminders();
+
+  active.forEach(r => {
+    if (notified.has(r.id)) return;
+    if (r.priority === "low") return; // skip low-priority ones
+    showNotification(
+      `${r.icon} ${r.title}`,
+      r.body,
+      { tag: r.id, url: r.actionUrl ?? "/" }
+    );
+    markNotified(r.id);
+  });
 }

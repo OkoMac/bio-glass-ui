@@ -6,6 +6,7 @@ import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
 import SubscriptionGate from "@/components/SubscriptionGate";
 import { useSubscription } from "@/hooks/useSubscription";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Plus, Trash2, ChevronDown, ChevronUp, Check, X,
   Dumbbell, Salad, Heart, ArrowLeft, Copy, Send,
@@ -717,7 +718,7 @@ export default function ProgramBuilder() {
 
   const visible = typeFilter === "all" ? programs : programs.filter(p => p.type === typeFilter);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!editing) return;
     if (programs.find(p => p.id === editing.id)) {
       setPrograms(prev => prev.map(p => p.id === editing.id ? editing : p));
@@ -725,33 +726,50 @@ export default function ProgramBuilder() {
       setPrograms(prev => [editing, ...prev]);
     }
 
-    // Push assigned programs to client-facing routines (localStorage bridge)
+    // ── Push assigned programs to clients via Supabase + localStorage bridge ──
     if (editing.assignedTo.length > 0) {
+      const routineType = editing.type === "workout" ? "workout" : editing.type === "meal" ? "meal" : "rehab";
+      const exercises = editing.type === "workout"
+        ? editing.days.flatMap(d => d.exercises.map(e => ({ name: e.name, sets: `${e.sets}×${e.reps}`, done: false })))
+        : editing.type === "meal"
+        ? editing.meals.flatMap(m => m.items.map(i => ({ name: `${m.label}: ${i.name}`, sets: `${i.qty} · ${i.kcal} kcal`, done: false })))
+        : editing.careSteps.map(s => ({ name: s.name, sets: `${s.durationMins} min`, done: false }));
+
+      const providerName = "Your Provider"; // provider context not pulled here yet
+      const vertical = routineType === "workout" ? "teal" : routineType === "meal" ? "amber" : "indigo";
+      const baseRoutine = {
+        title: editing.title || `${editing.type} Programme`,
+        type: routineType,
+        provider: providerName,
+        vertical,
+        daysCompleted: 0,
+        totalDays: editing.durationWeeks * 7,
+        exercises: exercises.length > 0 ? exercises : [{ name: "Follow provider instructions", sets: "—", done: false }],
+        createdBy: "provider" as const,
+        sharedWith: [],
+        schedule: editing.type === "workout" ? "Mon, Wed, Fri" : "Daily",
+      };
+
+      // 1) Write to Supabase routines table for each assigned client (cross-device sync)
+      try {
+        const inserts = editing.assignedTo.map(clientNameOrId => ({
+          // Try to use clientNameOrId as the user_id; if it's a name, the RLS will reject it
+          // Real production would resolve client name → profile_id first
+          id: `pro_${editing.id}_${clientNameOrId.replace(/\s/g, "_").toLowerCase()}`,
+          user_id: clientNameOrId,
+          ...baseRoutine,
+        }));
+        await supabase.from("routines" as any).upsert(inserts as any, { onConflict: "id" }).then(() => {});
+      } catch (err) {
+        console.warn("[program assign] Supabase upsert failed:", err);
+      }
+
+      // 2) Always write to localStorage so demo accounts and same-device clients pick it up immediately
       try {
         const existing = JSON.parse(localStorage.getItem("bion_routines") ?? "[]");
-        const routineType = editing.type === "workout" ? "workout" : editing.type === "meal" ? "meal" : "rehab";
-        const exercises = editing.type === "workout"
-          ? editing.days.flatMap(d => d.exercises.map(e => ({ name: e.name, sets: `${e.sets}×${e.reps}`, done: false })))
-          : editing.type === "meal"
-          ? editing.meals.flatMap(m => m.items.map(i => ({ name: `${m.label}: ${i.name}`, sets: `${i.qty} · ${i.kcal} kcal`, done: false })))
-          : editing.careSteps.map(s => ({ name: s.name, sets: `${s.durationMins} min`, done: false }));
-
-        // Only add if not already assigned
-        if (!existing.find((r: any) => r.id === `pro_${editing.id}`)) {
-          const newRoutine = {
-            id: `pro_${editing.id}`,
-            title: editing.title || `${editing.type} Programme`,
-            type: routineType,
-            provider: "Your Provider",
-            vertical: routineType === "workout" ? "teal" : routineType === "meal" ? "amber" : "indigo",
-            daysCompleted: 0,
-            totalDays: editing.durationWeeks * 7,
-            exercises: exercises.length > 0 ? exercises : [{ name: "Follow provider instructions", sets: "—", done: false }],
-            createdBy: "provider",
-            sharedWith: [],
-            schedule: editing.type === "workout" ? "Mon, Wed, Fri" : "Daily",
-          };
-          existing.unshift(newRoutine);
+        const routineId = `pro_${editing.id}`;
+        if (!existing.find((r: any) => r.id === routineId)) {
+          existing.unshift({ id: routineId, ...baseRoutine });
           localStorage.setItem("bion_routines", JSON.stringify(existing));
         }
       } catch { /* ignore */ }

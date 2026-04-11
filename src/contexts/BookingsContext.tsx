@@ -181,6 +181,50 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
   const addBooking = useCallback(async (booking: Omit<Booking, "id" | "status">) => {
     const newBooking: Booking = { ...booking, id: `b${Date.now()}`, status: "pending" };
     setBookings(prev => [...prev, newBooking]);
+
+    // ── Sync to BION Calendar (auto-add as appointment event) ──
+    try {
+      const calendarEvent = {
+        id: `booking_${newBooking.id}`,
+        title: booking.service ?? "Booking",
+        category: "appointment" as const,
+        date: booking.date,
+        time: booking.time,
+        duration: booking.duration,
+        provider: booking.providerName ?? booking.clientName ?? "",
+        location: "",
+        notes: booking.note ?? "",
+        completed: false,
+        recurring: undefined,
+      };
+
+      // Write to localStorage so the calendar page picks it up immediately
+      const existing = JSON.parse(localStorage.getItem("bion_calendar_events") ?? "[]");
+      // Avoid duplicates if user re-books same id
+      const filtered = existing.filter((e: any) => e.id !== calendarEvent.id);
+      localStorage.setItem("bion_calendar_events", JSON.stringify([...filtered, calendarEvent]));
+
+      // Sync to Supabase calendar_events for authenticated users
+      const supabaseUserId = user?.id && !user.id.startsWith("demo_") ? user.id : null;
+      if (supabaseUserId) {
+        supabase.from("calendar_events" as any).upsert({
+          id: calendarEvent.id,
+          user_id: supabaseUserId,
+          title: calendarEvent.title,
+          category: calendarEvent.category,
+          date: calendarEvent.date,
+          time: calendarEvent.time,
+          duration: calendarEvent.duration,
+          provider: calendarEvent.provider,
+          location: calendarEvent.location,
+          notes: calendarEvent.notes,
+          completed: false,
+        } as any, { onConflict: "id" }).then(() => {});
+      }
+    } catch (err) {
+      console.warn("[booking → calendar sync] failed:", err);
+    }
+
     // Only insert when we have a real session with a resolved profile ID
     if (user?.profileId) {
       await supabase.from("bookings").insert({
@@ -194,7 +238,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
         notes:            booking.note ?? null,
       });
     }
-  }, [user?.id, user?.role]);
+  }, [user?.id, user?.role, user?.profileId]);
 
   const getByStatus = useCallback((status: BookingStatus | BookingStatus[]) => {
     const statuses = Array.isArray(status) ? status : [status];

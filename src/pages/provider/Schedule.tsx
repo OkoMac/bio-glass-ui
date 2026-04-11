@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
+import { useBookings } from "@/contexts/BookingsContext";
+import { getProviderImage } from "@/lib/providerImages";
 import { ChevronLeft, ChevronRight, Clock, User, MessageSquare, X, Plus, Calendar } from "lucide-react";
 
 interface Booking {
@@ -33,37 +35,86 @@ function getWeekDates(offsetWeeks: number) {
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const HOURS = Array.from({ length: 14 }, (_, i) => i + 6); // 06:00 - 19:00
 
-// Empty schedule - will be populated from real bookings
-const emptySchedule: Record<number, Booking[]> = {
-  0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: []
-};
-
 function timeToTop(time: string, hourH: number): number {
+  if (!time) return 0;
   const [h, m] = time.split(":").map(Number);
-  return (h - 6) * hourH + (m / 60) * hourH;
+  return (h - 6) * hourH + ((m || 0) / 60) * hourH;
 }
 
 function durationToHeight(start: string, end: string, hourH: number): number {
+  if (!start || !end) return hourH;
   const [sh, sm] = start.split(":").map(Number);
   const [eh, em] = end.split(":").map(Number);
-  const mins = (eh * 60 + em) - (sh * 60 + sm);
-  return (mins / 60) * hourH;
+  const mins = (eh * 60 + (em || 0)) - (sh * 60 + (sm || 0));
+  return Math.max((mins / 60) * hourH, hourH * 0.5);
+}
+
+function addMinutes(time: string, mins: number): string {
+  if (!time) return "10:00";
+  const [h, m] = time.split(":").map(Number);
+  const total = h * 60 + (m || 0) + mins;
+  const newH = Math.floor(total / 60) % 24;
+  const newM = total % 60;
+  return `${String(newH).padStart(2, "0")}:${String(newM).padStart(2, "0")}`;
+}
+
+function statusToColor(status: string): string {
+  if (status === "confirmed") return "teal";
+  if (status === "completed") return "indigo";
+  if (status === "pending")   return "amber";
+  return "coral";
 }
 
 const HOUR_H = 56; // px per hour
 
 export default function ProviderSchedule() {
+  const { bookings: allBookings } = useBookings();
   const [weekOffset, setWeekOffset] = useState(0);
   const [viewDay, setViewDay]       = useState(0); // index 0-6 within week
   const [mode, setMode]             = useState<"week" | "day">("week");
   const [detail, setDetail]         = useState<Booking | null>(null);
-  const [scheduleData, setScheduleData] = useState<Record<number, Booking[]>>(emptySchedule);
 
   const weekDates = getWeekDates(weekOffset);
   const today     = new Date();
 
-  const dayBookings = (dayIdx: number) =>
-    scheduleData[dayIdx] ?? [];
+  // Build scheduleData from real bookings, grouped by day-of-week within current viewing week
+  const scheduleData = useMemo<Record<number, Booking[]>>(() => {
+    const grouped: Record<number, Booking[]> = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+    const weekStart = new Date(weekDates[0]);
+    weekStart.setHours(0, 0, 0, 0);
+    const weekEnd = new Date(weekDates[6]);
+    weekEnd.setHours(23, 59, 59, 999);
+
+    allBookings
+      .filter(b => b.status === "pending" || b.status === "confirmed" || b.status === "completed")
+      .forEach(b => {
+        if (!b.date) return;
+        const bDate = new Date(b.date);
+        if (isNaN(bDate.getTime())) return;
+        if (bDate < weekStart || bDate > weekEnd) return;
+
+        const dayOfWeek = bDate.getDay();
+        const dayIdx = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Mon=0..Sun=6
+
+        const start = b.time ?? "09:00";
+        const durationMins = parseInt(b.duration ?? "60") || 60;
+        const end = addMinutes(start, durationMins);
+
+        grouped[dayIdx].push({
+          id: b.id,
+          client: b.clientName ?? "Client",
+          image: getProviderImage(b.clientId ?? b.id, b.clientName ?? "Client"),
+          service: b.service,
+          start,
+          end,
+          color: statusToColor(b.status),
+          status: b.status === "completed" ? "completed" : b.status === "confirmed" ? "confirmed" : "pending",
+        });
+      });
+    return grouped;
+  }, [allBookings, weekOffset]);
+
+  const dayBookings = (dayIdx: number) => scheduleData[dayIdx] ?? [];
 
   const currentDayBookings = scheduleData[viewDay] ?? [];
 

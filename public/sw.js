@@ -1,5 +1,5 @@
-// BION Service Worker — offline shell + caching
-const CACHE_NAME = "bion-v1";
+// BION Service Worker — offline shell + caching + push notifications
+const CACHE_NAME = "bion-v2";
 const SHELL_ASSETS = [
   "/",
   "/manifest.json",
@@ -25,6 +25,67 @@ self.addEventListener("activate", (e) => {
     )
   );
   self.clients.claim();
+});
+
+// Push notification: triggered by Web Push API or local triggers
+self.addEventListener("push", (e) => {
+  let payload = {};
+  try {
+    payload = e.data ? e.data.json() : {};
+  } catch {
+    payload = { title: "BION", body: e.data?.text() ?? "You have a new notification" };
+  }
+
+  const title = payload.title ?? "BION";
+  const options = {
+    body: payload.body ?? "Tap to open BION",
+    icon: payload.icon ?? "/icon-192.png",
+    badge: "/icon-192.png",
+    tag: payload.tag ?? "bion-notif",
+    data: { url: payload.url ?? "/" },
+    requireInteraction: payload.priority === "high",
+    vibrate: payload.priority === "high" ? [200, 100, 200] : [100],
+    actions: payload.actions ?? [],
+  };
+
+  e.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Notification click: focus existing window or open new
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const url = e.notification.data?.url ?? "/";
+
+  e.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      // If a window is already open, focus it and navigate
+      for (const client of clientList) {
+        if ("focus" in client) {
+          client.postMessage({ type: "navigate", url });
+          return client.focus();
+        }
+      }
+      // Otherwise open a new window
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(url);
+      }
+    })
+  );
+});
+
+// Listen for messages from the app (e.g. to schedule local notifications)
+self.addEventListener("message", (e) => {
+  if (e.data?.type === "SHOW_NOTIFICATION") {
+    const { title, body, url, tag } = e.data;
+    self.registration.showNotification(title ?? "BION", {
+      body: body ?? "",
+      icon: "/icon-192.png",
+      badge: "/icon-192.png",
+      tag: tag ?? "bion-local",
+      data: { url: url ?? "/" },
+      vibrate: [100],
+    });
+  }
 });
 
 // Fetch: network-first for API/pages, cache-first for assets

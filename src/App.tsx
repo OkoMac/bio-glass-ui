@@ -39,84 +39,89 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-// Client pages
-import Index           from "./pages/Index";
+// ── Eager-loaded essential pages (always visible / first paint) ──
 import Directory       from "./pages/Directory";
-import ProviderProfile from "./pages/ProviderProfile";
-import Schedule        from "./pages/Schedule";
-import Messages        from "./pages/Messages";
-import Profile         from "./pages/Profile";
-import ClientSettings  from "./pages/Settings";
-import Routines        from "./pages/Routines";
-import Progress        from "./pages/Progress";
-import QuickBook       from "./pages/QuickBook";
-import Challenges      from "./pages/Challenges";
-import HealthProfile   from "./pages/HealthProfile";
-import Wallet          from "./pages/Wallet";
-import Notifications   from "./pages/Notifications";
 import SplashOnboarding from "./pages/SplashOnboarding";
 import NotFound        from "./pages/NotFound";
 import NotificationBell from "./components/NotificationBell";
 import InstallButton    from "./components/InstallButton";
 import CalendarButton   from "./components/CalendarButton";
 
+// ── Lazy-loaded pages (split into separate chunks) ──
+import { lazy, Suspense } from "react";
+
+// Client pages
+const Index           = lazy(() => import("./pages/Index"));
+const ProviderProfile = lazy(() => import("./pages/ProviderProfile"));
+const Schedule        = lazy(() => import("./pages/Schedule"));
+const Messages        = lazy(() => import("./pages/Messages"));
+const Profile         = lazy(() => import("./pages/Profile"));
+const ClientSettings  = lazy(() => import("./pages/Settings"));
+const Routines        = lazy(() => import("./pages/Routines"));
+const Progress        = lazy(() => import("./pages/Progress"));
+const QuickBook       = lazy(() => import("./pages/QuickBook"));
+const Challenges      = lazy(() => import("./pages/Challenges"));
+const HealthProfile   = lazy(() => import("./pages/HealthProfile"));
+const Wallet          = lazy(() => import("./pages/Wallet"));
+const Notifications   = lazy(() => import("./pages/Notifications"));
+
 // Legal pages
-import AcceptableUse     from "./pages/legal/AcceptableUse";
-import PaymentFlow       from "./pages/legal/PaymentFlow";
-import DisputeResolution from "./pages/legal/DisputeResolution";
+const AcceptableUse     = lazy(() => import("./pages/legal/AcceptableUse"));
+const PaymentFlow       = lazy(() => import("./pages/legal/PaymentFlow"));
+const DisputeResolution = lazy(() => import("./pages/legal/DisputeResolution"));
 
 // Client free tools
-import WaterTracker from "./pages/WaterTracker";
-import SleepTracker from "./pages/SleepTracker";
-import MedicalCard  from "./pages/MedicalCard";
-import LifeCoach    from "./pages/LifeCoach";
-import FoodTracker    from "./pages/FoodTracker";
-import ClientBilling  from "./pages/client/Billing";
-import BionCalendar from "./pages/BionCalendar";
-import HealthInsights from "./pages/HealthInsights";
+const WaterTracker  = lazy(() => import("./pages/WaterTracker"));
+const SleepTracker  = lazy(() => import("./pages/SleepTracker"));
+const MedicalCard   = lazy(() => import("./pages/MedicalCard"));
+const LifeCoach     = lazy(() => import("./pages/LifeCoach"));
+const FoodTracker   = lazy(() => import("./pages/FoodTracker"));
+const ClientBilling = lazy(() => import("./pages/client/Billing"));
+const BionCalendar  = lazy(() => import("./pages/BionCalendar"));
+const HealthInsights = lazy(() => import("./pages/HealthInsights"));
 
 // Role onboarding
-import ClientOnboarding    from "./pages/onboarding/ClientOnboarding";
-import ProviderOnboarding  from "./pages/onboarding/ProviderOnboarding";
-import CorporateOnboarding from "./pages/onboarding/CorporateOnboarding";
-import AdminOnboarding     from "./pages/onboarding/AdminOnboarding";
+const ClientOnboarding    = lazy(() => import("./pages/onboarding/ClientOnboarding"));
+const ProviderOnboarding  = lazy(() => import("./pages/onboarding/ProviderOnboarding"));
+const CorporateOnboarding = lazy(() => import("./pages/onboarding/CorporateOnboarding"));
+const AdminOnboarding     = lazy(() => import("./pages/onboarding/AdminOnboarding"));
 
 // Provider portal
-import ProviderClientDetail from "./pages/provider/ClientDetail";
-import ProviderDashboard    from "./pages/provider/Dashboard";
-import ProviderBookings     from "./pages/provider/Bookings";
-import ProviderSchedule     from "./pages/provider/Schedule";
-import ProviderClients      from "./pages/provider/Clients";
-import ProviderServices     from "./pages/provider/Services";
-import ProviderMessages     from "./pages/provider/Messages";
-import ProviderAnalytics    from "./pages/provider/Analytics";
-import ProviderAvailability from "./pages/provider/Availability";
-import ProviderSettings     from "./pages/provider/Settings";
-import ProviderBilling      from "./pages/provider/Billing";
-import ProviderProgramBuilder from "./pages/provider/ProgramBuilder";
-import ProviderVerification  from "./pages/provider/Verification";
+const ProviderClientDetail   = lazy(() => import("./pages/provider/ClientDetail"));
+const ProviderDashboard      = lazy(() => import("./pages/provider/Dashboard"));
+const ProviderBookings       = lazy(() => import("./pages/provider/Bookings"));
+const ProviderSchedule       = lazy(() => import("./pages/provider/Schedule"));
+const ProviderClients        = lazy(() => import("./pages/provider/Clients"));
+const ProviderServices       = lazy(() => import("./pages/provider/Services"));
+const ProviderMessages       = lazy(() => import("./pages/provider/Messages"));
+const ProviderAnalytics      = lazy(() => import("./pages/provider/Analytics"));
+const ProviderAvailability   = lazy(() => import("./pages/provider/Availability"));
+const ProviderSettings       = lazy(() => import("./pages/provider/Settings"));
+const ProviderBilling        = lazy(() => import("./pages/provider/Billing"));
+const ProviderProgramBuilder = lazy(() => import("./pages/provider/ProgramBuilder"));
+const ProviderVerification   = lazy(() => import("./pages/provider/Verification"));
 
 // Admin portal
-import AdminDashboard  from "./pages/admin/Dashboard";
-import AdminProviders  from "./pages/admin/Providers";
-import AdminClients    from "./pages/admin/Clients";
-import AdminAnalytics  from "./pages/admin/Analytics";
-import AdminSettings   from "./pages/admin/Settings";
-import AdminUsers      from "./pages/admin/Users";
-import AdminVerification from "./pages/admin/Verification";
+const AdminDashboard    = lazy(() => import("./pages/admin/Dashboard"));
+const AdminProviders    = lazy(() => import("./pages/admin/Providers"));
+const AdminClients      = lazy(() => import("./pages/admin/Clients"));
+const AdminAnalytics    = lazy(() => import("./pages/admin/Analytics"));
+const AdminSettings     = lazy(() => import("./pages/admin/Settings"));
+const AdminUsers        = lazy(() => import("./pages/admin/Users"));
+const AdminVerification = lazy(() => import("./pages/admin/Verification"));
 
 // Corporate portal
-import CorporateDashboard  from "./pages/corporate/Dashboard";
-import CorporateEmployees  from "./pages/corporate/Employees";
-import CorporateAnalytics  from "./pages/corporate/Analytics";
-import CorporateWallet     from "./pages/corporate/Wallet";
-import CorporateSettings   from "./pages/corporate/Settings";
-import CorporateProviders  from "./pages/corporate/Providers";
+const CorporateDashboard = lazy(() => import("./pages/corporate/Dashboard"));
+const CorporateEmployees = lazy(() => import("./pages/corporate/Employees"));
+const CorporateAnalytics = lazy(() => import("./pages/corporate/Analytics"));
+const CorporateWallet    = lazy(() => import("./pages/corporate/Wallet"));
+const CorporateSettings  = lazy(() => import("./pages/corporate/Settings"));
+const CorporateProviders = lazy(() => import("./pages/corporate/Providers"));
 
 // Sales rep portal
-import RepDashboard  from "./pages/rep/Dashboard";
-import RepProviders  from "./pages/rep/Providers";
-import RepAgreement  from "./pages/rep/Agreement";
+const RepDashboard  = lazy(() => import("./pages/rep/Dashboard"));
+const RepProviders  = lazy(() => import("./pages/rep/Providers"));
+const RepAgreement  = lazy(() => import("./pages/rep/Agreement"));
 
 const queryClient = new QueryClient();
 
@@ -298,7 +303,16 @@ const App = () => (
               <CalendarButton />
               <NotificationBell />
               <InstallButton />
-              <AppRoutes />
+              <Suspense fallback={
+                <div className="min-h-screen bg-obsidian flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-10 h-10 border-2 border-violet/30 border-t-violet rounded-full animate-spin" />
+                    <p className="text-xs text-muted-foreground">Loading...</p>
+                  </div>
+                </div>
+              }>
+                <AppRoutes />
+              </Suspense>
             </BrowserRouter>
           </TooltipProvider>
         </BookingsProvider>
