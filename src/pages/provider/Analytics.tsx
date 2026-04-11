@@ -57,7 +57,7 @@ export default function ProviderAnalytics() {
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
       <SubscriptionGate feature="basicAnalytics" featureName="Analytics" description="Track revenue, bookings, and client metrics to grow your business.">
-      <div className="mx-auto max-w-3xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
+      <div className="mx-auto max-w-3xl xl:max-w-7xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
 
         {/* Header */}
         <div className="flex items-start justify-between">

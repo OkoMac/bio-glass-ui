@@ -158,7 +158,7 @@ export default function AdminSettings() {
   if (loading) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
-        <div className="mx-auto max-w-2xl px-4 pt-16 pb-10 md:pt-8 flex flex-col items-center justify-center gap-3" style={{ minHeight: "60vh" }}>
+        <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-16 pb-10 md:pt-8 flex flex-col items-center justify-center gap-3" style={{ minHeight: "60vh" }}>
           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           <p className="text-sm text-muted-foreground">Loading settings...</p>
         </div>
@@ -169,7 +169,7 @@ export default function AdminSettings() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
-      <div className="mx-auto max-w-2xl px-4 pt-16 pb-10 md:pt-8 space-y-5">
+      <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-16 pb-10 md:pt-8 space-y-5">
 
         {/* Header */}
         <div className="flex items-start justify-between">

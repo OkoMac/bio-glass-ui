@@ -127,7 +127,7 @@ export default function CorporateDashboard() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
-      <div className="mx-auto max-w-4xl px-4 pt-16 pb-10 md:pt-8 space-y-6">
+      <div className="mx-auto max-w-4xl xl:max-w-7xl px-4 pt-16 pb-10 md:pt-8 space-y-6">
 
         {/* Header */}
         <div className="flex items-start justify-between">

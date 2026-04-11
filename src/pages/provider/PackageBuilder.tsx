@@ -36,7 +36,7 @@ export default function PackageBuilder() {
   if (!isEnabled('packageBuilder')) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
-        <div className="mx-auto max-w-2xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
+        <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
           <GlassCard className="p-6 text-center">
             <Sparkles className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
             <h2 className="text-lg font-semibold text-foreground mb-2">
@@ -68,7 +68,7 @@ export default function PackageBuilder() {
   
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
-      <div className="mx-auto max-w-6xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
+      <div className="mx-auto max-w-6xl xl:max-w-7xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
         
         {/* Header */}
         <div className="flex items-center justify-between">

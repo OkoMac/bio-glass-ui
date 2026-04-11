@@ -110,7 +110,7 @@ export default function AdminProviders() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
-      <div className="mx-auto max-w-5xl px-4 md:px-8 pt-16 pb-10 md:pt-8 space-y-5">
+      <div className="mx-auto max-w-5xl xl:max-w-7xl px-4 md:px-8 pt-16 pb-10 md:pt-8 space-y-5">
 
         {/* Header */}
         <div className="flex items-start justify-between">
