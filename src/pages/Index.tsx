@@ -173,14 +173,19 @@ const Index = () => {
 
           {/* Avatar centered on banner */}
           <div className="absolute bottom-4 left-4 md:bottom-5 md:left-5">
-            <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl overflow-hidden border-4 border-obsidian bg-obsidian relative group/avatar shadow-2xl">
-              <img
-                src={user?.avatar ?? getProviderImage(user?.id ?? "user", user?.name ?? "User")}
-                alt={user?.name ?? "User"}
-                className="w-full h-full object-cover"
-              />
-              <label className="absolute inset-0 bg-obsidian/0 group-hover/avatar:bg-obsidian/60 transition-all flex items-center justify-center cursor-pointer opacity-0 group-hover/avatar:opacity-100">
-                <Camera className="w-5 h-5 text-white" />
+            <div className="relative w-24 h-24 md:w-28 md:h-28 group/avatar">
+              {/* Avatar image */}
+              <div className="w-full h-full rounded-2xl overflow-hidden border-4 border-obsidian bg-obsidian shadow-2xl">
+                <img
+                  src={user?.avatar ?? getProviderImage(user?.id ?? "user", user?.name ?? "User")}
+                  alt={user?.name ?? "User"}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* Tiny camera button — bottom-right corner, only visible on hover (desktop) */}
+              <label className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-obsidian border-2 border-white/[0.08] flex items-center justify-center cursor-pointer opacity-0 group-hover/avatar:opacity-100 hover:bg-white/[0.04] transition-opacity z-10">
+                <Camera className="w-3 h-3 text-white" />
                 <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
               </label>
             </div>
