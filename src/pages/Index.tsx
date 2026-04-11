@@ -13,6 +13,7 @@ import {
   Droplets, Moon, HeartPulse, Activity
 } from "lucide-react";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import BiometricsDashboard from "@/components/BiometricsDashboard";
 import realData from "@/data/bion_pretoria_data.json";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 
@@ -211,6 +212,15 @@ const Index = () => {
             </div>
           </div>
         </motion.div>
+
+        {/* ── Biometrics dashboard (compact) ── */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs text-muted-foreground uppercase tracking-widest">Today's Vitals</p>
+            <button onClick={() => navigate("/health-insights")} className="text-xs text-teal font-medium">View all →</button>
+          </div>
+          <BiometricsDashboard compact />
+        </section>
 
         <div className="flex items-center gap-2 text-sm">
           <MapPin className="w-4 h-4 text-muted-foreground" />

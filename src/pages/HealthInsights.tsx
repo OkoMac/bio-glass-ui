@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
+import BiometricsDashboard from "@/components/BiometricsDashboard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
@@ -110,7 +111,7 @@ export default function HealthInsights() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
-      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-5xl px-4 pt-12 space-y-5">
+      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-5xl px-4 pt-20 space-y-5">
 
         {/* Header */}
         <div className="flex items-center gap-3">
@@ -123,6 +124,9 @@ export default function HealthInsights() {
             <p className="text-xs text-muted-foreground">B_ analysis of your health, wellness & beauty</p>
           </div>
         </div>
+
+        {/* Biometrics Dashboard with rings + trend charts */}
+        <BiometricsDashboard />
 
         {/* Overall score */}
         <GlassCard className="p-5">

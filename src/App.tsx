@@ -58,6 +58,7 @@ import SplashOnboarding from "./pages/SplashOnboarding";
 import NotFound        from "./pages/NotFound";
 import NotificationBell from "./components/NotificationBell";
 import InstallButton    from "./components/InstallButton";
+import CalendarButton   from "./components/CalendarButton";
 
 // Legal pages
 import AcceptableUse     from "./pages/legal/AcceptableUse";
@@ -292,6 +293,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <CalendarButton />
               <NotificationBell />
               <InstallButton />
               <AppRoutes />
