@@ -4,6 +4,7 @@ import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
+import ReviewForm from "@/components/ReviewForm";
 import { Calendar, ChevronLeft, ChevronRight, Clock, Star } from "lucide-react";
 import { useBookings } from "@/contexts/BookingsContext";
 
@@ -56,6 +57,7 @@ const Schedule = () => {
   const { getByStatus } = useBookings();
   const weekDates = getWeekDates();
   const [selectedDay, setSelectedDay] = useState(0);
+  const [reviewBooking, setReviewBooking] = useState<{ id: string; providerName: string } | null>(null);
 
   const upcoming = getByStatus(["pending", "confirmed"]);
   const past     = getByStatus(["completed", "no_show", "declined"]);
@@ -204,7 +206,9 @@ const Schedule = () => {
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         {b.status === "completed" && (
-                          <button className="text-[10px] text-indigo font-medium flex items-center gap-0.5">
+                          <button
+                            onClick={() => setReviewBooking({ id: b.id, providerName: b.providerName ?? "Provider" })}
+                            className="text-[10px] text-indigo font-medium flex items-center gap-0.5 hover:text-foreground transition-colors">
                             <Star className="w-3 h-3" /> Review
                           </button>
                         )}
@@ -220,6 +224,15 @@ const Schedule = () => {
           </section>
         )}
       </div>
+
+      {reviewBooking && (
+        <ReviewForm
+          bookingId={reviewBooking.id}
+          providerName={reviewBooking.providerName}
+          onClose={() => setReviewBooking(null)}
+          onSubmitted={() => setReviewBooking(null)}
+        />
+      )}
 
       <BottomNav />
       <BionAssistant />

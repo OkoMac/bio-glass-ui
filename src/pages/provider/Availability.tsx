@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
-import { Clock, Plus, X, ChevronDown, CheckCircle, Calendar, AlertTriangle } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Clock, Plus, X, ChevronDown, CheckCircle, Calendar, AlertTriangle, Loader2 } from "lucide-react";
 
 type Day = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
 
@@ -46,16 +48,64 @@ const exceptions = [
 const bufferOptions = ["0 min", "5 min", "10 min", "15 min", "20 min", "30 min"];
 const advanceOptions = ["Same day", "1 day", "2 days", "3 days", "7 days", "14 days"];
 
+const AVAIL_STORAGE_KEY = "bion_provider_availability";
+
 export default function ProviderAvailability() {
-  const [schedule, setSchedule] = useState<WeekSchedule>(initialSchedule);
+  const { user } = useAuth();
+  const isDemo = user?.id?.startsWith("demo_") ?? false;
+  const supabaseId = !isDemo && user?.id ? user.id : null;
+
+  const [schedule, setSchedule] = useState<WeekSchedule>(() => {
+    try {
+      const stored = localStorage.getItem(AVAIL_STORAGE_KEY);
+      if (stored) return JSON.parse(stored);
+    } catch {}
+    return initialSchedule;
+  });
   const [buffer, setBuffer] = useState("10 min");
   const [advance, setAdvance] = useState("2 days");
   const [expandedDay, setExpandedDay] = useState<Day | null>("Mon");
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [addingException, setAddingException] = useState(false);
   const [newExDate, setNewExDate] = useState("");
   const [newExLabel, setNewExLabel] = useState("");
   const [localExceptions, setLocalExceptions] = useState(exceptions);
+
+  // Load from Supabase on mount
+  useEffect(() => {
+    if (!supabaseId) return;
+    const load = async () => {
+      try {
+        const { data } = await supabase
+          .from("provider_availabilities" as any)
+          .select("*")
+          .eq("provider_id", supabaseId)
+          .order("day_of_week", { ascending: true });
+
+        if (data && (data as any[]).length > 0) {
+          const loaded: Partial<WeekSchedule> = {};
+          (data as any[]).forEach((row: any) => {
+            const day = DAYS[row.day_of_week] as Day;
+            if (!day) return;
+            if (!loaded[day]) loaded[day] = { enabled: row.is_available ?? true, blocks: [] };
+            if (row.start_time && row.end_time) {
+              loaded[day]!.blocks.push({ start: row.start_time.slice(0, 5), end: row.end_time.slice(0, 5) });
+            }
+          });
+          // Fill in missing days
+          DAYS.forEach(d => {
+            if (!loaded[d]) loaded[d] = { enabled: false, blocks: [] };
+          });
+          setSchedule(loaded as WeekSchedule);
+          localStorage.setItem(AVAIL_STORAGE_KEY, JSON.stringify(loaded));
+        }
+      } catch (err) {
+        console.warn("[availability] Supabase load failed:", err);
+      }
+    };
+    load();
+  }, [supabaseId]);
 
   const toggleDay = (day: Day) => {
     setSchedule(s => ({
@@ -85,7 +135,47 @@ export default function ProviderAvailability() {
     });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setSaving(true);
+    // Save to localStorage
+    localStorage.setItem(AVAIL_STORAGE_KEY, JSON.stringify(schedule));
+
+    // Save to Supabase
+    if (supabaseId) {
+      try {
+        // Delete existing rows
+        await supabase.from("provider_availabilities" as any).delete().eq("provider_id", supabaseId);
+        // Insert new rows — one per time block per day
+        const rows: any[] = [];
+        DAYS.forEach((day, dayIdx) => {
+          const daySchedule = schedule[day];
+          if (daySchedule.blocks.length === 0) {
+            rows.push({
+              provider_id: supabaseId,
+              day_of_week: dayIdx,
+              start_time: null,
+              end_time: null,
+              is_available: daySchedule.enabled,
+            });
+          } else {
+            daySchedule.blocks.forEach(block => {
+              rows.push({
+                provider_id: supabaseId,
+                day_of_week: dayIdx,
+                start_time: block.start + ":00",
+                end_time: block.end + ":00",
+                is_available: daySchedule.enabled,
+              });
+            });
+          }
+        });
+        await supabase.from("provider_availabilities" as any).insert(rows);
+      } catch (err) {
+        console.warn("[availability] Supabase save failed:", err);
+      }
+    }
+
+    setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
