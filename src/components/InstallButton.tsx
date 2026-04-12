@@ -48,7 +48,9 @@ export default function InstallButton() {
   });
 
   // Hide on auth/onboarding/legal pages
-  const hidden = ["/welcome", "/onboarding", "/legal"].some(p => location.pathname.startsWith(p));
+  // Hide on auth pages AND on the landing/directory page (login buttons conflict)
+  const hidden = ["/welcome", "/onboarding", "/legal"].some(p => location.pathname.startsWith(p))
+    || location.pathname === "/" || location.pathname === "/directory";
 
   // Listen for beforeinstallprompt (Chrome, Edge)
   useEffect(() => {
