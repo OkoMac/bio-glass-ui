@@ -240,7 +240,7 @@ export default function ProviderSchedule() {
                           }}
                         >
                           <div className="flex items-start gap-2 h-full">
-                            <img src={b.image} className="w-6 h-6 rounded-full object-cover flex-shrink-0" alt="" />
+                            <img src={b.image} className="w-6 h-6 rounded-full object-cover flex-shrink-0" alt="Client avatar" />
                             <div className="flex-1 min-w-0">
                               <div className="text-xs font-semibold text-white truncate">{b.client}</div>
                               <div className="text-[10px] text-white/80 truncate">{b.service}</div>
@@ -300,7 +300,7 @@ export default function ProviderSchedule() {
                       }}
                     >
                       <div className="flex items-start gap-3 h-full">
-                        <img src={b.image} className="w-8 h-8 rounded-full object-cover flex-shrink-0" alt="" />
+                        <img src={b.image} className="w-8 h-8 rounded-full object-cover flex-shrink-0" alt="Client avatar" />
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-semibold text-white truncate">{b.client}</div>
                           <div className="text-xs text-white/80 truncate">{b.service}</div>
@@ -367,7 +367,7 @@ export default function ProviderSchedule() {
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <img src={detail.image} className="w-12 h-12 rounded-full object-cover" alt="" />
+                    <img src={detail.image} className="w-12 h-12 rounded-full object-cover" alt="Client avatar" />
                     <div>
                       <h3 className="text-lg font-bold text-foreground">{detail.client}</h3>
                       <div className="text-sm text-muted-foreground">{detail.service}</div>

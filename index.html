@@ -2,7 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Preconnect to critical origins -->
+    <link rel="preconnect" href="https://lybwhwsgduhjrwjsiqsh.supabase.co" crossorigin />
+    <link rel="preconnect" href="https://bion-backend.onrender.com" crossorigin />
+    <link rel="dns-prefetch" href="https://api.openai.com" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -71,7 +76,8 @@
   </head>
 
   <body>
-    <div id="root"></div>
+    <a href="#root" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[999] focus:px-4 focus:py-2 focus:bg-indigo focus:text-white focus:rounded-lg focus:text-sm">Skip to content</a>
+    <div id="root" role="main"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
