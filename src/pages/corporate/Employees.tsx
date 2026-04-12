@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
 import BionAssistant from "@/components/BionAssistant";
-import { Search, Users, Wallet, AlertTriangle, CheckCircle, ChevronRight, Plus, Minus, Filter, UserPlus, X, Trash2, Mail } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Search, Users, Wallet, AlertTriangle, CheckCircle, ChevronRight, Plus, Minus, Filter, UserPlus, X, Trash2, Mail, Loader2 } from "lucide-react";
 
 type EmployeeStatus = "active" | "inactive" | "pending";
 
@@ -31,7 +33,12 @@ const STATUS_META: Record<EmployeeStatus, { label: string; cls: string }> = {
 };
 
 export default function CorporateEmployees() {
+  const { user } = useAuth();
+  const isDemo = user?.id?.startsWith("demo_") ?? false;
+  const supabaseId = !isDemo && user?.id ? user.id : null;
+
   const [employees, setEmployees] = useState<Employee[]>(EMPLOYEES);
+  const [loading, setLoading]     = useState(true);
   const [query, setQuery]         = useState("");
   const [dept, setDept]           = useState("All");
   const [selected, setSelected]   = useState<Employee | null>(null);
@@ -40,16 +47,50 @@ export default function CorporateEmployees() {
   const [inviteForm, setInviteForm] = useState({ email: "", name: "", monthly_budget: 1500 });
   const [inviting, setInviting] = useState(false);
 
-  // Load employees from localStorage on mount
+  // Load employees from Supabase or localStorage
   useEffect(() => {
-    const stored = localStorage.getItem("bion_corp_employees");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as Employee[];
-        if (parsed.length > 0) setEmployees(parsed);
-      } catch { /* ignore */ }
-    }
-  }, []);
+    const load = async () => {
+      // Try Supabase first for authenticated corporate users
+      if (supabaseId) {
+        try {
+          const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+          const res = await fetch(`${API}/api/corporate/employees`, {
+            headers: { Authorization: `Bearer ${supabaseId}` },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.data && data.data.length > 0) {
+              setEmployees(data.data.map((e: any) => ({
+                id: e.id ?? e.user_id,
+                name: e.name ?? e.full_name ?? "Employee",
+                image: "",
+                email: e.email ?? "",
+                department: e.department ?? "",
+                walletBalance: e.wallet_balance ?? 0,
+                monthlyBudget: e.monthly_budget ?? 1500,
+                sessionsUsed: e.sessions_used ?? 0,
+                status: e.status ?? "active",
+                categories: e.categories ?? [],
+              })));
+              setLoading(false);
+              return;
+            }
+          }
+        } catch { /* fall through to localStorage */ }
+      }
+
+      // Fallback: localStorage
+      const stored = localStorage.getItem("bion_corp_employees");
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored) as Employee[];
+          if (parsed.length > 0) setEmployees(parsed);
+        } catch { /* ignore */ }
+      }
+      setLoading(false);
+    };
+    load();
+  }, [supabaseId]);
 
   // Persist employees to localStorage
   const persistEmployees = (list: Employee[]) => {
