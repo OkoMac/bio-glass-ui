@@ -150,7 +150,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
 
     // Live updates via Supabase Realtime
     const channel = supabase
-      .channel("bookings-realtime")
+      .channel(`bookings-${user.id}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, (payload) => {
         if (payload.eventType === "INSERT") {
           setBookings(prev => [...prev, mapRow(payload.new as unknown as SupaRow)]);
@@ -204,23 +204,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
       const filtered = existing.filter((e: any) => e.id !== calendarEvent.id);
       localStorage.setItem("bion_calendar_events", JSON.stringify([...filtered, calendarEvent]));
 
-      // Sync to Supabase calendar_events for authenticated users
-      const supabaseUserId = user?.id && !user.id.startsWith("demo_") ? user.id : null;
-      if (supabaseUserId) {
-        supabase.from("calendar_events" as any).upsert({
-          id: calendarEvent.id,
-          user_id: supabaseUserId,
-          title: calendarEvent.title,
-          category: calendarEvent.category,
-          date: calendarEvent.date,
-          time: calendarEvent.time,
-          duration: calendarEvent.duration,
-          provider: calendarEvent.provider,
-          location: calendarEvent.location,
-          notes: calendarEvent.notes,
-          completed: false,
-        } as any, { onConflict: "id" }).then(() => {});
-      }
+      // Calendar sync — localStorage only for now (calendar_events table not yet in schema)
     } catch (err) {
       console.warn("[booking → calendar sync] failed:", err);
     }
@@ -245,7 +229,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
     const providerName = booking.providerName ?? booking.clientName ?? "Provider";
     const bookingRef = newBooking.id;
 
-    // Email confirmation (fire and forget)
+    // Email confirmation (best-effort with logging)
     if (clientEmail) {
       fetch(`${API}/api/email/booking-confirmation`, {
         method: "POST",
@@ -260,10 +244,12 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
           price: booking.price,
           bookingRef,
         }),
-      }).catch(() => {});
+      }).catch((err) => {
+        if (import.meta.env.DEV) console.warn("[booking] email confirmation failed:", err);
+      });
     }
 
-    // WhatsApp confirmation (fire and forget — only if phone stored in profile)
+    // WhatsApp confirmation (best-effort — only if phone stored in profile)
     try {
       const profileData = localStorage.getItem(`bion_profile_${user?.id}`);
       const phone = profileData ? JSON.parse(profileData).phone : null;
@@ -280,9 +266,11 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
             time: booking.time,
             price: booking.price,
           }),
-        }).catch(() => {});
+        }).catch((err) => {
+          if (import.meta.env.DEV) console.warn("[booking] WhatsApp confirmation failed:", err);
+        });
       }
-    } catch { /* ignore */ }
+    } catch { /* localStorage parse failure — non-critical */ }
   }, [user?.id, user?.role, user?.profileId, user?.email, user?.name]);
 
   const getByStatus = useCallback((status: BookingStatus | BookingStatus[]) => {
