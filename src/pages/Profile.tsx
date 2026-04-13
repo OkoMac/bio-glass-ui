@@ -20,6 +20,7 @@ import { AnimatePresence } from "framer-motion";
 import { getReferralShareUrl, openWhatsApp } from "@/lib/whatsapp";
 import { ImagePickerOverlay } from "@/components/ImagePickerOverlay";
 import { getProviderImage } from "@/lib/providerImages";
+import { validateSaPhone } from "@/lib/saPhoneValidator";
 
 const VERTICAL_PALETTE = ["teal", "indigo", "coral", "amber"] as const;
 
@@ -537,10 +538,21 @@ const Profile = () => {
                   <input
                     type="tel"
                     value={editForm.phone}
-                    onChange={e => setEditForm({ ...editForm, phone: e.target.value })}
-                    placeholder="+27 82 555 0190"
+                    onChange={e => {
+                      setEditForm({ ...editForm, phone: e.target.value });
+                    }}
+                    onBlur={e => {
+                      const result = validateSaPhone(e.target.value);
+                      if (result.valid && result.display) {
+                        setEditForm(prev => ({ ...prev, phone: result.display! }));
+                      }
+                    }}
+                    placeholder="082 123 4567"
                     className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-teal/40 transition-colors"
                   />
+                  {editForm.phone && !validateSaPhone(editForm.phone).valid && (
+                    <p className="text-[10px] text-red-400 mt-1">{validateSaPhone(editForm.phone).error}</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
