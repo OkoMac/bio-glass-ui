@@ -13,6 +13,7 @@ import {
   Droplets, Moon, HeartPulse, Activity
 } from "lucide-react";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { useVerifiedProviders } from "@/hooks/useVerifiedProviders";
 import { distanceToSuburb } from "@/lib/pretoriaSuburbs";
 import BiometricsDashboard from "@/components/BiometricsDashboard";
 import realData from "@/data/bion_pretoria_data.json";
@@ -62,7 +63,9 @@ const ALL_HOME_PROVIDERS = realData.providers
     serviceCategory: categorizeService(p.service ?? ""),
     price: p.price ?? "",
     availability: typeof p.availability === "string" ? p.availability : "",
-    verified: p.verified === true,
+    // Verified badge only for providers who completed document verification in Supabase
+    // (scraped data `verified` field is not sufficient — must have approved documents)
+    verified: false,
   }));
 
 const Index = () => {
@@ -72,6 +75,7 @@ const Index = () => {
   const { user, updateAvatar } = useAuth();
   const navigate = useNavigate();
   const geo = useGeolocation();
+  const verifiedProviders = useVerifiedProviders();
 
   const filteredProviders = useMemo(() => {
     let list = ALL_HOME_PROVIDERS;
@@ -286,7 +290,11 @@ const Index = () => {
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-semibold text-foreground truncate flex items-center gap-1">
                       {p.name}
-                      {p.verified && <svg viewBox="0 0 20 20" className="w-3.5 h-3.5 shrink-0 fill-teal"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" /></svg>}
+                      {verifiedProviders.has(p.id) && (
+                        <span title="Verified — qualifications and registration confirmed">
+                          <svg viewBox="0 0 20 20" className="w-3.5 h-3.5 shrink-0 fill-teal"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" /></svg>
+                        </span>
+                      )}
                     </h3>
                     <p className="text-xs text-muted-foreground truncate">{p.specialty}</p>
                     <div className="flex items-center gap-3 mt-1.5">

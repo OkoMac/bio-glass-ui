@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, Share2, Star, MapPin, Clock, Lock, CreditCard, Shield, Mail, Phone, Globe, Building, Check, X, CalendarDays } from "lucide-react";
 import { getProviderImage, getProviderCover } from "@/lib/providerImages";
 import { useBookings } from "@/contexts/BookingsContext";
+import { useVerifiedProviders } from "@/hooks/useVerifiedProviders";
 import { getProviderShareUrl, getBookingShareUrl, openWhatsApp } from "@/lib/whatsapp";
 import realData from "@/data/bion_pretoria_data.json";
 
@@ -49,6 +50,7 @@ export default function ProviderProfile() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { addBooking } = useBookings();
+  const verifiedProviders = useVerifiedProviders();
   const [showAllServices, setShowAllServices] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showBooking, setShowBooking] = useState(false);
@@ -163,7 +165,7 @@ export default function ProviderProfile() {
         {/* Identity */}
         <div className="absolute bottom-6 left-4 right-4 flex items-end gap-4">
           <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
-            <BioAvatar src={provider.image} alt={provider.name} size="xl" verticalColor={provider.vertical} verified />
+            <BioAvatar src={provider.image} alt={provider.name} size="xl" verticalColor={provider.vertical} verified={verifiedProviders.has(provider.id)} />
           </motion.div>
           <div className="flex-1 min-w-0 pb-1">
             <h1 className="text-2xl font-bold text-foreground">{provider.name}</h1>
