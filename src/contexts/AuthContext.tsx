@@ -85,7 +85,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     removeUser();
     setUser(null);
     signOutSupabase().catch(() => {});
-    window.location.href = "/";
+    // Full reload clears all in-memory state (contexts, caches)
+    window.location.replace("/");
   }, []);
 
   // ── Demo-only role switch (doesn't touch DB) ───────────────────

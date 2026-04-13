@@ -303,7 +303,7 @@ export default function Messages() {
             });
           }
         } catch (err) {
-          console.warn("[messages] Supabase enrichment failed:", err);
+          if (import.meta.env.DEV) console.warn("[messages] Supabase enrichment failed:", err);
         }
       }
 

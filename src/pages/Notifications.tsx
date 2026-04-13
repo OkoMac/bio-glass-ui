@@ -213,7 +213,7 @@ export default function Notifications() {
             });
           });
         } catch (err) {
-          console.warn("[notifications] message fetch failed:", err);
+          if (import.meta.env.DEV) console.warn("[notifications] message fetch failed:", err);
         }
       }
 

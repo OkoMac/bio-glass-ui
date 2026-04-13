@@ -71,7 +71,7 @@ export default function AdminDashboard() {
       setClientCount(clients.count ?? 0);
       setBookingCount(bookings.count ?? 0);
     } catch (err) {
-      console.error("Failed to load KPIs:", err);
+      if (import.meta.env.DEV) console.error("Failed to load KPIs:", err);
     } finally {
       setLoadingKpis(false);
     }
@@ -88,7 +88,7 @@ export default function AdminDashboard() {
       setPendingProviders(list);
       setApprovals(Object.fromEntries(list.map(p => [p.id, null])));
     } catch (err) {
-      console.error("Failed to load pending providers:", err);
+      if (import.meta.env.DEV) console.error("Failed to load pending providers:", err);
     } finally {
       setLoadingPending(false);
     }
@@ -122,7 +122,7 @@ export default function AdminDashboard() {
         setVerticalStats([]);
       }
     } catch (err) {
-      console.error("Failed to load vertical stats:", err);
+      if (import.meta.env.DEV) console.error("Failed to load vertical stats:", err);
     }
   };
 
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
         .limit(10) as { data: BookingRequest[] | null };
       setBookingRequests(data ?? []);
     } catch (err) {
-      console.error("Failed to load booking requests:", err);
+      if (import.meta.env.DEV) console.error("Failed to load booking requests:", err);
     } finally {
       setLoadingRequests(false);
     }

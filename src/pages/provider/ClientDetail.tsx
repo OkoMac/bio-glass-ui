@@ -215,7 +215,7 @@ export default function ClientDetail() {
           pinned,
         });
       } catch (err) {
-        console.warn("[client notes] save failed:", err);
+        if (import.meta.env.DEV) console.warn("[client notes] save failed:", err);
       }
     }
   };

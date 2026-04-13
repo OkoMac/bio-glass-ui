@@ -56,7 +56,7 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
     const role: UserRole = metaRole ?? dbRole ?? "client";
 
     // If metaRole exists but DB role doesn't match, trust metaRole (RLS may block user_roles read)
-    console.log(`[auth] User ${supabaseUserId}: metaRole=${metaRole}, dbRole=${dbRole}, resolved=${role}`);
+    if (import.meta.env.DEV) console.log(`[auth] User ${supabaseUserId}: metaRole=${metaRole}, dbRole=${dbRole}, resolved=${role}`);
 
     const user: BioUser = {
       id:        supabaseUserId,

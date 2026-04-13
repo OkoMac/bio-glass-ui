@@ -73,6 +73,14 @@ export interface ServiceProvider {
   languages: string[];
   experienceYears: number;
   servicesOffered: string[];
+  // Fields from scraped Pretoria data
+  suburb?: string;
+  city?: string;
+  category?: string;
+  verified?: boolean;
+  years_in_business?: number;
+  min_price?: string;
+  max_price?: string;
 }
 
 export const REAL_PROVIDERS: ServiceProvider[] = realData.providers.map((p: any) => ({

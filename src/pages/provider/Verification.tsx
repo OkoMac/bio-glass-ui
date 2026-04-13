@@ -95,7 +95,7 @@ export default function ProviderVerification() {
           setRegNumber((profile as any).professional_reg_number);
         }
       } catch (err: any) {
-        console.error("[verification] load error:", err);
+        if (import.meta.env.DEV) console.error("[verification] load error:", err);
         setError("Could not load existing documents. They will still be saved when you upload.");
       } finally {
         setLoading(false);
@@ -213,7 +213,7 @@ export default function ProviderVerification() {
       setSuccess(`${REQUIRED_DOCS.find(r => r.type === activeDocType)?.label} uploaded successfully`);
       setTimeout(() => setSuccess(null), 4000);
     } catch (err: any) {
-      console.error("[verification] upload error:", err);
+      if (import.meta.env.DEV) console.error("[verification] upload error:", err);
       setError(err.message ?? "Upload failed. Please try again.");
       setTimeout(() => setError(null), 6000);
     } finally {
@@ -246,7 +246,7 @@ export default function ProviderVerification() {
       await supabase.from("provider_documents" as any).delete().eq("id", doc.id);
       setDocuments(prev => prev.filter(d => d.id !== doc.id));
     } catch (err: any) {
-      console.error("[verification] delete error:", err);
+      if (import.meta.env.DEV) console.error("[verification] delete error:", err);
       setError("Could not delete document. Please try again.");
     }
   };

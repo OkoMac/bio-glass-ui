@@ -88,7 +88,7 @@ export default function AdminVerification() {
 
       setDocs(docsList);
     } catch (err: any) {
-      console.error("[admin verification] load error:", err);
+      if (import.meta.env.DEV) console.error("[admin verification] load error:", err);
       setError(err.message ?? "Could not load documents");
     } finally {
       setLoading(false);
@@ -150,7 +150,7 @@ export default function AdminVerification() {
           : d
       ));
     } catch (err: any) {
-      console.error("[admin verification] approve error:", err);
+      if (import.meta.env.DEV) console.error("[admin verification] approve error:", err);
       setError(err.message ?? "Could not approve document");
       setTimeout(() => setError(null), 5000);
     } finally {
@@ -188,7 +188,7 @@ export default function AdminVerification() {
       setRejectModal(null);
       setRejectNotes("");
     } catch (err: any) {
-      console.error("[admin verification] reject error:", err);
+      if (import.meta.env.DEV) console.error("[admin verification] reject error:", err);
       setError(err.message ?? "Could not reject document");
       setTimeout(() => setError(null), 5000);
     } finally {

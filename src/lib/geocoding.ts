@@ -31,6 +31,10 @@ interface CachedCoordinates {
   [key: string]: ProviderCoordinates;
 }
 
+const devLog = (...args: any[]) => { if (import.meta.env.DEV) console.log(...args); };
+const devWarn = (...args: any[]) => { if (import.meta.env.DEV) console.warn(...args); };
+const devError = (...args: any[]) => { if (import.meta.env.DEV) console.error(...args); };
+
 class GeocodingService {
   private nominatimUrl = 'https://nominatim.openstreetmap.org/search';
   private cache: CachedCoordinates = {};
@@ -73,13 +77,13 @@ class GeocodingService {
       );
 
       if (!response.ok) {
-        console.error(`Geocoding API error: ${response.status}`);
+        devError(`Geocoding API error: ${response.status}`);
         return null;
       }
 
       const results: NominatimResult[] = await response.json();
       if (results.length === 0) {
-        console.warn(`No geocoding results for: ${searchQuery}`);
+        devWarn(`No geocoding results for: ${searchQuery}`);
         return null;
       }
 
@@ -101,7 +105,7 @@ class GeocodingService {
 
       return coordinates;
     } catch (error) {
-      console.error('Geocoding error:', error);
+      devError('Geocoding error:', error);
       return null;
     }
   }
@@ -182,7 +186,7 @@ class GeocodingService {
       };
       localStorage.setItem('geocodingCache', JSON.stringify(cacheData));
     } catch (error) {
-      console.warn('Failed to save geocoding cache:', error);
+      devWarn('Failed to save geocoding cache:', error);
     }
   }
 
@@ -197,13 +201,13 @@ class GeocodingService {
       const cacheData = JSON.parse(stored);
       
       if (cacheData.version !== this.cacheVersion) {
-        console.warn('Cache version mismatch, clearing cache');
+        devWarn('Cache version mismatch, clearing cache');
         return;
       }
 
       this.cache = cacheData.data || {};
     } catch (error) {
-      console.warn('Failed to load geocoding cache:', error);
+      devWarn('Failed to load geocoding cache:', error);
     }
   }
 }

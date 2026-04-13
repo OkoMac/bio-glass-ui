@@ -1,6 +1,9 @@
 // Feature Flag System for Safe Incremental Development
 // This allows us to enable/disable features without breaking existing functionality
 
+const devWarn = (...args: any[]) => { if (import.meta.env.DEV) console.warn(...args); };
+const devError = (...args: any[]) => { if (import.meta.env.DEV) console.error(...args); };
+
 export type FeatureFlag = {
   name: string;
   description: string;
@@ -110,7 +113,7 @@ export function isFeatureEnabled(
   const flag = FEATURE_FLAGS[featureName];
   
   if (!flag) {
-    console.warn(`Feature flag "${featureName}" not found. Defaulting to disabled for safety.`);
+    devWarn(`Feature flag "${featureName}" not found. Defaulting to disabled for safety.`);
     return false; // Safe default: if flag doesn't exist, feature is disabled
   }
   
@@ -156,7 +159,7 @@ export function enableFeature(featureName: string): boolean {
   const flag = FEATURE_FLAGS[featureName];
   
   if (!flag) {
-    console.error(`Cannot enable: Feature "${featureName}" not found`);
+    devError(`Cannot enable: Feature "${featureName}" not found`);
     return false;
   }
   
@@ -164,7 +167,7 @@ export function enableFeature(featureName: string): boolean {
   if (flag.dependencies) {
     const missingDeps = flag.dependencies.filter(dep => !isFeatureEnabled(dep));
     if (missingDeps.length > 0) {
-      console.error(`Cannot enable "${featureName}": Missing dependencies: ${missingDeps.join(', ')}`);
+      devError(`Cannot enable "${featureName}": Missing dependencies: ${missingDeps.join(', ')}`);
       return false;
     }
   }
@@ -178,7 +181,7 @@ export function disableFeature(featureName: string): boolean {
   const flag = FEATURE_FLAGS[featureName];
   
   if (!flag) {
-    console.error(`Cannot disable: Feature "${featureName}" not found`);
+    devError(`Cannot disable: Feature "${featureName}" not found`);
     return false;
   }
   
@@ -191,12 +194,12 @@ export function setRolloutPercentage(featureName: string, percentage: number): b
   const flag = FEATURE_FLAGS[featureName];
   
   if (!flag) {
-    console.error(`Cannot set rollout: Feature "${featureName}" not found`);
+    devError(`Cannot set rollout: Feature "${featureName}" not found`);
     return false;
   }
   
   if (percentage < 0 || percentage > 100) {
-    console.error(`Rollout percentage must be between 0 and 100`);
+    devError(`Rollout percentage must be between 0 and 100`);
     return false;
   }
   

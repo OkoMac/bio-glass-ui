@@ -101,7 +101,7 @@ export default function ProviderAvailability() {
           localStorage.setItem(AVAIL_STORAGE_KEY, JSON.stringify(loaded));
         }
       } catch (err) {
-        console.warn("[availability] Supabase load failed:", err);
+        if (import.meta.env.DEV) console.warn("[availability] Supabase load failed:", err);
       }
     };
     load();
@@ -171,7 +171,7 @@ export default function ProviderAvailability() {
         });
         await supabase.from("provider_availabilities" as any).insert(rows);
       } catch (err) {
-        console.warn("[availability] Supabase save failed:", err);
+        if (import.meta.env.DEV) console.warn("[availability] Supabase save failed:", err);
       }
     }
 

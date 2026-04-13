@@ -135,14 +135,14 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
           const data = await res.json();
           if (res.ok && data.text) {
             setValue(data.text);
-            console.log(`[voice] transcribed: "${data.text}", ${data.remaining ?? "?"} searches left today`);
+            if (import.meta.env.DEV) console.log(`[voice] transcribed: "${data.text}", ${data.remaining ?? "?"} searches left today`);
           } else if (res.status === 429) {
             alert(data.error ?? "Daily voice search limit reached.");
           } else {
             alert(data.error ?? "Couldn't transcribe your voice. Please try typing instead.");
           }
         } catch (err: any) {
-          console.error("[voice] transcribe error:", err);
+          if (import.meta.env.DEV) console.error("[voice] transcribe error:", err);
           alert("Voice transcription failed. Please check your connection and try again.");
         } finally {
           setTranscribing(false);
@@ -158,7 +158,7 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
         if (recorder.state === "recording") recorder.stop();
       }, 15000);
     } catch (err: any) {
-      console.error("[voice] permission error:", err);
+      if (import.meta.env.DEV) console.error("[voice] permission error:", err);
       streamRef.current?.getTracks().forEach(t => t.stop());
       streamRef.current = null;
       if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
@@ -32,6 +33,7 @@ const generateThreads = (_isDemoAccount: boolean): Thread[] => {
 
 export default function ProviderMessages() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { canAccess, requiresUpgrade, getUpgradeUrl, tierDisplayName } = useSubscription();
   const [query, setQuery]           = useState("");
   const [activeId, setActiveId]     = useState<string | null>(null);
@@ -133,7 +135,7 @@ export default function ProviderMessages() {
               </div>
               
               <button
-                onClick={() => window.location.href = getUpgradeUrl()}
+                onClick={() => navigate(getUpgradeUrl())}
                 className="w-full gradient-indigo rounded-pill py-3.5 text-sm font-semibold text-white flex items-center justify-center gap-2"
               >
                 <CreditCard className="w-4 h-4" />
@@ -141,7 +143,7 @@ export default function ProviderMessages() {
               </button>
               
               <button
-                onClick={() => window.location.href = '/provider/billing'}
+                onClick={() => navigate('/provider/billing')}
                 className="w-full glass-1 rounded-pill py-3 text-sm font-medium text-foreground"
               >
                 View All Plans

@@ -120,7 +120,7 @@ const PaymentForm: React.FC<StripePaymentFormProps & { stripe: Stripe | null }> 
         }
       }
     } catch (error: any) {
-      console.error('Payment error:', error);
+      if (import.meta.env.DEV) console.error('Payment error:', error);
       setPaymentError(error.message || 'An unexpected error occurred');
       if (onError) {
         onError(error.message || 'Payment failed');

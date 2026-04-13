@@ -141,7 +141,7 @@ export default function AdminOnboarding() {
         }
       }, 1000);
     } catch (error) {
-      console.error("Navigation error:", error);
+      if (import.meta.env.DEV) console.error("Navigation error:", error);
       // Direct fallback
       window.location.href = "/admin/dashboard";
     }

@@ -91,7 +91,7 @@ export default function AdminAnalytics() {
       // Vertical revenue is not available without a specialty join -- show empty
       setVerticalRevenue([]);
     } catch (err) {
-      console.error("Failed to load analytics:", err);
+      if (import.meta.env.DEV) console.error("Failed to load analytics:", err);
     } finally {
       setLoading(false);
     }

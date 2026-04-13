@@ -688,7 +688,7 @@ export default function ProgramBuilder() {
               </div>
               
               <button
-                onClick={() => window.location.href = getUpgradeUrl()}
+                onClick={() => navigate(getUpgradeUrl())}
                 className="w-full gradient-indigo rounded-pill py-3.5 text-sm font-semibold text-white flex items-center justify-center gap-2"
               >
                 <CreditCard className="w-4 h-4" />
@@ -696,7 +696,7 @@ export default function ProgramBuilder() {
               </button>
               
               <button
-                onClick={() => window.location.href = '/provider/billing'}
+                onClick={() => navigate('/provider/billing')}
                 className="w-full glass-1 rounded-pill py-3 text-sm font-medium text-foreground"
               >
                 View All Plans
@@ -761,7 +761,7 @@ export default function ProgramBuilder() {
         }));
         await supabase.from("routines" as any).upsert(inserts as any, { onConflict: "id" }).then(() => {});
       } catch (err) {
-        console.warn("[program assign] Supabase upsert failed:", err);
+        if (import.meta.env.DEV) console.warn("[program assign] Supabase upsert failed:", err);
       }
 
       // 2) Always write to localStorage so demo accounts and same-device clients pick it up immediately
