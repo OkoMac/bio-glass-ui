@@ -120,17 +120,17 @@ export default function ProviderDashboard() {
             <button onClick={() => navigate("/pro/schedule")} className="text-xs text-indigo">Full calendar →</button>
           </div>
           <div className="space-y-2">
-            {todaySchedule.length > 0 ? todaySchedule.map((s, i) => (
+            {todaySessions.length > 0 ? todaySessions.map((s, i) => (
               <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + i * 0.05 }}>
                 <GlassCard className="p-3 flex items-center gap-3">
                   <div className="text-center shrink-0 w-12">
                     <p className="text-xs font-bold font-data text-foreground">{s.time}</p>
-                    <div className={`w-1.5 h-1.5 rounded-full mx-auto mt-1 ${s.confirmed ? "bg-teal" : "bg-amber"}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full mx-auto mt-1 ${s.status === "confirmed" ? "bg-teal" : "bg-amber"}`} />
                   </div>
                   <div className="w-px h-10 bg-white/10" />
-                  <BioAvatar src={s.image} alt={s.client} size="sm" verticalColor={s.vertical} />
+                  <BioAvatar src={s.clientImage} alt={s.clientName} size="sm" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground">{s.client}</p>
+                    <p className="text-sm font-medium text-foreground">{s.clientName}</p>
                     <p className="text-[11px] text-muted-foreground">{s.service}</p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
