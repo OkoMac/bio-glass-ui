@@ -1,22 +1,18 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
 import SubscriptionGate from "@/components/SubscriptionGate";
+import { useBookings } from "@/contexts/BookingsContext";
 import { TrendingUp, TrendingDown, Users, AlertTriangle } from "lucide-react";
 
 type Period = "Week" | "Month" | "Quarter";
 
-const revenueData = {
-  Week:    [680, 450, 900, 750, 1100, 820, 1700],
-  Month:   [4200, 5100, 4800, 6200, 5900, 7100, 8450],
-  Quarter: [18200, 22400, 26800],
-};
 const labels = {
   Week:    ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
   Month:   ["W1","W2","W3","W4","W5","W6","W7"],
-  Quarter: ["Dec","Jan","Feb"],
+  Quarter: ["M1","M2","M3"],
 };
 
 function SVGChart({ data, color = "#6366F1" }: { data: number[]; color?: string }) {
@@ -50,9 +46,59 @@ function SVGChart({ data, color = "#6366F1" }: { data: number[]; color?: string 
 
 export default function ProviderAnalytics() {
   const [period, setPeriod] = useState<Period>("Month");
-  const data = revenueData[period];
-  const totalRevenue  = data.reduce((s, v) => s + v, 0);
-  const totalBookings = { Week: 14, Month: 67, Quarter: 194 }[period];
+  const { bookings } = useBookings();
+
+  // Compute real analytics from bookings context
+  const analytics = useMemo(() => {
+    const now = new Date();
+    const parsePrice = (p: string) => parseInt(p.replace(/[^0-9]/g, "")) || 0;
+
+    const filterByDays = (days: number) =>
+      bookings.filter(b => {
+        if (!b.date) return false;
+        const d = new Date(b.date);
+        return (now.getTime() - d.getTime()) < days * 86400000;
+      });
+
+    const week = filterByDays(7);
+    const month = filterByDays(30);
+    const quarter = filterByDays(90);
+
+    const weeklyRevenue = Array(7).fill(0);
+    week.filter(b => b.status === "completed").forEach(b => {
+      const day = new Date(b.date).getDay();
+      const idx = day === 0 ? 6 : day - 1;
+      weeklyRevenue[idx] += parsePrice(b.price);
+    });
+
+    const monthlyRevenue = Array(7).fill(0);
+    month.filter(b => b.status === "completed").forEach(b => {
+      const dayOfMonth = new Date(b.date).getDate();
+      const weekIdx = Math.min(Math.floor((dayOfMonth - 1) / 7), 6);
+      monthlyRevenue[weekIdx] += parsePrice(b.price);
+    });
+
+    const quarterlyRevenue = Array(3).fill(0);
+    quarter.filter(b => b.status === "completed").forEach(b => {
+      const monthsAgo = Math.floor((now.getTime() - new Date(b.date).getTime()) / (30 * 86400000));
+      const idx = Math.min(2 - monthsAgo, 2);
+      if (idx >= 0) quarterlyRevenue[idx] += parsePrice(b.price);
+    });
+
+    return {
+      revenueData: { Week: weeklyRevenue, Month: monthlyRevenue, Quarter: quarterlyRevenue },
+      bookingCounts: { Week: week.length, Month: month.length, Quarter: quarter.length },
+      uniqueClients: {
+        Week: new Set(week.map(b => b.clientName)).size,
+        Month: new Set(month.map(b => b.clientName)).size,
+        Quarter: new Set(quarter.map(b => b.clientName)).size,
+      },
+    };
+  }, [bookings]);
+
+  const data = analytics.revenueData[period];
+  const totalRevenue = data.reduce((s, v) => s + v, 0);
+  const totalBookings = analytics.bookingCounts[period];
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
@@ -81,10 +127,10 @@ export default function ProviderAnalytics() {
         {/* KPI row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { label: "Revenue",   value: `R${totalRevenue.toLocaleString()}`, trend: +12, color: "#6366F1" },
-            { label: "Bookings",  value: String(totalBookings),               trend: +8,  color: "#2DD4BF" },
-            { label: "Occupancy", value: "78%",                               trend: +5,  color: "#FBBF24" },
-            { label: "No-shows",  value: "4%",                                trend: -2,  color: "#FB7185" },
+            { label: "Revenue",   value: `R${totalRevenue.toLocaleString()}`, trend: totalRevenue > 0 ? +12 : 0, color: "#6366F1" },
+            { label: "Bookings",  value: String(totalBookings),               trend: totalBookings > 0 ? +8 : 0,  color: "#2DD4BF" },
+            { label: "Clients",   value: String(analytics.uniqueClients[period]), trend: analytics.uniqueClients[period] > 0 ? +5 : 0, color: "#FBBF24" },
+            { label: "Avg Price", value: totalBookings > 0 ? `R${Math.round(totalRevenue / totalBookings)}` : "R0", trend: 0, color: "#A78BFA" },
           ].map((k, i) => (
             <motion.div key={k.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
               <GlassCard className="p-4">
