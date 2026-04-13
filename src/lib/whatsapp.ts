@@ -86,6 +86,38 @@ export function getProviderToClientUrl(clientName: string, clientPhone: string, 
 }
 
 /**
+ * Generate a WhatsApp share URL for a provider profile
+ */
+export function getProviderShareUrl(providerName: string, providerId: string, service: string): string {
+  const msg = [
+    `Check out ${providerName} on BION!`,
+    ``,
+    `${service} in Pretoria`,
+    ``,
+    `Book here: https://bionhealth.co.za/provider/${providerId}`,
+    ``,
+    `Commit to yourself. ✨`,
+  ].join("\n");
+
+  return `https://wa.me/?text=${encodeURIComponent(msg)}`;
+}
+
+/**
+ * Generate a WhatsApp share for a completed booking
+ */
+export function getBookingShareUrl(providerName: string, service: string, date: string): string {
+  const msg = [
+    `Just booked ${service} with ${providerName} on BION! 🎉`,
+    ``,
+    `Date: ${date}`,
+    ``,
+    `Try it: https://bionhealth.co.za`,
+  ].join("\n");
+
+  return `https://wa.me/?text=${encodeURIComponent(msg)}`;
+}
+
+/**
  * Open WhatsApp with the given URL
  */
 export function openWhatsApp(url: string): void {

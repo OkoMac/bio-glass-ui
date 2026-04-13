@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, Share2, Star, MapPin, Clock, Lock, CreditCard, Shield, Mail, Phone, Globe, Building, Check, X, CalendarDays } from "lucide-react";
 import { getProviderImage, getProviderCover } from "@/lib/providerImages";
 import { useBookings } from "@/contexts/BookingsContext";
+import { getProviderShareUrl, getBookingShareUrl, openWhatsApp } from "@/lib/whatsapp";
 import realData from "@/data/bion_pretoria_data.json";
 
 // ── Build lookup from ALL scraped providers ─────────
@@ -100,6 +101,11 @@ export default function ProviderProfile() {
     setMeta("property", "og:title", `${provider.name} — ${provider.specialty} | BION`);
     setMeta("property", "og:description", desc);
     setMeta("property", "og:url", `https://bionhealth.co.za/provider/${provider.id}`);
+    setMeta("property", "og:image", provider.image.startsWith("http") ? provider.image : `https://bionhealth.co.za${provider.image}`);
+    setMeta("property", "og:type", "profile");
+    setMeta("name", "twitter:title", `${provider.name} — ${provider.specialty} | BION`);
+    setMeta("name", "twitter:description", desc);
+    setMeta("name", "twitter:image", provider.image.startsWith("http") ? provider.image : `https://bionhealth.co.za${provider.image}`);
     return () => { document.title = "BION — Commit to Yourself"; };
   }, [provider]);
 
@@ -142,9 +148,16 @@ export default function ProviderProfile() {
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => navigate(-1)} className="glass-2 rounded-full w-10 h-10 flex items-center justify-center">
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </motion.button>
-          <motion.button whileTap={{ scale: 0.9 }} onClick={shareProvider} className="glass-2 rounded-full w-10 h-10 flex items-center justify-center">
-            {copied ? <Check className="w-5 h-5 text-teal" /> : <Share2 className="w-5 h-5 text-foreground" />}
-          </motion.button>
+          <div className="flex gap-2">
+            <motion.button whileTap={{ scale: 0.9 }}
+              onClick={() => openWhatsApp(getProviderShareUrl(provider.name, provider.id, provider.specialty))}
+              className="glass-2 rounded-full w-10 h-10 flex items-center justify-center bg-[#25D366]/20">
+              <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#25D366]"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.34 0-4.508-.657-6.363-1.795l-.444-.267-3.072 1.03 1.03-3.072-.267-.444A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+            </motion.button>
+            <motion.button whileTap={{ scale: 0.9 }} onClick={shareProvider} className="glass-2 rounded-full w-10 h-10 flex items-center justify-center">
+              {copied ? <Check className="w-5 h-5 text-teal" /> : <Share2 className="w-5 h-5 text-foreground" />}
+            </motion.button>
+          </div>
         </div>
 
         {/* Identity */}
@@ -367,7 +380,14 @@ export default function ProviderProfile() {
                   <Check className="w-8 h-8 text-teal" />
                 </div>
                 <h3 className="text-lg font-bold text-foreground mb-1">Booking Confirmed!</h3>
-                <p className="text-sm text-muted-foreground">Redirecting to your schedule...</p>
+                <p className="text-sm text-muted-foreground mb-4">Redirecting to your schedule...</p>
+                <button
+                  onClick={() => openWhatsApp(getBookingShareUrl(provider.name, provider.servicesOffered[selectedService], bookingDate))}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-pill bg-[#25D366] text-white text-xs font-semibold"
+                >
+                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.34 0-4.508-.657-6.363-1.795l-.444-.267-3.072 1.03 1.03-3.072-.267-.444A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+                  Share on WhatsApp
+                </button>
               </div>
             ) : (
               <>
