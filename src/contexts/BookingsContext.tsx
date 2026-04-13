@@ -198,6 +198,9 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
     const newBooking: Booking = { ...booking, id: `b${Date.now()}`, status: "pending" };
     setBookings(prev => [...prev, newBooking]);
 
+    // Trigger streak checkIn (listened by useStreaks via custom event)
+    window.dispatchEvent(new CustomEvent("bion:booking-created"));
+
     // ── Sync to BION Calendar (auto-add as appointment event) ──
     try {
       const calendarEvent = {

@@ -10,15 +10,77 @@ export interface Streak {
   lastActivityDate: string | null;
 }
 
+/**
+ * Compute booking streak from localStorage booking history.
+ * Streak = consecutive weeks with at least 1 booking.
+ * Resets if user goes a full week without any booking.
+ */
+function computeBookingStreak(): { current: number; longest: number; lastDate: string | null } {
+  try {
+    const stored = localStorage.getItem("bio_user");
+    if (!stored) return { current: 0, longest: 0, lastDate: null };
+
+    // Gather all booking dates from localStorage calendar events
+    const events = JSON.parse(localStorage.getItem("bion_calendar_events") ?? "[]");
+    const dates: Date[] = events
+      .filter((e: any) => e.category === "appointment" && e.date)
+      .map((e: any) => new Date(e.date))
+      .filter((d: Date) => !isNaN(d.getTime()))
+      .sort((a: Date, b: Date) => a.getTime() - b.getTime());
+
+    if (dates.length === 0) return { current: 0, longest: 0, lastDate: null };
+
+    // Group by ISO week
+    const getWeek = (d: Date) => {
+      const jan1 = new Date(d.getFullYear(), 0, 1);
+      return `${d.getFullYear()}-W${Math.ceil(((d.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7)}`;
+    };
+
+    const weeks = [...new Set(dates.map(getWeek))].sort();
+    if (weeks.length === 0) return { current: 0, longest: 0, lastDate: null };
+
+    // Count consecutive weeks from the end
+    let current = 1;
+    let longest = 1;
+    let streak = 1;
+
+    for (let i = weeks.length - 1; i > 0; i--) {
+      // Check if weeks are consecutive (simple heuristic: same year, week diff = 1)
+      const [y1, w1] = weeks[i].split("-W").map(Number);
+      const [y2, w2] = weeks[i - 1].split("-W").map(Number);
+      const consecutive = (y1 === y2 && w1 - w2 === 1) || (y1 === y2 + 1 && w2 >= 52 && w1 === 1);
+
+      if (consecutive) {
+        streak++;
+        if (i === weeks.length - 1 || current === streak - 1) current = streak;
+      } else {
+        streak = 1;
+      }
+      longest = Math.max(longest, streak);
+    }
+
+    const lastDate = dates[dates.length - 1].toISOString().split("T")[0];
+    return { current, longest, lastDate };
+  } catch {
+    return { current: 0, longest: 0, lastDate: null };
+  }
+}
+
 export function useStreaks(streakType = "booking") {
   const { user } = useAuth();
-  // user_streaks.user_id references profiles.id — use profileId, not auth user id
   const profileId = user?.profileId;
+
+  // Start with computed local streak
+  const localStreak = computeBookingStreak();
   const [streak, setStreak] = useState<Streak>({
-    id: "demo", streakType, currentStreak: 14, longestStreak: 21,
-    lastActivityDate: new Date().toISOString().split("T")[0],
+    id: "local",
+    streakType,
+    currentStreak: localStreak.current,
+    longestStreak: localStreak.longest,
+    lastActivityDate: localStreak.lastDate,
   });
 
+  // Try to fetch from Supabase (overrides local if available)
   useEffect(() => {
     if (!profileId) return;
 
@@ -44,19 +106,27 @@ export function useStreaks(streakType = "booking") {
   const checkIn = useCallback(async () => {
     if (!profileId) return;
     const today = new Date().toISOString().split("T")[0];
-    if (streak.lastActivityDate === today) return; // already checked in
+    if (streak.lastActivityDate === today) return;
 
     const newStreak = streak.currentStreak + 1;
-    setStreak(prev => ({ ...prev, currentStreak: newStreak, lastActivityDate: today }));
+    const newLongest = Math.max(newStreak, streak.longestStreak);
+    setStreak(prev => ({ ...prev, currentStreak: newStreak, longestStreak: newLongest, lastActivityDate: today }));
 
     await supabase.from("user_streaks").upsert({
       user_id:            profileId,
       streak_type:        streakType,
       current_streak:     newStreak,
-      longest_streak:     Math.max(newStreak, streak.longestStreak),
+      longest_streak:     newLongest,
       last_activity_date: today,
     });
   }, [profileId, streak, streakType]);
+
+  // Auto check-in when a booking is created
+  useEffect(() => {
+    const handler = () => checkIn();
+    window.addEventListener("bion:booking-created", handler);
+    return () => window.removeEventListener("bion:booking-created", handler);
+  }, [checkIn]);
 
   return { streak, checkIn };
 }
