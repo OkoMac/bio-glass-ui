@@ -5,8 +5,10 @@ import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import ReviewForm from "@/components/ReviewForm";
-import { Calendar, ChevronLeft, ChevronRight, Clock, Star, X, CalendarDays, RotateCcw, XCircle } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Clock, Star, X, CalendarDays, RotateCcw, XCircle, FileText } from "lucide-react";
 import { useBookings, type Booking } from "@/contexts/BookingsContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { downloadReceipt } from "@/lib/receipt";
 
 const verticalByService: Record<string, "teal" | "indigo" | "coral" | "amber"> = {
   "Personal Training": "teal",
@@ -56,6 +58,7 @@ function getWeekDates() {
 const TIME_SLOTS = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
 
 const Schedule = () => {
+  const { user } = useAuth();
   const { getByStatus, decline, reschedule } = useBookings();
   const weekDates = getWeekDates();
   const [selectedDay, setSelectedDay] = useState(0);
@@ -74,6 +77,20 @@ const Schedule = () => {
     setNewDate(b.date);
     setNewTime(b.time);
     setRescheduleBooking(b);
+  };
+
+  const handleReceipt = (b: Booking) => {
+    downloadReceipt({
+      bookingRef: b.id,
+      clientName: user?.name ?? "Client",
+      providerName: b.providerName ?? "Provider",
+      service: b.service,
+      date: b.date,
+      time: b.time,
+      duration: b.duration,
+      price: b.price,
+      status: b.status,
+    });
   };
 
   const upcoming = getByStatus(["pending", "confirmed"]);
@@ -162,6 +179,10 @@ const Schedule = () => {
                           className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-indigo">
                           <RotateCcw className="w-3 h-3" /> Reschedule
                         </button>
+                        <button onClick={() => handleReceipt(b)}
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-foreground">
+                          <FileText className="w-3 h-3" /> Receipt
+                        </button>
                         <button onClick={() => decline(b.id)}
                           className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-coral">
                           <XCircle className="w-3 h-3" /> Cancel
@@ -209,6 +230,10 @@ const Schedule = () => {
                         <button onClick={() => openReschedule(b)}
                           className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-indigo">
                           <RotateCcw className="w-3 h-3" /> Reschedule
+                        </button>
+                        <button onClick={() => handleReceipt(b)}
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-foreground">
+                          <FileText className="w-3 h-3" /> Receipt
                         </button>
                         <button onClick={() => decline(b.id)}
                           className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-coral">

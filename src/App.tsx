@@ -72,6 +72,7 @@ import NotificationBell from "./components/NotificationBell";
 import InstallButton    from "./components/InstallButton";
 import CalendarButton   from "./components/CalendarButton";
 import OfflineBanner    from "./components/OfflineBanner";
+import CommandPalette   from "./components/CommandPalette";
 
 // ── Lazy-loaded pages (split into separate chunks) ──
 import { lazy, Suspense } from "react";
@@ -342,6 +343,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <OfflineBanner />
+              <CommandPalette />
               <AuthGate>
                 <CalendarButton />
                 <NotificationBell />
