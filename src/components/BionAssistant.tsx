@@ -186,6 +186,7 @@ export default function BionAssistant() {
   const [input, setInput] = useState("");
   const [showHumanModal, setShowHumanModal] = useState(false);
   const [humanReason, setHumanReason] = useState("");
+  const [humanChannel, setHumanChannel] = useState("support");
   const reminderCount = role === "client" ? getActiveReminders().length : 0;
 
   // Request notification permission on first render + fire pending reminders
@@ -444,21 +445,50 @@ export default function BionAssistant() {
               </div>
 
               <div className="space-y-3">
+                {/* Category selector */}
                 <div>
-                  <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1 block">What do you need help with?</label>
+                  <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1.5 block">What's this about?</label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {[
+                      { key: "support", label: "General Help", email: "support@bionhealth.co.za" },
+                      { key: "bookings", label: "Booking Issue", email: "bookings@bionhealth.co.za" },
+                      { key: "disputes", label: "Dispute / Refund", email: "disputes@bionhealth.co.za" },
+                      { key: "accounts", label: "Payment / Billing", email: "accounts@bionhealth.co.za" },
+                      { key: "sales", label: "Provider / Sales", email: "sales@bionhealth.co.za" },
+                      { key: "other", label: "Something Else", email: "support@bionhealth.co.za" },
+                    ].map(cat => (
+                      <button key={cat.key}
+                        onClick={() => setHumanChannel(cat.key)}
+                        className={`py-2 rounded-xl text-[10px] font-medium border transition-all ${
+                          humanChannel === cat.key ? "border-teal/40 bg-teal/10 text-teal" : "border-white/[0.08] bg-white/[0.02] text-muted-foreground"
+                        }`}>
+                        {cat.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1 block">Describe your issue</label>
                   <textarea
                     value={humanReason}
                     onChange={e => setHumanReason(e.target.value)}
-                    placeholder="Describe your issue or question..."
-                    rows={5}
+                    placeholder="Tell us what happened..."
+                    rows={4}
                     className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-teal/40 transition-colors resize-none"
                   />
                 </div>
 
                 <div className="rounded-xl bg-white/[0.02] border border-white/[0.06] p-3 text-[11px] text-muted-foreground space-y-1">
-                  <p>📧 <span className="text-foreground">support@bionhealth.co.za</span></p>
+                  <p>📧 Your message will go to: <span className="text-foreground font-medium">{
+                    humanChannel === "bookings" ? "bookings@bionhealth.co.za" :
+                    humanChannel === "disputes" ? "disputes@bionhealth.co.za" :
+                    humanChannel === "accounts" ? "accounts@bionhealth.co.za" :
+                    humanChannel === "sales" ? "sales@bionhealth.co.za" :
+                    "support@bionhealth.co.za"
+                  }</span></p>
                   <p>⏱ Reply within a few hours · Mon-Fri 8am-6pm SAST</p>
-                  <p>🆘 For urgent medical issues, call your provider directly</p>
+                  <p>🆘 Medical emergencies: call 10177</p>
                 </div>
               </div>
 
@@ -469,32 +499,38 @@ export default function BionAssistant() {
                 </button>
                 <button
                   onClick={() => {
-                    // Build mailto link with context
-                    const subject = `BION Support Request — ${user?.name ?? "User"}`;
+                    const targetEmail =
+                      humanChannel === "bookings" ? "bookings@bionhealth.co.za" :
+                      humanChannel === "disputes" ? "disputes@bionhealth.co.za" :
+                      humanChannel === "accounts" ? "accounts@bionhealth.co.za" :
+                      humanChannel === "sales" ? "sales@bionhealth.co.za" :
+                      "support@bionhealth.co.za";
+                    const dept = humanChannel === "bookings" ? "Bookings" : humanChannel === "disputes" ? "Disputes" : humanChannel === "accounts" ? "Accounts" : humanChannel === "sales" ? "Sales" : "Support";
+                    const subject = `BION ${dept} — ${user?.name ?? "User"}`;
                     const body = [
-                      `Hi BION Support team,`,
+                      `Hi BION ${dept} team,`,
                       ``,
-                      humanReason || "I need help with the BION app.",
+                      humanReason || "I need help.",
                       ``,
                       `---`,
                       `User: ${user?.name ?? "Unknown"}`,
                       `Email: ${user?.email ?? "Unknown"}`,
                       `Role: ${role}`,
+                      `Category: ${dept}`,
                       `Sent from: B_ Assistant`,
                       `Date: ${new Date().toLocaleString("en-ZA")}`,
                     ].join("\n");
-                    const mailto = `mailto:support@bionhealth.co.za?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                    window.location.href = mailto;
-                    // Add a confirmation message in chat
+                    window.location.href = `mailto:${targetEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                     const confirmMsg: Message = {
                       id: Date.now() + "c",
                       role: "assistant",
-                      text: `📧 Opening your email app to send your message to **support@bionhealth.co.za**. Our team will reply within a few hours during business hours. In the meantime, I'm still here if you need anything else.`,
+                      text: `📧 Opening your email to **${targetEmail}** (${dept} team). They'll reply within a few hours. I'm still here if you need anything else.`,
                       ts: new Date(),
                     };
                     setMessages(prev => [...prev, confirmMsg]);
                     setShowHumanModal(false);
                     setHumanReason("");
+                    setHumanChannel("support");
                   }}
                   disabled={!humanReason.trim()}
                   className="flex-1 py-2.5 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 flex items-center justify-center gap-1.5">
