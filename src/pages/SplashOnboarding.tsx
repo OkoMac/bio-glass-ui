@@ -51,7 +51,7 @@ const onboardingSteps: OnboardingStep[] = [
   },
 ];
 
-type Phase = "splash" | "onboarding" | "role" | "auth" | "terms";
+type Phase = "splash" | "onboarding" | "role" | "auth" | "terms" | "email-sent";
 type AuthMode = "signin" | "signup";
 
 const ROLE_OPTIONS = [
@@ -115,6 +115,15 @@ export default function SplashOnboarding() {
     if (authMode === "signup") {
       const { user, error: err } = await signUpWithEmail(email.trim(), password, name.trim(), selectedRole);
       if (err || !user) { setError(err ?? "Signup failed"); setBusy(false); return; }
+      // Supabase may require email confirmation — check if session is valid
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        // Email confirmation required — show message instead of logging in
+        setError("");
+        setBusy(false);
+        setPhase("email-sent");
+        return;
+      }
       login(user);
       navigate(ROLE_HOME[selectedRole], { replace: true });
     } else {
@@ -335,6 +344,36 @@ export default function SplashOnboarding() {
             I Accept — Continue to Sign Up
           </button>
         </div>
+      </div>
+    );
+  }
+
+  // ── Email confirmation sent ──────────────────────────────────────
+  if (phase === "email-sent") {
+    return (
+      <div className="fixed inset-0 z-[100] bg-obsidian flex items-center justify-center px-6"
+        style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(99,102,241,0.08) 0%, #0A0A0F 65%)" }}>
+        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+          className="glass-2 rounded-3xl p-8 max-w-sm w-full text-center space-y-4">
+          <div className="text-5xl">📧</div>
+          <h2 className="text-xl font-bold text-foreground">Check your email</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            We sent a confirmation link to <strong className="text-foreground">{email}</strong>.
+            Click the link to activate your account, then come back here to sign in.
+          </p>
+          <button
+            onClick={() => { setAuthMode("signin"); setPhase("auth" as Phase); }}
+            className="w-full rounded-pill py-3 text-sm font-semibold gradient-indigo text-primary-foreground"
+          >
+            I've confirmed — Sign In
+          </button>
+          <button
+            onClick={() => setPhase("auth" as Phase)}
+            className="text-xs text-muted-foreground underline"
+          >
+            Back to login
+          </button>
+        </motion.div>
       </div>
     );
   }

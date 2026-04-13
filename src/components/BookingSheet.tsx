@@ -69,7 +69,7 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
   useEffect(() => {
     if (open && !user) {
       // Redirect to signup if not authenticated
-      navigate('/onboarding/signup');
+      navigate('/welcome');
       onClose();
     }
   }, [open, user, navigate, onClose]);

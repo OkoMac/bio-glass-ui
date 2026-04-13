@@ -167,7 +167,7 @@ export default function ProviderSchedule() {
           {weekDates.map((d, i) => {
             const isToday = d.toDateString() === today.toDateString();
             const isSelected = mode === "day" && i === viewDay;
-            const dayBookingsCount = (scheduleData[weekOffset === 0 ? i : 99] ?? []).length;
+            const dayBookingsCount = (scheduleData[i] ?? []).length;
             return (
               <motion.button
                 key={i}
