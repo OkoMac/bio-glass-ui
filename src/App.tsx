@@ -19,19 +19,44 @@ class ErrorBoundary extends React.Component<
   static getDerivedStateFromError(error: Error) {
     return { hasError: true, error };
   }
+  componentDidCatch(error: Error) {
+    // Auto-reload on chunk load failure (happens during Vercel deploys when old HTML references new chunk hashes)
+    if (error.message?.includes("Failed to fetch dynamically imported module") ||
+        error.message?.includes("Loading chunk") ||
+        error.message?.includes("Loading CSS chunk")) {
+      // Only auto-reload once to avoid infinite loop
+      const key = "bion_chunk_reload";
+      if (!sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, "1");
+        window.location.reload();
+        return;
+      }
+      sessionStorage.removeItem(key);
+    }
+  }
   render() {
     if (this.state.hasError) {
+      const isChunkError = this.state.error?.message?.includes("dynamically imported module");
       return (
-        <div style={{ padding: 40, fontFamily: "system-ui", color: "#fff", background: "#0a0a0f", minHeight: "100vh" }}>
-          <h1 style={{ color: "#f87171", marginBottom: 16 }}>Runtime Error</h1>
-          <pre style={{ background: "#1e1e2e", padding: 16, borderRadius: 8, overflow: "auto", fontSize: 13 }}>
-            {this.state.error?.message}
-            {"\n\n"}
-            {this.state.error?.stack}
-          </pre>
-          <button onClick={() => window.location.reload()} style={{ marginTop: 16, padding: "8px 20px", background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer" }}>
-            Reload
+        <div style={{ padding: 40, fontFamily: "'DM Sans', system-ui", color: "#fff", background: "#0a0a0f", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>{isChunkError ? "🔄" : "⚠️"}</div>
+          <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
+            {isChunkError ? "BION just updated" : "Something went wrong"}
+          </h1>
+          <p style={{ color: "#9ca3af", fontSize: 14, marginBottom: 24, maxWidth: 400 }}>
+            {isChunkError
+              ? "A new version was deployed. Tap reload to get the latest."
+              : "An unexpected error occurred. Reloading usually fixes it."}
+          </p>
+          <button onClick={() => { sessionStorage.removeItem("bion_chunk_reload"); window.location.reload(); }}
+            style={{ padding: "12px 32px", background: "#6366f1", color: "#fff", border: "none", borderRadius: 999, cursor: "pointer", fontWeight: 600, fontSize: 14 }}>
+            Reload BION
           </button>
+          {import.meta.env.DEV && this.state.error && (
+            <pre style={{ background: "#1e1e2e", padding: 16, borderRadius: 8, overflow: "auto", fontSize: 11, marginTop: 24, maxWidth: "90vw", textAlign: "left" }}>
+              {this.state.error.message}{"\n"}{this.state.error.stack}
+            </pre>
+          )}
         </div>
       );
     }

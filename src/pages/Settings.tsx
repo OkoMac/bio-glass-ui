@@ -305,13 +305,28 @@ export default function Settings() {
             <GlassCard className="p-5 space-y-3">
               <h2 className="text-sm font-semibold text-foreground">Your Data</h2>
               <button
-                onClick={() => window.alert("Your data export will be emailed to you.")}
+                onClick={async () => {
+                  try {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    const token = session?.access_token;
+                    if (!token) { window.alert("Sign in with a real account to download your data."); return; }
+                    const res = await fetch(`${API}/api/popia/my-data`, { headers: { Authorization: `Bearer ${token}` } });
+                    const json = await res.json();
+                    const blob = new Blob([JSON.stringify(json.data, null, 2)], { type: "application/json" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a"); a.href = url; a.download = "bion-my-data.json"; a.click();
+                    URL.revokeObjectURL(url);
+                  } catch { window.alert("Failed to download. Try again or contact support@bionhealth.co.za"); }
+                }}
                 className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl glass-1 text-sm text-foreground hover:bg-white/5 transition-colors"
               >
                 <span>Download my data</span>
                 <ChevronLeft className="w-4 h-4 rotate-180 text-muted-foreground" />
               </button>
-              <button className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl glass-1 text-sm text-foreground hover:bg-white/5 transition-colors">
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl glass-1 text-sm text-foreground hover:bg-white/5 transition-colors"
+              >
                 <span>Request data deletion</span>
                 <ChevronLeft className="w-4 h-4 rotate-180 text-muted-foreground" />
               </button>
