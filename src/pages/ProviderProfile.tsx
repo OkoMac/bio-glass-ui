@@ -5,8 +5,9 @@ import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
-import { ArrowLeft, Share2, Star, MapPin, Clock, Lock, CreditCard, Shield, Mail, Phone, Globe, Building, Check } from "lucide-react";
+import { ArrowLeft, Share2, Star, MapPin, Clock, Lock, CreditCard, Shield, Mail, Phone, Globe, Building, Check, X, CalendarDays } from "lucide-react";
 import { getProviderImage, getProviderCover } from "@/lib/providerImages";
+import { useBookings } from "@/contexts/BookingsContext";
 import realData from "@/data/bion_pretoria_data.json";
 
 // ── Build lookup from ALL scraped providers ─────────
@@ -46,11 +47,44 @@ export default function ProviderProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { addBooking } = useBookings();
   const [showAllServices, setShowAllServices] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showBooking, setShowBooking] = useState(false);
+  const [bookingDate, setBookingDate] = useState(() => {
+    const d = new Date(); d.setDate(d.getDate() + 1);
+    return d.toISOString().split("T")[0];
+  });
+  const [bookingTime, setBookingTime] = useState("10:00");
+  const [selectedService, setSelectedService] = useState(0);
+  const [bookingConfirmed, setBookingConfirmed] = useState(false);
 
   const provider = PROVIDERS[id ?? ""];
   const isSignedIn = !!user;
+
+  const handleBook = () => {
+    if (!provider) return;
+    const service = provider.servicesOffered[selectedService] ?? provider.specialty;
+    addBooking({
+      clientId: user?.profileId ?? user?.id ?? "guest",
+      clientName: user?.name ?? "Guest",
+      clientImage: user?.avatar ?? "",
+      providerName: provider.name,
+      service,
+      date: bookingDate,
+      time: bookingTime,
+      duration: provider.duration ?? "60 min",
+      price: provider.price ?? "R0",
+    });
+    setBookingConfirmed(true);
+    setTimeout(() => {
+      setShowBooking(false);
+      setBookingConfirmed(false);
+      navigate("/schedule");
+    }, 2000);
+  };
+
+  const TIME_SLOTS = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
 
   // SEO: dynamic page title + meta tags for this provider
   useEffect(() => {
@@ -157,7 +191,7 @@ export default function ProviderProfile() {
         {isSignedIn ? (
           <motion.button
             whileTap={{ scale: 0.97 }}
-            onClick={() => navigate("/quick-book")}
+            onClick={() => setShowBooking(true)}
             className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta"
           >
             Book a Session — {provider.price}
@@ -306,12 +340,121 @@ export default function ProviderProfile() {
         </span>
         <motion.button
           whileTap={{ scale: 0.95 }}
-          onClick={() => isSignedIn ? navigate("/quick-book") : navigate("/welcome")}
+          onClick={() => isSignedIn ? setShowBooking(true) : navigate("/welcome")}
           className="rounded-pill px-6 py-3 text-[13px] md:text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta"
         >
           {isSignedIn ? "Book Now" : "Sign Up to Book"}
         </motion.button>
       </motion.div>
+
+      {/* ── Booking Sheet ── */}
+      {showBooking && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => !bookingConfirmed && setShowBooking(false)}
+            className="fixed inset-0 bg-obsidian/70 z-[80]"
+          />
+          <motion.div
+            initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed bottom-0 left-0 right-0 z-[90] max-w-lg mx-auto rounded-t-3xl p-6 space-y-5"
+            style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            {bookingConfirmed ? (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 rounded-full bg-teal/20 flex items-center justify-center mx-auto mb-4">
+                  <Check className="w-8 h-8 text-teal" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-1">Booking Confirmed!</h3>
+                <p className="text-sm text-muted-foreground">Redirecting to your schedule...</p>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <CalendarDays className="w-5 h-5 text-indigo" />
+                    <h3 className="text-base font-bold text-foreground">Book with {provider.name}</h3>
+                  </div>
+                  <button onClick={() => setShowBooking(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
+                    <X className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+
+                {/* Service selection */}
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">Service</p>
+                  <div className="flex flex-wrap gap-2">
+                    {provider.servicesOffered.map((s: string, i: number) => (
+                      <button key={i} onClick={() => setSelectedService(i)}
+                        className={`px-3 py-1.5 rounded-pill text-xs font-medium transition-colors ${
+                          selectedService === i ? "gradient-indigo text-white" : "glass-1 text-foreground"
+                        }`}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Date */}
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">Date</p>
+                  <input
+                    type="date"
+                    value={bookingDate}
+                    min={new Date().toISOString().split("T")[0]}
+                    onChange={e => setBookingDate(e.target.value)}
+                    className="w-full px-4 py-3 glass-1 rounded-xl text-sm text-foreground outline-none border border-white/[0.08] focus:border-indigo/40"
+                  />
+                </div>
+
+                {/* Time slots */}
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">Time</p>
+                  <div className="grid grid-cols-5 gap-2">
+                    {TIME_SLOTS.map(t => (
+                      <button key={t} onClick={() => setBookingTime(t)}
+                        className={`py-2 rounded-xl text-xs font-medium transition-colors ${
+                          bookingTime === t ? "gradient-indigo text-white" : "glass-1 text-foreground"
+                        }`}>
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Summary + confirm */}
+                <div className="glass-1 rounded-2xl p-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Service</span>
+                    <span className="text-foreground font-medium">{provider.servicesOffered[selectedService]}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Date & Time</span>
+                    <span className="text-foreground font-medium">{bookingDate} at {bookingTime}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Duration</span>
+                    <span className="text-foreground font-medium">{provider.duration}</span>
+                  </div>
+                  <div className="flex justify-between text-sm pt-2 border-t border-white/[0.06]">
+                    <span className="text-muted-foreground">Price</span>
+                    <span className="text-foreground font-bold">{provider.price}</span>
+                  </div>
+                </div>
+
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={handleBook}
+                  className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta"
+                >
+                  Confirm Booking
+                </motion.button>
+              </>
+            )}
+          </motion.div>
+        </>
+      )}
     </div>
   );
 }
