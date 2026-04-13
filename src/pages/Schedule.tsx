@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import ReviewForm from "@/components/ReviewForm";
-import { Calendar, ChevronLeft, ChevronRight, Clock, Star } from "lucide-react";
-import { useBookings } from "@/contexts/BookingsContext";
+import { Calendar, ChevronLeft, ChevronRight, Clock, Star, X, CalendarDays, RotateCcw, XCircle } from "lucide-react";
+import { useBookings, type Booking } from "@/contexts/BookingsContext";
 
 const verticalByService: Record<string, "teal" | "indigo" | "coral" | "amber"> = {
   "Personal Training": "teal",
@@ -53,11 +53,28 @@ function getWeekDates() {
   });
 }
 
+const TIME_SLOTS = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
+
 const Schedule = () => {
-  const { getByStatus } = useBookings();
+  const { getByStatus, decline, reschedule } = useBookings();
   const weekDates = getWeekDates();
   const [selectedDay, setSelectedDay] = useState(0);
   const [reviewBooking, setReviewBooking] = useState<{ id: string; providerName: string } | null>(null);
+  const [rescheduleBooking, setRescheduleBooking] = useState<Booking | null>(null);
+  const [newDate, setNewDate] = useState("");
+  const [newTime, setNewTime] = useState("10:00");
+
+  const handleReschedule = () => {
+    if (!rescheduleBooking || !newDate) return;
+    reschedule(rescheduleBooking.id, newDate, newTime);
+    setRescheduleBooking(null);
+  };
+
+  const openReschedule = (b: Booking) => {
+    setNewDate(b.date);
+    setNewTime(b.time);
+    setRescheduleBooking(b);
+  };
 
   const upcoming = getByStatus(["pending", "confirmed"]);
   const past     = getByStatus(["completed", "no_show", "declined"]);
@@ -140,6 +157,16 @@ const Schedule = () => {
                           </span>
                         </div>
                       </div>
+                      <div className="flex gap-2 mt-3 pt-3 border-t border-white/[0.06]">
+                        <button onClick={() => openReschedule(b)}
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-indigo">
+                          <RotateCcw className="w-3 h-3" /> Reschedule
+                        </button>
+                        <button onClick={() => decline(b.id)}
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-coral">
+                          <XCircle className="w-3 h-3" /> Cancel
+                        </button>
+                      </div>
                     </GlassCard>
                   </motion.div>
                 );
@@ -177,6 +204,16 @@ const Schedule = () => {
                             {STATUS_LABEL[b.status]}
                           </span>
                         </div>
+                      </div>
+                      <div className="flex gap-2 mt-3 pt-3 border-t border-white/[0.06]">
+                        <button onClick={() => openReschedule(b)}
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-indigo">
+                          <RotateCcw className="w-3 h-3" /> Reschedule
+                        </button>
+                        <button onClick={() => decline(b.id)}
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-coral">
+                          <XCircle className="w-3 h-3" /> Cancel
+                        </button>
                       </div>
                     </GlassCard>
                   </motion.div>
@@ -233,6 +270,71 @@ const Schedule = () => {
           onSubmitted={() => setReviewBooking(null)}
         />
       )}
+
+      {/* Reschedule modal */}
+      <AnimatePresence>
+        {rescheduleBooking && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setRescheduleBooking(null)}
+              className="fixed inset-0 bg-obsidian/70 z-[80]"
+            />
+            <motion.div
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              className="fixed bottom-0 left-0 right-0 z-[90] max-w-lg mx-auto rounded-t-3xl p-6 space-y-5"
+              style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", border: "1px solid rgba(255,255,255,0.08)" }}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <CalendarDays className="w-5 h-5 text-indigo" />
+                  <div>
+                    <h3 className="text-base font-bold text-foreground">Reschedule</h3>
+                    <p className="text-xs text-muted-foreground">{rescheduleBooking.service} with {rescheduleBooking.providerName}</p>
+                  </div>
+                </div>
+                <button onClick={() => setRescheduleBooking(null)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">New Date</p>
+                <input
+                  type="date"
+                  value={newDate}
+                  min={new Date().toISOString().split("T")[0]}
+                  onChange={e => setNewDate(e.target.value)}
+                  className="w-full px-4 py-3 glass-1 rounded-xl text-sm text-foreground outline-none border border-white/[0.08] focus:border-indigo/40"
+                />
+              </div>
+
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">New Time</p>
+                <div className="grid grid-cols-5 gap-2">
+                  {TIME_SLOTS.map(t => (
+                    <button key={t} onClick={() => setNewTime(t)}
+                      className={`py-2 rounded-xl text-xs font-medium transition-colors ${
+                        newTime === t ? "gradient-indigo text-white" : "glass-1 text-foreground"
+                      }`}>
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={handleReschedule}
+                className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta"
+              >
+                Confirm Reschedule
+              </motion.button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <BottomNav />
       <BionAssistant />

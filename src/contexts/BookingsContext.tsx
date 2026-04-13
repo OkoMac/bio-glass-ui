@@ -122,6 +122,7 @@ interface BookingsContextType {
   decline:      (id: string) => void;
   markComplete: (id: string) => void;
   markNoShow:   (id: string) => void;
+  reschedule:   (id: string, newDate: string, newTime: string) => void;
   addBooking:   (booking: Omit<Booking, "id" | "status">) => void;
   getByStatus:  (status: BookingStatus | BookingStatus[]) => Booking[];
   getByClient:  (clientId: string) => Booking[];
@@ -185,6 +186,13 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
   const decline      = useCallback((id: string) => updateStatus(id, "declined"),   [updateStatus]);
   const markComplete = useCallback((id: string) => updateStatus(id, "completed"),  [updateStatus]);
   const markNoShow   = useCallback((id: string) => updateStatus(id, "no_show"),    [updateStatus]);
+
+  const reschedule = useCallback(async (id: string, newDate: string, newTime: string) => {
+    setBookings(prev => prev.map(b => b.id === id ? { ...b, date: newDate, time: newTime, status: "pending" as BookingStatus } : b));
+    if (user?.id) {
+      await supabase.from("bookings").update({ booking_date: newDate, booking_time: newTime, status: "pending" }).eq("id", id);
+    }
+  }, [user?.id]);
 
   const addBooking = useCallback(async (booking: Omit<Booking, "id" | "status">) => {
     const newBooking: Booking = { ...booking, id: `b${Date.now()}`, status: "pending" };
@@ -306,7 +314,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
   return (
     <BookingsContext.Provider value={{
       bookings, pendingCount, providers,
-      confirm, decline, markComplete, markNoShow, addBooking,
+      confirm, decline, markComplete, markNoShow, reschedule, addBooking,
       getByStatus, getByClient, getProvidersBySuburb, getProvidersByService,
     }}>
       {children}
