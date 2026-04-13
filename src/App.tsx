@@ -71,6 +71,7 @@ import NotFound        from "./pages/NotFound";
 import NotificationBell from "./components/NotificationBell";
 import InstallButton    from "./components/InstallButton";
 import CalendarButton   from "./components/CalendarButton";
+import OfflineBanner    from "./components/OfflineBanner";
 
 // ── Lazy-loaded pages (split into separate chunks) ──
 import { lazy, Suspense } from "react";
@@ -332,6 +333,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <OfflineBanner />
               <AuthGate>
                 <CalendarButton />
                 <NotificationBell />
