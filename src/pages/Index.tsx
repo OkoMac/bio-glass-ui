@@ -62,6 +62,7 @@ const ALL_HOME_PROVIDERS = realData.providers
     serviceCategory: categorizeService(p.service ?? ""),
     price: p.price ?? "",
     availability: typeof p.availability === "string" ? p.availability : "",
+    verified: p.verified === true,
   }));
 
 const Index = () => {
@@ -283,7 +284,10 @@ const Index = () => {
                 >
                   <img src={p.avatar} alt={p.name} className="w-14 h-14 rounded-xl object-cover ring-2 ring-white/10" />
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-foreground truncate">{p.name}</h3>
+                    <h3 className="text-sm font-semibold text-foreground truncate flex items-center gap-1">
+                      {p.name}
+                      {p.verified && <svg viewBox="0 0 20 20" className="w-3.5 h-3.5 shrink-0 fill-teal"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" /></svg>}
+                    </h3>
                     <p className="text-xs text-muted-foreground truncate">{p.specialty}</p>
                     <div className="flex items-center gap-3 mt-1.5">
                       <span className="flex items-center gap-1 text-xs">

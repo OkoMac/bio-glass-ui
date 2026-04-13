@@ -222,6 +222,14 @@ function RequireAuth({ children, allowedRoles, skipOnboardingCheck }: {
   return <>{children}</>;
 }
 
+/** Runs booking reminder checks globally for logged-in users */
+function BookingReminderRunner() {
+  // Dynamic import to avoid circular deps
+  const { useBookingReminders } = require("@/hooks/useBookingReminders");
+  useBookingReminders();
+  return null;
+}
+
 /** Only renders children once auth has resolved (prevents hooks firing with stale/undefined user) */
 function AuthGate({ children }: { children: ReactNode }) {
   const { loading, user } = useAuth();
@@ -337,6 +345,7 @@ const App = () => (
               <AuthGate>
                 <CalendarButton />
                 <NotificationBell />
+                <BookingReminderRunner />
               </AuthGate>
               <InstallButton />
               <Suspense fallback={

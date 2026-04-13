@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Search, MapPin, SlidersHorizontal, Navigation, Star, Clock, ChevronRight, X, Plus, Lock } from "lucide-react";
@@ -131,6 +131,33 @@ export default function Directory() {
       navigate("/welcome");
     }
   };
+
+  // SEO: structured data for local business directory
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: "Health, Wellness & Beauty Providers in Pretoria",
+      description: "Browse 853+ verified providers on BION — South Africa's health and wellness marketplace.",
+      numberOfItems: ALL_PROVIDERS.length,
+      itemListElement: ALL_PROVIDERS.slice(0, 10).map((p, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        item: {
+          "@type": "LocalBusiness",
+          name: p.name,
+          description: `${p.service} in ${p.location}`,
+          address: { "@type": "PostalAddress", addressLocality: p.location, addressCountry: "ZA" },
+          aggregateRating: p.rating > 0 ? { "@type": "AggregateRating", ratingValue: p.rating, ratingCount: p.reviewCount || 1, bestRating: 5 } : undefined,
+          url: `https://bionhealth.co.za/provider/${p.id}`,
+        },
+      })),
+    });
+    document.head.appendChild(script);
+    return () => { document.head.removeChild(script); };
+  }, [ALL_PROVIDERS]);
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow">
