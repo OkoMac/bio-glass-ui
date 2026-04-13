@@ -8,6 +8,7 @@ export type StepType =
   | "webcrawl"
   | "ai-setup"
   | "batch-upload"
+  | "consent"
   | "complete";
 
 export type LessonStatus =
@@ -57,6 +58,12 @@ export interface StepHighlight {
   desc: string;
 }
 
+export interface ConsentItem {
+  id: string;
+  label: string;
+  required: boolean;
+}
+
 export interface OnboardingStep {
   id: string;
   type: StepType;
@@ -67,6 +74,7 @@ export interface OnboardingStep {
   highlights?: StepHighlight[];
   questions?: QuizQuestion[];
   fields?: FormField[];
+  consentItems?: ConsentItem[];
   /** Minimum score (0-100) required to pass a quiz step */
   passScore?: number;
   canSkip?: boolean;

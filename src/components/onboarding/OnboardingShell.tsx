@@ -250,6 +250,54 @@ function QuizStepRenderer({
   );
 }
 
+// ─── Consent Step ─────────────────────────────────────────────────────────────
+
+function ConsentStepRenderer({
+  step,
+  answers,
+  onAnswer,
+}: {
+  step: OnboardingStep;
+  answers: Record<string, unknown>;
+  onAnswer: (questionId: string, answer: unknown) => void;
+}) {
+  const items = step.consentItems ?? [];
+  return (
+    <div className="space-y-4">
+      <div className="glass-1 rounded-2xl p-4 space-y-1">
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Please read and accept each item below to continue. These are legally binding under South African law.
+        </p>
+      </div>
+      {items.map((item) => (
+        <button
+          key={item.id}
+          onClick={() => onAnswer(item.id, !answers[item.id])}
+          className={`w-full flex items-start gap-3 p-4 rounded-2xl border text-left transition-all ${
+            answers[item.id]
+              ? "border-teal/40 bg-teal/5"
+              : "border-white/[0.08] glass-1"
+          }`}
+        >
+          <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${
+            answers[item.id]
+              ? "border-teal bg-teal"
+              : "border-white/20"
+          }`}>
+            {answers[item.id] && (
+              <CheckCircle className="w-3.5 h-3.5 text-white" />
+            )}
+          </div>
+          <span className="text-sm text-foreground leading-relaxed">{item.label}</span>
+          {item.required && !answers[item.id] && (
+            <span className="text-[9px] text-coral font-medium shrink-0 mt-1">Required</span>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // ─── Form Step ────────────────────────────────────────────────────────────────
 
 function FormStepRenderer({
@@ -424,7 +472,11 @@ function OnboardingShellInner({
   const [chatOpen, setChatOpen] = useState(false);
 
   const step = ob.currentStepData;
-  const canGoNext = ob.canProceed(step.id);
+  // For consent steps, all required items must be checked
+  const consentComplete = step.type === "consent" && step.consentItems
+    ? step.consentItems.filter(c => c.required).every(c => ob.progress.answers[c.id] === true)
+    : true;
+  const canGoNext = step.type === "consent" ? consentComplete : ob.canProceed(step.id);
 
   const handleNext = () => {
     if (step.type === "complete") {
@@ -485,6 +537,13 @@ function OnboardingShellInner({
             {step.type === "info" && <InfoStep step={step} />}
             {step.type === "quiz" && (
               <QuizStepRenderer
+                step={step}
+                answers={ob.progress.answers}
+                onAnswer={ob.setAnswer}
+              />
+            )}
+            {step.type === "consent" && step.consentItems && (
+              <ConsentStepRenderer
                 step={step}
                 answers={ob.progress.answers}
                 onAnswer={ob.setAnswer}

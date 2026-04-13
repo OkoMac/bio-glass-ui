@@ -122,11 +122,22 @@ const STEPS: OnboardingStep[] = [
     ],
   },
   {
+    id: "health_consent",
+    type: "consent",
+    title: "Health Data & Privacy",
+    subtitle: "Your health data is protected under POPIA as special personal information.",
+    consentItems: [
+      { id: "health_data", label: "I consent to BION storing my health and wellness data (session history, vitals, routines) as special personal information under POPIA Section 26.", required: true },
+      { id: "provider_share", label: "I understand that my booking and session data will be shared with the providers I book with, solely for service delivery.", required: true },
+      { id: "data_rights", label: "I understand I can download or delete all my data at any time from Settings → Privacy.", required: true },
+    ],
+  },
+  {
     id: "quiz",
     type: "quiz",
     title: "Quick Knowledge Check",
     subtitle: "Let's make sure you're ready to get the most out of BION.",
-    canSkip: true,
+    canSkip: false,
     passScore: 60,
     questions: [
       {

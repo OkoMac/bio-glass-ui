@@ -85,11 +85,23 @@ const STEPS: OnboardingStep[] = [
     ],
   },
   {
+    id: "provider_agreement",
+    type: "consent",
+    title: "Provider Agreement",
+    subtitle: "Review and accept to continue.",
+    consentItems: [
+      { id: "fee_agree", label: "I understand and accept the 5% platform fee on completed bookings, with 95% paid directly to my bank account via Paystack.", required: true },
+      { id: "popia_dpa", label: "I consent to BION processing my personal and business data as a data processor under POPIA. Client data shared with me will be used only for service delivery.", required: true },
+      { id: "cancellation", label: "I will honour my published cancellation policy and respond to booking requests within 24 hours.", required: true },
+      { id: "verification", label: "I confirm that my qualifications and professional registrations (if applicable) are current and valid.", required: true },
+    ],
+  },
+  {
     id: "quiz",
     type: "quiz",
     title: "Provider Knowledge Check",
     subtitle: "Confirm you understand the key platform rules.",
-    canSkip: true,
+    canSkip: false,
     passScore: 66,
     questions: [
       {

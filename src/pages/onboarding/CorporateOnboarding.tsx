@@ -111,11 +111,23 @@ const STEPS: OnboardingStep[] = [
     ],
   },
   {
+    id: "corporate_dpa",
+    type: "consent",
+    title: "Data Processing Agreement",
+    subtitle: "Required for POPIA compliance when handling employee wellness data.",
+    consentItems: [
+      { id: "dpa_agree", label: "I accept the BION Data Processing Agreement. Employee personal data will be processed in accordance with POPIA and used solely for wellness programme delivery.", required: true },
+      { id: "aggregate_only", label: "I understand that HR/management will only see aggregate anonymised data. Individual employee session details are never disclosed to the employer.", required: true },
+      { id: "employee_consent", label: "I confirm that employees will be informed about the wellness programme and their participation is voluntary.", required: true },
+      { id: "billing_terms", label: "I accept the corporate billing terms: monthly budget per employee, unused credits do not roll over unless otherwise agreed.", required: true },
+    ],
+  },
+  {
     id: "quiz",
     type: "quiz",
     title: "Corporate Platform Check",
     subtitle: "Confirm you understand how the programme works.",
-    canSkip: true,
+    canSkip: false,
     passScore: 60,
     questions: [
       {
