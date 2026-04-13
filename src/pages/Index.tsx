@@ -13,6 +13,7 @@ import {
   Droplets, Moon, HeartPulse, Activity
 } from "lucide-react";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { distanceToSuburb } from "@/lib/pretoriaSuburbs";
 import BiometricsDashboard from "@/components/BiometricsDashboard";
 import realData from "@/data/bion_pretoria_data.json";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
@@ -103,8 +104,18 @@ const Index = () => {
       list = list.filter(p => p.rating >= filters.minRating);
     }
 
+    // Sort by distance if user location available and "Nearby" selected
+    if (cat === "Nearby" || activeCategory === "Nearby") {
+      if (geo.latitude && geo.longitude) {
+        list = list
+          .map(p => ({ ...p, _dist: distanceToSuburb(geo.latitude!, geo.longitude!, p.distance) }))
+          .filter(p => p._dist !== null)
+          .sort((a, b) => (a._dist ?? 999) - (b._dist ?? 999));
+      }
+    }
+
     return list.slice(0, 12);
-  }, [activeCategory, searchQuery, filterVersion]);
+  }, [activeCategory, searchQuery, filterVersion, geo.latitude, geo.longitude]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
