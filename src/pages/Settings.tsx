@@ -4,12 +4,79 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Bell, CreditCard, Eye, User, ChevronLeft, Save, Check,
-  Smartphone, Mail, Shield, Trash2, Plus,
+  Smartphone, Mail, Shield, Trash2, Plus, Loader2,
 } from "lucide-react";
 
 type Tab = "notifications" | "payment" | "privacy" | "account";
+
+const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+
+function DeleteAccountConfirm({ onCancel, onDeleted }: { onCancel: () => void; onDeleted: () => void }) {
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    setError("");
+    try {
+      // Get the current session token
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      if (!token) {
+        // Demo account — just log out
+        onDeleted();
+        return;
+      }
+
+      const res = await fetch(`${API}/api/popia/delete-my-data`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (data.ok) {
+        onDeleted();
+      } else {
+        setError(data.error ?? "Deletion failed. Contact support@bionhealth.co.za");
+      }
+    } catch {
+      setError("Network error. Please try again or contact support@bionhealth.co.za");
+    }
+    setDeleting(false);
+  };
+
+  return (
+    <div className="mt-3 p-3 rounded-xl border border-coral/20 bg-coral/5 space-y-2">
+      <p className="text-xs text-foreground font-medium">
+        Are you sure? This permanently deletes all your data — bookings, messages, profile, health records. This cannot be undone.
+      </p>
+      {error && <p className="text-[10px] text-coral">{error}</p>}
+      <div className="flex gap-2">
+        <button
+          onClick={handleDelete}
+          disabled={deleting}
+          className="flex-1 rounded-xl py-2 text-xs font-semibold bg-coral text-white flex items-center justify-center gap-1.5 disabled:opacity-50"
+        >
+          {deleting ? <><Loader2 className="w-3 h-3 animate-spin" /> Deleting...</> : "Yes, delete my account"}
+        </button>
+        <button
+          onClick={onCancel}
+          disabled={deleting}
+          className="flex-1 rounded-xl py-2 text-xs font-semibold glass-1 text-foreground disabled:opacity-50"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -270,26 +337,10 @@ export default function Settings() {
                       Request account deletion
                     </button>
                   ) : (
-                    <div className="mt-3 p-3 rounded-xl border border-coral/20 bg-coral/5 space-y-2">
-                      <p className="text-xs text-foreground font-medium">Are you sure? This action is permanent and cannot be undone.</p>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => {
-                            logout();
-                            navigate("/welcome");
-                          }}
-                          className="flex-1 rounded-xl py-2 text-xs font-semibold bg-coral text-white"
-                        >
-                          Yes, delete my account
-                        </button>
-                        <button
-                          onClick={() => setShowDeleteConfirm(false)}
-                          className="flex-1 rounded-xl py-2 text-xs font-semibold glass-1 text-foreground"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
+                    <DeleteAccountConfirm
+                      onCancel={() => setShowDeleteConfirm(false)}
+                      onDeleted={() => { logout(); navigate("/welcome"); }}
+                    />
                   )}
                 </div>
               </div>
