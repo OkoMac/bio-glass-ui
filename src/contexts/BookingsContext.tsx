@@ -238,7 +238,52 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
         notes:            booking.note ?? null,
       });
     }
-  }, [user?.id, user?.role, user?.profileId]);
+
+    // ── Auto-send booking confirmation via email + WhatsApp ──
+    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+    const clientEmail = user?.email;
+    const providerName = booking.providerName ?? booking.clientName ?? "Provider";
+    const bookingRef = newBooking.id;
+
+    // Email confirmation (fire and forget)
+    if (clientEmail) {
+      fetch(`${API}/api/email/booking-confirmation`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: clientEmail,
+          clientName: user?.name ?? "Client",
+          providerName,
+          service: booking.service,
+          date: booking.date,
+          time: booking.time,
+          price: booking.price,
+          bookingRef,
+        }),
+      }).catch(() => {});
+    }
+
+    // WhatsApp confirmation (fire and forget — only if phone stored in profile)
+    try {
+      const profileData = localStorage.getItem(`bion_profile_${user?.id}`);
+      const phone = profileData ? JSON.parse(profileData).phone : null;
+      if (phone) {
+        fetch(`${API}/api/whatsapp/booking-confirmation`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phone: phone.replace(/\s/g, ""),
+            clientName: user?.name ?? "Client",
+            providerName,
+            service: booking.service,
+            date: booking.date,
+            time: booking.time,
+            price: booking.price,
+          }),
+        }).catch(() => {});
+      }
+    } catch { /* ignore */ }
+  }, [user?.id, user?.role, user?.profileId, user?.email, user?.name]);
 
   const getByStatus = useCallback((status: BookingStatus | BookingStatus[]) => {
     const statuses = Array.isArray(status) ? status : [status];

@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
-import { ArrowLeft, Share2, Star, MapPin, Clock, Lock, CreditCard, Shield, Mail, Phone, Globe, Building } from "lucide-react";
+import { ArrowLeft, Share2, Star, MapPin, Clock, Lock, CreditCard, Shield, Mail, Phone, Globe, Building, Check } from "lucide-react";
 import { getProviderImage, getProviderCover } from "@/lib/providerImages";
 import realData from "@/data/bion_pretoria_data.json";
 
@@ -47,9 +47,38 @@ export default function ProviderProfile() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [showAllServices, setShowAllServices] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const provider = PROVIDERS[id ?? ""];
   const isSignedIn = !!user;
+
+  // SEO: dynamic page title + meta tags for this provider
+  useEffect(() => {
+    if (!provider) return;
+    document.title = `${provider.name} — ${provider.specialty} | BION`;
+    const setMeta = (attr: string, name: string, content: string) => {
+      let tag = document.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement;
+      if (!tag) { tag = document.createElement("meta"); tag.setAttribute(attr, name); document.head.appendChild(tag); }
+      tag.content = content;
+    };
+    const desc = `Book ${provider.specialty} with ${provider.name} in ${provider.location}. ${provider.rating > 0 ? `Rated ${provider.rating}/5. ` : ""}Commit to yourself.`;
+    setMeta("name", "description", desc);
+    setMeta("property", "og:title", `${provider.name} — ${provider.specialty} | BION`);
+    setMeta("property", "og:description", desc);
+    setMeta("property", "og:url", `https://bionhealth.co.za/provider/${provider.id}`);
+    return () => { document.title = "BION — Commit to Yourself"; };
+  }, [provider]);
+
+  const shareProvider = () => {
+    const url = `https://bionhealth.co.za/provider/${provider.id}`;
+    if (navigator.share) {
+      navigator.share({ title: provider.name, text: `${provider.specialty} in ${provider.location}`, url }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   if (!provider) {
     return (
@@ -79,8 +108,8 @@ export default function ProviderProfile() {
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => navigate(-1)} className="glass-2 rounded-full w-10 h-10 flex items-center justify-center">
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </motion.button>
-          <motion.button whileTap={{ scale: 0.9 }} className="glass-2 rounded-full w-10 h-10 flex items-center justify-center">
-            <Share2 className="w-5 h-5 text-foreground" />
+          <motion.button whileTap={{ scale: 0.9 }} onClick={shareProvider} className="glass-2 rounded-full w-10 h-10 flex items-center justify-center">
+            {copied ? <Check className="w-5 h-5 text-teal" /> : <Share2 className="w-5 h-5 text-foreground" />}
           </motion.button>
         </div>
 
