@@ -268,28 +268,43 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
       });
     }
 
-    // WhatsApp confirmation (best-effort — only if phone stored in profile)
-    try {
-      const profileData = localStorage.getItem(`bion_profile_${user?.id}`);
-      const phone = profileData ? JSON.parse(profileData).phone : null;
-      if (phone) {
-        fetch(`${API}/api/whatsapp/booking-confirmation`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            phone: phone.replace(/\s/g, ""),
-            clientName: user?.name ?? "Client",
-            providerName,
-            service: booking.service,
-            date: booking.date,
-            time: booking.time,
-            price: booking.price,
-          }),
-        }).catch((err) => {
-          if (import.meta.env.DEV) console.warn("[booking] WhatsApp confirmation failed:", err);
-        });
-      }
-    } catch { /* localStorage parse failure — non-critical */ }
+    // WhatsApp confirmation to client (fetch phone from Supabase profile)
+    if (user?.profileId && !user.id?.startsWith("demo_")) {
+      supabase.from("profiles").select("phone").eq("id", user.profileId).maybeSingle().then(({ data }) => {
+        const phone = (data as any)?.phone?.replace(/[\s\-()]/g, "");
+        if (phone) {
+          fetch(`${API}/api/whatsapp/booking-confirmation`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              phone,
+              clientName: user?.name ?? "Client",
+              providerName,
+              service: booking.service,
+              date: booking.date,
+              time: booking.time,
+              price: booking.price,
+            }),
+          }).catch(() => {});
+        }
+      });
+    }
+
+    // WhatsApp notification to provider (best-effort)
+    if (booking.clientId && booking.clientId !== user?.profileId) {
+      fetch(`${API}/api/whatsapp/provider-notification`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          providerProfileId: booking.clientId, // provider's profile ID from booking
+          clientName: user?.name ?? "Client",
+          service: booking.service,
+          date: booking.date,
+          time: booking.time,
+          price: booking.price,
+        }),
+      }).catch(() => {});
+    }
   }, [user?.id, user?.role, user?.profileId, user?.email, user?.name]);
 
   const getByStatus = useCallback((status: BookingStatus | BookingStatus[]) => {
