@@ -1,12 +1,8 @@
 // BION Service Worker — offline shell + caching + push notifications
-const CACHE_NAME = "bion-v2";
+const CACHE_NAME = "bion-v3";
 const SHELL_ASSETS = [
   "/",
   "/manifest.json",
-  "/favicon.svg",
-  "/icon-192.png",
-  "/icon-512.png",
-  "/bion-logo-white-sm.png",
 ];
 
 // Install: cache shell assets
@@ -88,15 +84,15 @@ self.addEventListener("message", (e) => {
   }
 });
 
-// Fetch: network-first for API/pages, cache-first for assets
+// Fetch: network-first for pages/images, cache-first only for hashed bundles
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
 
   // Skip non-GET and cross-origin
   if (e.request.method !== "GET" || url.origin !== self.location.origin) return;
 
-  // Static assets: cache-first
-  if (/\.(js|css|png|jpg|svg|woff2?|ico)$/.test(url.pathname)) {
+  // Hashed Vite bundles (e.g. /assets/index-Ab1Cd2.js): cache-first (hash changes on rebuild)
+  if (url.pathname.startsWith("/assets/") && /\.[a-f0-9]{8,}\.(js|css)$/.test(url.pathname)) {
     e.respondWith(
       caches.match(e.request).then((cached) =>
         cached || fetch(e.request).then((res) => {
@@ -105,6 +101,18 @@ self.addEventListener("fetch", (e) => {
           return res;
         })
       )
+    );
+    return;
+  }
+
+  // Images, icons, fonts, manifest: network-first (updates propagate immediately)
+  if (/\.(png|jpg|jpeg|svg|ico|webp|woff2?|json)$/.test(url.pathname)) {
+    e.respondWith(
+      fetch(e.request).then((res) => {
+        const clone = res.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
+        return res;
+      }).catch(() => caches.match(e.request))
     );
     return;
   }
