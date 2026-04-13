@@ -34,6 +34,25 @@ export default function ProviderDashboard() {
   const today = new Date().toISOString().split("T")[0];
   const todaySessions = upcoming.filter(b => b.date === today);
 
+  // Churn risk — clients who haven't booked recently (computed from completed bookings)
+  const churnRisk = (() => {
+    const clientLastBooking = new Map<string, string>();
+    completed.forEach(b => {
+      const name = b.clientName ?? "Unknown";
+      const existing = clientLastBooking.get(name);
+      if (!existing || b.date > existing) clientLastBooking.set(name, b.date);
+    });
+    const now = Date.now();
+    return Array.from(clientLastBooking.entries())
+      .map(([name, date]) => {
+        const days = Math.floor((now - new Date(date).getTime()) / 86_400_000);
+        return { name, days, risk: days > 30 ? "high" as const : "medium" as const };
+      })
+      .filter(c => c.days > 14)
+      .sort((a, b) => b.days - a.days)
+      .slice(0, 5);
+  })();
+
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
       <div className="mx-auto max-w-5xl xl:max-w-7xl px-4 md:px-8 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
