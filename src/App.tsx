@@ -196,6 +196,13 @@ function RequireAuth({ children, allowedRoles, skipOnboardingCheck }: {
   return <>{children}</>;
 }
 
+/** Only renders children once auth has resolved (prevents hooks firing with stale/undefined user) */
+function AuthGate({ children }: { children: ReactNode }) {
+  const { loading, user } = useAuth();
+  if (loading || (!user && loading)) return null;
+  return <>{children}</>;
+}
+
 function AppRoutes() {
   const { user } = useAuth();
 
@@ -300,8 +307,10 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <CalendarButton />
-              <NotificationBell />
+              <AuthGate>
+                <CalendarButton />
+                <NotificationBell />
+              </AuthGate>
               <InstallButton />
               <Suspense fallback={
                 <div className="min-h-screen bg-obsidian flex items-center justify-center">

@@ -228,7 +228,7 @@ export default function Messages() {
 
       bookings.forEach((b, i) => {
         const providerName = b.providerName ?? b.clientName ?? "Unknown";
-        const providerId = b.providerId ?? providerName.replace(/\s/g, "_").toLowerCase();
+        const providerId = (b as any).providerId ?? providerName.replace(/\s/g, "_").toLowerCase();
         if (providerMap.has(providerId)) return;
 
         // Try to find provider in real Pretoria data
@@ -240,14 +240,14 @@ export default function Messages() {
           id: providerId,
           supabaseId: null,    // Updated below if Supabase profile exists
           name: providerName,
-          specialty: realProvider?.service ?? (realProvider as any)?.category ?? "Provider",
+          specialty: realProvider?.service ?? realProvider?.category ?? "Provider",
           specialization: realProvider?.service ?? "",
           image: realProvider ? getProviderImage(realProvider.id, realProvider.name) : getProviderImage(providerId, providerName),
-          vertical: categorizeVertical((realProvider as any)?.category ?? ""),
+          vertical: categorizeVertical(realProvider?.category ?? ""),
           time: b.date ?? "Recently",
           unread: 0,
           online: false,
-          location: (realProvider as any)?.suburb ?? realProvider?.location ?? "",
+          location: realProvider?.suburb ?? realProvider?.location ?? "",
           providerId,
           lastMessage: `${b.service ?? "Booking"} on ${b.date}`,
         });
