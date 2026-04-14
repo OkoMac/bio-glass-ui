@@ -12,6 +12,8 @@ import BookingSheet from "@/components/BookingSheet";
 import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import realData from "@/data/bion_pretoria_data.json";
 import { getProviderImage } from "@/lib/providerImages";
 
@@ -42,6 +44,8 @@ export default function QuickBook() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { bookings } = useBookings();
+  const { favorites, toggle: toggleFavorite, isFavorite } = useFavorites();
+  const { ids: recentIds } = useRecentlyViewed();
 
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
   const [search, setSearch] = useState("");
@@ -103,6 +107,37 @@ export default function QuickBook() {
         rating: p.rating ?? 0,
       }));
   }, []);
+
+  /* ── Favorite providers ── */
+  const favoriteProviders = useMemo(() => {
+    if (favorites.size === 0) return [];
+    return realData.providers
+      .filter(p => favorites.has(p.id))
+      .map(p => ({
+        id: p.id,
+        name: p.name,
+        image: getProviderImage(p.id, p.name),
+        specialty: p.service ?? (p as any).category ?? "",
+        rating: p.rating ?? 0,
+      }));
+  }, [favorites]);
+
+  /* ── Recently viewed providers ── */
+  const recentlyViewed = useMemo(() => {
+    if (recentIds.length === 0) return [];
+    const byId = new Map(realData.providers.map(p => [p.id, p]));
+    return recentIds
+      .map(id => byId.get(id))
+      .filter(Boolean)
+      .slice(0, 6)
+      .map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        image: getProviderImage(p.id, p.name),
+        specialty: p.service ?? p.category ?? "",
+        rating: p.rating ?? 0,
+      }));
+  }, [recentIds]);
 
   // Tool definitions for pinned ones
   const visibleTools = pinnedTools
@@ -191,6 +226,52 @@ export default function QuickBook() {
             </motion.button>
           </div>
         </section>
+
+        {/* ── Favorites ───────────────────────────── */}
+        {favoriteProviders.length > 0 && (
+          <section>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
+                <Heart className="w-3 h-3 fill-coral text-coral" /> Favorites ({favoriteProviders.length})
+              </p>
+              <button onClick={() => navigate("/favorites")} className="text-xs text-coral font-medium">View all →</button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {favoriteProviders.slice(0, 4).map(p => (
+                <motion.button key={p.id} whileTap={{ scale: 0.97 }}
+                  onClick={() => navigate(`/provider/${p.id}`)}
+                  className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-3 flex items-center gap-3 hover:border-coral/40 transition-colors">
+                  <img src={p.image} alt={p.name} className="w-12 h-12 rounded-xl object-cover ring-2 ring-coral/20 shrink-0" />
+                  <div className="flex-1 text-left min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate">{p.name}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{p.specialty}</p>
+                  </div>
+                  <button onClick={(e) => { e.stopPropagation(); toggleFavorite(p.id); }} className="shrink-0">
+                    <Heart className="w-4 h-4 fill-coral text-coral" />
+                  </button>
+                </motion.button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ── Recently Viewed ───────────────────────────── */}
+        {recentlyViewed.length > 0 && (
+          <section>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Recently Viewed</p>
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+              {recentlyViewed.map(p => (
+                <motion.button key={p.id} whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate(`/provider/${p.id}`)}
+                  className="shrink-0 w-32 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-3 text-left hover:border-white/[0.16] transition-colors">
+                  <img src={p.image} alt={p.name} className="w-full aspect-square rounded-xl object-cover mb-2" />
+                  <p className="text-xs font-semibold text-foreground truncate">{p.name}</p>
+                  <p className="text-[9px] text-muted-foreground truncate">{p.specialty}</p>
+                </motion.button>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* ── My Providers ───────────────────────────── */}
         <section>

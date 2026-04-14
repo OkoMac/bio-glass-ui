@@ -91,6 +91,7 @@ const Challenges      = lazy(() => import("./pages/Challenges"));
 const HealthProfile   = lazy(() => import("./pages/HealthProfile"));
 const Wallet          = lazy(() => import("./pages/Wallet"));
 const Notifications   = lazy(() => import("./pages/Notifications"));
+const Favorites       = lazy(() => import("./pages/Favorites"));
 
 // Legal pages
 const AcceptableUse     = lazy(() => import("./pages/legal/AcceptableUse"));
@@ -290,6 +291,7 @@ function AppRoutes() {
       <Route path="/health-insights" element={<RequireAuth allowedRoles={["client"]}><HealthInsights /></RequireAuth>} />
       <Route path="/billing"          element={<RequireAuth allowedRoles={["client"]}><ClientBilling /></RequireAuth>} />
       <Route path="/notifications"   element={<RequireAuth><Notifications /></RequireAuth>} />
+      <Route path="/favorites"       element={<RequireAuth allowedRoles={["client"]}><Favorites /></RequireAuth>} />
 
       {/* Provider portal */}
       <Route path="/pro/dashboard"    element={<RequireAuth allowedRoles={["provider"]}><ProviderDashboard /></RequireAuth>} />
