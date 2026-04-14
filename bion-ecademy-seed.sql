@@ -16,7 +16,7 @@ DELETE FROM assessment_questions WHERE course_id IN (SELECT id FROM courses WHER
 -- RANGER-101 · BION Platform Overview
 -- ═══════════════════════════════════════════════════════════════
 INSERT INTO lessons (course_id, lesson_number, title, content_type, content, duration_minutes, key_takeaways)
-SELECT id, n, title, 'text', content, dur, takeaways::jsonb
+SELECT courses.id, n, l_title, 'text', l_content, dur, l_takeaways::jsonb
 FROM courses,
 (VALUES
   (1, 'What is BION?', 5,
@@ -139,11 +139,11 @@ Signups are vanity. Bookings are optimistic. **Attended sessions are truth.** On
 Don''t chase signups. Chase providers who will consistently **deliver sessions**. A provider who books 50 QMAS/month is worth 20× more than one who books 1000 free signups.',
     '["QMAS = Qualified Monthly Attended Sessions","Not signups, not bookings — attended sessions","QMAS drives revenue, rewards, and commissions","Prioritise high-delivery providers over high-signup providers"]'
   )
-) AS t(n, title, dur, content, takeaways)
+) AS t(n, l_title, dur, l_content, l_takeaways)
 WHERE course_code = 'RANGER-101';
 
 INSERT INTO assessment_questions (course_id, question_number, question_text, question_type, options, explanation, points)
-SELECT id, n, q, 'single', o::jsonb, exp, pts
+SELECT courses.id, n, q_text, 'single', q_options::jsonb, q_exp, q_pts
 FROM courses,
 (VALUES
   (1, 'What is BION''s North Star Metric?',
@@ -161,14 +161,14 @@ FROM courses,
   (5, 'A client complains about how their health data is being used. What tier of support is this?',
     '[{"id":"a","text":"Tier 1 — handled by B_ AI","isCorrect":false},{"id":"b","text":"Tier 2 — handled by a Ranger","isCorrect":false},{"id":"c","text":"Tier 3 — BION admin","isCorrect":true},{"id":"d","text":"No escalation needed","isCorrect":false}]',
     'POPIA/data complaints are always Tier 3 — they can become regulatory issues and must be logged by admin.', 2)
-) AS t(n, q, o, exp, pts)
+) AS t(n, q_text, q_options, q_exp, q_pts)
 WHERE course_code = 'RANGER-101';
 
 -- ═══════════════════════════════════════════════════════════════
 -- RANGER-102 · The 6 Revenue Streams
 -- ═══════════════════════════════════════════════════════════════
 INSERT INTO lessons (course_id, lesson_number, title, content_type, content, duration_minutes, key_takeaways)
-SELECT id, n, title, 'text', content, dur, takeaways::jsonb
+SELECT courses.id, n, l_title, 'text', l_content, dur, l_takeaways::jsonb
 FROM courses,
 (VALUES
   (1, 'Stream 1 — Booking fees (the core)', 6,
@@ -273,11 +273,11 @@ Example: **Woolworths** funds a R200 voucher for any client who hits a 30-day ac
 Advertisers also go through the B_ AI pre-approval pipeline (same as products/rewards).',
     '["Advertisers fund streak-milestone rewards","Targeted by vertical, city, demographic","Providers can co-fund rewards for their VIPs","All sponsors go through B_ AI review"]'
   )
-) AS t(n, title, dur, content, takeaways)
+) AS t(n, l_title, dur, l_content, l_takeaways)
 WHERE course_code = 'RANGER-102';
 
 INSERT INTO assessment_questions (course_id, question_number, question_text, question_type, options, explanation, points)
-SELECT id, n, q, 'single', o::jsonb, exp, pts
+SELECT courses.id, n, q_text, 'single', q_options::jsonb, q_exp, q_pts
 FROM courses,
 (VALUES
   (1, 'On a R100 standard booking, what is the provider''s net after all fees including marketing levy?',
@@ -295,14 +295,14 @@ FROM courses,
   (5, 'Which delivery zone covers cross-province (e.g. Pretoria → Durban)?',
     '[{"id":"a","text":"Local — R75","isCorrect":false},{"id":"b","text":"Provincial — R110","isCorrect":true},{"id":"c","text":"National — R165","isCorrect":false},{"id":"d","text":"Pargo — R65","isCorrect":false}]',
     'Provincial R110 covers cross-province. National R165 is for cross-country edge cases like rural Western Cape.', 1)
-) AS t(n, q, o, exp, pts)
+) AS t(n, q_text, q_options, q_exp, q_pts)
 WHERE course_code = 'RANGER-102';
 
 -- ═══════════════════════════════════════════════════════════════
 -- RANGER-103 · Selling to Providers
 -- ═══════════════════════════════════════════════════════════════
 INSERT INTO lessons (course_id, lesson_number, title, content_type, content, duration_minutes, key_takeaways)
-SELECT id, n, title, 'text', content, dur, takeaways::jsonb
+SELECT courses.id, n, l_title, 'text', l_content, dur, l_takeaways::jsonb
 FROM courses,
 (VALUES
   (1, 'Prospecting — where good providers hide', 8,
@@ -400,11 +400,11 @@ Providers who don''t see their first booking within 48 hours churn at 40%. Your 
 BION offers first month free to providers. **Your commission starts month 2.** Account for this in your pipeline.',
     '["Sign them up in the meeting, not after","First 48 hours prevents 40% churn","Get 3-5 services + availability set on day 1","Commission starts month 2 (month 1 is free trial)"]'
   )
-) AS t(n, title, dur, content, takeaways)
+) AS t(n, l_title, dur, l_content, l_takeaways)
 WHERE course_code = 'RANGER-103';
 
 INSERT INTO assessment_questions (course_id, question_number, question_text, question_type, options, explanation, points)
-SELECT id, n, q, 'single', o::jsonb, exp, pts
+SELECT courses.id, n, q_text, 'single', q_options::jsonb, q_exp, q_pts
 FROM courses,
 (VALUES
   (1, 'Which provider type should you prioritise?',
@@ -422,7 +422,7 @@ FROM courses,
   (5, 'A medical provider signs up but hasn''t given their HPCSA number. What do you do?',
     '[{"id":"a","text":"Skip it — not important","isCorrect":false},{"id":"b","text":"Collect it before completing signup","isCorrect":true},{"id":"c","text":"Let admin chase them later","isCorrect":false},{"id":"d","text":"Tell them it''s optional","isCorrect":false}]',
     'Medical verticals require HPCSA/SANC registration numbers. Without it, they cannot be activated for bookings.', 2)
-) AS t(n, q, o, exp, pts)
+) AS t(n, q_text, q_options, q_exp, q_pts)
 WHERE course_code = 'RANGER-103';
 
 -- Confirm
