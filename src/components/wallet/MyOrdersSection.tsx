@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Package, ChevronRight, X, Truck, MapPin, AlertCircle } from "lucide-react";
 import GlassCard from "@/components/GlassCard";
 import { useMyOrders, ORDER_STATUS_META, type OrderRow } from "@/hooks/useMyOrders";
+import DisputeForm from "@/components/wallet/DisputeForm";
 
 export default function MyOrdersSection() {
   const { orders, loading } = useMyOrders();
@@ -72,6 +73,7 @@ export default function MyOrdersSection() {
 
 function OrderDetailSheet({ order, onClose }: { order: OrderRow; onClose: () => void }) {
   const meta = ORDER_STATUS_META[order.status];
+  const [disputing, setDisputing] = useState(false);
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -146,16 +148,19 @@ function OrderDetailSheet({ order, onClose }: { order: OrderRow; onClose: () => 
           </div>
         </div>
 
-        {!["delivered", "cancelled", "refunded"].includes(order.status) && (
+        {!["cancelled", "refunded", "pending"].includes(order.status) && (
           <button
-            disabled
-            className="w-full py-2.5 rounded-xl bg-coral/10 text-coral text-xs font-semibold opacity-60 cursor-not-allowed"
-            title="Dispute flow coming next"
+            onClick={() => setDisputing(true)}
+            className="w-full py-2.5 rounded-xl bg-coral/10 text-coral hover:bg-coral/20 text-xs font-semibold transition-colors"
           >
-            Report a problem
+            {order.status === "disputed" ? "View dispute" : "Report a problem"}
           </button>
         )}
       </motion.div>
+
+      <AnimatePresence>
+        {disputing && <DisputeForm orderId={order.id} onClose={() => setDisputing(false)} />}
+      </AnimatePresence>
     </motion.div>
   );
 }

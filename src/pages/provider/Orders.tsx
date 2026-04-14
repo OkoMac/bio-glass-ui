@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
+import ProviderDisputePanel from "@/components/provider/ProviderDisputePanel";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -283,6 +284,11 @@ function OrderDetailModal({ order, onClose, tracking, setTracking, updating, onU
             <span className="text-teal font-bold font-data">R{Number(order.provider_payout_rand).toFixed(2)}</span>
           </div>
         </div>
+
+        {/* Dispute panel (if order is disputed) */}
+        {order.status === "disputed" && (
+          <ProviderDisputePanel orderId={order.id} onResolved={onClose} />
+        )}
 
         {/* Actions based on status */}
         {order.status === "paid" && (
