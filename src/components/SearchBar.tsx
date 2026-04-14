@@ -1,8 +1,9 @@
-import { Search, Mic, SlidersHorizontal, X, Square, Loader2 } from "lucide-react";
+import { Search, Mic, SlidersHorizontal, X, Square, Loader2, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSearchHistory } from "@/hooks/useSearchHistory";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -45,6 +46,15 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
   const [recording, setRecording] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const { history, addSearch, removeSearch, clearAll } = useSearchHistory();
+
+  // Auto-save search terms after 1.5s of inactivity
+  useEffect(() => {
+    if (!value.trim() || value.length < 3) return;
+    const t = setTimeout(() => addSearch(value), 1500);
+    return () => clearTimeout(t);
+  }, [value, addSearch]);
   const [filters, setFilters] = useState<FilterState>(() => {
     try {
       const stored = localStorage.getItem("bion_search_filters");
@@ -193,6 +203,7 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
 
   return (
     <>
+      <div className="relative">
       <motion.form
         onSubmit={handleSearch}
         initial={{ opacity: 0, y: -10 }}
@@ -205,6 +216,8 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
           type="text"
           value={value}
           onChange={e => setValue(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setTimeout(() => setFocused(false), 200)}
           placeholder={placeholder}
           className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none min-w-0"
         />
@@ -238,6 +251,46 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
           </button>
         </div>
       </motion.form>
+
+      {/* Search history dropdown */}
+      <AnimatePresence>
+        {focused && !value.trim() && history.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.15 }}
+            className="absolute top-full left-0 right-0 mt-2 rounded-2xl overflow-hidden z-50"
+            style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            <div className="px-4 py-2 flex items-center justify-between border-b border-white/[0.06]">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Recent searches</p>
+              <button onClick={clearAll} className="text-[10px] text-muted-foreground hover:text-foreground">Clear all</button>
+            </div>
+            <div className="py-1 max-h-60 overflow-y-auto">
+              {history.map(q => (
+                <div key={q} className="flex items-center gap-2 px-3 py-2 hover:bg-white/[0.04] group">
+                  <Clock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                  <button
+                    onClick={() => setValue(q)}
+                    className="flex-1 text-left text-sm text-foreground truncate"
+                  >
+                    {q}
+                  </button>
+                  <button
+                    onClick={() => removeSearch(q)}
+                    className="text-muted-foreground hover:text-coral opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label={`Remove ${q} from history`}
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      </div>
 
       {/* Filter modal */}
       <AnimatePresence>

@@ -315,6 +315,39 @@ const Profile = () => {
               </div>
             </div>
 
+            {/* ── Booking Stats ──────────── */}
+            {bookings.length > 0 && (() => {
+              const parsePrice = (p: string) => parseInt(p.replace(/[^0-9]/g, ""), 10) || 0;
+              const completed = bookings.filter(b => b.status === "completed");
+              const totalSpent = completed.reduce((sum, b) => sum + parsePrice(b.price), 0);
+              const avgSpend = completed.length > 0 ? Math.round(totalSpent / completed.length) : 0;
+              const uniqueProviders = new Set(bookings.map(b => b.providerName).filter(Boolean)).size;
+              return (
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Your Wellness Journey</p>
+                  <div className="grid grid-cols-3 gap-2 mb-4">
+                    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-3 text-center">
+                      <p className="text-lg font-bold text-teal font-data">{completed.length}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Sessions</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-3 text-center">
+                      <p className="text-lg font-bold text-indigo font-data">R{totalSpent.toLocaleString()}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Invested</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-3 text-center">
+                      <p className="text-lg font-bold text-amber font-data">{uniqueProviders}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Providers</p>
+                    </div>
+                  </div>
+                  {avgSpend > 0 && (
+                    <p className="text-[11px] text-muted-foreground text-center mb-4">
+                      Avg. per session: <span className="font-data text-foreground">R{avgSpend.toLocaleString()}</span>
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
+
             {/* ── Booking History (compact) ──────────── */}
             {bookings.length > 0 && (
               <div>
