@@ -6,6 +6,7 @@ import {
   LayoutDashboard, CalendarDays, BookOpen, Users,
   MessageSquare, BarChart3, Clock, Settings, Shield,
   LogOut, Tag, ChevronRight, Banknote, ClipboardList, Store, ShoppingBag,
+  Book,
 } from "lucide-react";
 
 const navItems = [
@@ -16,6 +17,7 @@ const navItems = [
   { to: "/pro/services",      label: "Services",    icon: Tag },
   { to: "/pro/storefront",    label: "Storefront",  icon: Store },
   { to: "/pro/orders",        label: "Orders",      icon: ShoppingBag },
+  { to: "/pro/catalogs",      label: "Catalogs",    icon: Book },
   { to: "/pro/programs",      label: "Programs",    icon: ClipboardList },
   { to: "/pro/messages",      label: "Messages",    icon: MessageSquare,  badge: 3 },
   { to: "/pro/analytics",     label: "Analytics",   icon: BarChart3  },

@@ -158,6 +158,11 @@ const AdminVerification = lazy(() => import("./pages/admin/Verification"));
 const AdminDisputes     = lazy(() => import("./pages/admin/Disputes"));
 const AdminBQueue       = lazy(() => import("./pages/admin/BQueue"));
 
+// Catalogs (provider + public viewer)
+const ProviderCatalogs  = lazy(() => import("./pages/provider/Catalogs"));
+const CatalogEditor     = lazy(() => import("./pages/provider/CatalogEditor"));
+const CatalogViewer     = lazy(() => import("./pages/CatalogViewer"));
+
 // Corporate portal
 const CorporateDashboard = lazy(() => import("./pages/corporate/Dashboard"));
 const CorporateEmployees = lazy(() => import("./pages/corporate/Employees"));
@@ -328,6 +333,9 @@ function AppRoutes() {
       <Route path="/pro/verification"  element={<RequireAuth allowedRoles={["provider"]}><ProviderVerification /></RequireAuth>} />
       <Route path="/pro/storefront"    element={<RequireAuth allowedRoles={["provider"]}><ProviderStorefront /></RequireAuth>} />
       <Route path="/pro/orders"        element={<RequireAuth allowedRoles={["provider"]}><ProviderOrders /></RequireAuth>} />
+      <Route path="/pro/catalogs"      element={<RequireAuth allowedRoles={["provider"]}><ProviderCatalogs /></RequireAuth>} />
+      <Route path="/pro/catalogs/:id"  element={<RequireAuth allowedRoles={["provider"]}><CatalogEditor /></RequireAuth>} />
+      <Route path="/catalog/:shortUrl" element={<CatalogViewer />} />
 
       {/* Admin portal */}
       <Route path="/admin/dashboard" element={<RequireAuth allowedRoles={["admin"]}><AdminDashboard /></RequireAuth>} />
