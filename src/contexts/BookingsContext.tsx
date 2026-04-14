@@ -242,6 +242,30 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
       });
     }
 
+    // ── Create in-app notifications for client + provider ──
+    if (user?.profileId && !user.id?.startsWith("demo_")) {
+      const clientNotif = {
+        user_id: user.profileId,
+        type: "booking_created",
+        title: "Booking confirmed",
+        body: `${booking.service} with ${booking.providerName ?? "your provider"} on ${booking.date} at ${booking.time}`,
+        action_url: "/schedule",
+      };
+      supabase.from("notifications").insert(clientNotif).then(() => {});
+
+      // Notify provider too (if known)
+      if (booking.clientId && booking.clientId !== user.profileId) {
+        const providerNotif = {
+          user_id: booking.clientId, // this is actually the provider's profile ID in addBooking's mapping
+          type: "booking_request",
+          title: "New booking request",
+          body: `${user.name ?? "A client"} requested ${booking.service} on ${booking.date} at ${booking.time}`,
+          action_url: "/pro/bookings",
+        };
+        supabase.from("notifications").insert(providerNotif).then(() => {});
+      }
+    }
+
     // ── Auto-send booking confirmation via email + WhatsApp ──
     const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
     const clientEmail = user?.email;

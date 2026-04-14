@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Bell } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNotifications } from "@/hooks/useNotifications";
 import { getActiveReminders } from "@/lib/reminders";
 import Tooltip from "./Tooltip";
 
@@ -25,8 +26,8 @@ export default function NotificationBell() {
   if (hidden) return null;
 
   const reminderCount = getActiveReminders().length;
-  // Also count unread from bookings context if needed (future)
-  const totalCount = reminderCount;
+  const { unreadCount: dbUnread } = useNotifications();
+  const totalCount = reminderCount + dbUnread;
 
   return (
     <div className="fixed top-4 right-4 z-[45]">
