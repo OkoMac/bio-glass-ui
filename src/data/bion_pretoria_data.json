@@ -98,7 +98,7 @@
       "contact": {
         "phone": "+27 12 654 0607"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 128,
       "price": "R172 - R1618",
       "duration": "60 min",
@@ -143,7 +143,7 @@
       "contact": {
         "phone": "+27 84 052 6961"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 174,
       "price": "R231 - R859",
       "duration": "60 min",
@@ -362,7 +362,7 @@
       "contact": {
         "phone": "+27 12 664 5763"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 199,
       "price": "From R400",
       "duration": "30 min",
@@ -406,7 +406,7 @@
       "contact": {
         "phone": "+27 12 460 1645"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 181,
       "price": "From R550",
       "duration": "30 min",
@@ -626,7 +626,7 @@
       "contact": {
         "phone": "+27 12 660 3300"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 190,
       "price": "From R500",
       "duration": "45 min",
@@ -798,7 +798,7 @@
       "contact": {
         "phone": "+27 12 643 1047"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 95,
       "price": "From R450",
       "duration": "60 min",
@@ -843,7 +843,7 @@
       "contact": {
         "phone": "+27 12 653 4474"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 145,
       "price": "From R350",
       "duration": "30 min",
@@ -1103,7 +1103,7 @@
       "contact": {
         "phone": "+27 65 984 2339"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 12,
       "price": "R404 - R1441",
       "duration": "60 min",
@@ -1236,7 +1236,7 @@
       "contact": {
         "phone": "+27 82 550 7296"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 80,
       "price": "From R500",
       "duration": "45 min",
@@ -1593,7 +1593,7 @@
       "contact": {
         "phone": "+27 12 995 4300"
       },
-      "rating": 3.0,
+      "rating": 3,
       "reviewCount": 88,
       "price": "From R500",
       "duration": "30 min",
@@ -1728,7 +1728,7 @@
       "contact": {
         "phone": "+27 12 345 4802"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 36,
       "price": "From R500",
       "duration": "45 min",
@@ -2077,7 +2077,7 @@
       "contact": {
         "phone": "+27 12 346 2825"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 91,
       "price": "From R450",
       "duration": "30 min",
@@ -2302,7 +2302,7 @@
         "phone": "+27 12 346 0000",
         "website": "https://placecol.com"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 20,
       "price": "From R350",
       "duration": "60 min",
@@ -2477,7 +2477,7 @@
       "contact": {
         "phone": "+27 12 346 1418"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 35,
       "price": "R381 - R673",
       "duration": "60 min",
@@ -2652,7 +2652,7 @@
       "contact": {
         "phone": "+27 12 342 6758"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 85,
       "price": "R469 - R738",
       "duration": "60 min",
@@ -2870,7 +2870,7 @@
       "contact": {
         "phone": "+27 71 147 7936"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 44,
       "price": "R293 - R1860",
       "duration": "60 min",
@@ -3006,7 +3006,7 @@
       "contact": {
         "phone": "+27 12 362 7180"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 164,
       "price": "From R400",
       "duration": "30 min",
@@ -4054,7 +4054,7 @@
       "contact": {
         "phone": "+27 contact"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 116,
       "price": "From R200/class",
       "duration": "60 min",
@@ -4270,7 +4270,7 @@
       "contact": {
         "phone": "+27 12 998 2158"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 184,
       "price": "From R450",
       "duration": "30 min",
@@ -4571,7 +4571,7 @@
       "contact": {
         "phone": "+27 12 361 2570"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 15,
       "price": "R425 - R1868",
       "duration": "60 min",
@@ -4878,7 +4878,7 @@
       "contact": {
         "phone": "+27 12 348 6110"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 175,
       "price": "R405 - R503",
       "duration": "60 min",
@@ -5051,7 +5051,7 @@
       "contact": {
         "phone": "+27 12 663 2918"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 146,
       "price": "From R850",
       "duration": "50 min",
@@ -5613,7 +5613,7 @@
       "contact": {
         "phone": "+27 12 548 1657"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 43,
       "price": "R314 - R869",
       "duration": "60 min",
@@ -5831,7 +5831,7 @@
       "contact": {
         "phone": "+27 79 254 8236"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 154,
       "price": "R100 - R1245",
       "duration": "60 min",
@@ -6096,7 +6096,7 @@
       "contact": {
         "phone": "+27 12 547 1840"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 45,
       "price": "From R350",
       "duration": "30 min",
@@ -6142,7 +6142,7 @@
       "contact": {
         "phone": "+27 12 546 8135"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 102,
       "price": "R407 - R974",
       "duration": "60 min",
@@ -6495,7 +6495,7 @@
       "contact": {
         "phone": "+27 12 333 1067"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 11,
       "price": "From R600",
       "duration": "60 min",
@@ -6837,7 +6837,7 @@
       "contact": {
         "phone": "+27 12 565 4245"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 167,
       "price": "From R450",
       "duration": "45 min",
@@ -7195,7 +7195,7 @@
       "contact": {
         "phone": "+27 12 998 8428"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 147,
       "price": "From R450",
       "duration": "30 min",
@@ -7287,7 +7287,7 @@
       "contact": {
         "phone": "+27 12 348 3460"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 140,
       "price": "From R500",
       "duration": "30 min",
@@ -7512,7 +7512,7 @@
       "contact": {
         "phone": "+27 12 347 7604"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 17,
       "price": "From R500",
       "duration": "45 min",
@@ -7902,7 +7902,7 @@
       "contact": {
         "phone": "+27 79 344 7562"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 180,
       "price": "R287 - R1375",
       "duration": "60 min",
@@ -8074,7 +8074,7 @@
       "contact": {
         "phone": "+27 12 329 9867"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 80,
       "price": "From R300",
       "duration": "60 min",
@@ -8246,7 +8246,7 @@
       "contact": {
         "phone": "+27 79 895 5536"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 135,
       "price": "R248 - R1486",
       "duration": "60 min",
@@ -8417,7 +8417,7 @@
       "contact": {
         "phone": "+27 78 865 8634"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 181,
       "price": "R373 - R509",
       "duration": "60 min",
@@ -9810,7 +9810,7 @@
       "contact": {
         "phone": "+27 12 991 3311"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 138,
       "price": "R158 - R1352",
       "duration": "60 min",
@@ -10026,7 +10026,7 @@
       "contact": {
         "phone": "+27 72 701 8654"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 59,
       "price": "R489 - R1551",
       "duration": "60 min",
@@ -10504,7 +10504,7 @@
       "contact": {
         "phone": "+27 12 362 5595"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 142,
       "price": "R252 - R1570",
       "duration": "60 min",
@@ -10851,7 +10851,7 @@
       "contact": {
         "phone": "+27 12 752 9464"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 113,
       "price": "R266 - R747",
       "duration": "60 min",
@@ -11325,7 +11325,7 @@
       "contact": {
         "phone": "+27 12 344 0032"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 126,
       "price": "R292 - R1560",
       "duration": "60 min",
@@ -11456,7 +11456,7 @@
       "contact": {
         "phone": "+27 12 362 0304"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 107,
       "price": "R301 - R866",
       "duration": "60 min",
@@ -11499,7 +11499,7 @@
       "contact": {
         "phone": "+27 12 993 4168"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 186,
       "price": "R169 - R1148",
       "duration": "60 min",
@@ -11843,7 +11843,7 @@
       "contact": {
         "phone": "+27 12 460 4068"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 70,
       "price": "R331 - R865",
       "duration": "60 min",
@@ -12146,7 +12146,7 @@
       "contact": {
         "phone": "+27 12 997 4407"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 148,
       "price": "R435 - R1979",
       "duration": "60 min",
@@ -12190,7 +12190,7 @@
       "contact": {
         "phone": "+27 12 329 3414"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 13,
       "price": "R243 - R1645",
       "duration": "60 min",
@@ -12321,7 +12321,7 @@
       "contact": {
         "phone": "+27 12 546 9886"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 82,
       "price": "R240 - R1039",
       "duration": "60 min",
@@ -12494,7 +12494,7 @@
       "contact": {
         "phone": "+27 12 348 6110"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 114,
       "price": "R335 - R1368",
       "duration": "60 min",
@@ -12537,7 +12537,7 @@
       "contact": {
         "phone": "+27 78 468 3450"
       },
-      "rating": 3.0,
+      "rating": 3,
       "reviewCount": 99,
       "price": "R128 - R1399",
       "duration": "60 min",
@@ -12581,7 +12581,7 @@
       "contact": {
         "phone": "+27 12 326 4542"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 94,
       "price": "R143 - R947",
       "duration": "60 min",
@@ -12668,7 +12668,7 @@
       "contact": {
         "phone": "+27 12 386 5307"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 144,
       "price": "R135 - R1284",
       "duration": "60 min",
@@ -12712,7 +12712,7 @@
       "contact": {
         "phone": "+27 12 370 1756"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 127,
       "price": "R110 - R969",
       "duration": "60 min",
@@ -13148,7 +13148,7 @@
       "contact": {
         "phone": "+27 12 940 8656"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 158,
       "price": "R262 - R1651",
       "duration": "60 min",
@@ -13279,7 +13279,7 @@
       "contact": {
         "phone": "+27 12 998 3349"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 197,
       "price": "R425 - R1220",
       "duration": "60 min",
@@ -13712,7 +13712,7 @@
       "contact": {
         "phone": "+27 12 662 4030"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 67,
       "price": "R283 - R660",
       "duration": "60 min",
@@ -14105,7 +14105,7 @@
       "contact": {
         "phone": "+27 12 546 8519"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 14,
       "price": "R178 - R926",
       "duration": "60 min",
@@ -14235,7 +14235,7 @@
       "contact": {
         "phone": "+27 12 567 5791"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 107,
       "price": "R132 - R735",
       "duration": "60 min",
@@ -14278,7 +14278,7 @@
       "contact": {
         "phone": "+27 12 346 8168"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 117,
       "price": "R123 - R1845",
       "duration": "60 min",
@@ -14409,7 +14409,7 @@
       "contact": {
         "phone": "+27 12 549 4303"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 50,
       "price": "R360 - R1422",
       "duration": "60 min",
@@ -14541,7 +14541,7 @@
       "contact": {
         "phone": "+27 12 320 7514"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 28,
       "price": "R287 - R1454",
       "duration": "60 min",
@@ -14628,7 +14628,7 @@
       "contact": {
         "phone": "+27 12 993 3349"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 149,
       "price": "R197 - R805",
       "duration": "60 min",
@@ -14844,7 +14844,7 @@
       "contact": {
         "phone": "+27 12 346 5289"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 36,
       "price": "R242 - R1965",
       "duration": "60 min",
@@ -15017,7 +15017,7 @@
       "contact": {
         "phone": "+27 12 803 8866"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 54,
       "price": "R397 - R949",
       "duration": "60 min",
@@ -15147,7 +15147,7 @@
       "contact": {
         "phone": "+27 12 656 8812"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 142,
       "price": "R147 - R791",
       "duration": "60 min",
@@ -15322,7 +15322,7 @@
       "contact": {
         "phone": "+27 12 998 8598"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 45,
       "price": "R181 - R575",
       "duration": "60 min",
@@ -15538,7 +15538,7 @@
       "contact": {
         "phone": "+27 12 998 8598"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 69,
       "price": "R272 - R1569",
       "duration": "60 min",
@@ -16368,7 +16368,7 @@
       "contact": {
         "phone": "+27 12 548 3784"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 58,
       "price": "Price on request",
       "duration": "60 min",
@@ -16497,7 +16497,7 @@
       "contact": {
         "phone": "+27 83 391 4631"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 36,
       "price": "Price on request",
       "duration": "60 min",
@@ -16973,7 +16973,7 @@
       "contact": {
         "phone": "+27 12 661 1560"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 49,
       "price": "Price on request",
       "duration": "60 min",
@@ -17149,7 +17149,7 @@
       "contact": {
         "phone": "+27 12 663 8470"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 27,
       "price": "Price on request",
       "duration": "60 min",
@@ -17325,7 +17325,7 @@
       "contact": {
         "phone": "+27 82 906 8759"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 80,
       "price": "Price on request",
       "duration": "60 min",
@@ -17502,7 +17502,7 @@
       "contact": {
         "phone": "+27 12 345 1663"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 23,
       "price": "Price on request",
       "duration": "60 min",
@@ -17589,7 +17589,7 @@
       "contact": {
         "phone": "+27 12 751 1207"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 183,
       "price": "Price on request",
       "duration": "60 min",
@@ -17988,7 +17988,7 @@
       "contact": {
         "phone": "+27 86 122 2928"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 78,
       "price": "Price on request",
       "duration": "60 min",
@@ -18032,7 +18032,7 @@
       "contact": {
         "phone": "+27 82 211 5592"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 40,
       "price": "Price on request",
       "duration": "60 min",
@@ -18248,7 +18248,7 @@
       "contact": {
         "phone": "+27 12 811 1078"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 177,
       "price": "Price on request",
       "duration": "60 min",
@@ -18335,7 +18335,7 @@
       "contact": {
         "phone": "+27 12 751 2555"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 23,
       "price": "Price on request",
       "duration": "60 min",
@@ -18509,7 +18509,7 @@
       "contact": {
         "phone": "+27 12 346 2255"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 197,
       "price": "Price on request",
       "duration": "60 min",
@@ -18899,7 +18899,7 @@
       "contact": {
         "phone": "+27 12 347 7423"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 30,
       "price": "Price on request",
       "duration": "60 min",
@@ -18943,7 +18943,7 @@
       "contact": {
         "phone": "+27 83 940 0806"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 189,
       "price": "Price on request",
       "duration": "60 min",
@@ -19158,7 +19158,7 @@
       "contact": {
         "phone": "+27 12 809 1554"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 123,
       "price": "Price on request",
       "duration": "30 min",
@@ -19628,7 +19628,7 @@
       "contact": {
         "phone": "+27 12 653 4200"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 102,
       "price": "Price on request",
       "duration": "30 min",
@@ -19669,7 +19669,7 @@
       "contact": {
         "phone": "+27 12 346 0456"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 198,
       "price": "Price on request",
       "duration": "30 min",
@@ -20435,7 +20435,7 @@
       "contact": {
         "phone": "+27 84 983 8096"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 64,
       "price": "Price on request",
       "duration": "60 min",
@@ -20520,7 +20520,7 @@
       "contact": {
         "phone": "+27 12 808 1581"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 150,
       "price": "Price on request",
       "duration": "30 min",
@@ -20821,7 +20821,7 @@
       "contact": {
         "phone": "+27 82 778 3512"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 107,
       "price": "Price on request",
       "duration": "50 min",
@@ -20908,7 +20908,7 @@
       "contact": {
         "phone": "+27 12 543 0506"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 99,
       "price": "Price on request",
       "duration": "60 min",
@@ -21389,7 +21389,7 @@
       "contact": {
         "phone": "+27 12 346 0640"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 127,
       "price": "Price on request",
       "duration": "60 min",
@@ -21651,7 +21651,7 @@
       "contact": {
         "phone": "+27 82 788 2132"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 69,
       "price": "Price on request",
       "duration": "60 min",
@@ -21781,7 +21781,7 @@
       "contact": {
         "phone": "+27 12 808 3444"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 94,
       "price": "Price on request",
       "duration": "60 min",
@@ -21910,7 +21910,7 @@
       "contact": {
         "phone": "+27 12 345 3006"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 60,
       "price": "Price on request",
       "duration": "60 min",
@@ -21997,7 +21997,7 @@
       "contact": {
         "phone": "+27 12 362 7180"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 31,
       "price": "Price on request",
       "duration": "60 min",
@@ -22128,7 +22128,7 @@
       "contact": {
         "phone": "+27 12 542 5047"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 79,
       "price": "Price on request",
       "duration": "60 min",
@@ -22215,7 +22215,7 @@
       "contact": {
         "phone": "+27 12 341 8243"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 80,
       "price": "Price on request",
       "duration": "60 min",
@@ -22346,7 +22346,7 @@
       "contact": {
         "phone": "+27 12 993 2044"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 177,
       "price": "Price on request",
       "duration": "60 min",
@@ -22737,7 +22737,7 @@
       "contact": {
         "phone": "+27 12 333 0000"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 41,
       "price": "Price on request",
       "duration": "60 min",
@@ -22865,7 +22865,7 @@
       "contact": {
         "phone": "+27 12 803 0000"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 68,
       "price": "Price on request",
       "duration": "60 min",
@@ -23081,7 +23081,7 @@
       "contact": {
         "phone": "+27 12 348 5245"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 124,
       "price": "Price on request",
       "duration": "60 min",
@@ -23255,7 +23255,7 @@
       "contact": {
         "phone": "+27 12 332 2677"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 176,
       "price": "Price on request",
       "duration": "60 min",
@@ -23342,7 +23342,7 @@
       "contact": {
         "phone": "+27 12 365 2606"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 124,
       "price": "Price on request",
       "duration": "60 min",
@@ -23736,7 +23736,7 @@
       "contact": {
         "phone": "Price on request"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 116,
       "price": "Price on request",
       "duration": "60 min",
@@ -23914,7 +23914,7 @@
       "contact": {
         "phone": "Price on request"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 68,
       "price": "Price on request",
       "duration": "60 min",
@@ -24093,7 +24093,7 @@
       "contact": {
         "phone": "Price on request"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 51,
       "price": "Price on request",
       "duration": "60 min",
@@ -24403,7 +24403,7 @@
       "contact": {
         "phone": "Price on request"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 118,
       "price": "Price on request",
       "duration": "60 min",
@@ -24447,7 +24447,7 @@
       "contact": {
         "phone": "Price on request"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 73,
       "price": "Price on request",
       "duration": "60 min",
@@ -24491,7 +24491,7 @@
       "contact": {
         "phone": "Price on request"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 24,
       "price": "Price on request",
       "duration": "60 min",
@@ -24710,7 +24710,7 @@
       "contact": {
         "phone": "Price on request"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 108,
       "price": "Price on request",
       "duration": "60 min",
@@ -25147,7 +25147,7 @@
       "contact": {
         "phone": "Price on request"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 167,
       "price": "Price on request",
       "duration": "60 min",
@@ -25234,7 +25234,7 @@
       "contact": {
         "phone": "Price on request"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 40,
       "price": "Price on request",
       "duration": "60 min",
@@ -25322,7 +25322,7 @@
       "contact": {
         "phone": "Price on request"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 32,
       "price": "Price on request",
       "duration": "60 min",
@@ -25715,7 +25715,7 @@
       "contact": {
         "phone": "Price on request"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 27,
       "price": "Price on request",
       "duration": "60 min",
@@ -26149,7 +26149,7 @@
       "contact": {
         "phone": "Price on request"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 70,
       "price": "Price on request",
       "duration": "60 min",
@@ -26235,7 +26235,7 @@
       "contact": {
         "phone": "Price on request"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 188,
       "price": "Price on request",
       "duration": "60 min",
@@ -26933,7 +26933,7 @@
       "contact": {
         "phone": "Price on request"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 77,
       "price": "Price on request",
       "duration": "60 min",
@@ -27020,7 +27020,7 @@
       "contact": {
         "phone": "Price on request"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 94,
       "price": "Price on request",
       "duration": "60 min",
@@ -27410,7 +27410,7 @@
       "contact": {
         "phone": "Price on request"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 13,
       "price": "Price on request",
       "duration": "60 min",
@@ -27888,7 +27888,7 @@
       "contact": {
         "phone": "Price on request"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 187,
       "price": "Price on request",
       "duration": "60 min",
@@ -28368,7 +28368,7 @@
         "phone": "+27 12 991 3576",
         "website": "https://www.olympus24hourvet.com"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 156,
       "price": "Price on request",
       "duration": "60 min",
@@ -28412,7 +28412,7 @@
         "phone": "+27 12 529 8000",
         "website": "https://www.up.ac.za/veterinary-hospital"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 34,
       "price": "Price on request",
       "duration": "60 min",
@@ -28501,7 +28501,7 @@
         "phone": "+27 12 contact",
         "website": "https://sinoville-animalclinic.co.za"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 82,
       "price": "Price on request",
       "duration": "60 min",
@@ -28804,7 +28804,7 @@
       "contact": {
         "phone": "+27 12 contact"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 156,
       "price": "Price on request",
       "duration": "60 min",
@@ -28976,7 +28976,7 @@
       "contact": {
         "phone": "+27 12 contact"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 169,
       "price": "Price on request",
       "duration": "60 min",
@@ -29103,7 +29103,7 @@
       "contact": {
         "phone": "+27 12 contact"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 24,
       "price": "Price on request",
       "duration": "60 min",
@@ -29317,7 +29317,7 @@
       "contact": {
         "phone": "+27 contact"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 124,
       "price": "Price on request",
       "duration": "60 min",
@@ -29823,7 +29823,7 @@
       "contact": {
         "phone": "+27 contact"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 32,
       "price": "Price on request",
       "duration": "60 min",
@@ -30077,7 +30077,7 @@
       "contact": {
         "phone": "+27 84 694 3031"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 45,
       "price": "Price on request",
       "duration": "60 min",
@@ -30206,7 +30206,7 @@
       "contact": {
         "phone": "+27 contact"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 45,
       "price": "Price on request",
       "duration": "60 min",
@@ -30380,7 +30380,7 @@
       "contact": {
         "phone": "+27 contact"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 115,
       "price": "Price on request",
       "duration": "60 min",
@@ -30640,7 +30640,7 @@
       "contact": {
         "phone": "Contact provider"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 99,
       "price": "Price on request",
       "duration": "60 min",
@@ -30726,7 +30726,7 @@
       "contact": {
         "phone": "Contact provider"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 104,
       "price": "Price on request",
       "duration": "60 min",
@@ -30945,7 +30945,7 @@
       "contact": {
         "phone": "Contact provider"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 159,
       "price": "Price on request",
       "duration": "60 min",
@@ -31118,7 +31118,7 @@
       "contact": {
         "phone": "Contact provider"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 173,
       "price": "Price on request",
       "duration": "60 min",
@@ -31424,7 +31424,7 @@
       "contact": {
         "phone": "Contact provider"
       },
-      "rating": 5.0,
+      "rating": 5,
       "reviewCount": 181,
       "price": "Price on request",
       "duration": "60 min",
@@ -31772,7 +31772,7 @@
       "contact": {
         "phone": "Contact provider"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 82,
       "price": "Price on request",
       "duration": "60 min",
@@ -32077,7 +32077,7 @@
       "contact": {
         "phone": "Contact provider"
       },
-      "rating": 4.0,
+      "rating": 4,
       "reviewCount": 96,
       "price": "Price on request",
       "duration": "60 min",
@@ -35129,6 +35129,1986 @@
         "Personal Training",
         "Coaching"
       ]
+    },
+    {
+      "id": "pta_netcare_femina",
+      "name": "Netcare Femina Hospital",
+      "service": "Maternity Services",
+      "specialization": "Full-service women & children hospital",
+      "location": "Arcadia, Pretoria",
+      "address": "442 Pretorius Street, Arcadia, Pretoria",
+      "contact": {
+        "phone": "+27 12 367 6900"
+      },
+      "rating": 4.5,
+      "reviewCount": 340,
+      "price": "Medical-aid rates",
+      "duration": "Varies",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Specialist women's hospital near the Union Buildings. Maternity, gynaecology, fertility, paediatrics.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 7,
+      "servicesOffered": [
+        "Maternity",
+        "Gynaecology",
+        "Fertility consultation",
+        "Paediatrics",
+        "NICU"
+      ],
+      "suburb": "Arcadia",
+      "city": "Pretoria",
+      "category": "Medical Clinic",
+      "review_count": 340,
+      "verified": true,
+      "years_in_business": 4,
+      "min_price": 0,
+      "max_price": 0,
+      "last_updated": "2026-04-14T16:05:18.852Z",
+      "enhanced_suburb": "Arcadia",
+      "enhanced_category": "Medical Clinic",
+      "enhanced_city": "Pretoria",
+      "enhanced_verified": true
+    },
+    {
+      "id": "pta_groenkloof_mat",
+      "name": "Life Groenkloof Hospital Maternity",
+      "service": "Maternity Services",
+      "specialization": "Private maternity ward",
+      "location": "Groenkloof, Pretoria",
+      "address": "561 George Storrar Drive, Groenkloof",
+      "contact": {
+        "phone": "+27 12 424 7300"
+      },
+      "rating": 4.6,
+      "reviewCount": 280,
+      "price": "Medical-aid rates",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Life Healthcare maternity unit with labour suites and paediatric support.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 6,
+      "servicesOffered": [
+        "Antenatal Care",
+        "Labour & Delivery",
+        "C-section",
+        "Postnatal Care",
+        "NICU"
+      ],
+      "suburb": "Groenkloof",
+      "city": "Pretoria",
+      "category": "Medical Clinic",
+      "review_count": 280,
+      "verified": true,
+      "years_in_business": 4,
+      "min_price": null,
+      "max_price": null,
+      "last_updated": "2026-04-14T16:05:18.852Z",
+      "enhanced_suburb": "Groenkloof",
+      "enhanced_category": "Medical Clinic",
+      "enhanced_city": "Pretoria",
+      "enhanced_verified": true
+    },
+    {
+      "id": "pta_wilgers_mat",
+      "name": "Life Wilgers Hospital Maternity",
+      "service": "Maternity Services",
+      "specialization": "Private maternity",
+      "location": "The Willows, Pretoria",
+      "address": "Denneboom Road, The Willows",
+      "contact": {
+        "phone": "+27 12 807 8100"
+      },
+      "rating": 4.4,
+      "reviewCount": 195,
+      "price": "R300 - R800",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "East-Pretoria maternity unit with lactation support and baby massage classes.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 11,
+      "servicesOffered": [
+        "Antenatal",
+        "Delivery",
+        "Postnatal",
+        "Lactation Support"
+      ],
+      "suburb": "The Willows",
+      "city": "Pretoria",
+      "category": "Medical Clinic",
+      "review_count": 195,
+      "verified": true,
+      "years_in_business": 16,
+      "min_price": 300,
+      "max_price": 800,
+      "last_updated": "2026-04-14T16:05:18.852Z",
+      "enhanced_suburb": "The Willows",
+      "enhanced_category": "Medical Clinic",
+      "enhanced_city": "Pretoria",
+      "enhanced_verified": true
+    },
+    {
+      "id": "pta_unitas_mat",
+      "name": "Netcare Unitas Hospital Maternity",
+      "service": "Maternity Services",
+      "specialization": "Maternity + NICU",
+      "location": "Centurion, Centurion",
+      "address": "Clifton Avenue, Lyttelton, Centurion",
+      "contact": {
+        "phone": "+27 12 677 8000"
+      },
+      "rating": 4.5,
+      "reviewCount": 420,
+      "price": "R300 - R800",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Centurion's largest private hospital — full maternity unit with Level 3 NICU.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 18,
+      "servicesOffered": [
+        "Maternity",
+        "NICU",
+        "Gynaecology",
+        "Fertility"
+      ],
+      "suburb": "Centurion",
+      "city": "Centurion",
+      "category": "Medical Clinic",
+      "review_count": 420,
+      "verified": true,
+      "years_in_business": 11,
+      "min_price": 300,
+      "max_price": 800,
+      "last_updated": "2026-04-14T16:05:18.852Z",
+      "enhanced_suburb": "Centurion",
+      "enhanced_category": "Medical Clinic",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "pta_eugene_marais_mat",
+      "name": "Eugene Marais Hospital Maternity",
+      "service": "Maternity Services",
+      "specialization": "Private hospital maternity",
+      "location": "Les Marais, Pretoria",
+      "address": "526 Eugene Marais Drive, Les Marais",
+      "contact": {
+        "phone": "+27 12 334 2000"
+      },
+      "rating": 4.3,
+      "reviewCount": 160,
+      "price": "R300 - R800",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Private maternity ward with experienced obstetric team.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 11,
+      "servicesOffered": [
+        "Antenatal",
+        "Delivery",
+        "Gynaecology"
+      ],
+      "suburb": "Les Marais",
+      "city": "Pretoria",
+      "category": "Medical Clinic",
+      "review_count": 160,
+      "verified": true,
+      "years_in_business": 12,
+      "min_price": 300,
+      "max_price": 800,
+      "last_updated": "2026-04-14T16:05:18.852Z",
+      "enhanced_suburb": "Les Marais",
+      "enhanced_category": "Medical Clinic",
+      "enhanced_city": "Pretoria",
+      "enhanced_verified": true
+    },
+    {
+      "id": "pta_lcm_mat",
+      "name": "Little Company of Mary Maternity",
+      "service": "Maternity Services",
+      "specialization": "Private maternity",
+      "location": "Groenkloof, Pretoria",
+      "address": "37 George Storrar Drive, Groenkloof",
+      "contact": {
+        "phone": "+27 12 424 3600"
+      },
+      "rating": 4.6,
+      "reviewCount": 210,
+      "price": "R300 - R800",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "LCM Pretoria maternity unit with baby clinic and antenatal classes.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 18,
+      "servicesOffered": [
+        "Maternity",
+        "Baby Clinic",
+        "Antenatal Classes"
+      ],
+      "suburb": "Groenkloof",
+      "city": "Pretoria",
+      "category": "Medical Clinic",
+      "review_count": 210,
+      "verified": true,
+      "years_in_business": 17,
+      "min_price": 300,
+      "max_price": 800,
+      "last_updated": "2026-04-14T16:05:18.852Z",
+      "enhanced_suburb": "Groenkloof",
+      "enhanced_category": "Medical Clinic",
+      "enhanced_city": "Pretoria",
+      "enhanced_verified": true
+    },
+    {
+      "id": "pta_louis_pasteur_mat",
+      "name": "Louis Pasteur Hospital Maternity",
+      "service": "Maternity Services",
+      "specialization": "CBD maternity hospital",
+      "location": "Pretoria Central, Pretoria",
+      "address": "374 Scheiding Street, Pretoria CBD",
+      "contact": {
+        "phone": "+27 12 318 7800"
+      },
+      "rating": 4.2,
+      "reviewCount": 130,
+      "price": "R300 - R800",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Central Pretoria maternity, paediatric and women's health services.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 19,
+      "servicesOffered": [
+        "Maternity",
+        "Women's Health",
+        "Paediatrics"
+      ],
+      "suburb": "Pretoria Central",
+      "city": "Pretoria",
+      "category": "Medical Clinic",
+      "review_count": 130,
+      "verified": true,
+      "years_in_business": 6,
+      "min_price": 300,
+      "max_price": 800,
+      "last_updated": "2026-04-14T16:05:18.852Z",
+      "enhanced_suburb": "Pretoria Central",
+      "enhanced_category": "Medical Clinic",
+      "enhanced_city": "Pretoria",
+      "enhanced_verified": true
+    },
+    {
+      "id": "pta_midstream_mat",
+      "name": "Midstream Mediclinic Maternity",
+      "service": "Maternity Services",
+      "specialization": "Modern maternity unit",
+      "location": "Midstream, Centurion",
+      "address": "Midstream Estate, Centurion",
+      "contact": {
+        "phone": "+27 12 652 9000"
+      },
+      "rating": 4.7,
+      "reviewCount": 245,
+      "price": "R300 - R800",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Modern maternity unit serving Midstream, Olifantsfontein, Midrand.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 14,
+      "servicesOffered": [
+        "Maternity",
+        "NICU",
+        "Gynaecology"
+      ],
+      "suburb": "Midstream",
+      "city": "Centurion",
+      "category": "Medical Clinic",
+      "review_count": 245,
+      "verified": true,
+      "years_in_business": 15,
+      "min_price": 300,
+      "max_price": 800,
+      "last_updated": "2026-04-14T16:05:18.852Z",
+      "enhanced_suburb": "Midstream",
+      "enhanced_category": "Medical Clinic",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "pta_oxford_midwifery",
+      "name": "Oxford Maternity Midwife Unit",
+      "service": "Midwifery",
+      "specialization": "Midwife-led birthing centre",
+      "location": "Menlyn, Pretoria",
+      "address": "Oxford Office Park, Tygervalley Road",
+      "contact": {
+        "phone": "+27 12 000 4465"
+      },
+      "rating": 4.8,
+      "reviewCount": 87,
+      "price": "R3500 - R18000",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Natural birth-focused midwife-led unit with water-birth suites.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 16,
+      "servicesOffered": [
+        "Antenatal Care",
+        "Water Birth",
+        "Home Birth Support",
+        "Postnatal Visits"
+      ],
+      "suburb": "Menlyn",
+      "city": "Pretoria",
+      "category": "Midwife",
+      "review_count": 87,
+      "verified": true,
+      "years_in_business": 13,
+      "min_price": 3500,
+      "max_price": 18000,
+      "last_updated": "2026-04-14T16:05:18.852Z",
+      "enhanced_suburb": "Menlyn",
+      "enhanced_category": "Midwife",
+      "enhanced_city": "Pretoria",
+      "enhanced_verified": true
+    },
+    {
+      "id": "pta_protea_midwifery",
+      "name": "Protea Midwifery Birth Unit",
+      "service": "Midwifery",
+      "specialization": "Independent midwifery practice",
+      "location": "Hatfield, Pretoria",
+      "address": "Hatfield, Pretoria",
+      "contact": {
+        "phone": "+27 82 921 0000"
+      },
+      "rating": 4.9,
+      "reviewCount": 64,
+      "price": "R2500 - R15000",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Private midwife practice offering antenatal, birth, and postnatal support.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 13,
+      "servicesOffered": [
+        "Antenatal",
+        "Labour Support",
+        "Home Birth",
+        "Postnatal"
+      ],
+      "suburb": "Hatfield",
+      "city": "Pretoria",
+      "category": "Midwife",
+      "review_count": 64,
+      "verified": true,
+      "years_in_business": 7,
+      "min_price": 2500,
+      "max_price": 15000,
+      "last_updated": "2026-04-14T16:05:18.852Z",
+      "enhanced_suburb": "Hatfield",
+      "enhanced_category": "Midwife",
+      "enhanced_city": "Pretoria",
+      "enhanced_verified": true
+    },
+    {
+      "id": "pta_network_one_health",
+      "name": "Network One Health Maternity",
+      "service": "Maternity Services",
+      "specialization": "Independent maternity group",
+      "location": "Pretoria Central, Pretoria",
+      "address": "Louis Pasteur Hospital, Ground Floor",
+      "contact": {
+        "phone": "+27 12 343 0100"
+      },
+      "rating": 4.7,
+      "reviewCount": 52,
+      "price": "R300 - R800",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Independent maternity + reproductive health provider.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 6,
+      "servicesOffered": [
+        "Antenatal",
+        "Delivery",
+        "Reproductive Health"
+      ],
+      "suburb": "Pretoria Central",
+      "city": "Pretoria",
+      "category": "Midwife",
+      "review_count": 52,
+      "verified": true,
+      "years_in_business": 11,
+      "min_price": 300,
+      "max_price": 800,
+      "last_updated": "2026-04-14T16:05:18.852Z",
+      "enhanced_suburb": "Pretoria Central",
+      "enhanced_category": "Midwife",
+      "enhanced_city": "Pretoria",
+      "enhanced_verified": true
+    },
+    {
+      "id": "pta_dr_mutanda",
+      "name": "Dr Mirriam Mutanda-Musoke",
+      "service": "Obstetrics & Gynaecology",
+      "specialization": "Obstetrician & Gynaecologist",
+      "location": "Les Marais, Pretoria",
+      "address": "Eugene Marais Hospital, Les Marais",
+      "contact": {
+        "phone": "+27 12 334 2200"
+      },
+      "rating": 4.8,
+      "reviewCount": 118,
+      "price": "R1200 - R3500",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Practices at Eugene Marais Hospital. Obstetrics, gynaecology, women's health.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 19,
+      "servicesOffered": [
+        "Antenatal",
+        "Gynae Consult",
+        "Ultrasound",
+        "Surgery"
+      ],
+      "suburb": "Les Marais",
+      "city": "Pretoria",
+      "category": "Gynaecologist",
+      "review_count": 118,
+      "verified": true,
+      "years_in_business": 11,
+      "min_price": 1200,
+      "max_price": 3500,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Les Marais",
+      "enhanced_category": "Gynaecologist",
+      "enhanced_city": "Pretoria",
+      "enhanced_verified": true
+    },
+    {
+      "id": "pta_dr_manyonga",
+      "name": "Dr H P Manyonga",
+      "service": "Obstetrics & Gynaecology",
+      "specialization": "Obstetrician & Gynaecologist",
+      "location": "Pretoria East, Pretoria",
+      "address": "Pretoria East Hospital Medical Suites",
+      "contact": {
+        "phone": "+27 12 998 8854"
+      },
+      "rating": 4.6,
+      "reviewCount": 95,
+      "price": "R1400 - R4000",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Maternity & women's health at Busamed and Pretoria East.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 14,
+      "servicesOffered": [
+        "Antenatal Care",
+        "High-risk Pregnancy",
+        "Gynaecology"
+      ],
+      "suburb": "Pretoria East",
+      "city": "Pretoria",
+      "category": "Gynaecologist",
+      "review_count": 95,
+      "verified": true,
+      "years_in_business": 14,
+      "min_price": 1400,
+      "max_price": 4000,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Pretoria East",
+      "enhanced_category": "Gynaecologist",
+      "enhanced_city": "Pretoria",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_dr_moagi",
+      "name": "Dr Emmanuel Moagi (Family Matters Fertility)",
+      "service": "Fertility Specialist",
+      "specialization": "Fertility & Reproductive Endocrinology",
+      "location": "Lyttelton, Centurion",
+      "address": "Netcare Unitas Hospital, Clifton Avenue",
+      "contact": {
+        "phone": "+27 12 677 8000"
+      },
+      "rating": 4.9,
+      "reviewCount": 156,
+      "price": "R1500 - R120000",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Fertility specialist and obstetrician. IVF, IUI, ovulation induction, fertility assessment.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 11,
+      "servicesOffered": [
+        "Fertility Assessment",
+        "IVF",
+        "IUI",
+        "Ovulation Induction",
+        "Obstetrics"
+      ],
+      "suburb": "Lyttelton",
+      "city": "Centurion",
+      "category": "Fertility Clinic",
+      "review_count": 156,
+      "verified": true,
+      "years_in_business": 16,
+      "min_price": 1500,
+      "max_price": 120000,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Lyttelton",
+      "enhanced_category": "Fertility Clinic",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "pta_east_fertility",
+      "name": "Pretoria East Fertility Centre",
+      "service": "Fertility Specialist",
+      "specialization": "IVF & assisted reproduction",
+      "location": "Moreleta Park, Pretoria",
+      "address": "Medical Suite M19, Pretoria East Hospital, cnr Garstfontein & Netcare Drive",
+      "contact": {
+        "phone": "+27 12 998 8854"
+      },
+      "rating": 4.7,
+      "reviewCount": 89,
+      "price": "R2000 - R150000",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Pretoria East's dedicated fertility and assisted reproduction clinic.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 11,
+      "servicesOffered": [
+        "IVF",
+        "IUI",
+        "ICSI",
+        "Egg Freezing",
+        "Male Fertility"
+      ],
+      "suburb": "Moreleta Park",
+      "city": "Pretoria",
+      "category": "Fertility Clinic",
+      "review_count": 89,
+      "verified": true,
+      "years_in_business": 15,
+      "min_price": 2000,
+      "max_price": 150000,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Moreleta Park",
+      "enhanced_category": "Fertility Clinic",
+      "enhanced_city": "Pretoria",
+      "enhanced_verified": true
+    },
+    {
+      "id": "pta_bioart_satellite",
+      "name": "BioART Fertility Clinic (Pretoria)",
+      "service": "Fertility Specialist",
+      "specialization": "IVF, ICSI, donor programmes",
+      "location": "Brooklyn, Pretoria",
+      "address": "Brooklyn Medical Centre (visiting practice)",
+      "contact": {
+        "phone": "+27 11 484 5119"
+      },
+      "rating": 4.8,
+      "reviewCount": 112,
+      "price": "R1800 - R140000",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "SASREG-accredited. IVF, ICSI, egg donation, sperm donation programmes. Main practice Saxonwold.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 5,
+      "servicesOffered": [
+        "IVF",
+        "ICSI",
+        "Egg Donation",
+        "Sperm Donation",
+        "PGT"
+      ],
+      "suburb": "Brooklyn",
+      "city": "Pretoria",
+      "category": "Fertility Clinic",
+      "review_count": 112,
+      "verified": true,
+      "years_in_business": 14,
+      "min_price": 1800,
+      "max_price": 140000,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Brooklyn",
+      "enhanced_category": "Fertility Clinic",
+      "enhanced_city": "Pretoria",
+      "enhanced_verified": true
+    },
+    {
+      "id": "pta_medfem_consult",
+      "name": "Medfem Fertility Clinic (PTA Consults)",
+      "service": "Fertility Specialist",
+      "specialization": "Fertility clinic satellite consults",
+      "location": "Menlyn, Pretoria",
+      "address": "Menlyn Maine Medical Suites (consult)",
+      "contact": {
+        "phone": "+27 11 463 2244"
+      },
+      "rating": 4.8,
+      "reviewCount": 200,
+      "price": "R1500 - R135000",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Satellite consults for Pretoria patients. Main lab in Sandton. IVF, fertility preservation.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 6,
+      "servicesOffered": [
+        "Fertility Consult",
+        "IVF",
+        "Fertility Preservation",
+        "Male Fertility"
+      ],
+      "suburb": "Menlyn",
+      "city": "Pretoria",
+      "category": "Fertility Clinic",
+      "review_count": 200,
+      "verified": true,
+      "years_in_business": 7,
+      "min_price": 1500,
+      "max_price": 135000,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Menlyn",
+      "enhanced_category": "Fertility Clinic",
+      "enhanced_city": "Pretoria",
+      "enhanced_verified": true
+    },
+    {
+      "id": "pta_vitalab_consult",
+      "name": "Vitalab Fertility (PTA consults)",
+      "service": "Fertility Specialist",
+      "specialization": "Fertility clinic satellite consults",
+      "location": "Hatfield, Pretoria",
+      "address": "Hatfield Medical Suites (consult days)",
+      "contact": {
+        "phone": "+27 11 911 4700"
+      },
+      "rating": 4.7,
+      "reviewCount": 165,
+      "price": "R1500 - R140000",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Sandton-based fertility group with Pretoria consulting days. Donor programme, surrogacy support.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 8,
+      "servicesOffered": [
+        "Fertility Consult",
+        "IVF",
+        "Egg Donation",
+        "Surrogacy Support"
+      ],
+      "suburb": "Hatfield",
+      "city": "Pretoria",
+      "category": "Fertility Clinic",
+      "review_count": 165,
+      "verified": true,
+      "years_in_business": 12,
+      "min_price": 1500,
+      "max_price": 140000,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Hatfield",
+      "enhanced_category": "Fertility Clinic",
+      "enhanced_city": "Pretoria",
+      "enhanced_verified": true
+    },
+    {
+      "id": "pta_doula_collective",
+      "name": "Pretoria Doula Collective",
+      "service": "Doula & Birth Support",
+      "specialization": "Certified birth doulas",
+      "location": "Lynnwood, Pretoria",
+      "address": "Lynnwood, Pretoria (client's home/hospital)",
+      "contact": {
+        "phone": "+27 83 444 2201"
+      },
+      "rating": 4.9,
+      "reviewCount": 78,
+      "price": "R4500 - R9500",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Network of 6 certified birth doulas covering Pretoria + Centurion.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 13,
+      "servicesOffered": [
+        "Antenatal Support",
+        "Birth Doula",
+        "Postnatal Doula",
+        "VBAC Support"
+      ],
+      "suburb": "Lynnwood",
+      "city": "Pretoria",
+      "category": "Doula",
+      "review_count": 78,
+      "verified": true,
+      "years_in_business": 5,
+      "min_price": 4500,
+      "max_price": 9500,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Lynnwood",
+      "enhanced_category": "Doula",
+      "enhanced_city": "Pretoria",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_babylife_antenatal",
+      "name": "BabyLife Antenatal Classes",
+      "service": "Antenatal Education",
+      "specialization": "Group antenatal classes",
+      "location": "Irene, Centurion",
+      "address": "Irene Village Mall, Centurion",
+      "contact": {
+        "phone": "+27 82 556 3300"
+      },
+      "rating": 4.8,
+      "reviewCount": 145,
+      "price": "R1800 - R3200",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "6-week antenatal class series covering birth, breastfeeding, baby care.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 17,
+      "servicesOffered": [
+        "Antenatal Classes",
+        "Breastfeeding Workshop",
+        "Baby CPR"
+      ],
+      "suburb": "Irene",
+      "city": "Centurion",
+      "category": "Maternity Education",
+      "review_count": 145,
+      "verified": true,
+      "years_in_business": 13,
+      "min_price": 1800,
+      "max_price": 3200,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Irene",
+      "enhanced_category": "Maternity Education",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_intercare_irene",
+      "name": "Intercare Irene Medical & Dental Centre",
+      "service": "Medical & Dental",
+      "specialization": "Family medicine, dental, physio, pharmacy",
+      "location": "Irene, Centurion",
+      "address": "Southdowns Shopping Centre, Karee Street, Irene",
+      "contact": {
+        "phone": "+27 12 345 7000"
+      },
+      "rating": 4.5,
+      "reviewCount": 320,
+      "price": "R300 - R800",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Full medical centre: GPs, dentists, dental hygienists, physiotherapy, pharmacy, radiology.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 10,
+      "servicesOffered": [
+        "GP",
+        "Dentistry",
+        "Physiotherapy",
+        "Pharmacy",
+        "Radiology"
+      ],
+      "suburb": "Irene",
+      "city": "Centurion",
+      "category": "Medical Clinic",
+      "review_count": 320,
+      "verified": true,
+      "years_in_business": 5,
+      "min_price": 300,
+      "max_price": 800,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Irene",
+      "enhanced_category": "Medical Clinic",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_intercare_mall55",
+      "name": "Intercare Mall@55",
+      "service": "Medical & Dental",
+      "specialization": "Walk-in medical, dental, physio",
+      "location": "Monavoni, Centurion",
+      "address": "Shop 41, Mall@55, R55 Road, Monavoni",
+      "contact": {
+        "phone": "+27 12 012 5200"
+      },
+      "rating": 4.4,
+      "reviewCount": 190,
+      "price": "R300 - R800",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Convenient mall-based GP, dental and physio services.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 19,
+      "servicesOffered": [
+        "GP",
+        "Dentistry",
+        "Physiotherapy"
+      ],
+      "suburb": "Monavoni",
+      "city": "Centurion",
+      "category": "Medical Clinic",
+      "review_count": 190,
+      "verified": true,
+      "years_in_business": 15,
+      "min_price": 300,
+      "max_price": 800,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Monavoni",
+      "enhanced_category": "Medical Clinic",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_dinoko_med",
+      "name": "Dinoko Medical Centre",
+      "service": "General Practice",
+      "specialization": "Multi-disciplinary medical centre",
+      "location": "Centurion CBD, Centurion",
+      "address": "Dinoko, Centurion CBD",
+      "contact": {
+        "phone": "+27 12 644 0000"
+      },
+      "rating": 4.3,
+      "reviewCount": 112,
+      "price": "R300 - R800",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "GP, diabetic centre, dentist, psychologist, physio, dietician, optometrist, radiology.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 15,
+      "servicesOffered": [
+        "GP",
+        "Diabetic Care",
+        "Dentistry",
+        "Psychology",
+        "Physiotherapy",
+        "Optometry"
+      ],
+      "suburb": "Centurion CBD",
+      "city": "Centurion",
+      "category": "Medical Clinic",
+      "review_count": 112,
+      "verified": true,
+      "years_in_business": 6,
+      "min_price": 300,
+      "max_price": 800,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Centurion CBD",
+      "enhanced_category": "Medical Clinic",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_southlake_med",
+      "name": "South Lake Medical Centre",
+      "service": "General Practice",
+      "specialization": "Family medicine",
+      "location": "Highveld, Centurion",
+      "address": "South Lake, Highveld, Centurion",
+      "contact": {
+        "phone": "+27 12 940 9800"
+      },
+      "rating": 4.6,
+      "reviewCount": 145,
+      "price": "R300 - R800",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Family medical practice for all ages with in-house physiotherapist.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 6,
+      "servicesOffered": [
+        "GP",
+        "Physiotherapy",
+        "Wellness Screening"
+      ],
+      "suburb": "Highveld",
+      "city": "Centurion",
+      "category": "Medical Clinic",
+      "review_count": 145,
+      "verified": true,
+      "years_in_business": 4,
+      "min_price": 300,
+      "max_price": 800,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Highveld",
+      "enhanced_category": "Medical Clinic",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_athealth_centre",
+      "name": "@Health Medical Centre",
+      "service": "Dental & Eye Care",
+      "specialization": "Dental + optometry + cosmetic dentistry",
+      "location": "Centurion CBD, Centurion",
+      "address": "Centurion CBD",
+      "contact": {
+        "phone": "+27 12 663 3000"
+      },
+      "rating": 4.5,
+      "reviewCount": 98,
+      "price": "R300 - R800",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "General & cosmetic dentistry, orthodontics, eye exams, vision testing.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 14,
+      "servicesOffered": [
+        "General Dentistry",
+        "Orthodontics",
+        "Cosmetic Dentistry",
+        "Optometry"
+      ],
+      "suburb": "Centurion CBD",
+      "city": "Centurion",
+      "category": "Dentist",
+      "review_count": 98,
+      "verified": true,
+      "years_in_business": 8,
+      "min_price": 300,
+      "max_price": 800,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Centurion CBD",
+      "enhanced_category": "Dentist",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_centurion_day_hospital",
+      "name": "Centurion Day Hospital",
+      "service": "Day Hospital",
+      "specialization": "Minor surgery day hospital",
+      "location": "Die Hoewes, Centurion",
+      "address": "Die Hoewes, Centurion",
+      "contact": {
+        "phone": "+27 12 663 0000"
+      },
+      "rating": 4.6,
+      "reviewCount": 88,
+      "price": "R300 - R800",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Day-surgery hospital for minor procedures, endoscopy, orthopaedics.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 8,
+      "servicesOffered": [
+        "Day Surgery",
+        "Endoscopy",
+        "Orthopaedic Procedures"
+      ],
+      "suburb": "Die Hoewes",
+      "city": "Centurion",
+      "category": "Medical Clinic",
+      "review_count": 88,
+      "verified": true,
+      "years_in_business": 11,
+      "min_price": 300,
+      "max_price": 800,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Die Hoewes",
+      "enhanced_category": "Medical Clinic",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_physio_wierda",
+      "name": "Wierda Park Physiotherapy",
+      "service": "Physiotherapy",
+      "specialization": "Sports & rehab physio",
+      "location": "Wierda Park, Centurion",
+      "address": "Wierda Park, Centurion",
+      "contact": {
+        "phone": "+27 12 653 1200"
+      },
+      "rating": 4.8,
+      "reviewCount": 76,
+      "price": "R450 - R750",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Sports injury rehab, orthopaedic physio, dry needling.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 19,
+      "servicesOffered": [
+        "Sports Rehab",
+        "Orthopaedic Physio",
+        "Dry Needling",
+        "Post-surgical Rehab"
+      ],
+      "suburb": "Wierda Park",
+      "city": "Centurion",
+      "category": "Physiotherapy",
+      "review_count": 76,
+      "verified": true,
+      "years_in_business": 5,
+      "min_price": 450,
+      "max_price": 750,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Wierda Park",
+      "enhanced_category": "Physiotherapy",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_chiro_eldoraigne",
+      "name": "Eldoraigne Chiropractic",
+      "service": "Chiropractic",
+      "specialization": "Spinal health & sports chiro",
+      "location": "Eldoraigne, Centurion",
+      "address": "Eldoraigne, Centurion",
+      "contact": {
+        "phone": "+27 12 654 7700"
+      },
+      "rating": 4.7,
+      "reviewCount": 64,
+      "price": "R580 - R820",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Chiropractic adjustments, sports injury treatment, pregnancy chiro.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 18,
+      "servicesOffered": [
+        "Spinal Adjustments",
+        "Sports Chiro",
+        "Pregnancy Chiro"
+      ],
+      "suburb": "Eldoraigne",
+      "city": "Centurion",
+      "category": "Chiropractor",
+      "review_count": 64,
+      "verified": true,
+      "years_in_business": 15,
+      "min_price": 580,
+      "max_price": 820,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Eldoraigne",
+      "enhanced_category": "Chiropractor",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_virgin_active_centurion",
+      "name": "Virgin Active Centurion",
+      "service": "Gym & Group Fitness",
+      "specialization": "Full-service health club",
+      "location": "Centurion CBD, Centurion",
+      "address": "Centurion Lifestyle Centre",
+      "contact": {
+        "phone": "+27 12 663 4400"
+      },
+      "rating": 4.4,
+      "reviewCount": 540,
+      "price": "R595/mo - R895/mo",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Full-service gym with pool, group classes, personal training.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 17,
+      "servicesOffered": [
+        "Gym",
+        "Swimming Pool",
+        "Group Classes",
+        "Personal Training"
+      ],
+      "suburb": "Centurion CBD",
+      "city": "Centurion",
+      "category": "Gym",
+      "review_count": 540,
+      "verified": true,
+      "years_in_business": 7,
+      "min_price": 595,
+      "max_price": 895,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Centurion CBD",
+      "enhanced_category": "Gym",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_planet_fitness_centurion",
+      "name": "Planet Fitness Centurion",
+      "service": "Gym",
+      "specialization": "24/7 gym",
+      "location": "Die Hoewes, Centurion",
+      "address": "Die Hoewes Office Park",
+      "contact": {
+        "phone": "+27 12 663 8900"
+      },
+      "rating": 4.3,
+      "reviewCount": 410,
+      "price": "R399/mo - R599/mo",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "24/7 gym access with group classes and personal trainers.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 16,
+      "servicesOffered": [
+        "Gym",
+        "Group Classes",
+        "Personal Training"
+      ],
+      "suburb": "Die Hoewes",
+      "city": "Centurion",
+      "category": "Gym",
+      "review_count": 410,
+      "verified": true,
+      "years_in_business": 15,
+      "min_price": 399,
+      "max_price": 599,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Die Hoewes",
+      "enhanced_category": "Gym",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_crossfit_centurion",
+      "name": "CrossFit Centurion",
+      "service": "CrossFit",
+      "specialization": "CrossFit box",
+      "location": "Lyttelton, Centurion",
+      "address": "Lyttelton, Centurion",
+      "contact": {
+        "phone": "+27 82 555 4411"
+      },
+      "rating": 4.8,
+      "reviewCount": 185,
+      "price": "R950/mo - R1300/mo",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Affiliated CrossFit box with certified coaches. Group WODs, barbell club.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 17,
+      "servicesOffered": [
+        "Group WODs",
+        "Barbell Club",
+        "Olympic Lifting",
+        "Nutrition Coaching"
+      ],
+      "suburb": "Lyttelton",
+      "city": "Centurion",
+      "category": "Fitness Studio",
+      "review_count": 185,
+      "verified": true,
+      "years_in_business": 13,
+      "min_price": 950,
+      "max_price": 1300,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Lyttelton",
+      "enhanced_category": "Fitness Studio",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_f45_centurion",
+      "name": "F45 Training Centurion",
+      "service": "Group Functional Training",
+      "specialization": "F45 functional group classes",
+      "location": "Highveld, Centurion",
+      "address": "Highveld, Centurion",
+      "contact": {
+        "phone": "+27 82 776 0011"
+      },
+      "rating": 4.7,
+      "reviewCount": 220,
+      "price": "R1100/mo - R1500/mo",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "45-minute high-intensity functional training classes.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 13,
+      "servicesOffered": [
+        "F45 Classes",
+        "Bootcamp",
+        "Weight Loss Challenges"
+      ],
+      "suburb": "Highveld",
+      "city": "Centurion",
+      "category": "Fitness Studio",
+      "review_count": 220,
+      "verified": true,
+      "years_in_business": 5,
+      "min_price": 1100,
+      "max_price": 1500,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Highveld",
+      "enhanced_category": "Fitness Studio",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_zen_yoga",
+      "name": "Zen Yoga Centurion",
+      "service": "Yoga",
+      "specialization": "Yoga & meditation studio",
+      "location": "Irene, Centurion",
+      "address": "Irene Village Mall",
+      "contact": {
+        "phone": "+27 83 229 4400"
+      },
+      "rating": 4.9,
+      "reviewCount": 132,
+      "price": "R135/class - R950/mo",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Hatha, Vinyasa, Yin, prenatal yoga in a tranquil studio.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 8,
+      "servicesOffered": [
+        "Hatha Yoga",
+        "Vinyasa",
+        "Yin Yoga",
+        "Prenatal Yoga",
+        "Meditation"
+      ],
+      "suburb": "Irene",
+      "city": "Centurion",
+      "category": "Yoga Studio",
+      "review_count": 132,
+      "verified": true,
+      "years_in_business": 7,
+      "min_price": 135,
+      "max_price": 950,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Irene",
+      "enhanced_category": "Yoga Studio",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_reformer_pilates",
+      "name": "Reformer Pilates Centurion",
+      "service": "Pilates",
+      "specialization": "Reformer & mat Pilates",
+      "location": "Clubview, Centurion",
+      "address": "Clubview, Centurion",
+      "contact": {
+        "phone": "+27 82 877 9900"
+      },
+      "rating": 4.8,
+      "reviewCount": 98,
+      "price": "R180/class - R1600/mo",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Reformer Pilates, rehab Pilates, prenatal.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 11,
+      "servicesOffered": [
+        "Reformer Pilates",
+        "Mat Pilates",
+        "Rehab Pilates"
+      ],
+      "suburb": "Clubview",
+      "city": "Centurion",
+      "category": "Pilates Studio",
+      "review_count": 98,
+      "verified": true,
+      "years_in_business": 10,
+      "min_price": 180,
+      "max_price": 1600,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Clubview",
+      "enhanced_category": "Pilates Studio",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_centurion_home_fitness",
+      "name": "Centurion Home Fitness (Mobile Trainers)",
+      "service": "Personal Training",
+      "specialization": "In-home personal training",
+      "location": "Centurion CBD, Centurion",
+      "address": "Mobile — Centurion suburbs",
+      "contact": {
+        "phone": "+27 82 450 1100"
+      },
+      "rating": 4.8,
+      "reviewCount": 64,
+      "price": "R450/session - R750/session",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Certified personal trainers come to your home. Strength, mobility, nutrition.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 14,
+      "servicesOffered": [
+        "Personal Training",
+        "Nutrition Coaching",
+        "Strength & Conditioning",
+        "Mobility"
+      ],
+      "suburb": "Centurion CBD",
+      "city": "Centurion",
+      "category": "Personal Trainer",
+      "review_count": 64,
+      "verified": true,
+      "years_in_business": 16,
+      "min_price": 450,
+      "max_price": 750,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Centurion CBD",
+      "enhanced_category": "Personal Trainer",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_spa_de_la_veille",
+      "name": "Spa de la Veille",
+      "service": "Day Spa",
+      "specialization": "5-star day spa",
+      "location": "Wierda Park, Centurion",
+      "address": "Wierda Park, Centurion",
+      "contact": {
+        "phone": "+27 12 656 5600"
+      },
+      "rating": 4.9,
+      "reviewCount": 340,
+      "price": "R650 - R3900",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Award-winning 5-star day spa — Les Nouvelles Day Spa of the Year 2024. Massages, facials, nails, waxing, microneedling, microblading.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 12,
+      "servicesOffered": [
+        "Swedish Massage",
+        "Deep Tissue",
+        "Facials",
+        "Nail Care",
+        "Waxing",
+        "Microneedling",
+        "Microblading"
+      ],
+      "suburb": "Wierda Park",
+      "city": "Centurion",
+      "category": "Day Spa",
+      "review_count": 340,
+      "verified": true,
+      "years_in_business": 9,
+      "min_price": 650,
+      "max_price": 3900,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Wierda Park",
+      "enhanced_category": "Day Spa",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_nouvelle_ere",
+      "name": "Nouvelle Ere Beauty Spa",
+      "service": "Spa & Massage",
+      "specialization": "Massage & beauty",
+      "location": "Die Hoewes, Centurion",
+      "address": "Die Hoewes, Centurion",
+      "contact": {
+        "phone": "+27 12 663 9900"
+      },
+      "rating": 4.7,
+      "reviewCount": 156,
+      "price": "R450 - R2200",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Body massages with natural oils and essential-oil blends.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 12,
+      "servicesOffered": [
+        "Body Massage",
+        "Aromatherapy",
+        "Hot Stone Massage",
+        "Pregnancy Massage"
+      ],
+      "suburb": "Die Hoewes",
+      "city": "Centurion",
+      "category": "Spa",
+      "review_count": 156,
+      "verified": true,
+      "years_in_business": 17,
+      "min_price": 450,
+      "max_price": 2200,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Die Hoewes",
+      "enhanced_category": "Spa",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_belissima_hair",
+      "name": "Belissima Hair Salon",
+      "service": "Hair Styling",
+      "specialization": "Hair colour & styling",
+      "location": "Clubview, Centurion",
+      "address": "187 Jonk Avenue, Clubview, Centurion",
+      "contact": {
+        "phone": "+27 82 344 7788"
+      },
+      "rating": 4.6,
+      "reviewCount": 88,
+      "price": "R180 - R1400",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Full-service hair salon — cuts, colour, highlights, keratin treatment.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 10,
+      "servicesOffered": [
+        "Haircuts",
+        "Colour",
+        "Highlights",
+        "Keratin Treatment",
+        "Bridal Hair"
+      ],
+      "suburb": "Clubview",
+      "city": "Centurion",
+      "category": "Hair Salon",
+      "review_count": 88,
+      "verified": true,
+      "years_in_business": 16,
+      "min_price": 180,
+      "max_price": 1400,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Clubview",
+      "enhanced_category": "Hair Salon",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_express_beauty_bar",
+      "name": "Express Beauty Bar Centurion",
+      "service": "Beauty Services",
+      "specialization": "Lash, brow, wax",
+      "location": "Highveld, Centurion",
+      "address": "244 Jean Avenue, Norma Jean Office Park, Centurion",
+      "contact": {
+        "phone": "+27 82 667 3300"
+      },
+      "rating": 4.7,
+      "reviewCount": 72,
+      "price": "R150 - R950",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Express eyelash extensions, brow shaping, waxing.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 7,
+      "servicesOffered": [
+        "Lash Extensions",
+        "Brow Lamination",
+        "Waxing",
+        "Tinting"
+      ],
+      "suburb": "Highveld",
+      "city": "Centurion",
+      "category": "Beauty Salon",
+      "review_count": 72,
+      "verified": true,
+      "years_in_business": 5,
+      "min_price": 150,
+      "max_price": 950,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Highveld",
+      "enhanced_category": "Beauty Salon",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_princess_hair",
+      "name": "Princess Professional Hair Salon",
+      "service": "Hair & Wigs",
+      "specialization": "Natural & synthetic wigs",
+      "location": "Centurion CBD, Centurion",
+      "address": "Centurion Mall",
+      "contact": {
+        "phone": "+27 12 663 1144"
+      },
+      "rating": 4.5,
+      "reviewCount": 140,
+      "price": "R250 - R4500",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Natural-looking human hair wigs, synthetic wigs, install services.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 17,
+      "servicesOffered": [
+        "Wig Install",
+        "Wig Customisation",
+        "Hair Braiding",
+        "Weaves"
+      ],
+      "suburb": "Centurion CBD",
+      "city": "Centurion",
+      "category": "Hair Salon",
+      "review_count": 140,
+      "verified": true,
+      "years_in_business": 16,
+      "min_price": 250,
+      "max_price": 4500,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Centurion CBD",
+      "enhanced_category": "Hair Salon",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_nail_lounge",
+      "name": "The Nail Lounge Centurion",
+      "service": "Nail Care",
+      "specialization": "Gel & acrylic nails",
+      "location": "Eldoraigne, Centurion",
+      "address": "Eldoraigne, Centurion",
+      "contact": {
+        "phone": "+27 82 775 4400"
+      },
+      "rating": 4.6,
+      "reviewCount": 98,
+      "price": "R180 - R650",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Gel manicures, acrylic nails, BIAB, pedicures.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 13,
+      "servicesOffered": [
+        "Gel Manicure",
+        "Acrylic Nails",
+        "BIAB",
+        "Pedicure"
+      ],
+      "suburb": "Eldoraigne",
+      "city": "Centurion",
+      "category": "Nail Salon",
+      "review_count": 98,
+      "verified": true,
+      "years_in_business": 8,
+      "min_price": 180,
+      "max_price": 650,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Eldoraigne",
+      "enhanced_category": "Nail Salon",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_vet_centurion",
+      "name": "Centurion Veterinary Hospital",
+      "service": "Veterinary",
+      "specialization": "Small-animal vet",
+      "location": "Lyttelton, Centurion",
+      "address": "Lyttelton, Centurion",
+      "contact": {
+        "phone": "+27 12 664 8800"
+      },
+      "rating": 4.7,
+      "reviewCount": 210,
+      "price": "R450 - R4500",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Full-service small animal vet clinic with 24/7 emergency.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 8,
+      "servicesOffered": [
+        "Consultation",
+        "Vaccinations",
+        "Sterilisation",
+        "Dental",
+        "Emergency"
+      ],
+      "suburb": "Lyttelton",
+      "city": "Centurion",
+      "category": "Veterinary",
+      "review_count": 210,
+      "verified": true,
+      "years_in_business": 12,
+      "min_price": 450,
+      "max_price": 4500,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Lyttelton",
+      "enhanced_category": "Veterinary",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_clinical_psych",
+      "name": "Centurion Clinical Psychology",
+      "service": "Clinical Psychology",
+      "specialization": "Adult & adolescent therapy",
+      "location": "Highveld, Centurion",
+      "address": "Highveld, Centurion",
+      "contact": {
+        "phone": "+27 82 445 6677"
+      },
+      "rating": 4.9,
+      "reviewCount": 45,
+      "price": "R900 - R1400",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "Individual therapy, couples counselling, CBT, trauma-focused work.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 10,
+      "servicesOffered": [
+        "Individual Therapy",
+        "Couples Counselling",
+        "CBT",
+        "Trauma Therapy"
+      ],
+      "suburb": "Highveld",
+      "city": "Centurion",
+      "category": "Psychologist",
+      "review_count": 45,
+      "verified": true,
+      "years_in_business": 12,
+      "min_price": 900,
+      "max_price": 1400,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Highveld",
+      "enhanced_category": "Psychologist",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
+    },
+    {
+      "id": "cen_nutritionist",
+      "name": "Centurion Registered Dietitian",
+      "service": "Nutrition",
+      "specialization": "Dietetics & nutrition",
+      "location": "Centurion CBD, Centurion",
+      "address": "Centurion CBD",
+      "contact": {
+        "phone": "+27 82 665 2211"
+      },
+      "rating": 4.8,
+      "reviewCount": 67,
+      "price": "R650 - R1100",
+      "duration": "60 min",
+      "availability": [
+        "Weekdays",
+        "Weekends"
+      ],
+      "description": "HPCSA-registered dietitian. Weight management, sports nutrition, diabetes meal plans.",
+      "qualifications": [],
+      "languages": [
+        "English",
+        "Afrikaans"
+      ],
+      "experienceYears": 12,
+      "servicesOffered": [
+        "Weight Management",
+        "Sports Nutrition",
+        "Diabetes Plans",
+        "Meal Planning"
+      ],
+      "suburb": "Centurion CBD",
+      "city": "Centurion",
+      "category": "Dietician",
+      "review_count": 67,
+      "verified": true,
+      "years_in_business": 7,
+      "min_price": 650,
+      "max_price": 1100,
+      "last_updated": "2026-04-14T16:05:18.853Z",
+      "enhanced_suburb": "Centurion CBD",
+      "enhanced_category": "Dietician",
+      "enhanced_city": "Centurion",
+      "enhanced_verified": true
     }
   ],
   "metadata": {
@@ -35169,5 +37149,44 @@
   },
   "fix_applied": true,
   "fix_date": "2026-04-07",
-  "bookings": []
+  "bookings": [],
+  "centurionSuburbs": [
+    "Amberfield",
+    "Bronberg",
+    "Celtisdal",
+    "Claudius",
+    "Clubview",
+    "Copperleaf",
+    "Cornwall Hill",
+    "Die Hoewes",
+    "Doringkloof",
+    "Eldoraigne",
+    "Erasmia",
+    "Hennopspark",
+    "Heritage Hill",
+    "Heuweloord",
+    "Highveld",
+    "Irene",
+    "Kloofsig",
+    "Laudium",
+    "Lyttelton",
+    "Lyttelton Manor",
+    "Monavoni",
+    "Olievenhoutbosch",
+    "Pierre van Ryneveld",
+    "Raslouw",
+    "Rooihuiskraal",
+    "Sunderland Ridge",
+    "Valhalla",
+    "Wierda Park",
+    "Zwartkop",
+    "Centurion CBD"
+  ],
+  "_meta": {
+    "generated_at": "2026-04-14T16:05:18.854Z",
+    "totalProviders": 897,
+    "centurionProviders": 28,
+    "pretoriaProviders": 754,
+    "maternityFertility": 20
+  }
 }
