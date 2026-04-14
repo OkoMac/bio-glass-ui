@@ -128,6 +128,7 @@ const ProviderAvailability   = lazy(() => import("./pages/provider/Availability"
 const ProviderSettings       = lazy(() => import("./pages/provider/Settings"));
 const ProviderBilling        = lazy(() => import("./pages/provider/Billing"));
 const ProviderProgramBuilder = lazy(() => import("./pages/provider/ProgramBuilder"));
+const ProviderStorefront     = lazy(() => import("./pages/provider/Storefront"));
 const ProviderVerification   = lazy(() => import("./pages/provider/Verification"));
 
 // Admin portal
@@ -309,6 +310,7 @@ function AppRoutes() {
       <Route path="/pro/billing"      element={<RequireAuth allowedRoles={["provider"]}><ProviderBilling /></RequireAuth>} />
       <Route path="/pro/programs"       element={<RequireAuth allowedRoles={["provider"]}><ProviderProgramBuilder /></RequireAuth>} />
       <Route path="/pro/verification"  element={<RequireAuth allowedRoles={["provider"]}><ProviderVerification /></RequireAuth>} />
+      <Route path="/pro/storefront"    element={<RequireAuth allowedRoles={["provider"]}><ProviderStorefront /></RequireAuth>} />
 
       {/* Admin portal */}
       <Route path="/admin/dashboard" element={<RequireAuth allowedRoles={["admin"]}><AdminDashboard /></RequireAuth>} />
