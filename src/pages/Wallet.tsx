@@ -9,6 +9,7 @@ import { useWallet, TOPUP_MIN_RAND } from "@/hooks/useWallet";
 import { useEarnings, REFERRAL_COMMISSION_PER_PREMIUM, SALES_REP_THRESHOLD } from "@/hooks/useEarnings";
 import { useActivityPoints, pointsToRand } from "@/hooks/useActivityPoints";
 import { useVouchers } from "@/hooks/useVouchers";
+import MyOrdersSection from "@/components/wallet/MyOrdersSection";
 import {
   Plus, ArrowUpRight, ArrowDownLeft, Gift, TrendingUp,
   CreditCard, Wallet as WalletIcon, Award, X, Check, Loader2,
@@ -223,6 +224,9 @@ export default function Wallet() {
                 </p>
               </GlassCard>
             </div>
+
+            {/* My orders (storefront purchases) */}
+            <MyOrdersSection />
 
             {/* Transactions */}
             <div>

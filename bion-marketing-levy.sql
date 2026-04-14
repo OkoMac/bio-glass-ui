@@ -27,6 +27,25 @@
 -- ============================================================
 
 -- ═══════════════════════════════════════════════════════════════
+-- 0. Platform settings table (created if not already present)
+-- ═══════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS platform_settings (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  key text NOT NULL UNIQUE,
+  value text NOT NULL,
+  description text,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE platform_settings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public reads settings" ON platform_settings;
+CREATE POLICY "Public reads settings" ON platform_settings FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Admins manage settings" ON platform_settings;
+CREATE POLICY "Admins manage settings" ON platform_settings
+  FOR ALL USING (EXISTS (SELECT 1 FROM user_roles WHERE user_id = auth.uid() AND role = 'admin'));
+
+-- ═══════════════════════════════════════════════════════════════
 -- 1. Recalibrate spending rewards (2.5% → 0.25%)
 --    R50 voucher per R20,000 spent (same threshold, smaller voucher)
 -- ═══════════════════════════════════════════════════════════════
