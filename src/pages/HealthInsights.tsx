@@ -6,11 +6,12 @@ import BiometricsDashboard from "@/components/BiometricsDashboard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
+import { useHealthLogs } from "@/hooks/useHealth";
 import {
   ArrowLeft, AlertTriangle, CheckCircle, AlertCircle, TrendingUp,
   TrendingDown, Heart, Brain, Droplets, Moon, Dumbbell, Apple,
   Pill, Sparkles, Activity, Eye, Shield, Flame, Smartphone,
-  Wifi, WifiOff, ChevronRight
+  WifiOff, ChevronRight
 } from "lucide-react";
 
 /* ── Types ──────────────────────────────────────────── */
@@ -35,14 +36,14 @@ interface BiometricSync {
   metrics: string[];
 }
 
-/* ── Mock biometric connections ────────────────────── */
+/* ── Device integrations — none live yet, presented honestly ───── */
 const BIOMETRIC_SOURCES: BiometricSync[] = [
-  { source: "Apple Health", lastSync: "2 min ago", connected: true, metrics: ["Steps", "Heart Rate", "Sleep", "SpO2", "Workouts"] },
-  { source: "Google Fit", lastSync: "Never", connected: false, metrics: ["Steps", "Heart Rate", "Calories", "Distance"] },
-  { source: "Fitbit", lastSync: "Never", connected: false, metrics: ["Steps", "Heart Rate", "Sleep", "SpO2", "Stress"] },
-  { source: "Samsung Health", lastSync: "Never", connected: false, metrics: ["Steps", "Heart Rate", "Blood Pressure", "SpO2"] },
-  { source: "Garmin", lastSync: "Never", connected: false, metrics: ["Steps", "Heart Rate", "VO2 Max", "Training Load"] },
-  { source: "Whoop", lastSync: "Never", connected: false, metrics: ["Recovery", "Strain", "Sleep", "HRV"] },
+  { source: "Apple Health",   lastSync: "Coming soon", connected: false, metrics: ["Steps", "Heart Rate", "Sleep", "SpO2", "Workouts"] },
+  { source: "Google Fit",     lastSync: "Coming soon", connected: false, metrics: ["Steps", "Heart Rate", "Calories", "Distance"] },
+  { source: "Fitbit",         lastSync: "Coming soon", connected: false, metrics: ["Steps", "Heart Rate", "Sleep", "SpO2", "Stress"] },
+  { source: "Samsung Health", lastSync: "Coming soon", connected: false, metrics: ["Steps", "Heart Rate", "Blood Pressure", "SpO2"] },
+  { source: "Garmin",         lastSync: "Coming soon", connected: false, metrics: ["Steps", "Heart Rate", "VO2 Max", "Training Load"] },
+  { source: "Whoop",          lastSync: "Coming soon", connected: false, metrics: ["Recovery", "Strain", "Sleep", "HRV"] },
 ];
 
 /* ── Insights engine ──────────────────────────────── */
@@ -93,11 +94,7 @@ export default function HealthInsights() {
 
   const [tab, setTab] = useState<"insights" | "biometrics">("insights");
   const [severityFilter, setSeverityFilter] = useState<Severity | "all">("all");
-  const [connectedSources, setConnectedSources] = useState<Record<string, boolean>>(() => {
-    const map: Record<string, boolean> = {};
-    BIOMETRIC_SOURCES.forEach(s => { map[s.source] = s.connected; });
-    return map;
-  });
+  // Fixed: device sources are all "Coming soon" — no toggle state needed
 
   const filtered = severityFilter === "all" ? INSIGHTS : INSIGHTS.filter(i => i.severity === severityFilter);
   const goodCount = INSIGHTS.filter(i => i.severity === "good").length;
@@ -105,9 +102,7 @@ export default function HealthInsights() {
   const alertCount = INSIGHTS.filter(i => i.severity === "alert").length;
   const overallScore = Math.round(((goodCount * 3 + warnCount * 1) / (INSIGHTS.length * 3)) * 100);
 
-  const toggleConnection = (source: string) => {
-    setConnectedSources(prev => ({ ...prev, [source]: !prev[source] }));
-  };
+  // toggleConnection removed — device sync is "Coming soon", not interactive yet
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
@@ -258,18 +253,15 @@ export default function HealthInsights() {
             </GlassCard>
 
             {BIOMETRIC_SOURCES.map(source => {
-              const isConnected = connectedSources[source.source] ?? source.connected;
               return (
                 <GlassCard key={source.source} className="p-4">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isConnected ? "bg-teal/10" : "bg-white/[0.03]"}`}>
-                      {isConnected ? <Wifi className="w-4 h-4 text-teal" /> : <WifiOff className="w-4 h-4 text-muted-foreground" />}
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/[0.03]">
+                      <WifiOff className="w-4 h-4 text-muted-foreground" />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-foreground">{source.source}</p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {isConnected ? `Last sync: ${source.lastSync}` : "Not connected"}
-                      </p>
+                      <p className="text-[10px] text-muted-foreground">{source.lastSync}</p>
                       <div className="flex gap-1 mt-1 flex-wrap">
                         {source.metrics.map(m => (
                           <span key={m} className="text-[9px] px-1.5 py-0.5 rounded-full bg-white/[0.03] text-muted-foreground border border-white/[0.06]">
@@ -278,50 +270,73 @@ export default function HealthInsights() {
                         ))}
                       </div>
                     </div>
-                    <motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleConnection(source.source)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold ${
-                        isConnected ? "glass-1 text-coral border border-coral/20" : "bg-gradient-to-r from-teal to-emerald-400 text-white"
-                      }`}>
-                      {isConnected ? "Disconnect" : "Connect"}
-                    </motion.button>
+                    <span className="px-3 py-1.5 rounded-xl text-[10px] font-semibold bg-white/[0.04] text-muted-foreground border border-white/5">
+                      Coming soon
+                    </span>
                   </div>
                 </GlassCard>
               );
             })}
 
-            {/* Current synced data */}
-            <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Synced Biometrics</p>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { label: "Heart Rate", value: "58", unit: "bpm", icon: Heart, color: "text-coral" },
-                  { label: "Steps Today", value: "6,240", unit: "steps", icon: Activity, color: "text-teal" },
-                  { label: "SpO2", value: "98", unit: "%", icon: Droplets, color: "text-blue-400" },
-                  { label: "Sleep", value: "7.6", unit: "hours", icon: Moon, color: "text-violet" },
-                  { label: "Calories Burned", value: "1,340", unit: "kcal", icon: Flame, color: "text-amber" },
-                  { label: "Stress Level", value: "4.2", unit: "/10", icon: Brain, color: "text-indigo" },
-                ].map(metric => {
-                  const Icon = metric.icon;
-                  return (
-                    <GlassCard key={metric.label} className="p-3">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{metric.label}</span>
-                        <Icon className={`w-3 h-3 ${metric.color}`} />
-                      </div>
-                      <p className={`text-xl font-bold ${metric.color}`}>
-                        {metric.value}<span className="text-xs font-normal text-muted-foreground ml-1">{metric.unit}</span>
-                      </p>
-                    </GlassCard>
-                  );
-                })}
-              </div>
-            </div>
+            {/* Latest manually-logged metrics from Progress / HealthProfile */}
+            <ManualMetricsPanel />
+            <p className="text-[10px] text-muted-foreground text-center -mt-2">
+              Manual entries from your Progress page. Wearable sync coming soon.
+            </p>
           </div>
         )}
       </div>
 
       <BionAssistant />
       <BottomNav />
+    </div>
+  );
+}
+
+/* ── Sub-component: real metrics from health_logs ────────── */
+function ManualMetricsPanel() {
+  const { logs } = useHealthLogs(7);
+  const latest = logs[logs.length - 1];
+
+  const metrics = [
+    { label: "Weight",    value: latest?.weight_kg,    unit: "kg",   icon: Activity, color: "text-indigo" },
+    { label: "Body Fat",  value: latest?.body_fat_pct, unit: "%",    icon: Heart,    color: "text-coral" },
+    { label: "Steps",     value: latest?.steps != null ? Math.round(latest.steps).toLocaleString() : null, unit: "steps", icon: Activity, color: "text-teal" },
+    { label: "Sleep",     value: latest?.sleep_hours,  unit: "hours", icon: Moon,     color: "text-violet" },
+    { label: "Resting HR", value: latest?.resting_hr,  unit: "bpm",  icon: Heart,    color: "text-coral" },
+    { label: "Lean Mass", value: latest?.lean_mass_kg, unit: "kg",   icon: Activity, color: "text-amber" },
+  ];
+
+  const hasAny = metrics.some(m => m.value != null && m.value !== "");
+
+  if (!hasAny) {
+    return (
+      <GlassCard className="p-5 text-center">
+        <p className="text-sm text-foreground font-medium">No metrics logged yet</p>
+        <p className="text-xs text-muted-foreground mt-1">Open Progress to log your weight, sleep, steps and more.</p>
+      </GlassCard>
+    );
+  }
+
+  return (
+    <div>
+      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Latest Metrics</p>
+      <div className="grid grid-cols-2 gap-2">
+        {metrics.filter(m => m.value != null && m.value !== "").map(m => {
+          const Icon = m.icon;
+          return (
+            <GlassCard key={m.label} className="p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{m.label}</span>
+                <Icon className={`w-3 h-3 ${m.color}`} />
+              </div>
+              <p className={`text-xl font-bold ${m.color}`}>
+                {m.value}<span className="text-xs font-normal text-muted-foreground ml-1">{m.unit}</span>
+              </p>
+            </GlassCard>
+          );
+        })}
+      </div>
     </div>
   );
 }

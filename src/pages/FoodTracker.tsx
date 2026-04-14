@@ -6,6 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFoodSync } from "@/hooks/useFoodSync";
+import { useActivityPoints } from "@/hooks/useActivityPoints";
 import {
   ArrowLeft, Camera, Plus, X, Flame, TrendingUp, TrendingDown,
   Utensils, Droplets, Apple, Coffee, Moon, Sun, ChevronRight,
@@ -130,6 +131,7 @@ export default function FoodTracker() {
 
   // Sync with Supabase for authenticated users
   const { entries, todayEntries, goals, addEntry: syncAddEntry, deleteEntry: syncDeleteEntry, saveGoals: syncSaveGoals } = useFoodSync();
+  const { awardPoints } = useActivityPoints();
 
   const [showAdd, setShowAdd] = useState(false);
   const [showGoals, setShowGoals] = useState(false);
@@ -171,6 +173,7 @@ export default function FoodTracker() {
       date: getToday(),
     };
     syncAddEntry(entry);
+    awardPoints("log_food", entry.id).catch(() => {});
     setSearchQuery("");
   };
 
@@ -189,6 +192,7 @@ export default function FoodTracker() {
       date: getToday(),
     };
     syncAddEntry(entry);
+    awardPoints("log_food", entry.id).catch(() => {});
     setManualEntry({ name: "", calories: "", protein: "", carbs: "", fat: "" });
     setPhotoPreview(null);
     setShowAdd(false);
@@ -226,7 +230,9 @@ export default function FoodTracker() {
       setPhotoCount(newCount);
       localStorage.setItem(PHOTO_COUNT_KEY, String(newCount));
 
-      // Call AI calorie estimation API
+      // Call AI calorie estimation API. If it fails or returns an obvious
+      // no-confidence result, leave the macros BLANK so the user enters them
+      // honestly rather than us inventing numbers.
       try {
         const res = await fetch(`${API_URL}/api/ai/estimate-calories`, {
           method: "POST",
@@ -234,24 +240,29 @@ export default function FoodTracker() {
           body: JSON.stringify({ image: result, description: manualEntry.name || undefined }),
         });
         const data = await res.json();
+        const ok = res.ok && data && typeof data.calories === "number" && data.calories > 0;
         setManualEntry(prev => ({
           ...prev,
-          name: prev.name || data.name || "Meal (photo)",
-          calories: String(data.calories ?? 400),
-          protein: String(data.protein ?? 20),
-          carbs: String(data.carbs ?? 45),
-          fat: String(data.fat ?? 15),
+          name: prev.name || data?.name || "Meal (photo)",
+          calories: ok ? String(data.calories) : "",
+          protein:  ok && typeof data.protein === "number" ? String(data.protein) : "",
+          carbs:    ok && typeof data.carbs   === "number" ? String(data.carbs)   : "",
+          fat:      ok && typeof data.fat     === "number" ? String(data.fat)     : "",
         }));
+        if (!ok) {
+          // Surface that we couldn't estimate, instead of pretending
+          window.alert("Couldn't estimate macros from the photo. Please enter them manually.");
+        }
       } catch {
-        // Fallback if API unavailable
         setManualEntry(prev => ({
           ...prev,
           name: prev.name || "Meal (photo)",
-          calories: "400",
-          protein: "20",
-          carbs: "45",
-          fat: "15",
+          calories: "",
+          protein: "",
+          carbs: "",
+          fat: "",
         }));
+        window.alert("Couldn't reach the food estimator. Please enter macros manually.");
       }
     };
     reader.readAsDataURL(file);

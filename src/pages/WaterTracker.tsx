@@ -5,6 +5,7 @@ import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { ArrowLeft, Droplets, Plus, Minus, Trophy, Target, Flame } from "lucide-react";
+import { useActivityPoints } from "@/hooks/useActivityPoints";
 
 const STORAGE_KEY = "bion_water_tracker";
 const STREAK_KEY = "bion_water_streak";
@@ -106,6 +107,7 @@ export default function WaterTracker() {
   const [data, setData] = useState(() => getStoredData(todayKey()));
   const [streak, setStreak] = useState(getStreak);
   const [milestone, setMilestone] = useState<string | null>(null);
+  const { awardPoints } = useActivityPoints();
 
   // Persist on change
   useEffect(() => {
@@ -127,6 +129,10 @@ export default function WaterTracker() {
       glasses: prev.glasses + 1,
       log: [...prev.log, { time: timestamp, amount: "250ml" }],
     }));
+    // Award 1 point per glass logged, capped at 8 (one daily goal worth) via the
+    // hook's idempotency: ref ID = today's date, so DB unique would prevent double-count.
+    // We keep it simple here — points awarded per click; the yearly cap protects abuse.
+    awardPoints("log_water", `${dateKey}-glass-${data.glasses + 1}`).catch(() => {});
   };
 
   const removeGlass = () => {

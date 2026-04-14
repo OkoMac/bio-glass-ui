@@ -6,6 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRoutinesSync } from "@/hooks/useRoutinesSync";
+import { useMyPrograms } from "@/hooks/useMyPrograms";
 import { getProviderImage } from "@/lib/providerImages";
 import realData from "@/data/bion_pretoria_data.json";
 import {
@@ -343,14 +344,40 @@ export default function Routines() {
   const isDemo = user?.id?.startsWith("demo_") ?? false;
 
   // Sync routines with Supabase (authenticated users) or localStorage (demo)
-  const { routines, setRoutines, addRoutine: syncAddRoutine, deleteRoutine: syncDeleteRoutine, loading: routinesLoading } = useRoutinesSync();
+  const { routines: ownRoutines, setRoutines, addRoutine: syncAddRoutine, deleteRoutine: syncDeleteRoutine, loading: routinesLoading } = useRoutinesSync();
+  // Provider-assigned programmes (from client_programs join programs)
+  const { programs: assignedPrograms } = useMyPrograms();
 
-  // Seed demo accounts with sample data if empty
+  // Merge provider-assigned programs in front of own/self-created routines
+  const routines = useMemo(() => {
+    const fromAssigned: Routine[] = assignedPrograms.map((p): Routine => ({
+      id: `assigned_${p.id}`,
+      title: p.title,
+      type: p.type,
+      provider: p.provider_name ?? undefined,
+      providerId: p.provider_id ?? undefined,
+      providerImage: p.provider_avatar ?? undefined,
+      vertical: p.vertical,
+      daysCompleted: p.days_completed,
+      totalDays: p.total_days,
+      exercises: p.exercises.map(e => ({
+        name: e.name,
+        sets: e.sets ?? e.duration ?? "",
+        done: false,
+      })),
+      createdBy: "provider",
+      sharedWith: p.provider_id ? [p.provider_id] : [],
+      schedule: p.schedule ?? "Daily",
+    }));
+    return [...fromAssigned, ...ownRoutines];
+  }, [assignedPrograms, ownRoutines]);
+
+  // Seed demo accounts with sample data if no real or assigned routines
   useEffect(() => {
-    if (isDemo && routines.length === 0) {
+    if (isDemo && ownRoutines.length === 0 && assignedPrograms.length === 0) {
       setRoutines(buildSampleRoutines());
     }
-  }, [isDemo]);
+  }, [isDemo, ownRoutines.length, assignedPrograms.length]);
 
   const [expanded, setExpanded] = useState<string | null>(routines[0]?.id ?? null);
   const [checked, setChecked] = useState<Record<string, boolean>>({});
