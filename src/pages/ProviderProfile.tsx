@@ -12,6 +12,7 @@ import { useVerifiedProviders } from "@/hooks/useVerifiedProviders";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { getProviderShareUrl, getBookingShareUrl, openWhatsApp } from "@/lib/whatsapp";
+import ProviderShopSection from "@/components/ProviderShopSection";
 import realData from "@/data/bion_pretoria_data.json";
 
 // ── Build lookup from ALL scraped providers ─────────
@@ -250,6 +251,9 @@ export default function ProviderProfile() {
             )}
           </div>
         </section>
+
+        {/* Shop section (only if provider has enabled storefront) */}
+        <ProviderShopSection providerId={provider.id} />
 
         {/* Contact Details — gated */}
         <section>

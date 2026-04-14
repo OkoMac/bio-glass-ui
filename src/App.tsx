@@ -25,11 +25,20 @@ class ErrorBoundary extends React.Component<
     if (error.message?.includes("Failed to fetch dynamically imported module") ||
         error.message?.includes("Loading chunk") ||
         error.message?.includes("Loading CSS chunk")) {
-      // Only auto-reload once to avoid infinite loop
-      const key = "bion_chunk_reload";
-      if (!sessionStorage.getItem(key)) {
-        sessionStorage.setItem(key, "1");
-        window.location.reload();
+      // Auto-reload up to 3 times with increasing delay (CDN propagation)
+      const key = "bion_chunk_reload_count";
+      const count = parseInt(sessionStorage.getItem(key) ?? "0", 10);
+      if (count < 3) {
+        sessionStorage.setItem(key, String(count + 1));
+        // Clear SW cache first to force fresh bundle
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+        }
+        if ("caches" in window) {
+          caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+        }
+        // Exponential backoff: 500ms, 1.5s, 3s
+        setTimeout(() => window.location.reload(), 500 * Math.pow(3, count));
         return;
       }
       sessionStorage.removeItem(key);
@@ -49,7 +58,12 @@ class ErrorBoundary extends React.Component<
               ? "A new version was deployed. Tap reload to get the latest."
               : "An unexpected error occurred. Reloading usually fixes it."}
           </p>
-          <button onClick={() => { sessionStorage.removeItem("bion_chunk_reload"); window.location.reload(); }}
+          <button onClick={() => {
+            sessionStorage.removeItem("bion_chunk_reload_count");
+            if ("serviceWorker" in navigator) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister()));
+            if ("caches" in window) caches.keys().then(ks => ks.forEach(k => caches.delete(k)));
+            setTimeout(() => window.location.reload(), 200);
+          }}
             style={{ padding: "12px 32px", background: "#6366f1", color: "#fff", border: "none", borderRadius: 999, cursor: "pointer", fontWeight: 600, fontSize: 14 }}>
             Reload BION
           </button>
@@ -130,6 +144,7 @@ const ProviderSettings       = lazy(() => import("./pages/provider/Settings"));
 const ProviderBilling        = lazy(() => import("./pages/provider/Billing"));
 const ProviderProgramBuilder = lazy(() => import("./pages/provider/ProgramBuilder"));
 const ProviderStorefront     = lazy(() => import("./pages/provider/Storefront"));
+const ProviderOrders         = lazy(() => import("./pages/provider/Orders"));
 const ProviderVerification   = lazy(() => import("./pages/provider/Verification"));
 
 // Admin portal
@@ -310,6 +325,7 @@ function AppRoutes() {
       <Route path="/pro/programs"       element={<RequireAuth allowedRoles={["provider"]}><ProviderProgramBuilder /></RequireAuth>} />
       <Route path="/pro/verification"  element={<RequireAuth allowedRoles={["provider"]}><ProviderVerification /></RequireAuth>} />
       <Route path="/pro/storefront"    element={<RequireAuth allowedRoles={["provider"]}><ProviderStorefront /></RequireAuth>} />
+      <Route path="/pro/orders"        element={<RequireAuth allowedRoles={["provider"]}><ProviderOrders /></RequireAuth>} />
 
       {/* Admin portal */}
       <Route path="/admin/dashboard" element={<RequireAuth allowedRoles={["admin"]}><AdminDashboard /></RequireAuth>} />
