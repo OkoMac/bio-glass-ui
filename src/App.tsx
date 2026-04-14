@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import React, { ReactNode } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { BookingsProvider } from "@/contexts/BookingsContext";
+import { useBookingReminders } from "@/hooks/useBookingReminders";
 
 // ─── Error Boundary ──────────────────────────────────
 class ErrorBoundary extends React.Component<
@@ -228,8 +229,6 @@ function RequireAuth({ children, allowedRoles, skipOnboardingCheck }: {
 
 /** Runs booking reminder checks globally for logged-in users */
 function BookingReminderRunner() {
-  // Dynamic import to avoid circular deps
-  const { useBookingReminders } = require("@/hooks/useBookingReminders");
   useBookingReminders();
   return null;
 }
