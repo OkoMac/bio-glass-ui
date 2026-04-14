@@ -16,6 +16,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { useVerifiedProviders } from "@/hooks/useVerifiedProviders";
 import { distanceToSuburb } from "@/lib/pretoriaSuburbs";
 import BiometricsDashboard from "@/components/BiometricsDashboard";
+import ExpenditureRewardsStrip from "@/components/ExpenditureRewardsStrip";
 import realData from "@/data/bion_pretoria_data.json";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 
@@ -248,6 +249,9 @@ const Index = () => {
             </button>
           )}
         </div>
+
+        {/* Expenditure Rewards — acquisition vouchers from nearby providers user has never visited */}
+        <ExpenditureRewardsStrip />
 
         <div className="flex gap-2 overflow-x-auto scrollbar-none -mx-4 px-4">
           {categories.map((cat) => (

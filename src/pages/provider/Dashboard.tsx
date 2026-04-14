@@ -4,6 +4,7 @@ import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
+import MarketingLevyCard from "@/components/provider/MarketingLevyCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
 import {
@@ -254,6 +255,9 @@ export default function ProviderDashboard() {
             )}
           </div>
         </section>
+
+        {/* Acquisition marketing (5% levy + voucher pool) */}
+        <MarketingLevyCard />
 
         {/* Quick links */}
         <div className="grid grid-cols-2 gap-3">

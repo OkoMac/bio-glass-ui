@@ -13,13 +13,14 @@ export interface VoucherEntry {
   created_at: string;
 }
 
-export const VOUCHER_CASHBACK_RATE = 0.025; // 2.5% (R500 per R20,000)
+export const VOUCHER_CASHBACK_RATE = 0.0025; // 0.25% (R50 per R20,000) — internal rate, not advertised
 export const VOUCHER_MONTHLY_MIN_SPEND = 300; // R300/month to qualify
 export const VOUCHER_MAX_DISCOUNT_PERCENT = 30; // 30% max off any booking
 
 /**
- * Service Vouchers hook — Rand-backed cashback.
- * Premium subscribers only. 2.5% cashback on R300+ monthly spend.
+ * Expenditure Rewards (formerly "cashback") — Rand-backed.
+ * Quietly accrues at 0.25% on R300+ monthly spend. Not advertised publicly;
+ * UI just surfaces "Expenditure Rewards" and "Referral Commissions".
  * 12-month expiry, max 30% discount per booking.
  */
 export function useVouchers() {
