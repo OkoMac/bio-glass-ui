@@ -9,11 +9,14 @@
 --   4. "Never visited + nearby" eligibility RPC for discovery feed
 --   5. Auto-mint vouchers when levy accumulates past face-value threshold
 --
--- CANONICAL FEE MODEL:
---   R100 service → client pays R105, provider receives R95
---   BION gross = R10 (5% client + 5% provider = 10%)
---   Paystack + costs ≈ 3.5% → BION net ≈ 6.5%
---   NEW: 5% marketing levy on provider's gross income → provider net = 90%
+-- CANONICAL FEE MODEL — every rate is a % of the BILL, never compounded:
+--   R100 bill → client pays R105 (+5% client fee)
+--              → provider receives R95 (-5% provider fee)
+--              → minus R5 marketing levy (5% of bill)
+--              → provider NET = R90 (exactly 90% of bill)
+--   BION gross = R10 (5% client + 5% provider = 10% of bill)
+--   Paystack + costs ≈ 3.5% → BION net ≈ 6.5% of bill
+--   Marketing levy = R5 (ring-fenced to acquisition voucher pool)
 -- ============================================================
 
 -- ═══════════════════════════════════════════════════════════════
@@ -186,7 +189,7 @@ SECURITY DEFINER
 SET search_path = public, pg_temp
 AS $$
 DECLARE
-  v_provider_gross numeric;
+  v_bill numeric;
   v_levy_rate numeric;
   v_face_value numeric;
   v_expiry_days int;
@@ -203,8 +206,9 @@ BEGIN
   -- Skip if no price (free intros etc.)
   IF NEW.total_price IS NULL OR NEW.total_price <= 0 THEN RETURN NEW; END IF;
 
-  -- Provider gross = 95% of client-paid amount (total_price is the bill, R100 → provider R95)
-  v_provider_gross := NEW.total_price * 0.95;
+  -- All fees are a flat % of the BILL (total_price = R100 in canonical example).
+  -- Provider fee 5% + marketing levy 5% are deducted from the bill (not compounded).
+  v_bill := NEW.total_price;
 
   SELECT value::numeric INTO v_levy_rate   FROM platform_settings WHERE key = 'marketing_levy_rate';
   SELECT value::numeric INTO v_face_value  FROM platform_settings WHERE key = 'acq_voucher_face_value';
@@ -216,9 +220,9 @@ BEGIN
   v_expiry_days := COALESCE(v_expiry_days, 30);
   v_distance_km := COALESCE(v_distance_km, 25);
 
-  -- Record levy contribution
+  -- Record levy contribution: 5% of the BILL (e.g. R100 × 5% = R5)
   INSERT INTO provider_marketing_levy (provider_id, booking_id, source_amount_rand, levy_rand, levy_type)
-  VALUES (NEW.provider_id, NEW.id, v_provider_gross, v_provider_gross * v_levy_rate, 'mandatory')
+  VALUES (NEW.provider_id, NEW.id, v_bill, v_bill * v_levy_rate, 'mandatory')
   RETURNING id INTO v_levy_id;
 
   -- Accumulated un-minted levy for this provider
