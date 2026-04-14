@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, forwardRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform } from "framer-motion";
+import HTMLFlipBook from "react-pageflip";
 import { useCatalogByShortUrl, type CatalogPage, type CatalogTheme } from "@/hooks/useCatalogs";
 import {
   ChevronLeft, ChevronRight, Share2, BookOpen, Loader2, ExternalLink,
@@ -21,71 +21,54 @@ const THEME_ACCENT: Record<CatalogTheme, string> = {
   amber: "#fbbf24", monochrome: "#e5e7eb",
 };
 
-const SWIPE_THRESHOLD = 70;      // px to trigger page flip
-const VELOCITY_THRESHOLD = 500;  // px/s — faster swipes trigger even below distance threshold
-
+/**
+ * A real FlippingBook-style viewer.
+ * react-pageflip renders a two-page spread with realistic corner-curl
+ * on drag, page shadows, and a proper book spine. On mobile it switches
+ * to single-page portrait mode automatically.
+ */
 export default function CatalogViewer() {
   const { shortUrl } = useParams<{ shortUrl: string }>();
   const { catalog, pages, loading, notFound } = useCatalogByShortUrl(shortUrl ?? null);
-  const [idx, setIdx] = useState(0);
-  const [direction, setDirection] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const bookRef = useRef<any>(null);
 
-  // Drag state
-  const dragX = useMotionValue(0);
-  const rotateY = useTransform(dragX, [-200, 0, 200], [-25, 0, 25]);
-  const shadowOpacity = useTransform(dragX, [-200, 0, 200], [0.6, 0.25, 0.6]);
+  const flip = (delta: number) => {
+    if (!bookRef.current) return;
+    const inst = bookRef.current.pageFlip();
+    if (!inst) return;
+    if (delta > 0) inst.flipNext();
+    else inst.flipPrev();
+  };
 
-  // Keyboard nav
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); go(1); }
-      if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
-      if (e.key === "Home")  { e.preventDefault(); setDirection(-1); setIdx(0); }
-      if (e.key === "End")   { e.preventDefault(); setDirection(1); setIdx(pages.length - 1); }
+      if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); flip(1); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); flip(-1); }
+      if (e.key === "Home" && bookRef.current?.pageFlip) { e.preventDefault(); bookRef.current.pageFlip().flip(0); }
+      if (e.key === "End"  && bookRef.current?.pageFlip) { e.preventDefault(); bookRef.current.pageFlip().flip(totalPages - 1); }
       if (e.key === "f" || e.key === "F") toggleFullscreen();
       if (e.key === "Escape" && document.fullscreenElement) document.exitFullscreen();
     };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idx, pages.length]);
+  }, [totalPages]);
 
-  // Track fullscreen state
   useEffect(() => {
     const h = () => setFullscreen(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", h);
     return () => document.removeEventListener("fullscreenchange", h);
   }, []);
 
-  const go = (dir: number) => {
-    const next = idx + dir;
-    if (next < 0 || next >= pages.length) return;
-    setDirection(dir);
-    setIdx(next);
-  };
-
-  const handleDragEnd = (_: unknown, info: PanInfo) => {
-    const dx = info.offset.x;
-    const vx = info.velocity.x;
-    const flip = Math.abs(dx) > SWIPE_THRESHOLD || Math.abs(vx) > VELOCITY_THRESHOLD;
-    if (flip) {
-      if (dx < 0) go(1);
-      else if (dx > 0) go(-1);
-    }
-    dragX.set(0);
-  };
-
-  // Tap-zone navigation — left half back, right half forward (but not on CTA links)
-  const handleTapZone = (e: React.MouseEvent<HTMLDivElement>) => {
-    const target = e.target as HTMLElement;
-    if (target.closest("a, button")) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    if (x < rect.width * 0.35) go(-1);
-    else if (x > rect.width * 0.65) go(1);
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) containerRef.current?.requestFullscreen?.();
+    else document.exitFullscreen();
   };
 
   const share = () => {
@@ -95,11 +78,6 @@ export default function CatalogViewer() {
     } else {
       navigator.clipboard.writeText(url).then(() => toast.success("Link copied"));
     }
-  };
-
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) containerRef.current?.requestFullscreen?.();
-    else document.exitFullscreen();
   };
 
   if (loading) {
@@ -125,19 +103,16 @@ export default function CatalogViewer() {
 
   const bg = THEME_BG[catalog.theme];
   const accent = THEME_ACCENT[catalog.theme];
-  const page = pages[idx];
-  const progress = pages.length > 0 ? ((idx + 1) / pages.length) * 100 : 0;
+  const progress = totalPages > 0 ? ((currentPage + 1) / totalPages) * 100 : 0;
 
   return (
     <div ref={containerRef} className="min-h-screen flex flex-col relative overflow-hidden select-none"
       style={{ background: bg }}>
-      {/* Top-edge progress bar */}
+      {/* Progress bar */}
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-white/10 z-30">
-        <motion.div
-          className="h-full"
-          style={{ background: accent }}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
+        <div
+          className="h-full transition-all duration-500 ease-out"
+          style={{ background: accent, width: `${progress}%` }}
         />
       </div>
 
@@ -146,13 +121,13 @@ export default function CatalogViewer() {
         <Link to="/" className="flex items-center gap-2 text-white/70 hover:text-white text-xs">
           <ArrowLeft className="w-4 h-4" /> BION
         </Link>
-        <div className="text-center">
-          <p className="text-white/90 text-sm font-semibold">{catalog.title}</p>
+        <div className="text-center flex-1 min-w-0 px-2">
+          <p className="text-white/90 text-sm font-semibold truncate">{catalog.title}</p>
           <p className="text-white/40 text-[10px]">
-            {pages.length > 0 ? `Page ${idx + 1} of ${pages.length}` : "no pages"}
+            {totalPages > 0 ? `${currentPage + 1} / ${totalPages}` : "…"}
             <span className="mx-1.5">·</span>
-            <span className="hidden md:inline">← → to flip · F for fullscreen</span>
-            <span className="md:hidden">swipe to flip</span>
+            <span className="hidden md:inline">drag the corner · ← → keys</span>
+            <span className="md:hidden">swipe or tap corners</span>
           </p>
         </div>
         <div className="flex items-center gap-1">
@@ -166,8 +141,8 @@ export default function CatalogViewer() {
         </div>
       </header>
 
-      {/* Page viewport */}
-      <main className="flex-1 flex items-center justify-center p-4 relative" onClick={handleTapZone}>
+      {/* FlippingBook viewport */}
+      <main className="flex-1 flex items-center justify-center p-2 md:p-4 relative">
         {pages.length === 0 ? (
           <div className="text-center text-white/60">
             <BookOpen className="w-10 h-10 mx-auto mb-2 opacity-50" />
@@ -175,85 +150,76 @@ export default function CatalogViewer() {
           </div>
         ) : (
           <>
-            {/* Ambient prev page shadow peek */}
-            {idx > 0 && (
-              <button
-                onClick={(e) => { e.stopPropagation(); go(-1); }}
-                className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/5 backdrop-blur hover:bg-white/15 items-center justify-center transition-all hover:scale-110"
-                aria-label="Previous page"
-              >
-                <ChevronLeft className="w-6 h-6 text-white" />
-              </button>
-            )}
-
-            <div
-              className="relative w-full max-w-3xl h-[600px] md:h-[700px]"
-              style={{ perspective: "1800px" }}
+            <button
+              onClick={() => flip(-1)}
+              className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/5 backdrop-blur hover:bg-white/15 items-center justify-center transition-all hover:scale-110"
+              aria-label="Previous page"
             >
-              <AnimatePresence mode="wait" custom={direction}>
-                <motion.div
-                  key={page.id}
-                  custom={direction}
-                  drag="x"
-                  dragConstraints={{ left: -300, right: 300 }}
-                  dragElastic={0.2}
-                  onDragEnd={handleDragEnd}
-                  style={{ x: dragX, rotateY, transformStyle: "preserve-3d", cursor: "grab" }}
-                  whileDrag={{ cursor: "grabbing" }}
-                  initial={{
-                    rotateY: direction > 0 ? 90 : direction < 0 ? -90 : 0,
-                    opacity: 0,
-                    scale: 0.9,
-                  }}
-                  animate={{ rotateY: 0, opacity: 1, scale: 1 }}
-                  exit={{
-                    rotateY: direction > 0 ? -90 : 90,
-                    opacity: 0,
-                    scale: 0.9,
-                  }}
-                  transition={{ duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
-                  className="absolute inset-0"
-                >
-                  <motion.div className="w-full h-full" style={{
-                    boxShadow: shadowOpacity ? `0 25px 50px -12px rgba(0,0,0,0.6)` : undefined,
-                  }}>
-                    <PageRender page={page} accent={accent} />
-                  </motion.div>
-                </motion.div>
-              </AnimatePresence>
+              <ChevronLeft className="w-6 h-6 text-white" />
+            </button>
 
-              {/* Spine shadow — hints at the book binding */}
-              <div className="absolute top-0 bottom-0 left-1/2 w-1 -translate-x-1/2 pointer-events-none"
-                style={{ background: "linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.4) 50%, transparent 100%)" }}
-              />
-            </div>
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            <HTMLFlipBook
+              ref={bookRef}
+              width={550}
+              height={720}
+              size="stretch"
+              minWidth={315}
+              maxWidth={700}
+              minHeight={420}
+              maxHeight={1000}
+              maxShadowOpacity={0.5}
+              drawShadow
+              showCover
+              usePortrait
+              mobileScrollSupport
+              useMouseEvents
+              clickEventForward
+              showPageCorners
+              flippingTime={800}
+              startPage={0}
+              startZIndex={0}
+              autoSize
+              swipeDistance={30}
+              disableFlipByClick={false}
+              className="shadow-[0_25px_50px_-12px_rgba(0,0,0,0.6)]"
+              style={{}}
+              onFlip={(e: { data: number }) => setCurrentPage(e.data)}
+              onInit={(e: { data: { page: number } }) => {
+                setTotalPages(pages.length);
+                setCurrentPage(e.data?.page ?? 0);
+              }}
+            >
+              {pages.map((p, i) => (
+                <Page key={p.id} number={i + 1} page={p} accent={accent} total={pages.length} />
+              ))}
+            </HTMLFlipBook>
 
-            {idx < pages.length - 1 && (
-              <button
-                onClick={(e) => { e.stopPropagation(); go(1); }}
-                className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/5 backdrop-blur hover:bg-white/15 items-center justify-center transition-all hover:scale-110"
-                aria-label="Next page"
-              >
-                <ChevronRight className="w-6 h-6 text-white" />
-              </button>
-            )}
+            <button
+              onClick={() => flip(1)}
+              className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/5 backdrop-blur hover:bg-white/15 items-center justify-center transition-all hover:scale-110"
+              aria-label="Next page"
+            >
+              <ChevronRight className="w-6 h-6 text-white" />
+            </button>
           </>
         )}
       </main>
 
       {/* Page thumbnails */}
-      {pages.length > 1 && (
+      {pages.length > 1 && totalPages > 0 && (
         <footer className="relative z-10 pb-4 px-4">
           <div className="flex items-center justify-center gap-1 max-w-3xl mx-auto overflow-x-auto scrollbar-none">
             {pages.map((p, i) => (
               <button
                 key={p.id}
-                onClick={(e) => { e.stopPropagation(); setDirection(i > idx ? 1 : -1); setIdx(i); }}
+                onClick={() => bookRef.current?.pageFlip?.().flip(i)}
                 className={`shrink-0 rounded-md transition-all ${
-                  i === idx ? "w-6 h-8" : "w-2 h-8 hover:w-4 opacity-60"
+                  i === currentPage ? "h-8" : "h-6 opacity-50 hover:opacity-80"
                 }`}
                 style={{
-                  background: i === idx ? accent : "rgba(255,255,255,0.25)",
+                  width: i === currentPage ? 24 : 6,
+                  background: i === currentPage ? accent : "rgba(255,255,255,0.35)",
                 }}
                 aria-label={`Jump to page ${i + 1}`}
                 title={p.title ?? `Page ${i + 1}`}
@@ -267,99 +233,94 @@ export default function CatalogViewer() {
 }
 
 /**
- * Page render — all layout variants rendered as interactive cards.
- * Images fade in, Ken Burns pan on full_image, body text animates up.
+ * Single page — must be a forwardRef so StPageFlip can attach refs to
+ * measure/animate it. Renders content based on layout.
  */
-function PageRender({ page, accent }: { page: CatalogPage; accent: string }) {
-  const pageStyle: React.CSSProperties = {
-    background: page.background_color ?? "rgba(20,20,30,0.7)",
-    backdropFilter: "blur(24px) saturate(140%)",
-    WebkitBackdropFilter: "blur(24px) saturate(140%)",
-    border: "1px solid rgba(255,255,255,0.08)",
-  };
+const Page = forwardRef<HTMLDivElement, { number: number; page: CatalogPage; accent: string; total: number }>(
+  function Page({ number, page, accent, total }, ref) {
+    const isCover = number === 1;
+    const isBack = number === total;
+    // Cover + back cover get `data-density=hard` so StPageFlip renders them as rigid covers
+    const density = isCover || isBack ? "hard" : "soft";
 
-  if (page.layout === "full_image" && page.image_url) {
     return (
-      <div className="w-full h-full rounded-3xl overflow-hidden relative shadow-2xl">
-        <motion.img
-          src={page.image_url}
-          alt={page.title ?? ""}
-          className="w-full h-full object-cover"
-          initial={{ scale: 1.15, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1.4, ease: "easeOut" }}
+      <div
+        ref={ref}
+        data-density={density}
+        className="relative w-full h-full overflow-hidden bg-white"
+        style={{
+          background: page.background_color ?? "#0a0a0f",
+        }}
+      >
+        <PageContent page={page} accent={accent} />
+        {/* Paper texture + corner peel hint */}
+        <div className="pointer-events-none absolute inset-0"
+          style={{
+            background: `radial-gradient(circle at 100% 0%, rgba(0,0,0,0.12) 0%, transparent 60px)`,
+          }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-          className="absolute bottom-0 left-0 right-0 p-8 md:p-12 text-white"
-        >
-          {page.title && <h1 className="text-4xl md:text-6xl font-bold leading-tight">{page.title}</h1>}
-          {page.subtitle && <p className="text-lg md:text-xl text-white/85 mt-3">{page.subtitle}</p>}
-          {page.cta_text && page.cta_link && (
-            <a href={page.cta_link} target="_blank" rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-pill font-semibold hover:scale-105 transition-transform"
-              style={{ background: accent, color: "#000" }}>
-              {page.cta_text} <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          )}
-        </motion.div>
       </div>
     );
   }
+);
 
-  if (page.layout === "two_column" && page.image_url) {
+function PageContent({ page, accent }: { page: CatalogPage; accent: string }) {
+  // full_image layout — edge-to-edge hero
+  if (page.layout === "full_image" && page.image_url) {
     return (
-      <div className="w-full h-full rounded-3xl overflow-hidden grid grid-cols-1 md:grid-cols-2 shadow-2xl" style={pageStyle}>
-        <motion.img src={page.image_url} alt={page.title ?? ""} className="w-full h-full object-cover"
-          initial={{ scale: 1.08, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1.2 }} />
-        <motion.div
-          initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="p-8 md:p-10 flex flex-col justify-center text-white"
-        >
-          {page.title && <h2 className="text-2xl md:text-3xl font-bold leading-tight">{page.title}</h2>}
-          {page.subtitle && <p className="text-sm md:text-base text-white/70 mt-1">{page.subtitle}</p>}
-          {page.body && (
-            <div className="mt-4 text-sm text-white/80 leading-relaxed whitespace-pre-wrap">{page.body}</div>
-          )}
+      <div className="relative w-full h-full">
+        <img src={page.image_url} alt={page.title ?? ""} className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 text-white">
+          {page.title && <h1 className="text-3xl md:text-5xl font-bold leading-tight">{page.title}</h1>}
+          {page.subtitle && <p className="text-base md:text-lg text-white/85 mt-2">{page.subtitle}</p>}
           {page.cta_text && page.cta_link && (
             <a href={page.cta_link} target="_blank" rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-2 mt-6 px-4 py-2 rounded-pill font-semibold text-sm w-fit hover:scale-105 transition-transform"
+              className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-pill font-semibold text-sm"
               style={{ background: accent, color: "#000" }}>
               {page.cta_text} <ExternalLink className="w-3 h-3" />
             </a>
           )}
-        </motion.div>
+        </div>
       </div>
     );
   }
 
+  // two_column — image left, copy right
+  if (page.layout === "two_column" && page.image_url) {
+    return (
+      <div className="w-full h-full grid grid-cols-1 md:grid-cols-2 text-white">
+        <img src={page.image_url} alt={page.title ?? ""} className="w-full h-full object-cover" />
+        <div className="p-6 md:p-8 flex flex-col justify-center bg-[#0a0a0f]">
+          {page.title && <h2 className="text-2xl md:text-3xl font-bold leading-tight">{page.title}</h2>}
+          {page.subtitle && <p className="text-xs md:text-sm text-white/70 mt-1">{page.subtitle}</p>}
+          {page.body && (
+            <div className="mt-3 text-xs md:text-sm text-white/80 leading-relaxed whitespace-pre-wrap">{page.body}</div>
+          )}
+          {page.cta_text && page.cta_link && (
+            <a href={page.cta_link} target="_blank" rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-pill font-semibold text-xs w-fit"
+              style={{ background: accent, color: "#000" }}>
+              {page.cta_text} <ExternalLink className="w-3 h-3" />
+            </a>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // gallery — grid of images
   if (page.layout === "gallery" && page.gallery_images.length > 0) {
     return (
-      <div className="w-full h-full rounded-3xl overflow-hidden p-8 md:p-10 flex flex-col text-white shadow-2xl" style={pageStyle}>
-        {page.title && (
-          <motion.h2
-            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-            className="text-2xl md:text-3xl font-bold leading-tight"
-          >
-            {page.title}
-          </motion.h2>
-        )}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-4 flex-1">
+      <div className="w-full h-full p-6 md:p-8 flex flex-col text-white bg-[#0a0a0f]">
+        {page.title && <h2 className="text-2xl md:text-3xl font-bold leading-tight mb-1">{page.title}</h2>}
+        {page.subtitle && <p className="text-xs md:text-sm text-white/70 mb-3">{page.subtitle}</p>}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 flex-1">
           {page.gallery_images.map((img, i) => (
-            <motion.img
-              key={i} src={img} alt=""
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.08, duration: 0.4 }}
-              whileHover={{ scale: 1.03 }}
-              className="w-full h-full object-cover rounded-xl cursor-pointer"
+            <img key={i} src={img} alt=""
+              className="w-full h-full object-cover rounded-lg cursor-pointer hover:brightness-110 transition-all"
             />
           ))}
         </div>
@@ -369,54 +330,28 @@ function PageRender({ page, accent }: { page: CatalogPage; accent: string }) {
 
   // default / text_only / content
   return (
-    <div className="w-full h-full rounded-3xl overflow-hidden p-8 md:p-14 flex flex-col justify-center text-white shadow-2xl" style={pageStyle}>
+    <div className="w-full h-full p-6 md:p-12 flex flex-col justify-center text-white bg-[#0a0a0f]">
       {page.image_url && page.layout !== "text_only" && (
-        <motion.img
-          src={page.image_url} alt=""
-          initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-h-64 object-cover rounded-2xl mb-6"
+        <img src={page.image_url} alt=""
+          className="w-full max-h-56 object-cover rounded-xl mb-5"
         />
       )}
       {page.title && (
-        <motion.h2
-          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, duration: 0.6 }}
-          className="text-3xl md:text-5xl font-bold leading-tight"
-        >
-          {page.title}
-        </motion.h2>
+        <h2 className="text-3xl md:text-4xl font-bold leading-tight">{page.title}</h2>
       )}
       {page.subtitle && (
-        <motion.p
-          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25, duration: 0.5 }}
-          className="text-base md:text-lg text-white/70 mt-2"
-        >
-          {page.subtitle}
-        </motion.p>
+        <p className="text-sm md:text-base text-white/70 mt-2">{page.subtitle}</p>
       )}
       {page.body && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35, duration: 0.6 }}
-          className="mt-6 text-sm md:text-base text-white/85 leading-relaxed whitespace-pre-wrap"
-        >
-          {page.body}
-        </motion.div>
+        <div className="mt-5 text-sm md:text-base text-white/85 leading-relaxed whitespace-pre-wrap">{page.body}</div>
       )}
       {page.cta_text && page.cta_link && (
-        <motion.a
-          href={page.cta_link} target="_blank" rel="noopener noreferrer"
+        <a href={page.cta_link} target="_blank" rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
-          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-          whileHover={{ scale: 1.05 }}
-          className="inline-flex items-center gap-2 mt-8 px-6 py-3 rounded-pill font-semibold w-fit"
-          style={{ background: accent, color: "#000" }}
-        >
+          className="inline-flex items-center gap-2 mt-6 px-5 py-2.5 rounded-pill font-semibold w-fit text-sm"
+          style={{ background: accent, color: "#000" }}>
           {page.cta_text} <ExternalLink className="w-3.5 h-3.5" />
-        </motion.a>
+        </a>
       )}
     </div>
   );
