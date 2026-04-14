@@ -180,7 +180,32 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
   const updateStatus = useCallback(async (id: string, status: BookingStatus) => {
     setBookings(prev => prev.map(b => b.id === id ? { ...b, status } : b));
     if (user?.id) await supabase.from("bookings").update({ status }).eq("id", id);
-  }, [user?.id]);
+
+    // Award completion points + track spend toward voucher threshold
+    if (status === "completed" && user?.profileId) {
+      const booking = bookings.find(b => b.id === id);
+      const priceNum = booking ? parseInt(booking.price.replace(/[^0-9]/g, ""), 10) || 0 : 0;
+
+      // 10 activity points for completing a session (R0.20)
+      supabase.from("activity_points").insert({
+        user_id: user.profileId,
+        points: 10,
+        action: "complete_session",
+        reference_id: id,
+      }).then(() => {});
+
+      // Track monthly spend for voucher cashback (Premium subs only)
+      if (priceNum > 0) {
+        const month = new Date().toISOString().substring(0, 7);
+        // Upsert monthly spend
+        supabase.rpc("upsert_monthly_spend" as any, {
+          p_user_id: user.profileId,
+          p_month: month,
+          p_amount: priceNum,
+        }).then(() => {});
+      }
+    }
+  }, [user?.id, user?.profileId, bookings]);
 
   const confirm      = useCallback((id: string) => updateStatus(id, "confirmed"),  [updateStatus]);
   const decline      = useCallback((id: string) => updateStatus(id, "declined"),   [updateStatus]);
@@ -240,6 +265,15 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
         status:           "pending",
         notes:            booking.note ?? null,
       });
+
+      // Award 5 activity points for booking (R0.10 value)
+      // Trigger will reject if yearly cap hit
+      supabase.from("activity_points").insert({
+        user_id: user.profileId,
+        points: 5,
+        action: "book_session",
+        reference_id: newBooking.id,
+      }).then(() => {});
     }
 
     // ── Create in-app notifications for client + provider ──

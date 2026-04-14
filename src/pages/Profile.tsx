@@ -86,7 +86,8 @@ const Profile = () => {
   }, [referralCode]);
 
   const shareReferral = useCallback(() => {
-    const text = `Join BION with my code ${referralCode} and get 25 BIO Points!`;
+    const link = `https://bionhealth.co.za/welcome?ref=${referralCode}`;
+    const text = `Join BION with my code ${referralCode} and we both get 50 BION points (R1 in store credit). Sign up: ${link}`;
     if (navigator.share) {
       navigator.share({ title: "Join BION", text }).catch(() => {});
     } else {

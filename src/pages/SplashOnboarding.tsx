@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { capturePendingReferralCode, recordReferralSignup } from "@/lib/referral";
 import {
   DEMO_ACCOUNTS, BioUser, UserRole,
   signInWithEmail, signUpWithEmail, signInWithGoogle,
@@ -86,6 +87,7 @@ export default function SplashOnboarding() {
   const [name,     setName]             = useState("");
   const [email,    setEmail]            = useState("");
   const [password, setPassword]         = useState("");
+  const [referralCode, setReferralCode] = useState(() => capturePendingReferralCode() ?? "");
   const [showPw,   setShowPw]           = useState(false);
   const [error,    setError]            = useState("");
   const [busy,     setBusy]             = useState(false);
@@ -116,6 +118,12 @@ export default function SplashOnboarding() {
     if (authMode === "signup") {
       const { user, error: err } = await signUpWithEmail(email.trim(), password, name.trim(), selectedRole);
       if (err || !user) { setError(err ?? "Signup failed"); setBusy(false); return; }
+
+      // Record referral if code provided (client-to-client referrals only)
+      if (referralCode.trim() && user.profileId && selectedRole === "client") {
+        recordReferralSignup(referralCode.trim().toUpperCase(), user.profileId).catch(() => {});
+      }
+
       // Supabase may require email confirmation — check if session is valid
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -436,6 +444,16 @@ export default function SplashOnboarding() {
               {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
+          {authMode === "signup" && selectedRole === "client" && (
+            <div>
+              <input value={referralCode} onChange={e => setReferralCode(e.target.value.toUpperCase())}
+                placeholder="Referral code (optional)" type="text" maxLength={20}
+                className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
+              {referralCode && (
+                <p className="text-[10px] text-teal mt-1 px-1">✓ You'll get 50 BION points on signup</p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Terms acceptance — signup only */}
