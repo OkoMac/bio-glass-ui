@@ -5,10 +5,12 @@ import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
-import { ArrowLeft, Share2, Star, MapPin, Clock, Lock, CreditCard, Shield, Mail, Phone, Globe, Building, Check, X, CalendarDays } from "lucide-react";
+import { ArrowLeft, Share2, Star, MapPin, Clock, Lock, CreditCard, Shield, Mail, Phone, Globe, Building, Check, X, CalendarDays, Heart } from "lucide-react";
 import { getProviderImage, getProviderCover } from "@/lib/providerImages";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useVerifiedProviders } from "@/hooks/useVerifiedProviders";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { getProviderShareUrl, getBookingShareUrl, openWhatsApp } from "@/lib/whatsapp";
 import realData from "@/data/bion_pretoria_data.json";
 
@@ -51,6 +53,8 @@ export default function ProviderProfile() {
   const { user } = useAuth();
   const { addBooking } = useBookings();
   const verifiedProviders = useVerifiedProviders();
+  const { isFavorite, toggle: toggleFavorite } = useFavorites();
+  const { trackView } = useRecentlyViewed();
   const [showAllServices, setShowAllServices] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showBooking, setShowBooking] = useState(false);
@@ -108,8 +112,10 @@ export default function ProviderProfile() {
     setMeta("name", "twitter:title", `${provider.name} — ${provider.specialty} | BION`);
     setMeta("name", "twitter:description", desc);
     setMeta("name", "twitter:image", provider.image.startsWith("http") ? provider.image : `https://bionhealth.co.za${provider.image}`);
+    // Track recently viewed
+    if (provider.id) trackView(provider.id);
     return () => { document.title = "BION — Commit to Yourself"; };
-  }, [provider]);
+  }, [provider, trackView]);
 
   const shareProvider = () => {
     const url = `https://bionhealth.co.za/provider/${provider.id}`;
@@ -151,6 +157,12 @@ export default function ProviderProfile() {
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </motion.button>
           <div className="flex gap-2">
+            <motion.button whileTap={{ scale: 0.9 }}
+              onClick={() => toggleFavorite(provider.id)}
+              className={`glass-2 rounded-full w-10 h-10 flex items-center justify-center ${isFavorite(provider.id) ? "bg-coral/20" : ""}`}
+              aria-label={isFavorite(provider.id) ? "Remove from favorites" : "Add to favorites"}>
+              <Heart className={`w-5 h-5 ${isFavorite(provider.id) ? "fill-coral text-coral" : "text-foreground"}`} />
+            </motion.button>
             <motion.button whileTap={{ scale: 0.9 }}
               onClick={() => openWhatsApp(getProviderShareUrl(provider.name, provider.id, provider.specialty))}
               className="glass-2 rounded-full w-10 h-10 flex items-center justify-center bg-[#25D366]/20">
