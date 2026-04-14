@@ -1,87 +1,68 @@
 /**
- * Synthesised page-flip sound — a brief filtered-noise "rustle" that
- * evokes paper without needing an audio file. Uses Web Audio API.
+ * Real page-flip sound — plays one of 3 short recordings.
  *
- * Design: band-pass filtered noise with a decaying envelope and a
- * frequency sweep from ~4.5kHz → 1.5kHz. Total duration ~350ms.
+ * Assets live in /public/sounds (see ATTRIBUTION.md). They're pre-loaded
+ * on first call so subsequent flips have zero latency. We round-robin
+ * through variants so consecutive flips don't sound identical.
  */
 
-let audioCtx: AudioContext | null = null;
+const FLIP_VARIANTS = [
+  "/sounds/page-flip-1.mp3",
+  "/sounds/page-flip-2.mp3",
+  "/sounds/page-flip-3.mp3",
+];
+
+let audioPool: HTMLAudioElement[] = [];
+let nextIdx = 0;
 let lastPlay = 0;
+let primed = false;
 
-type AudioCtxCtor = typeof AudioContext;
-type WindowWithWebkit = Window & { webkitAudioContext?: AudioCtxCtor };
+function prime() {
+  if (primed || typeof window === "undefined") return;
+  primed = true;
+  audioPool = FLIP_VARIANTS.map((src) => {
+    const a = new Audio(src);
+    a.preload = "auto";
+    a.volume = 0.6;
+    // Trigger network + decode now
+    a.load();
+    return a;
+  });
+}
 
-function getCtx(): AudioContext | null {
+export function playFlipSound(volume = 0.6) {
+  // Debounce rapid triggers — at most one flip per 200ms
+  const now = Date.now();
+  if (now - lastPlay < 200) return;
+  lastPlay = now;
+
   try {
-    if (!audioCtx) {
-      const Ctor: AudioCtxCtor | undefined =
-        typeof window !== "undefined"
-          ? window.AudioContext ?? (window as WindowWithWebkit).webkitAudioContext
-          : undefined;
-      if (!Ctor) return null;
-      audioCtx = new Ctor();
+    if (!primed) prime();
+    if (audioPool.length === 0) return;
+
+    // Pick next variant + shuffle occasionally for more randomness
+    const picked = audioPool[nextIdx % audioPool.length];
+    nextIdx = (nextIdx + 1) % audioPool.length;
+
+    // Clone the node so overlapping plays don't cut each other off
+    const node = picked.cloneNode(true) as HTMLAudioElement;
+    node.volume = Math.max(0, Math.min(1, volume));
+    // playbackRate jitter (±7%) to reduce repetition fatigue
+    node.playbackRate = 0.93 + Math.random() * 0.14;
+    const playPromise = node.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => {
+        // Autoplay blocked — silent, will work after next user interaction
+      });
     }
-    if (audioCtx.state === "suspended") {
-      // Fire-and-forget; resume requires a user gesture but may already be allowed
-      audioCtx.resume().catch(() => {});
-    }
-    return audioCtx;
   } catch {
-    return null;
+    /* noop — audio is a nice-to-have */
   }
 }
 
-export function playFlipSound(volume = 0.15) {
-  // Debounce rapid triggers — at most one flip per 150ms
-  const now = Date.now();
-  if (now - lastPlay < 150) return;
-  lastPlay = now;
-
-  const ctx = getCtx();
-  if (!ctx) return;
-
-  try {
-    const startAt = ctx.currentTime;
-    const duration = 0.35;
-
-    // ── Noise buffer with decaying amplitude
-    const bufferSize = Math.floor(ctx.sampleRate * duration);
-    const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = noiseBuffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      const t = i / bufferSize;
-      // Shaped noise — louder at start, decaying
-      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 1.5);
-    }
-
-    const noise = ctx.createBufferSource();
-    noise.buffer = noiseBuffer;
-
-    // ── Band-pass filter sweeping down — mimics a page whooshing past the ear
-    const bpf = ctx.createBiquadFilter();
-    bpf.type = "bandpass";
-    bpf.Q.value = 0.8;
-    bpf.frequency.setValueAtTime(4500, startAt);
-    bpf.frequency.exponentialRampToValueAtTime(1500, startAt + duration);
-
-    // ── Amplitude envelope
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0, startAt);
-    gain.gain.linearRampToValueAtTime(volume, startAt + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, startAt + duration);
-
-    // ── Subtle high-pass so we don't get low-end rumble
-    const hpf = ctx.createBiquadFilter();
-    hpf.type = "highpass";
-    hpf.frequency.value = 400;
-
-    noise.connect(bpf).connect(hpf).connect(gain).connect(ctx.destination);
-    noise.start(startAt);
-    noise.stop(startAt + duration);
-  } catch {
-    // Silent fail — audio is nice-to-have
-  }
+/** Optional: pre-load sounds during app idle time so first flip is instant. */
+export function preloadFlipSounds() {
+  prime();
 }
 
 const MUTE_KEY = "bion_catalog_muted";

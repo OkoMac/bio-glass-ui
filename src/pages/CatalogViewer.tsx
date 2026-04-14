@@ -7,7 +7,7 @@ import {
   ArrowLeft, Home, Maximize2, Minimize2, Volume2, VolumeX,
 } from "lucide-react";
 import { toast } from "sonner";
-import { playFlipSound, isCatalogMuted, setCatalogMuted } from "@/lib/flipSound";
+import { playFlipSound, preloadFlipSounds, isCatalogMuted, setCatalogMuted } from "@/lib/flipSound";
 
 const THEME_BG: Record<CatalogTheme, string> = {
   indigo:     "radial-gradient(ellipse at top,#2e1065 0%,#0f0c29 50%,#000 100%)",
@@ -67,6 +67,11 @@ export default function CatalogViewer() {
     document.addEventListener("fullscreenchange", h);
     return () => document.removeEventListener("fullscreenchange", h);
   }, []);
+
+  // Preload page-flip sounds so the first flip is instant
+  useEffect(() => {
+    if (!muted) preloadFlipSounds();
+  }, [muted]);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) containerRef.current?.requestFullscreen?.();
