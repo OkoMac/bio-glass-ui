@@ -43,6 +43,11 @@ export default function TipJar({ bookingId, providerName, providerProfileId, onC
       }
       localStorage.setItem(walletKey, String(current - finalAmount));
 
+      // Client pays: finalAmount (tip full amount)
+      // Provider receives: finalAmount - 3.5% payment processing fee
+      const processingFee = Math.round(finalAmount * 0.035 * 100) / 100;
+      const providerReceives = Math.round((finalAmount - processingFee) * 100) / 100;
+
       // Log tip to backend (fire-and-forget)
       fetch(`${API}/api/wallet/tip`, {
         method: "POST",
@@ -50,7 +55,9 @@ export default function TipJar({ bookingId, providerName, providerProfileId, onC
         body: JSON.stringify({
           bookingId,
           providerProfileId,
-          amount: finalAmount,
+          amount: finalAmount,            // Client paid this
+          processingFee,                   // 3.5% deducted from provider
+          providerReceives,                // Net to provider
           note: note.trim() || undefined,
           fromUserId: user?.profileId,
         }),
@@ -97,7 +104,9 @@ export default function TipJar({ bookingId, providerName, providerProfileId, onC
               </button>
             </div>
 
-            <p className="text-xs text-muted-foreground">Show your appreciation. 100% goes to the provider — no platform fee on tips.</p>
+            <p className="text-xs text-muted-foreground">
+              Show your appreciation. You pay the tip amount only — the provider covers the 3.5% payment processing fee.
+            </p>
 
             {/* Preset amounts */}
             <div>
@@ -142,6 +151,24 @@ export default function TipJar({ bookingId, providerName, providerProfileId, onC
 
             {error && <p className="text-xs text-coral">{error}</p>}
 
+            {/* Fee breakdown */}
+            {finalAmount >= 10 && (
+              <div className="glass-1 rounded-2xl p-3 space-y-1.5">
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-muted-foreground">You pay</span>
+                  <span className="text-foreground font-data">R{finalAmount.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-muted-foreground">Payment processing (3.5%, paid by provider)</span>
+                  <span className="text-muted-foreground font-data">-R{(finalAmount * 0.035).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-[11px] pt-1.5 border-t border-white/[0.06]">
+                  <span className="text-foreground font-medium">{providerName} receives</span>
+                  <span className="text-teal font-data font-semibold">R{(finalAmount * 0.965).toFixed(2)}</span>
+                </div>
+              </div>
+            )}
+
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={handleSend}
@@ -149,7 +176,7 @@ export default function TipJar({ bookingId, providerName, providerProfileId, onC
               className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Heart className="w-4 h-4 fill-current" />}
-              {sending ? "Sending..." : `Send R${finalAmount > 0 ? finalAmount : 0} tip`}
+              {sending ? "Sending..." : `Send R${finalAmount > 0 ? finalAmount.toFixed(2) : "0.00"} tip`}
             </motion.button>
           </>
         )}

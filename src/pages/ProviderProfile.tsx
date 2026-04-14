@@ -457,25 +457,42 @@ export default function ProviderProfile() {
                   </div>
                 </div>
 
-                {/* Summary + confirm */}
-                <div className="glass-1 rounded-2xl p-4 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Service</span>
-                    <span className="text-foreground font-medium">{provider.servicesOffered[selectedService]}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Date & Time</span>
-                    <span className="text-foreground font-medium">{bookingDate} at {bookingTime}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Duration</span>
-                    <span className="text-foreground font-medium">{provider.duration}</span>
-                  </div>
-                  <div className="flex justify-between text-sm pt-2 border-t border-white/[0.06]">
-                    <span className="text-muted-foreground">Price</span>
-                    <span className="text-foreground font-bold">{provider.price}</span>
-                  </div>
-                </div>
+                {/* Summary + fee breakdown */}
+                {(() => {
+                  const priceNum = parseInt((provider.price ?? "0").replace(/[^0-9]/g, ""), 10) || 0;
+                  const clientFee = Math.round(priceNum * 0.05);
+                  const total = priceNum + clientFee;
+                  return (
+                    <div className="glass-1 rounded-2xl p-4 space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Service</span>
+                        <span className="text-foreground font-medium">{provider.servicesOffered[selectedService]}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Date & Time</span>
+                        <span className="text-foreground font-medium">{bookingDate} at {bookingTime}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Duration</span>
+                        <span className="text-foreground font-medium">{provider.duration}</span>
+                      </div>
+                      <div className="pt-2 border-t border-white/[0.06] space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Session price</span>
+                          <span className="text-muted-foreground font-data">R{priceNum}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">BION service fee (5%)</span>
+                          <span className="text-muted-foreground font-data">R{clientFee}</span>
+                        </div>
+                        <div className="flex justify-between text-sm pt-1 border-t border-white/[0.04]">
+                          <span className="text-foreground font-semibold">You pay</span>
+                          <span className="text-foreground font-bold font-data">R{total}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 <motion.button
                   whileTap={{ scale: 0.97 }}
