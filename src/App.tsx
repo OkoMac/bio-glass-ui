@@ -155,6 +155,8 @@ const AdminAnalytics    = lazy(() => import("./pages/admin/Analytics"));
 const AdminSettings     = lazy(() => import("./pages/admin/Settings"));
 const AdminUsers        = lazy(() => import("./pages/admin/Users"));
 const AdminVerification = lazy(() => import("./pages/admin/Verification"));
+const AdminDisputes     = lazy(() => import("./pages/admin/Disputes"));
+const AdminBQueue       = lazy(() => import("./pages/admin/BQueue"));
 
 // Corporate portal
 const CorporateDashboard = lazy(() => import("./pages/corporate/Dashboard"));
@@ -335,6 +337,8 @@ function AppRoutes() {
       <Route path="/admin/settings"  element={<RequireAuth allowedRoles={["admin"]}><AdminSettings /></RequireAuth>} />
       <Route path="/admin/users"        element={<RequireAuth allowedRoles={["admin"]}><AdminUsers /></RequireAuth>} />
       <Route path="/admin/verification" element={<RequireAuth allowedRoles={["admin"]}><AdminVerification /></RequireAuth>} />
+      <Route path="/admin/disputes"     element={<RequireAuth allowedRoles={["admin"]}><AdminDisputes /></RequireAuth>} />
+      <Route path="/admin/b-queue"      element={<RequireAuth allowedRoles={["admin"]}><AdminBQueue /></RequireAuth>} />
 
       {/* Corporate portal */}
       <Route path="/corporate/dashboard" element={<RequireAuth allowedRoles={["corporate"]}><CorporateDashboard /></RequireAuth>} />

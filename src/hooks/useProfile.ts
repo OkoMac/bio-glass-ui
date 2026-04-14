@@ -17,6 +17,11 @@ export interface Profile {
   qualifications: string[];
   isActive: boolean;
   isFeatured: boolean;
+  city: string | null;
+  suburb: string | null;
+  lat: number | null;
+  lng: number | null;
+  serviceRadiusKm: number | null;
 }
 
 type SupaProfile = {
@@ -25,6 +30,9 @@ type SupaProfile = {
   location: string | null; specialty: string | null; vertical: string | null;
   experience_years: number | null; qualifications: string[] | null;
   is_active: boolean | null; is_featured: boolean | null;
+  city: string | null; suburb: string | null;
+  lat: number | null; lng: number | null;
+  service_radius_km: number | null;
 };
 
 function mapProfile(r: SupaProfile): Profile {
@@ -37,6 +45,9 @@ function mapProfile(r: SupaProfile): Profile {
     qualifications: r.qualifications ?? [],
     isActive: r.is_active ?? true,
     isFeatured: r.is_featured ?? false,
+    city: r.city, suburb: r.suburb,
+    lat: r.lat, lng: r.lng,
+    serviceRadiusKm: r.service_radius_km,
   };
 }
 
@@ -58,6 +69,9 @@ export function useProfile() {
   const updateProfile = useCallback(async (updates: Partial<{
     full_name: string; phone: string; bio: string; avatar_url: string;
     location: string; specialty: string;
+    city: string; suburb: string;
+    lat: number | null; lng: number | null;
+    service_radius_km: number;
   }>) => {
     if (!user?.id) return;
     const { data, error } = await supabase

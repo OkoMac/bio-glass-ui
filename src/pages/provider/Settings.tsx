@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
+import ServiceAreaCard from "@/components/provider/ServiceAreaCard";
 import { ImagePickerOverlay } from "@/components/ImagePickerOverlay";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -190,6 +191,9 @@ export default function ProviderSettings() {
                   />
                 </div>
               </GlassCard>
+
+              {/* Service area — drives acquisition voucher visibility */}
+              <ServiceAreaCard />
 
               {/* Business rules */}
               <GlassCard className="p-4 space-y-4">
