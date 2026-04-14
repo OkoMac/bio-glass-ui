@@ -313,10 +313,14 @@ function AppRoutes() {
       <Route path="/health-profile" element={<RequireAuth allowedRoles={["client"]}><HealthProfile /></RequireAuth>} />
       <Route path="/wallet"         element={<RequireAuth allowedRoles={["client"]}><Wallet /></RequireAuth>} />
       <Route path="/water-tracker"  element={<RequireAuth allowedRoles={["client"]}><WaterTracker /></RequireAuth>} />
+      <Route path="/water"          element={<Navigate to="/water-tracker" replace />} />
       <Route path="/sleep-tracker"  element={<RequireAuth allowedRoles={["client"]}><SleepTracker /></RequireAuth>} />
+      <Route path="/sleep"          element={<Navigate to="/sleep-tracker" replace />} />
       <Route path="/medical-card"   element={<RequireAuth allowedRoles={["client"]}><MedicalCard /></RequireAuth>} />
-      <Route path="/life-coach"       element={<RequireAuth allowedRoles={["client"]}><LifeCoach /></RequireAuth>} />
-      <Route path="/food-tracker"    element={<RequireAuth allowedRoles={["client"]}><FoodTracker /></RequireAuth>} />
+      <Route path="/life-coach"     element={<RequireAuth allowedRoles={["client"]}><LifeCoach /></RequireAuth>} />
+      <Route path="/coach"          element={<Navigate to="/life-coach" replace />} />
+      <Route path="/food-tracker"   element={<RequireAuth allowedRoles={["client"]}><FoodTracker /></RequireAuth>} />
+      <Route path="/food"           element={<Navigate to="/food-tracker" replace />} />
       <Route path="/calendar"        element={<RequireAuth allowedRoles={["client"]}><BionCalendar /></RequireAuth>} />
       <Route path="/health-insights" element={<RequireAuth allowedRoles={["client"]}><HealthInsights /></RequireAuth>} />
       <Route path="/billing"          element={<RequireAuth allowedRoles={["client"]}><ClientBilling /></RequireAuth>} />

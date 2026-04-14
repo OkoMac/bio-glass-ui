@@ -156,7 +156,7 @@ export default function Challenges() {
         <GlassCard className="p-4">
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">{REAL_CHALLENGES.length}</div>
+              <div className="text-2xl font-bold text-foreground">{allChallenges.length}</div>
               <div className="text-xs text-muted-foreground">Total Challenges</div>
             </div>
             <div className="text-center">
