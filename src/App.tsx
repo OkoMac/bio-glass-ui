@@ -92,6 +92,7 @@ const HealthProfile   = lazy(() => import("./pages/HealthProfile"));
 const Wallet          = lazy(() => import("./pages/Wallet"));
 const Notifications   = lazy(() => import("./pages/Notifications"));
 const Favorites       = lazy(() => import("./pages/Favorites"));
+const Store           = lazy(() => import("./pages/Store"));
 
 // Legal pages
 const AcceptableUse     = lazy(() => import("./pages/legal/AcceptableUse"));
@@ -292,6 +293,7 @@ function AppRoutes() {
       <Route path="/billing"          element={<RequireAuth allowedRoles={["client"]}><ClientBilling /></RequireAuth>} />
       <Route path="/notifications"   element={<RequireAuth><Notifications /></RequireAuth>} />
       <Route path="/favorites"       element={<RequireAuth allowedRoles={["client"]}><Favorites /></RequireAuth>} />
+      <Route path="/store"           element={<RequireAuth allowedRoles={["client"]}><Store /></RequireAuth>} />
 
       {/* Provider portal */}
       <Route path="/pro/dashboard"    element={<RequireAuth allowedRoles={["provider"]}><ProviderDashboard /></RequireAuth>} />
