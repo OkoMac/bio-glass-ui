@@ -22,8 +22,25 @@ export default function ProviderDashboard() {
   const upcoming = getByStatus("confirmed");
   const completed = getByStatus("completed");
 
+  const parsePrice = (p: string) => parseInt(p.replace(/[^0-9]/g, ""), 10) || 0;
+
   const todayRevenue = upcoming.filter(b => b.price !== "FREE")
-    .reduce((sum, b) => sum + parseInt(b.price.replace("R", "").replace(",",""), 10), 0);
+    .reduce((sum, b) => sum + parsePrice(b.price), 0);
+
+  // Monthly earnings from completed bookings (current calendar month)
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+  const monthCompleted = completed.filter(b => {
+    if (!b.date) return false;
+    return new Date(b.date) >= monthStart;
+  });
+  const monthRevenue = monthCompleted.reduce((sum, b) => sum + parsePrice(b.price), 0);
+  const platformFee = Math.round(monthRevenue * 0.05);
+  const netEarnings = monthRevenue - platformFee;
+  const daysIntoMonth = Math.max(1, new Date().getDate());
+  const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+  const projectedMonthly = Math.round(netEarnings * (daysInMonth / daysIntoMonth));
 
   // Active clients = unique client names from all non-declined bookings
   const allBookings = [...pending, ...upcoming, ...completed];
@@ -88,6 +105,43 @@ export default function ProviderDashboard() {
             </motion.div>
           ))}
         </div>
+
+        {/* Monthly Earnings Summary */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+          <GlassCard className="p-5">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <p className="text-xs text-muted-foreground uppercase tracking-widest">This Month Earnings</p>
+                <h2 className="text-2xl font-bold text-foreground mt-1">R{netEarnings.toLocaleString()}</h2>
+                <p className="text-[11px] text-muted-foreground mt-1">{monthCompleted.length} completed session{monthCompleted.length !== 1 ? "s" : ""}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] text-muted-foreground">Projected</p>
+                <p className="text-sm font-bold text-teal font-data">R{projectedMonthly.toLocaleString()}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 pt-3 border-t border-white/[0.06]">
+              <div>
+                <p className="text-[10px] text-muted-foreground">Gross</p>
+                <p className="text-sm font-semibold text-foreground font-data">R{monthRevenue.toLocaleString()}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground">Platform fee (5%)</p>
+                <p className="text-sm font-semibold text-coral font-data">-R{platformFee.toLocaleString()}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground">Net payout</p>
+                <p className="text-sm font-semibold text-teal font-data">R{netEarnings.toLocaleString()}</p>
+              </div>
+            </div>
+
+            <button onClick={() => navigate("/pro/billing")}
+              className="w-full mt-4 flex items-center justify-center gap-1.5 py-2.5 glass-1 rounded-pill text-xs font-medium text-indigo hover:bg-white/[0.04] transition-colors">
+              View payouts & bank details <ChevronRight className="w-3 h-3" />
+            </button>
+          </GlassCard>
+        </motion.div>
 
         {/* Pending booking requests */}
         {pending.length > 0 && (

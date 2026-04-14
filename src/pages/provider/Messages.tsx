@@ -5,7 +5,8 @@ import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
-import { Search, Send, ChevronLeft, Mic, Paperclip, CheckCheck, MessageSquare, Lock, CreditCard } from "lucide-react";
+import { Search, Send, ChevronLeft, Mic, Paperclip, CheckCheck, MessageSquare, Lock, CreditCard, Zap, X } from "lucide-react";
+import { QUICK_REPLIES, fillTemplate } from "@/lib/quickReplies";
 
 interface Msg {
   id: string;
@@ -38,6 +39,7 @@ export default function ProviderMessages() {
   const [query, setQuery]           = useState("");
   const [activeId, setActiveId]     = useState<string | null>(null);
   const [input, setInput]           = useState("");
+  const [showQuickReplies, setShowQuickReplies] = useState(false);
   const messagesEndRef               = useRef<HTMLDivElement>(null);
   
   // Check if this is a demo account (simplified check - in real app would check user.role or user.isDemo)
@@ -279,6 +281,10 @@ export default function ProviderMessages() {
 
               {/* Input */}
               <div className="flex items-center gap-2">
+                <button onClick={() => setShowQuickReplies(true)} title="Quick replies"
+                  className="p-2.5 glass-1 rounded-full text-indigo">
+                  <Zap className="w-4 h-4" />
+                </button>
                 <button className="p-2.5 glass-1 rounded-full text-muted-foreground">
                   <Paperclip className="w-4 h-4" />
                 </button>
@@ -306,6 +312,59 @@ export default function ProviderMessages() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Quick Replies Sheet */}
+      <AnimatePresence>
+        {showQuickReplies && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowQuickReplies(false)}
+              className="fixed inset-0 bg-obsidian/70 z-[80]"
+            />
+            <motion.div
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              className="fixed bottom-0 left-0 right-0 z-[90] max-w-lg mx-auto rounded-t-3xl p-6 max-h-[75vh] overflow-y-auto"
+              style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", border: "1px solid rgba(255,255,255,0.08)" }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-indigo" />
+                  <h3 className="text-base font-bold text-foreground">Quick Replies</h3>
+                </div>
+                <button onClick={() => setShowQuickReplies(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+
+              {(["booking", "followup", "reminder", "general"] as const).map(cat => (
+                <div key={cat} className="mb-4">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">{cat}</p>
+                  <div className="space-y-2">
+                    {QUICK_REPLIES.filter(r => r.category === cat).map(r => (
+                      <button
+                        key={r.id}
+                        onClick={() => {
+                          setInput(fillTemplate(r.template));
+                          setShowQuickReplies(false);
+                        }}
+                        className="w-full glass-1 rounded-2xl p-3 flex items-start gap-3 text-left hover:bg-white/[0.04] transition-colors"
+                      >
+                        <span className="text-xl shrink-0">{r.emoji}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground">{r.label}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{r.template}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <ProviderNav />
     </div>
