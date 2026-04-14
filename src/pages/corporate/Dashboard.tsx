@@ -5,6 +5,7 @@ import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCorporateAnalytics } from "@/hooks/useCorporateAnalytics";
 import {
   Users, TrendingUp, Wallet, Star, ChevronRight,
   ArrowUpRight, ArrowDownRight, Zap, Calendar, BarChart2,
@@ -33,14 +34,8 @@ function BarChart({ data, color }: { data: { label: string; value: number }[]; c
   );
 }
 
-// Data loaded from backend -- empty until real data is connected
-const SPEND_DATA: { label: string; value: number }[] = [];
-
-const TOP_PROVIDERS: { name: string; specialty: string; image: string; sessions: number; spend: string; rating: number; vertical: string }[] = [];
-
-const RECENT_ACTIVITY: { emoji: string; text: string; time: string; color: string }[] = [];
-
-const WELLNESS_CATEGORIES: { label: string; pct: number; color: string }[] = [];
+// Real data lives in useCorporateAnalytics hook (DB queries).
+// These const placeholders kept for type compatibility with the existing JSX.
 
 interface CorporateStats {
   total_employees: number;
@@ -54,9 +49,23 @@ export default function CorporateDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [period, setPeriod] = useState<"month" | "quarter" | "year">("month");
+  const analytics = useCorporateAnalytics();
   const [stats, setStats] = useState<CorporateStats>({
     total_employees: 0, total_budget: 0, total_spent: 0, active_providers: 0, linked_rep: null,
   });
+
+  // Pull live KPIs from the analytics hook, falling back to legacy stats fetch
+  useEffect(() => {
+    if (!analytics.loading) {
+      setStats(prev => ({
+        ...prev,
+        total_employees:  analytics.total_employees,
+        total_budget:     analytics.total_budget,
+        active_providers: analytics.active_providers,
+        total_spent:      analytics.mtd_spend,
+      }));
+    }
+  }, [analytics.loading, analytics.total_employees, analytics.total_budget, analytics.active_providers, analytics.mtd_spend]);
   const [showRepModal, setShowRepModal] = useState(false);
   const [repCode, setRepCode] = useState("");
   const [repLinking, setRepLinking] = useState(false);
@@ -173,23 +182,23 @@ export default function CorporateDashboard() {
                 <p className="text-sm font-semibold text-foreground">Monthly Spend</p>
                 <p className="text-xs text-muted-foreground">Spend trend</p>
               </div>
-              <p className="text-lg font-bold font-data text-amber">R0</p>
+              <p className="text-lg font-bold font-data text-amber">R{analytics.spend_30d.toLocaleString()}</p>
             </div>
-            {SPEND_DATA.length === 0 ? (
+            {analytics.spendBuckets.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-6">No spend data yet</p>
             ) : (
-              <BarChart data={SPEND_DATA} color="#F59E0B" />
+              <BarChart data={analytics.spendBuckets} color="#F59E0B" />
             )}
           </GlassCard>
 
           {/* Category breakdown */}
           <GlassCard className="p-4">
             <p className="text-sm font-semibold text-foreground mb-4">Spend by Category</p>
-            {WELLNESS_CATEGORIES.length === 0 ? (
+            {analytics.byVertical.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-6">No category data yet</p>
             ) : (
               <div className="space-y-2.5">
-                {WELLNESS_CATEGORIES.map(c => (
+                {analytics.byVertical.map(c => (
                   <div key={c.label}>
                     <div className="flex justify-between mb-1">
                       <span className="text-xs text-muted-foreground">{c.label}</span>
@@ -219,23 +228,25 @@ export default function CorporateDashboard() {
               <button onClick={() => navigate("/corporate/analytics")}
                 className="text-[11px] text-indigo font-medium">View all →</button>
             </div>
-            {TOP_PROVIDERS.length === 0 ? (
+            {analytics.topProviders.length === 0 ? (
               <GlassCard className="p-4 text-center">
                 <p className="text-xs text-muted-foreground">No provider activity yet. Top providers will appear here.</p>
               </GlassCard>
             ) : (
               <div className="space-y-2">
-                {TOP_PROVIDERS.map((p, i) => (
-                  <motion.div key={p.name} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
+                {analytics.topProviders.map((p, i) => (
+                  <motion.div key={p.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
                     <GlassCard hover className="p-3">
                       <div className="flex items-center gap-3">
-                        <img src={p.image} alt={p.name} className="w-9 h-9 rounded-xl object-cover" />
+                        <div className="w-9 h-9 rounded-xl bg-indigo/10 flex items-center justify-center text-xs font-bold text-indigo shrink-0">
+                          {p.name?.charAt(0) ?? "?"}
+                        </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-foreground">{p.name}</p>
-                          <p className="text-[10px] text-muted-foreground">{p.specialty}</p>
+                          <p className="text-xs font-semibold text-foreground truncate">{p.name}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{p.specialty ?? p.vertical ?? ""}</p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-xs font-bold font-data text-foreground">{p.spend}</p>
+                          <p className="text-xs font-bold font-data text-foreground">R{p.spend.toLocaleString()}</p>
                           <p className="text-[9px] text-muted-foreground">{p.sessions} sessions</p>
                         </div>
                       </div>
@@ -253,14 +264,14 @@ export default function CorporateDashboard() {
               <button onClick={() => navigate("/corporate/employees")}
                 className="text-[11px] text-indigo font-medium">All employees →</button>
             </div>
-            {RECENT_ACTIVITY.length === 0 ? (
+            {analytics.recentActivity.length === 0 ? (
               <GlassCard className="p-4 text-center">
                 <p className="text-xs text-muted-foreground">No recent activity. Employee bookings will appear here.</p>
               </GlassCard>
             ) : (
               <div className="space-y-2">
-                {RECENT_ACTIVITY.map((a, i) => (
-                  <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}>
+                {analytics.recentActivity.map((a, i) => (
+                  <motion.div key={a.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}>
                     <GlassCard className="p-3">
                       <div className="flex items-center gap-3">
                         <span className="text-lg shrink-0">{a.emoji}</span>

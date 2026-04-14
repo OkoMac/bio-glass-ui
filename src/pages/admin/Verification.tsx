@@ -7,8 +7,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import {
   CheckCircle, XCircle, Clock, Loader2, FileText, User,
-  ExternalLink, Filter, AlertCircle, Award, CreditCard, Shield, Building2
+  ExternalLink, Filter, AlertCircle, Award, CreditCard, Shield, Building2,
+  Sparkles, Search,
 } from "lucide-react";
+
+const API_URL = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
 interface PendingDoc {
   id: string;
@@ -315,6 +318,9 @@ export default function AdminVerification() {
                             )}
                             {doc.status === "pending" && (
                               <>
+                                {doc.doc_type === "professional_reg" && (
+                                  <VerifyHelperButton doc={doc} />
+                                )}
                                 <button onClick={() => approveDoc(doc)} disabled={isLoading}
                                   className="text-[10px] px-2 py-1 rounded-lg bg-teal/10 border border-teal/30 text-teal hover:bg-teal/20 flex items-center gap-1 transition-colors disabled:opacity-50">
                                   {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle className="w-3 h-3" />}
@@ -385,6 +391,199 @@ export default function AdminVerification() {
 
       <BionAssistant />
       <AdminNav />
+    </div>
+  );
+}
+
+/* ── Helper: AI-assisted verification (GPT-4o OCR + HPCSA registry lookup) ── */
+interface VerifyResult {
+  ocr?: {
+    ok: boolean;
+    documentType?: string;
+    registrationNumber?: string;
+    issuingBody?: string;
+    practitionerName?: string;
+    profession?: string;
+    confidence?: "high" | "medium" | "low";
+    reason?: string;
+  };
+  hpcsa?: {
+    ok: boolean;
+    verified: boolean;
+    registeredName?: string | null;
+    profession?: string | null;
+    status?: string;
+    nameMatchScore?: number | null;
+    sourceUrl?: string;
+    reason?: string;
+  };
+}
+
+function VerifyHelperButton({ doc }: { doc: PendingDoc }) {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<VerifyResult | null>(null);
+
+  const runChecks = async () => {
+    setBusy(true);
+    setResult(null);
+    try {
+      // 1. OCR the document image
+      const ocrRes = await fetch(`${API_URL}/api/verify/ocr-document`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: doc.file_url }),
+      });
+      const ocr = await ocrRes.json();
+
+      let hpcsa = null;
+      // 2. If OCR found a reg number, query the HPCSA registry
+      if (ocr?.ok && ocr.registrationNumber) {
+        const hRes = await fetch(`${API_URL}/api/verify/hpcsa`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            registrationNumber: ocr.registrationNumber,
+            providerName: doc.provider_name,
+          }),
+        });
+        hpcsa = await hRes.json();
+      }
+      setResult({ ocr, hpcsa });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <>
+      <button
+        onClick={() => { setOpen(true); if (!result) runChecks(); }}
+        className="text-[10px] px-2 py-1 rounded-lg bg-indigo/10 border border-indigo/30 text-indigo hover:bg-indigo/20 flex items-center gap-1 transition-colors"
+      >
+        <Sparkles className="w-3 h-3" /> Verify
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setOpen(false)} className="fixed inset-0 bg-obsidian/70 z-[80]" />
+            <motion.div initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.92, opacity: 0 }}
+              className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-[90] max-w-md mx-auto rounded-3xl p-6"
+              style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-indigo/10 flex items-center justify-center">
+                  <Search className="w-5 h-5 text-indigo" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base font-bold text-foreground">AI verification</h3>
+                  <p className="text-[10px] text-muted-foreground truncate">
+                    {doc.provider_name} · {doc.file_name}
+                  </p>
+                </div>
+                <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">
+                  <XCircle className="w-4 h-4" />
+                </button>
+              </div>
+
+              {busy && (
+                <div className="flex items-center gap-2 py-6 justify-center text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-xs">Reading document and querying HPCSA…</span>
+                </div>
+              )}
+
+              {result && (
+                <div className="space-y-3">
+                  {/* OCR card */}
+                  <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Document OCR</p>
+                      {result.ocr?.confidence && (
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${
+                          result.ocr.confidence === "high"   ? "bg-teal/10 text-teal"   :
+                          result.ocr.confidence === "medium" ? "bg-amber/10 text-amber" :
+                                                              "bg-coral/10 text-coral"
+                        }`}>
+                          {result.ocr.confidence} confidence
+                        </span>
+                      )}
+                    </div>
+                    {result.ocr?.ok ? (
+                      <dl className="space-y-1 text-xs">
+                        <Row label="Type"  value={result.ocr.documentType} />
+                        <Row label="Reg #" value={result.ocr.registrationNumber} mono />
+                        <Row label="Issued by" value={result.ocr.issuingBody} />
+                        <Row label="Name"  value={result.ocr.practitionerName} />
+                        <Row label="Profession" value={result.ocr.profession} />
+                      </dl>
+                    ) : (
+                      <p className="text-xs text-coral">{result.ocr?.reason ?? "OCR failed"}</p>
+                    )}
+                  </div>
+
+                  {/* HPCSA card */}
+                  {result.hpcsa && (
+                    <div className={`rounded-xl border p-3 ${
+                      result.hpcsa.verified ? "bg-teal/5 border-teal/20" : "bg-amber/5 border-amber/20"
+                    }`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs font-semibold text-foreground uppercase tracking-wider">HPCSA registry</p>
+                        {result.hpcsa.verified
+                          ? <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-teal/10 text-teal">Found</span>
+                          : <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber/10 text-amber">Not found</span>}
+                      </div>
+                      {result.hpcsa.verified ? (
+                        <dl className="space-y-1 text-xs">
+                          <Row label="Registered name" value={result.hpcsa.registeredName ?? "—"} />
+                          <Row label="Profession" value={result.hpcsa.profession ?? "—"} />
+                          <Row label="Status" value={result.hpcsa.status ?? "—"} />
+                          {typeof result.hpcsa.nameMatchScore === "number" && (
+                            <Row label="Name match"
+                              value={`${result.hpcsa.nameMatchScore}%`}
+                              tone={result.hpcsa.nameMatchScore >= 60 ? "good" : "warn"} />
+                          )}
+                          {result.hpcsa.sourceUrl && (
+                            <a href={result.hpcsa.sourceUrl} target="_blank" rel="noopener noreferrer"
+                              className="text-[10px] text-indigo underline inline-flex items-center gap-1 mt-1">
+                              <ExternalLink className="w-2.5 h-2.5" /> Open HPCSA page
+                            </a>
+                          )}
+                        </dl>
+                      ) : (
+                        <p className="text-xs text-amber">{result.hpcsa.reason ?? "Couldn't verify with HPCSA"}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {!result.hpcsa && result.ocr?.ok && (
+                    <p className="text-[10px] text-muted-foreground text-center">
+                      No registration number extracted from document — skipped HPCSA lookup.
+                    </p>
+                  )}
+
+                  <p className="text-[10px] text-muted-foreground text-center">
+                    AI-assisted only — final approval is your call.
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+function Row({ label, value, mono, tone }: { label: string; value?: string | null; mono?: boolean; tone?: "good" | "warn" }) {
+  if (!value) return null;
+  return (
+    <div className="flex items-start justify-between gap-2">
+      <dt className="text-muted-foreground shrink-0">{label}</dt>
+      <dd className={`text-right truncate ${mono ? "font-mono" : ""} ${
+        tone === "good" ? "text-teal" : tone === "warn" ? "text-amber" : "text-foreground"
+      }`}>{value}</dd>
     </div>
   );
 }
