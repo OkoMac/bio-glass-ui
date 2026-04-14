@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
   LayoutDashboard, CalendarDays, BookOpen, Users,
   MessageSquare, BarChart3, Clock, Settings, Shield,
-  Bell, LogOut, Tag, ChevronRight, Banknote, ClipboardList, Store,
+  LogOut, Tag, ChevronRight, Banknote, ClipboardList, Store,
 } from "lucide-react";
 
 const navItems = [
@@ -43,15 +43,9 @@ export default function ProviderNav() {
       <aside className="hidden md:flex fixed top-0 left-0 h-screen w-56 flex-col py-8 px-3 border-r border-white/5 z-50"
         style={{ background: "rgba(10,10,15,0.95)", backdropFilter: "blur(40px)" }}>
         {/* Logo */}
-        <div className="px-3 mb-8 flex items-center justify-between">
-          <div>
-            <img src="/bion-logo-white-sm.png" alt="BION" className="h-16 w-auto" />
-            <span className="ml-1.5 text-[10px] text-muted-foreground uppercase tracking-widest">Provider</span>
-          </div>
-          <button onClick={() => navigate("/notifications")} className="relative w-8 h-8 glass-1 rounded-full flex items-center justify-center">
-            <Bell className="w-3.5 h-3.5 text-muted-foreground" />
-            <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-coral rounded-full" />
-          </button>
+        <div className="px-3 mb-8">
+          <img src="/bion-logo-white-sm.png" alt="BION" className="h-16 w-auto" />
+          <span className="ml-1.5 text-[10px] text-muted-foreground uppercase tracking-widest">Provider</span>
         </div>
 
         {/* Nav items */}
