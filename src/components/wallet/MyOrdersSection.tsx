@@ -142,7 +142,7 @@ function OrderDetailSheet({ order, onClose }: { order: OrderRow; onClose: () => 
         <div className="space-y-1 text-xs">
           <Row label="Subtotal" value={order.subtotal_rand} />
           <Row label="Delivery" value={order.delivery_cost_rand} />
-          <Row label="Service fee (5%)" value={order.client_fee_rand} muted />
+          <Row label="Service fee" value={order.client_fee_rand} muted />
           <div className="border-t border-white/5 pt-1 mt-1">
             <Row label="Paid" value={order.total_charged_rand} bold />
           </div>

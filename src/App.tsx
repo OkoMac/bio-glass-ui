@@ -163,6 +163,12 @@ const ProviderCatalogs  = lazy(() => import("./pages/provider/Catalogs"));
 const CatalogEditor     = lazy(() => import("./pages/provider/CatalogEditor"));
 const CatalogViewer     = lazy(() => import("./pages/CatalogViewer"));
 
+// Ecademy (Ranger training)
+const Ecademy           = lazy(() => import("./pages/Ecademy"));
+const EcademyCourse     = lazy(() => import("./pages/EcademyCourse"));
+const EcademyLesson     = lazy(() => import("./pages/EcademyLesson"));
+const EcademyAssessment = lazy(() => import("./pages/EcademyAssessment"));
+
 // Corporate portal
 const CorporateDashboard = lazy(() => import("./pages/corporate/Dashboard"));
 const CorporateEmployees = lazy(() => import("./pages/corporate/Employees"));
@@ -336,6 +342,12 @@ function AppRoutes() {
       <Route path="/pro/catalogs"      element={<RequireAuth allowedRoles={["provider"]}><ProviderCatalogs /></RequireAuth>} />
       <Route path="/pro/catalogs/:id"  element={<RequireAuth allowedRoles={["provider"]}><CatalogEditor /></RequireAuth>} />
       <Route path="/catalog/:shortUrl" element={<CatalogViewer />} />
+
+      {/* Ecademy — open to all authenticated users */}
+      <Route path="/ecademy"                           element={<RequireAuth><Ecademy /></RequireAuth>} />
+      <Route path="/ecademy/:code"                     element={<RequireAuth><EcademyCourse /></RequireAuth>} />
+      <Route path="/ecademy/:code/lesson/:n"           element={<RequireAuth><EcademyLesson /></RequireAuth>} />
+      <Route path="/ecademy/:code/assessment"          element={<RequireAuth><EcademyAssessment /></RequireAuth>} />
 
       {/* Admin portal */}
       <Route path="/admin/dashboard" element={<RequireAuth allowedRoles={["admin"]}><AdminDashboard /></RequireAuth>} />

@@ -128,7 +128,7 @@ export default function ProviderDashboard() {
                 <p className="text-sm font-semibold text-foreground font-data">R{monthRevenue.toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-[10px] text-muted-foreground">Platform fee (5%)</p>
+                <p className="text-[10px] text-muted-foreground">Platform fee</p>
                 <p className="text-sm font-semibold text-coral font-data">-R{platformFee.toLocaleString()}</p>
               </div>
               <div>

@@ -1,11 +1,12 @@
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Users, User } from "lucide-react";
+import { LayoutDashboard, Users, User, GraduationCap } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const tabs = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/rep/dashboard" },
   { icon: Users,           label: "Providers",  path: "/rep/providers" },
+  { icon: GraduationCap,   label: "Ecademy",   path: "/ecademy" },
   { icon: User,            label: "Profile",    path: "/profile" },
 ];
 

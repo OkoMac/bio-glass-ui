@@ -97,21 +97,6 @@ export default function ProviderStorefront() {
               Available to <strong className="text-foreground">Pro</strong> and <strong className="text-foreground">Elite</strong> providers only.
             </p>
 
-            <div className="grid grid-cols-3 gap-3 mb-6 max-w-md mx-auto">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-teal font-data">5%</p>
-                <p className="text-[10px] text-muted-foreground">Platform fee</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-indigo font-data">10%</p>
-                <p className="text-[10px] text-muted-foreground">Delivery markup</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-amber font-data">95%</p>
-                <p className="text-[10px] text-muted-foreground">You keep</p>
-              </div>
-            </div>
-
             <button
               onClick={() => setSetupOpen(true)}
               className="rounded-pill px-6 py-3 gradient-indigo text-white text-sm font-semibold inline-flex items-center gap-2"
@@ -141,7 +126,7 @@ export default function ProviderStorefront() {
               </li>
               <li className="flex gap-3">
                 <span className="w-6 h-6 rounded-full bg-indigo/20 text-indigo flex items-center justify-center text-xs font-bold shrink-0">5</span>
-                <span>You ship the order; payout via Paystack split (5% to BION)</span>
+                <span>You ship the order; payout lands in your wallet automatically</span>
               </li>
             </ol>
           </GlassCard>

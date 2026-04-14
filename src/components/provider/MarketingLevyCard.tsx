@@ -81,9 +81,9 @@ export default function MarketingLevyCard() {
       <div className="flex items-start gap-2 p-3 rounded-xl bg-white/[0.02] border border-white/5">
         <Info className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />
         <p className="text-[11px] text-muted-foreground leading-relaxed">
-          5% of every completed booking is ring-fenced to win you new clients. Vouchers appear in
-          Discovery for people nearby who've never booked you — redeemable only at your place.
-          When a voucher is used, 95% of its face value pays out to your wallet (5% BION fee).
+          A portion of every completed booking is ring-fenced to win you new clients. Vouchers
+          appear in Discovery for people nearby who've never booked you — redeemable only at
+          your place. When a voucher is redeemed, the value pays out to your wallet.
         </p>
       </div>
 

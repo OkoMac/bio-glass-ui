@@ -276,7 +276,7 @@ function OrderDetailModal({ order, onClose, tracking, setTracking, updating, onU
             <span className="text-foreground font-data">R{Number(order.subtotal_rand).toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-xs">
-            <span className="text-muted-foreground">Platform fee (5%)</span>
+            <span className="text-muted-foreground">Platform fee</span>
             <span className="text-coral font-data">-R{Number(order.provider_fee_rand).toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-sm pt-2 border-t border-white/[0.06]">
