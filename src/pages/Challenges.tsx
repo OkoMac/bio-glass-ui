@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
+import { useChallenges } from "@/hooks/useChallenges";
+import { toast } from "sonner";
 import {
   Flame, Trophy, Users, Target, Clock, CheckCircle,
-  Lock, ChevronRight, Medal, Star, Zap, Plus
+  Lock, ChevronRight, Medal, Star, Zap, Plus, Loader2
 } from "lucide-react";
 
 /* ── types ───────────────────────────────────────────────────── */
@@ -32,36 +34,67 @@ interface Challenge {
   location?: string;
 }
 
-// Challenges loaded from backend
-const REAL_CHALLENGES: Challenge[] = [];
-
-const UNIQUE_PROVIDERS: string[] = [];
-
 /* ── main component ───────────────────────────────────────────── */
 export default function Challenges() {
   const [filter, setFilter] = useState<ChallengeCategory | "all">("all");
   const [selected, setSelected]   = useState<Challenge | null>(null);
   const [view, setView]           = useState<"grid" | "list">("grid");
 
-  const filtered = filter === "all"
-    ? REAL_CHALLENGES
-    : REAL_CHALLENGES.filter(c => c.category === filter);
+  const { challenges: rows, participation, loading, join, updateTaskProgress } = useChallenges();
 
-  const activeCount = REAL_CHALLENGES.filter(c => c.status === "active").length;
-  const availableCount = REAL_CHALLENGES.filter(c => c.status === "available").length;
+  // Map DB rows → page Challenge type, infused with user participation state
+  const allChallenges: Challenge[] = useMemo(() => rows.map((r) => {
+    const part = participation[r.id];
+    const taskList = r.tasks.map((t, i) => ({ label: t.label, done: !!part?.task_progress?.[i] }));
+    const doneCount = taskList.filter(t => t.done).length;
+    const progress = r.tasks.length > 0 ? Math.round((doneCount / r.tasks.length) * 100) : 0;
+    const ends = r.ends_at ? new Date(r.ends_at).getTime() : null;
+    const daysLeft = ends ? Math.max(0, Math.ceil((ends - Date.now()) / (1000 * 60 * 60 * 24))) : undefined;
 
-  // Calculate total participants across all challenges
-  const totalParticipants = REAL_CHALLENGES.reduce((sum, c) => sum + c.participants, 0);
+    let status: ChallengeStatus;
+    if (part?.completed_at) status = "completed";
+    else if (part) status = "active";
+    else status = "available";
 
-  // Get provider stats
-  const providerStats = UNIQUE_PROVIDERS.map(provider => {
-    const providerChallenges = REAL_CHALLENGES.filter(c => c.createdBy === provider);
     return {
-      name: provider,
-      challengeCount: providerChallenges.length,
-      totalParticipants: providerChallenges.reduce((sum, c) => sum + c.participants, 0)
-    };
-  });
+      id: r.id, title: r.title, description: r.description, category: r.category,
+      status, participants: r.participant_count, daysLeft, daysTotal: r.days_total,
+      progress, reward: r.reward_text, rewardPoints: r.reward_points,
+      createdBy: r.created_by_label, badge: r.badge, difficulty: r.difficulty,
+      tasks: taskList, location: r.location ?? undefined,
+    } as Challenge;
+  }), [rows, participation]);
+
+  const filtered = filter === "all" ? allChallenges : allChallenges.filter(c => c.category === filter);
+  const activeCount = allChallenges.filter(c => c.status === "active").length;
+  const availableCount = allChallenges.filter(c => c.status === "available").length;
+  const totalParticipants = allChallenges.reduce((sum, c) => sum + c.participants, 0);
+
+  const providerStats = useMemo(() => {
+    const byProvider = new Map<string, { name: string; challengeCount: number; totalParticipants: number }>();
+    for (const c of allChallenges) {
+      const cur = byProvider.get(c.createdBy) ?? { name: c.createdBy, challengeCount: 0, totalParticipants: 0 };
+      cur.challengeCount += 1;
+      cur.totalParticipants += c.participants;
+      byProvider.set(c.createdBy, cur);
+    }
+    return Array.from(byProvider.values());
+  }, [allChallenges]);
+
+  const handleJoin = async (id: string) => {
+    try { await join(id); toast.success("You're in — let's go"); }
+    catch (err) { toast.error(err instanceof Error ? err.message : "Failed to join"); }
+  };
+
+  const handleToggleTask = async (challengeId: string, idx: number, done: boolean) => {
+    try {
+      const completed = await updateTaskProgress(challengeId, idx, done);
+      if (completed) {
+        const c = allChallenges.find(x => x.id === challengeId);
+        toast.success(`Challenge complete — ${c?.rewardPoints ?? 0} points awarded!`);
+      }
+    } catch (err) { toast.error(err instanceof Error ? err.message : "Failed"); }
+  };
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
@@ -201,9 +234,17 @@ export default function Challenges() {
             <ChallengeDetailModal
               challenge={selected}
               onClose={() => setSelected(null)}
+              onJoin={() => handleJoin(selected.id)}
+              onToggleTask={(idx, done) => handleToggleTask(selected.id, idx, done)}
             />
           )}
         </AnimatePresence>
+
+        {loading && allChallenges.length === 0 && (
+          <div className="flex justify-center py-12">
+            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
+        )}
 
         {/* Bottom nav */}
         <BottomNav />
@@ -342,7 +383,12 @@ function ChallengeListItem({ challenge, onClick }: { challenge: Challenge; onCli
   );
 }
 
-function ChallengeDetailModal({ challenge, onClose }: { challenge: Challenge; onClose: () => void }) {
+function ChallengeDetailModal({ challenge, onClose, onJoin, onToggleTask }: {
+  challenge: Challenge;
+  onClose: () => void;
+  onJoin: () => void;
+  onToggleTask: (idx: number, done: boolean) => void;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -455,22 +501,39 @@ function ChallengeDetailModal({ challenge, onClose }: { challenge: Challenge; on
             <div className="text-sm text-muted-foreground mt-1">+ {challenge.rewardPoints} BIO Points</div>
           </div>
 
+          {/* Tasks (when active) — tap to toggle */}
+          {challenge.status === "active" && challenge.tasks.length > 0 && (
+            <div className="space-y-1.5 mb-4">
+              {challenge.tasks.map((t, i) => (
+                <button
+                  key={i}
+                  onClick={() => onToggleTask(i, !t.done)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-colors ${
+                    t.done ? "bg-teal/10 text-foreground" : "bg-white/5 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                    t.done ? "border-teal bg-teal" : "border-white/20"
+                  }`}>
+                    {t.done && <CheckCircle className="w-3 h-3 text-white" />}
+                  </div>
+                  <span className={`text-sm ${t.done ? "line-through opacity-70" : ""}`}>{t.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* Action buttons */}
           <div className="flex gap-3">
             {challenge.status === "available" && (
-              <button className="flex-1 py-3 gradient-indigo rounded-xl text-sm font-medium">
+              <button onClick={onJoin} className="flex-1 py-3 gradient-indigo rounded-xl text-sm font-medium">
                 Join Challenge
               </button>
             )}
-            {challenge.status === "active" && (
-              <>
-                <button className="flex-1 py-3 glass-1 rounded-xl text-sm font-medium">
-                  Update Progress
-                </button>
-                <button className="flex-1 py-3 gradient-indigo rounded-xl text-sm font-medium">
-                  Check In
-                </button>
-              </>
+            {challenge.status === "completed" && (
+              <button disabled className="flex-1 py-3 bg-teal/20 text-teal rounded-xl text-sm font-semibold cursor-default">
+                ✓ Completed
+              </button>
             )}
             {challenge.status === "locked" && (
               <button className="flex-1 py-3 glass-1 rounded-xl text-sm font-medium opacity-50 cursor-not-allowed">

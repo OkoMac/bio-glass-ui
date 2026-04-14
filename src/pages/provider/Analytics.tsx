@@ -1,13 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
 import SubscriptionGate from "@/components/SubscriptionGate";
-import { useBookings } from "@/contexts/BookingsContext";
-import { TrendingUp, TrendingDown, Users, AlertTriangle } from "lucide-react";
-
-type Period = "Week" | "Month" | "Quarter";
+import { useProviderAnalytics, type Period } from "@/hooks/useProviderAnalytics";
+import { TrendingUp, TrendingDown, Users, AlertTriangle, Loader2 } from "lucide-react";
 
 const labels = {
   Week:    ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
@@ -46,59 +44,11 @@ function SVGChart({ data, color = "#6366F1" }: { data: number[]; color?: string 
 
 export default function ProviderAnalytics() {
   const [period, setPeriod] = useState<Period>("Month");
-  const { bookings } = useBookings();
+  const a = useProviderAnalytics(period);
 
-  // Compute real analytics from bookings context
-  const analytics = useMemo(() => {
-    const now = new Date();
-    const parsePrice = (p: string) => parseInt(p.replace(/[^0-9]/g, "")) || 0;
-
-    const filterByDays = (days: number) =>
-      bookings.filter(b => {
-        if (!b.date) return false;
-        const d = new Date(b.date);
-        return (now.getTime() - d.getTime()) < days * 86400000;
-      });
-
-    const week = filterByDays(7);
-    const month = filterByDays(30);
-    const quarter = filterByDays(90);
-
-    const weeklyRevenue = Array(7).fill(0);
-    week.filter(b => b.status === "completed").forEach(b => {
-      const day = new Date(b.date).getDay();
-      const idx = day === 0 ? 6 : day - 1;
-      weeklyRevenue[idx] += parsePrice(b.price);
-    });
-
-    const monthlyRevenue = Array(7).fill(0);
-    month.filter(b => b.status === "completed").forEach(b => {
-      const dayOfMonth = new Date(b.date).getDate();
-      const weekIdx = Math.min(Math.floor((dayOfMonth - 1) / 7), 6);
-      monthlyRevenue[weekIdx] += parsePrice(b.price);
-    });
-
-    const quarterlyRevenue = Array(3).fill(0);
-    quarter.filter(b => b.status === "completed").forEach(b => {
-      const monthsAgo = Math.floor((now.getTime() - new Date(b.date).getTime()) / (30 * 86400000));
-      const idx = Math.min(2 - monthsAgo, 2);
-      if (idx >= 0) quarterlyRevenue[idx] += parsePrice(b.price);
-    });
-
-    return {
-      revenueData: { Week: weeklyRevenue, Month: monthlyRevenue, Quarter: quarterlyRevenue },
-      bookingCounts: { Week: week.length, Month: month.length, Quarter: quarter.length },
-      uniqueClients: {
-        Week: new Set(week.map(b => b.clientName)).size,
-        Month: new Set(month.map(b => b.clientName)).size,
-        Quarter: new Set(quarter.map(b => b.clientName)).size,
-      },
-    };
-  }, [bookings]);
-
-  const data = analytics.revenueData[period];
-  const totalRevenue = data.reduce((s, v) => s + v, 0);
-  const totalBookings = analytics.bookingCounts[period];
+  const data = a.series;
+  const totalRevenue = a.revenue;
+  const totalBookings = a.bookings;
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
@@ -127,18 +77,20 @@ export default function ProviderAnalytics() {
         {/* KPI row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { label: "Revenue",   value: `R${totalRevenue.toLocaleString()}`, trend: totalRevenue > 0 ? +12 : 0, color: "#6366F1" },
-            { label: "Bookings",  value: String(totalBookings),               trend: totalBookings > 0 ? +8 : 0,  color: "#2DD4BF" },
-            { label: "Clients",   value: String(analytics.uniqueClients[period]), trend: analytics.uniqueClients[period] > 0 ? +5 : 0, color: "#FBBF24" },
-            { label: "Avg Price", value: totalBookings > 0 ? `R${Math.round(totalRevenue / totalBookings)}` : "R0", trend: 0, color: "#A78BFA" },
+            { label: "Revenue",   value: `R${totalRevenue.toLocaleString()}`, trend: a.revenueTrend,  color: "#6366F1" },
+            { label: "Bookings",  value: String(totalBookings),               trend: a.bookingsTrend, color: "#2DD4BF" },
+            { label: "Clients",   value: String(a.uniqueClients),             trend: a.clientsTrend,  color: "#FBBF24" },
+            { label: "Avg Price", value: a.avgPrice > 0 ? `R${a.avgPrice}` : "R0", trend: 0, color: "#A78BFA" },
           ].map((k, i) => (
             <motion.div key={k.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
               <GlassCard className="p-4">
                 <p className="text-[11px] text-muted-foreground mb-1">{k.label}</p>
                 <p className="text-xl font-bold font-data text-foreground">{k.value}</p>
-                <div className={`flex items-center gap-0.5 mt-1 text-[10px] font-medium ${k.trend > 0 ? "text-teal" : "text-coral"}`}>
-                  {k.trend > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                  {Math.abs(k.trend)}%
+                <div className={`flex items-center gap-0.5 mt-1 text-[10px] font-medium ${
+                  k.trend > 0 ? "text-teal" : k.trend < 0 ? "text-coral" : "text-muted-foreground"
+                }`}>
+                  {k.trend > 0 ? <TrendingUp className="w-3 h-3" /> : k.trend < 0 ? <TrendingDown className="w-3 h-3" /> : null}
+                  {k.trend === 0 ? "—" : `${k.trend > 0 ? "+" : ""}${k.trend}%`}
                 </div>
               </GlassCard>
             </motion.div>
@@ -152,8 +104,11 @@ export default function ProviderAnalytics() {
               <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Revenue</p>
               <p className="text-2xl font-bold font-data text-foreground">R{totalRevenue.toLocaleString()}</p>
             </div>
-            <div className="flex items-center gap-1 text-teal text-xs font-semibold">
-              <TrendingUp className="w-4 h-4" /> +12%
+            <div className={`flex items-center gap-1 text-xs font-semibold ${
+              a.revenueTrend > 0 ? "text-teal" : a.revenueTrend < 0 ? "text-coral" : "text-muted-foreground"
+            }`}>
+              {a.revenueTrend > 0 ? <TrendingUp className="w-4 h-4" /> : a.revenueTrend < 0 ? <TrendingDown className="w-4 h-4" /> : null}
+              {a.revenueTrend === 0 ? "No prior data" : `${a.revenueTrend > 0 ? "+" : ""}${a.revenueTrend}%`}
             </div>
           </div>
           <SVGChart data={data} />
@@ -169,53 +124,68 @@ export default function ProviderAnalytics() {
           <GlassCard className="p-4">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Top Services</p>
             <div className="space-y-3">
-              {[
-                { name: "Personal Training", bookings: 47, color: "#6366F1" },
-                { name: "Strength Assessment", bookings: 12, color: "#2DD4BF" },
-                { name: "Free Intro", bookings: 8, color: "#A78BFA" },
-              ].map((svc, i) => (
-                <div key={svc.name}>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-xs text-muted-foreground truncate pr-2">{svc.name}</span>
-                    <span className="text-xs font-bold text-foreground shrink-0">{svc.bookings}</span>
-                  </div>
-                  <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(svc.bookings / 47) * 100}%` }}
-                      transition={{ delay: 0.3 + i * 0.1, duration: 0.6 }}
-                      className="h-full rounded-full"
-                      style={{ background: svc.color }}
-                    />
-                  </div>
-                </div>
-              ))}
+              {a.loading ? (
+                <div className="flex justify-center py-4"><Loader2 className="w-4 h-4 animate-spin text-muted-foreground" /></div>
+              ) : a.topServices.length === 0 ? (
+                <p className="text-xs text-muted-foreground text-center py-4">No completed bookings in this period.</p>
+              ) : (
+                a.topServices.map((svc, i) => {
+                  const max = a.topServices[0].count || 1;
+                  const colors = ["#6366F1", "#2DD4BF", "#A78BFA", "#FBBF24", "#FB7185"];
+                  return (
+                    <div key={svc.service_id}>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-xs text-muted-foreground truncate pr-2">{svc.title}</span>
+                        <span className="text-xs font-bold text-foreground shrink-0">{svc.count} · R{svc.revenue.toLocaleString()}</span>
+                      </div>
+                      <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${(svc.count / max) * 100}%` }}
+                          transition={{ delay: 0.3 + i * 0.1, duration: 0.6 }}
+                          className="h-full rounded-full"
+                          style={{ background: colors[i % colors.length] }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </GlassCard>
 
           <GlassCard className="p-4">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Client Mix</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Quality Metrics</p>
             <div className="space-y-3">
-              {[
-                { dot: "#6366F1", label: "Returning", value: 24 },
-                { dot: "#2DD4BF", label: "New",       value: 6  },
-              ].map(r => (
-                <div key={r.label} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full" style={{ background: r.dot }} />
-                    <span className="text-xs text-muted-foreground">{r.label}</span>
-                  </div>
-                  <span className="text-sm font-bold font-data text-foreground">{r.value}</span>
-                </div>
-              ))}
-              <div className="h-px bg-white/5" />
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Avg session value</span>
-                <span className="text-sm font-bold font-data text-amber">R413</span>
+                <div className="flex items-center gap-2">
+                  <Users className="w-3 h-3 text-indigo" />
+                  <span className="text-xs text-muted-foreground">Unique clients</span>
+                </div>
+                <span className="text-sm font-bold font-data text-foreground">{a.uniqueClients}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Retention rate</span>
-                <span className="text-sm font-bold font-data text-teal">87%</span>
+                <span className="text-xs text-muted-foreground">Avg session value</span>
+                <span className="text-sm font-bold font-data text-amber">R{a.avgPrice}</span>
+              </div>
+              <div className="h-px bg-white/5" />
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">No-show rate</span>
+                <span className={`text-sm font-bold font-data ${a.noShowRate > 10 ? "text-coral" : "text-teal"}`}>
+                  {a.noShowRate}%
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Cancellation rate</span>
+                <span className={`text-sm font-bold font-data ${a.cancellationRate > 15 ? "text-coral" : "text-teal"}`}>
+                  {a.cancellationRate}%
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3 text-amber" /> At-risk clients
+                </span>
+                <span className="text-sm font-bold font-data text-amber">{a.atRiskClientCount}</span>
               </div>
             </div>
           </GlassCard>

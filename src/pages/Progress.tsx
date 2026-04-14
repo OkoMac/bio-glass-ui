@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { ArrowLeft, TrendingUp, TrendingDown, Minus, Plus } from "lucide-react";
+import { useHealthLogs } from "@/hooks/useHealth";
+import { toast } from "sonner";
 
 // Simple SVG sparkline
 function Sparkline({ data, color }: { data: number[]; color: string }) {
@@ -46,10 +48,48 @@ const logLabels = ["Jan 17", "Jan 24", "Jan 31", "Feb 7", "Feb 14", "Feb 21", "T
 
 export default function Progress() {
   const navigate = useNavigate();
-  const [liveMetrics, setLiveMetrics] = useState(metrics);
+  const { logs, logToday } = useHealthLogs(56);
   const [logInput, setLogInput] = useState<Record<string, string>>({});
   const [logOpen, setLogOpen] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  // Derive live metrics from real logs, falling back to seed defaults so the
+  // page doesn't look empty for new users
+  const liveMetrics = useMemo(() => {
+    if (logs.length === 0) return metrics;
+    const recent = logs.slice(-7);   // last 7 entries
+    const seriesFor = (key: keyof typeof logs[number]) =>
+      recent.map(l => Number(l[key] ?? 0)).filter(v => v > 0);
+
+    const buildMetric = (
+      label: string, unit: string, key: keyof typeof logs[number],
+      fallback: typeof metrics[number],
+    ) => {
+      const series = seriesFor(key);
+      if (series.length < 2) return fallback;
+      return {
+        ...fallback,
+        current: series[series.length - 1],
+        prev: series[Math.max(0, series.length - 2)],
+        data: series.length >= 7 ? series : [...fallback.data.slice(0, 7 - series.length), ...series],
+      };
+    };
+
+    return [
+      buildMetric("Weight",     "kg",  "weight_kg",   metrics[0]),
+      buildMetric("Body Fat",   "%",   "body_fat_pct", metrics[1]),
+      buildMetric("Lean Mass",  "kg",  "lean_mass_kg", metrics[2]),
+      buildMetric("Resting HR", "bpm", "resting_hr",   metrics[3]),
+      // steps stored as raw int; convert to k for display
+      (() => {
+        const series = seriesFor("steps").map(v => v / 1000);
+        if (series.length < 2) return metrics[4];
+        return { ...metrics[4], current: series[series.length - 1], prev: series[Math.max(0, series.length - 2)],
+          data: series.length >= 7 ? series : [...metrics[4].data.slice(0, 7 - series.length), ...series] };
+      })(),
+      buildMetric("Sleep",      "h",   "sleep_hours",  metrics[5]),
+    ];
+  }, [logs]);
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
@@ -100,20 +140,28 @@ export default function Progress() {
               </div>
               <motion.button
                 whileTap={{ scale: 0.97 }}
-                onClick={() => {
-                  setLiveMetrics(prev => prev.map(m => {
-                    const fieldKey = m.label === "Weight"    ? "Weight (kg)"  :
-                                     m.label === "Body Fat"  ? "Body Fat (%)" :
-                                     m.label === "Steps/day" ? "Steps (k)"    :
-                                     m.label === "Sleep"     ? "Sleep (h)"    : null;
-                    if (!fieldKey || !logInput[fieldKey]) return m;
-                    const newVal = parseFloat(logInput[fieldKey]);
-                    if (isNaN(newVal)) return m;
-                    return { ...m, prev: m.current, current: newVal, data: [...m.data.slice(1), newVal] };
-                  }));
-                  setSaved(true);
-                  setLogInput({});
-                  setTimeout(() => { setSaved(false); setLogOpen(false); }, 1200);
+                onClick={async () => {
+                  const w  = parseFloat(logInput["Weight (kg)"]);
+                  const bf = parseFloat(logInput["Body Fat (%)"]);
+                  const st = parseFloat(logInput["Steps (k)"]);
+                  const sl = parseFloat(logInput["Sleep (h)"]);
+                  const patch: Record<string, number> = {};
+                  if (!isNaN(w))  patch.weight_kg   = w;
+                  if (!isNaN(bf)) patch.body_fat_pct = bf;
+                  if (!isNaN(st)) patch.steps       = Math.round(st * 1000);
+                  if (!isNaN(sl)) patch.sleep_hours = sl;
+                  if (Object.keys(patch).length === 0) {
+                    toast.error("Enter at least one metric");
+                    return;
+                  }
+                  try {
+                    await logToday(patch);
+                    setSaved(true);
+                    setLogInput({});
+                    setTimeout(() => { setSaved(false); setLogOpen(false); }, 1200);
+                  } catch (err) {
+                    toast.error(err instanceof Error ? err.message : "Save failed");
+                  }
                 }}
                 className="w-full rounded-pill py-2.5 gradient-indigo text-primary-foreground text-xs font-semibold"
               >

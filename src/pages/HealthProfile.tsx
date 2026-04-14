@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useHealthLogs } from "@/hooks/useHealth";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
@@ -97,6 +99,7 @@ const VERT_COLOR: Record<string, string> = {
 
 export default function HealthProfile() {
   const navigate = useNavigate();
+  const { logToday } = useHealthLogs(7);
   const [tab, setTab]   = useState<Tab>("metrics");
   const [privacy, setPrivacy] = useState<Record<string, PrivacyLevel>>({
     metrics: "provider", goals: "provider", medical: "private", documents: "private",
@@ -261,7 +264,33 @@ export default function HealthProfile() {
                       ))}
                     </div>
                     <motion.button whileTap={{ scale: 0.97 }}
-                      onClick={() => { setMetricInputs({}); setShowLogMetrics(false); }}
+                      onClick={async () => {
+                        const patch: Record<string, number> = {};
+                        const wt = parseFloat(metricInputs["Weight"]);
+                        const bf = parseFloat(metricInputs["Body Fat"]);
+                        const lm = parseFloat(metricInputs["Lean Mass"]);
+                        const hr = parseFloat(metricInputs["Resting HR"]);
+                        const st = parseFloat(metricInputs["Daily Steps"]);
+                        const sl = parseFloat(metricInputs["Sleep Avg"]);
+                        if (!isNaN(wt)) patch.weight_kg     = wt;
+                        if (!isNaN(bf)) patch.body_fat_pct  = bf;
+                        if (!isNaN(lm)) patch.lean_mass_kg  = lm;
+                        if (!isNaN(hr)) patch.resting_hr    = Math.round(hr);
+                        if (!isNaN(st)) patch.steps         = Math.round(st);
+                        if (!isNaN(sl)) patch.sleep_hours   = sl;
+                        if (Object.keys(patch).length === 0) {
+                          toast.error("Enter at least one metric");
+                          return;
+                        }
+                        try {
+                          await logToday(patch);
+                          toast.success("Saved");
+                          setMetricInputs({});
+                          setShowLogMetrics(false);
+                        } catch (err) {
+                          toast.error(err instanceof Error ? err.message : "Save failed");
+                        }
+                      }}
                       className="w-full py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400">
                       Save Today's Log
                     </motion.button>

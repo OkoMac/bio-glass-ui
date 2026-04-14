@@ -11,6 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { getProviderImage } from "@/lib/providerImages";
 import realData from "@/data/bion_pretoria_data.json";
 import { Send, Paperclip, Info, ChevronLeft, Check, CheckCheck, MessageSquare, Loader2 } from "lucide-react";
+import { useImageUpload } from "@/hooks/useUpload";
+import { toast } from "sonner";
 
 // ── Message types ────────────────────────────────────────────────
 interface MockMsg {
@@ -38,6 +40,16 @@ interface Conversation {
 
 const VERTICAL_PALETTE: Array<"teal" | "indigo" | "coral" | "amber"> = ["teal", "indigo", "coral", "amber"];
 
+// Seed threads for demo accounts — real users get rtMessages from Supabase.
+// Key = first word of provider name lowercased (matches conversation.id derivation).
+const REAL_THREADS: Record<string, MockMsg[]> = {
+  default: [
+    { id: 1, from: "provider", text: "Hey! Saw you booked for Tuesday. Any specific goals for the session?", time: "Mon 10:02", status: "read" },
+    { id: 2, from: "client",   text: "Just looking to work on mobility, my back's been tight lately.", time: "Mon 10:08", status: "read" },
+    { id: 3, from: "provider", text: "Perfect — I'll build the session around that. See you Tuesday 9am!", time: "Mon 10:10", status: "read" },
+  ],
+};
+
 function categorizeVertical(category: string): "teal" | "indigo" | "coral" | "amber" {
   const lower = category.toLowerCase();
   if (/gym|fitness|yoga|pilates|train|crossfit/i.test(lower)) return "teal";
@@ -61,10 +73,14 @@ function ChatView({
   const { user } = useAuth();
   // Real-time hook — only active when supabaseId exists
   const { messages: rtMessages, sendMessage: rtSend, sending } = useMessages(conversation.supabaseId);
+  const { upload, uploading } = useImageUpload({ folder: "messages" });
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Mock state for demo mode
   const threadKey = conversation.id;
-  const [mockMsgs, setMockMsgs] = useState<MockMsg[]>(REAL_THREADS[threadKey] ?? []);
+  const [mockMsgs, setMockMsgs] = useState<MockMsg[]>(
+    REAL_THREADS[threadKey] ?? REAL_THREADS.default ?? []
+  );
   const [draft, setDraft] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -84,6 +100,23 @@ function ChatView({
       }]);
     }
     setDraft("");
+  };
+
+  const handleAttach = async (file: File) => {
+    try {
+      const url = await upload(file);
+      const imgMessage = `📎 ${url}`;
+      if (isRealtime) {
+        rtSend(imgMessage);
+      } else {
+        setMockMsgs(prev => [...prev, {
+          id: Date.now(), from: "client", text: imgMessage, time: getTime(), status: "sent",
+        }]);
+      }
+      toast.success("Image sent");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    }
   };
 
   // Unified message list for rendering
@@ -159,6 +192,10 @@ function ChatView({
                   <div className="text-sm opacity-80">{msg.exercises} exercises</div>
                   <button className="text-sm font-medium underline">View Routine</button>
                 </div>
+              ) : msg.text?.startsWith("📎 ") && /https?:\/\/.+\.(jpg|jpeg|png|webp|gif|avif)/i.test(msg.text) ? (
+                <a href={msg.text.slice(2).trim()} target="_blank" rel="noopener noreferrer">
+                  <img src={msg.text.slice(2).trim()} alt="Shared photo" className="rounded-xl max-w-full max-h-80 object-cover" />
+                </a>
               ) : (
                 <div className="whitespace-pre-wrap">{msg.text}</div>
               )}
@@ -181,9 +218,23 @@ function ChatView({
       {/* Input */}
       <div className="glass-2 px-4 py-3">
         <div className="flex items-center gap-2">
-          <button className="p-2 rounded-full hover:bg-white/10" onClick={() => window.alert("File sharing coming soon.")}>
-            <Paperclip className="w-5 h-5 text-foreground" />
+          <button
+            className="p-2 rounded-full hover:bg-white/10 disabled:opacity-50"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            title="Send a photo"
+          >
+            {uploading
+              ? <Loader2 className="w-5 h-5 text-foreground animate-spin" />
+              : <Paperclip className="w-5 h-5 text-foreground" />}
           </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => { if (e.target.files?.[0]) handleAttach(e.target.files[0]); }}
+          />
           <div className="flex-1 glass-1 rounded-full px-4 py-2">
             <textarea
               value={draft}
