@@ -4,9 +4,10 @@ import HTMLFlipBook from "react-pageflip";
 import { useCatalogByShortUrl, type CatalogPage, type CatalogTheme } from "@/hooks/useCatalogs";
 import {
   ChevronLeft, ChevronRight, Share2, BookOpen, Loader2, ExternalLink,
-  ArrowLeft, Home, Maximize2, Minimize2,
+  ArrowLeft, Home, Maximize2, Minimize2, Volume2, VolumeX,
 } from "lucide-react";
 import { toast } from "sonner";
+import { playFlipSound, isCatalogMuted, setCatalogMuted } from "@/lib/flipSound";
 
 const THEME_BG: Record<CatalogTheme, string> = {
   indigo:     "radial-gradient(ellipse at top,#2e1065 0%,#0f0c29 50%,#000 100%)",
@@ -33,6 +34,7 @@ export default function CatalogViewer() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
+  const [muted, setMuted] = useState(() => isCatalogMuted());
   const containerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const bookRef = useRef<any>(null);
@@ -69,6 +71,14 @@ export default function CatalogViewer() {
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) containerRef.current?.requestFullscreen?.();
     else document.exitFullscreen();
+  };
+
+  const toggleMuted = () => {
+    setMuted((prev) => {
+      const next = !prev;
+      setCatalogMuted(next);
+      return next;
+    });
   };
 
   const share = () => {
@@ -131,6 +141,10 @@ export default function CatalogViewer() {
           </p>
         </div>
         <div className="flex items-center gap-1">
+          <button onClick={toggleMuted} title={muted ? "Unmute page-flip sound" : "Mute page-flip sound"}
+            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/70 hover:text-white">
+            {muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+          </button>
           <button onClick={toggleFullscreen} title="Toggle fullscreen"
             className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/70 hover:text-white">
             {fullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
@@ -184,7 +198,10 @@ export default function CatalogViewer() {
               disableFlipByClick={false}
               className="shadow-[0_25px_50px_-12px_rgba(0,0,0,0.6)]"
               style={{}}
-              onFlip={(e: { data: number }) => setCurrentPage(e.data)}
+              onFlip={(e: { data: number }) => {
+                setCurrentPage(e.data);
+                if (!muted) playFlipSound();
+              }}
               onInit={(e: { data: { page: number } }) => {
                 setTotalPages(pages.length);
                 setCurrentPage(e.data?.page ?? 0);
