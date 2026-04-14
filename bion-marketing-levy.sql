@@ -10,13 +10,20 @@
 --   5. Auto-mint vouchers when levy accumulates past face-value threshold
 --
 -- CANONICAL FEE MODEL — every rate is a % of the BILL, never compounded:
---   R100 bill → client pays R105 (+5% client fee)
---              → provider receives R95 (-5% provider fee)
---              → minus R5 marketing levy (5% of bill)
---              → provider NET = R90 (exactly 90% of bill)
---   BION gross = R10 (5% client + 5% provider = 10% of bill)
---   Paystack + costs ≈ 3.5% → BION net ≈ 6.5% of bill
---   Marketing levy = R5 (ring-fenced to acquisition voucher pool)
+--
+--   REGULAR BOOKING (R100 bill):
+--     Client pays R105 (+5% client fee)
+--     Provider receives R95 (-5% provider fee)
+--     Minus R5 marketing levy (5% of bill) → held in provider voucher pool
+--     Provider NET = R90 (exactly 90% of bill)
+--     BION gross = R10 (5% client + 5% provider = 10% of bill)
+--
+--   VOUCHER REDEMPTION (R500 acquisition voucher used on R500 service):
+--     Client pays R0 (voucher covers)
+--     Provider voucher pool debited R500
+--     BION charges 5% transaction fee on redemption = R25
+--     Provider receives R475 cash (95% of voucher face value)
+--     No Paystack (internal ledger move)
 -- ============================================================
 
 -- ═══════════════════════════════════════════════════════════════
@@ -472,6 +479,106 @@ $$;
 GRANT EXECUTE ON FUNCTION claim_acquisition_voucher TO authenticated;
 
 -- ═══════════════════════════════════════════════════════════════
+-- 10b. Redeem an acquisition voucher on a booking
+--      - BION charges 5% transaction fee on face value
+--      - Provider receives 95% of face value to wallet
+--      - Voucher marked 'redeemed' and linked to booking
+-- ═══════════════════════════════════════════════════════════════
+
+-- Add columns to track settlement on the voucher itself
+ALTER TABLE acquisition_vouchers ADD COLUMN IF NOT EXISTS bion_fee_rand numeric(10,2);
+ALTER TABLE acquisition_vouchers ADD COLUMN IF NOT EXISTS provider_payout_rand numeric(10,2);
+
+INSERT INTO platform_settings (key, value, description) VALUES
+  ('voucher_redemption_fee_rate', '0.05', 'BION transaction fee on voucher redemption (0.05 = 5% of face value)')
+ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, description = EXCLUDED.description;
+
+CREATE OR REPLACE FUNCTION redeem_acquisition_voucher(
+  p_voucher_id uuid,
+  p_booking_id uuid
+) RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+  v_user_profile_id uuid;
+  v_voucher record;
+  v_fee_rate numeric;
+  v_bion_fee numeric;
+  v_provider_payout numeric;
+BEGIN
+  SELECT id INTO v_user_profile_id FROM profiles WHERE user_id = auth.uid();
+  IF v_user_profile_id IS NULL THEN RAISE EXCEPTION 'Profile not found'; END IF;
+
+  SELECT * INTO v_voucher FROM acquisition_vouchers WHERE id = p_voucher_id;
+  IF v_voucher.id IS NULL THEN RAISE EXCEPTION 'Voucher not found'; END IF;
+  IF v_voucher.status <> 'claimed' THEN RAISE EXCEPTION 'Voucher not in claimable state (status: %)', v_voucher.status; END IF;
+  IF v_voucher.claimed_by <> v_user_profile_id THEN RAISE EXCEPTION 'Voucher does not belong to this user'; END IF;
+  IF v_voucher.expires_at < now() THEN RAISE EXCEPTION 'Voucher expired'; END IF;
+
+  -- Validate booking: must be this user's booking at the voucher's provider
+  IF NOT EXISTS (
+    SELECT 1 FROM bookings
+    WHERE id = p_booking_id
+      AND client_id = v_user_profile_id
+      AND provider_id = v_voucher.provider_id
+  ) THEN
+    RAISE EXCEPTION 'Booking does not match voucher (wrong provider or not your booking)';
+  END IF;
+
+  SELECT value::numeric INTO v_fee_rate FROM platform_settings WHERE key = 'voucher_redemption_fee_rate';
+  v_fee_rate := COALESCE(v_fee_rate, 0.05);
+
+  v_bion_fee := ROUND(v_voucher.face_value_rand * v_fee_rate, 2);
+  v_provider_payout := v_voucher.face_value_rand - v_bion_fee;
+
+  -- Mark voucher redeemed
+  UPDATE acquisition_vouchers
+  SET status = 'redeemed',
+      redeemed_at = now(),
+      redeemed_booking_id = p_booking_id,
+      bion_fee_rand = v_bion_fee,
+      provider_payout_rand = v_provider_payout
+  WHERE id = p_voucher_id;
+
+  -- Credit provider wallet with 95% of face value
+  INSERT INTO wallet_transactions (user_id, amount_rand, type, reference_id, description)
+  VALUES (
+    v_voucher.provider_id,
+    v_provider_payout,
+    'voucher_redemption',
+    p_voucher_id,
+    format('Acquisition voucher redeemed (R%s face value, R%s BION fee)',
+           v_voucher.face_value_rand, v_bion_fee)
+  );
+
+  RETURN jsonb_build_object(
+    'ok', true,
+    'voucher_id', p_voucher_id,
+    'booking_id', p_booking_id,
+    'face_value', v_voucher.face_value_rand,
+    'bion_fee', v_bion_fee,
+    'provider_payout', v_provider_payout
+  );
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION redeem_acquisition_voucher TO authenticated;
+
+-- BION revenue ledger view — isolates voucher-redemption fee income
+CREATE OR REPLACE VIEW bion_voucher_fee_revenue
+WITH (security_invoker = true) AS
+SELECT
+  COALESCE(SUM(bion_fee_rand), 0) AS lifetime_fee_rand,
+  COALESCE(SUM(bion_fee_rand) FILTER (WHERE redeemed_at >= date_trunc('month', now())), 0) AS mtd_fee_rand,
+  COUNT(*) FILTER (WHERE status = 'redeemed') AS redemption_count
+FROM acquisition_vouchers
+WHERE status = 'redeemed';
+
+GRANT SELECT ON bion_voucher_fee_revenue TO authenticated;
+
+-- ═══════════════════════════════════════════════════════════════
 -- 11. Provider stats view (levy paid, vouchers minted/claimed/redeemed)
 -- ═══════════════════════════════════════════════════════════════
 CREATE OR REPLACE VIEW provider_marketing_stats
@@ -489,7 +596,11 @@ SELECT
   COALESCE((SELECT COUNT(*) FROM acquisition_vouchers
             WHERE provider_id = p.id AND status = 'redeemed'), 0) AS vouchers_redeemed,
   COALESCE((SELECT SUM(face_value_rand) FROM acquisition_vouchers
-            WHERE provider_id = p.id AND status = 'redeemed'), 0) AS attributed_acquisition_rand
+            WHERE provider_id = p.id AND status = 'redeemed'), 0) AS attributed_acquisition_rand,
+  COALESCE((SELECT SUM(provider_payout_rand) FROM acquisition_vouchers
+            WHERE provider_id = p.id AND status = 'redeemed'), 0) AS redeemed_payout_rand,
+  COALESCE((SELECT SUM(bion_fee_rand) FROM acquisition_vouchers
+            WHERE provider_id = p.id AND status = 'redeemed'), 0) AS redeemed_bion_fee_rand
 FROM profiles p;
 
 GRANT SELECT ON provider_marketing_stats TO authenticated;

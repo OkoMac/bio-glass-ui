@@ -23,6 +23,7 @@ export default function MarketingLevyCard() {
     vouchers_minted: 0, vouchers_available: 0,
     vouchers_claimed: 0, vouchers_redeemed: 0,
     attributed_acquisition_rand: 0,
+    redeemed_payout_rand: 0, redeemed_bion_fee_rand: 0,
   };
 
   const handleBoost = async () => {
@@ -82,6 +83,7 @@ export default function MarketingLevyCard() {
         <p className="text-[11px] text-muted-foreground leading-relaxed">
           5% of every completed booking is ring-fenced to win you new clients. Vouchers appear in
           Discovery for people nearby who've never booked you — redeemable only at your place.
+          When a voucher is used, 95% of its face value pays out to your wallet (5% BION fee).
         </p>
       </div>
 

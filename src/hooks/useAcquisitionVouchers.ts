@@ -76,11 +76,37 @@ export function useAcquisitionVouchers(limit = 10) {
     [fetchEligible, fetchClaimed]
   );
 
+  /**
+   * Redeem a claimed voucher against a booking.
+   * Provider gets 95% of face value, BION takes 5% transaction fee.
+   */
+  const redeem = useCallback(
+    async (voucherId: string, bookingId: string) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase.rpc as any)(
+        "redeem_acquisition_voucher",
+        { p_voucher_id: voucherId, p_booking_id: bookingId }
+      );
+      if (error) throw error;
+      await Promise.all([fetchEligible(), fetchClaimed()]);
+      return data as {
+        ok: boolean;
+        voucher_id: string;
+        booking_id: string;
+        face_value: number;
+        bion_fee: number;
+        provider_payout: number;
+      };
+    },
+    [fetchEligible, fetchClaimed]
+  );
+
   return {
     eligible,
     claimed,
     loading,
     claim,
+    redeem,
     refresh: async () => { await Promise.all([fetchEligible(), fetchClaimed()]); },
   };
 }
@@ -95,6 +121,8 @@ export function useProviderMarketingStats(providerId?: string) {
     vouchers_claimed: number;
     vouchers_redeemed: number;
     attributed_acquisition_rand: number;
+    redeemed_payout_rand: number;
+    redeemed_bion_fee_rand: number;
   } | null>(null);
   const [loading, setLoading] = useState(true);
 
