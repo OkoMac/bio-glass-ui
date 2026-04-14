@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
   LayoutDashboard, CalendarDays, BookOpen, Users,
   MessageSquare, BarChart3, Clock, Settings, Shield,
-  Bell, LogOut, Tag, ChevronRight, Banknote, ClipboardList,
+  Bell, LogOut, Tag, ChevronRight, Banknote, ClipboardList, Store,
 } from "lucide-react";
 
 const navItems = [
@@ -14,13 +14,14 @@ const navItems = [
   { to: "/pro/schedule",      label: "Schedule",    icon: CalendarDays },
   { to: "/pro/clients",       label: "Clients",     icon: Users },
   { to: "/pro/services",      label: "Services",    icon: Tag },
-  { to: "/pro/programs",     label: "Programs",    icon: ClipboardList },
+  { to: "/pro/storefront",    label: "Storefront",  icon: Store },
+  { to: "/pro/programs",      label: "Programs",    icon: ClipboardList },
   { to: "/pro/messages",      label: "Messages",    icon: MessageSquare,  badge: 3 },
   { to: "/pro/analytics",     label: "Analytics",   icon: BarChart3  },
   { to: "/pro/availability",  label: "Availability",icon: Clock      },
-  { to: "/pro/billing",        label: "Billing",       icon: Banknote   },
-  { to: "/pro/verification",  label: "Verification",  icon: Shield     },
-  { to: "/pro/settings",      label: "Settings",      icon: Settings   },
+  { to: "/pro/billing",       label: "Billing",     icon: Banknote   },
+  { to: "/pro/verification",  label: "Verification",icon: Shield     },
+  { to: "/pro/settings",      label: "Settings",    icon: Settings   },
 ];
 
 const mobileNav = [
