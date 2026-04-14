@@ -93,16 +93,18 @@ export default function SplashOnboarding() {
   const [busy,     setBusy]             = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
-  // Splash loader
+  // Splash loader — hard-coded timeout keeps users unblocked even if interval stalls
   useEffect(() => {
     if (phase !== "splash") return;
     const interval = setInterval(() => {
       setProgress(p => {
-        if (p >= 100) { clearInterval(interval); setTimeout(() => setPhase("onboarding"), 300); return 100; }
+        if (p >= 100) { clearInterval(interval); return 100; }
         return p + 2.5;
       });
     }, 20);
-    return () => clearInterval(interval);
+    // Bulletproof fallback: move past the splash after 1.5s no matter what
+    const fallback = setTimeout(() => setPhase("onboarding"), 1500);
+    return () => { clearInterval(interval); clearTimeout(fallback); };
   }, [phase]);
 
   // ── Auth handlers ────────────────────────────────────────────────
@@ -159,14 +161,23 @@ export default function SplashOnboarding() {
     return (
       <div className="fixed inset-0 z-[100] bg-obsidian flex flex-col items-center justify-center"
         style={{ background: "radial-gradient(ellipse at 50% 45%, rgba(99,102,241,0.12) 0%, #0A0A0F 65%)" }}>
-        <motion.img src="/bion-logo-white.png" alt="BION" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="h-32 md:h-48 w-auto" />
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
-          className="text-base text-foreground/55 mt-3">Commit to yourself.</motion.p>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}
-          className="w-32 h-0.5 bg-foreground/10 rounded-full mt-6 overflow-hidden">
+        {/* Plain img + animated-via-CSS so the splash can never get stuck
+            waiting on framer-motion to kick off. */}
+        <img src="/bion-logo-white.png" alt="BION"
+          className="h-32 md:h-48 w-auto animate-[fadeInUp_0.5s_ease-out_forwards]" />
+        <p className="text-base text-foreground/55 mt-3 opacity-0 animate-[fadeIn_0.5s_ease-out_0.3s_forwards]">
+          Commit to yourself.
+        </p>
+        <div className="w-32 h-0.5 bg-foreground/10 rounded-full mt-6 overflow-hidden opacity-0 animate-[fadeIn_0.5s_ease-out_0.6s_forwards]">
           <div className="h-full gradient-indigo rounded-full transition-all" style={{ width: `${progress}%` }} />
-        </motion.div>
+        </div>
+        <style>{`
+          @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+          @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+          }
+        `}</style>
       </div>
     );
   }

@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { AlertTriangle, Sparkles, Loader2, Send, Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, Sparkles, Loader2, Send, Trash2 } from "lucide-react";
 import { useOrderDispute, submitProviderResponse, resolveDispute } from "@/hooks/useDisputes";
+import { useImageUpload } from "@/hooks/useUpload";
 import { toast } from "sonner";
 
 interface Props {
@@ -18,8 +19,13 @@ export default function ProviderDisputePanel({ orderId, onResolved }: Props) {
   const { dispute, refresh, loading } = useOrderDispute(orderId);
   const [statement, setStatement] = useState("");
   const [evidence, setEvidence] = useState<string[]>([]);
-  const [newUrl, setNewUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const { upload, uploading } = useImageUpload({ bucket: "bion-evidence", folder: "disputes" });
+  const evRef = useRef<HTMLInputElement>(null);
+  const addEvidence = async (file: File) => {
+    try { const u = await upload(file); setEvidence((p) => [...p, u]); toast.success("Photo added"); }
+    catch (err) { toast.error(err instanceof Error ? err.message : "Upload failed"); }
+  };
   const [resolving, setResolving] = useState(false);
 
   useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [orderId]);
@@ -94,26 +100,24 @@ export default function ProviderDisputePanel({ orderId, onResolved }: Props) {
             />
           </div>
           <div>
-            <label className="text-[10px] text-muted-foreground uppercase tracking-wider">Evidence (photo URLs)</label>
-            {evidence.map((u, i) => (
-              <div key={i} className="flex items-center gap-2 mt-1">
-                <span className="flex-1 text-xs text-foreground/70 truncate">{u}</span>
-                <button onClick={() => setEvidence(evidence.filter((_, j) => j !== i))}>
-                  <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
-                </button>
-              </div>
-            ))}
-            <div className="flex gap-2 mt-1">
-              <input
-                value={newUrl} onChange={(e) => setNewUrl(e.target.value)}
-                placeholder="https://..."
-                className="flex-1 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-foreground focus:outline-none"
-              />
-              <button onClick={() => { if (newUrl) { setEvidence([...evidence, newUrl]); setNewUrl(""); } }}
-                className="px-3 py-1.5 rounded-lg bg-white/5 text-xs text-foreground">
-                <Plus className="w-3 h-3" />
+            <label className="text-[10px] text-muted-foreground uppercase tracking-wider">Photo evidence (private)</label>
+            <div className="grid grid-cols-3 gap-2 mt-1">
+              {evidence.map((u, i) => (
+                <div key={i} className="relative group rounded-lg overflow-hidden border border-white/10 h-16">
+                  <img src={u} alt="" className="w-full h-full object-cover" />
+                  <button type="button" onClick={() => setEvidence(evidence.filter((_, j) => j !== i))}
+                    className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Trash2 className="w-2 h-2 text-white" />
+                  </button>
+                </div>
+              ))}
+              <button type="button" onClick={() => evRef.current?.click()} disabled={uploading}
+                className="h-16 rounded-lg border border-dashed border-white/10 hover:border-coral/40 text-muted-foreground hover:text-foreground text-[9px] flex flex-col items-center justify-center disabled:opacity-50">
+                {uploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <><span className="text-base leading-none">+</span>Add</>}
               </button>
             </div>
+            <input ref={evRef} type="file" accept="image/*" className="hidden"
+              onChange={(e) => e.target.files?.[0] && addEvidence(e.target.files[0])} />
           </div>
           <button
             onClick={handleSubmit} disabled={submitting || statement.trim().length < 10}

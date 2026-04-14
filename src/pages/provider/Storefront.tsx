@@ -6,6 +6,7 @@ import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useStorefront } from "@/hooks/useStorefront";
 import { useMyProducts, Product } from "@/hooks/useProducts";
+import ImageUpload from "@/components/ImageUpload";
 import {
   Store, Package, Plus, X, Loader2, Check, AlertTriangle, Eye, EyeOff,
   TrendingUp, ShoppingBag, MapPin, Settings as SettingsIcon, Edit3, Trash2,
@@ -383,7 +384,12 @@ function ProductModal(props: any) {
           <Field label="" value={props.pSize} onChange={props.setPSize} type="number" placeholder="Size (cm)" small />
         </div>
 
-        <Field label="Photo URL (paste a link)" value={props.pPhotoUrl} onChange={props.setPPhotoUrl} placeholder="https://..." />
+        <ImageUpload
+          label="Product photo"
+          folder="products"
+          value={props.pPhotoUrl || null}
+          onChange={(url) => props.setPPhotoUrl(url ?? "")}
+        />
 
         <label className="flex items-center gap-2 text-xs text-foreground">
           <input type="checkbox" checked={props.pDigital} onChange={e => props.setPDigital(e.target.checked)} />

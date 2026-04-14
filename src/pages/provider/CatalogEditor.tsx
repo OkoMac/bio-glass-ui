@@ -5,9 +5,10 @@ import ProviderNav from "@/components/ProviderNav";
 import GlassCard from "@/components/GlassCard";
 import {
   ArrowLeft, Trash2, GripVertical, Eye, Save, Loader2,
-  FileText, Tag, Phone, Star, Flag, ArrowUp, ArrowDown, ExternalLink,
+  FileText, Tag, Phone, Star, Flag, ArrowUp, ArrowDown,
   Globe, Lock, Link as LinkIcon,
 } from "lucide-react";
+import ImageUpload from "@/components/ImageUpload";
 import { useCatalog, useMyCatalogs, type CatalogPage, type PageType, type PageLayout } from "@/hooks/useCatalogs";
 import { toast } from "sonner";
 
@@ -325,25 +326,13 @@ function PageEditor({ page, onUpdate, onDelete }: {
         />
       </Field>
 
-      <Field label="Image URL" hint="Paste a URL — Supabase storage integration next">
-        <div className="flex gap-2">
-          <input
-            value={form.image_url}
-            onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-            placeholder="https://..."
-            className="input flex-1"
-          />
-          {form.image_url && (
-            <a href={form.image_url} target="_blank" rel="noopener noreferrer"
-              className="p-2 rounded-lg bg-white/5 text-muted-foreground hover:text-foreground">
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          )}
-        </div>
-        {form.image_url && (
-          <img src={form.image_url} alt="" className="mt-2 w-full max-h-48 object-cover rounded-xl" />
-        )}
-      </Field>
+      <ImageUpload
+        label="Image"
+        hint="Drop or click to upload · or paste a URL"
+        folder="catalogs"
+        value={form.image_url}
+        onChange={(url) => setForm({ ...form, image_url: url ?? "" })}
+      />
 
       <Field label="Layout">
         <div className="flex flex-wrap gap-1.5">

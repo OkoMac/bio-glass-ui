@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { X, AlertTriangle, Send, Plus, Trash2, Sparkles, Loader2 } from "lucide-react";
+import { X, AlertTriangle, Send, Trash2, Sparkles, Loader2 } from "lucide-react";
 import { raiseDispute, useOrderDispute, resolveDispute } from "@/hooks/useDisputes";
 import { toast } from "sonner";
+import { useImageUpload } from "@/hooks/useUpload";
 
 const REASONS = [
   { value: "never_arrived",     label: "Never arrived" },
@@ -23,8 +24,19 @@ export default function DisputeForm({ orderId, onClose }: Props) {
   const [reason, setReason] = useState(REASONS[0].value);
   const [statement, setStatement] = useState("");
   const [evidence, setEvidence] = useState<string[]>([]);
-  const [newUrl, setNewUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const { upload, uploading } = useImageUpload({ bucket: "bion-evidence", folder: "disputes" });
+  const evidenceInputRef = useRef<HTMLInputElement>(null);
+
+  const handleEvidenceFile = async (file: File) => {
+    try {
+      const url = await upload(file);
+      setEvidence((prev) => [...prev, url]);
+      toast.success("Photo added");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    }
+  };
 
   useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [orderId]);
 
@@ -175,28 +187,38 @@ export default function DisputeForm({ orderId, onClose }: Props) {
             </div>
 
             <div>
-              <label className="text-[10px] text-muted-foreground uppercase tracking-wider">Evidence (photo URLs, optional)</label>
-              {evidence.map((u, i) => (
-                <div key={i} className="flex items-center gap-2 mt-1.5">
-                  <span className="flex-1 text-xs text-foreground/70 truncate">{u}</span>
-                  <button onClick={() => setEvidence(evidence.filter((_, j) => j !== i))}>
-                    <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
-                  </button>
-                </div>
-              ))}
-              <div className="flex gap-2 mt-1.5">
-                <input
-                  value={newUrl} onChange={(e) => setNewUrl(e.target.value)}
-                  placeholder="https://..."
-                  className="flex-1 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-coral/50"
-                />
+              <label className="text-[10px] text-muted-foreground uppercase tracking-wider">Photo evidence (optional, private)</label>
+              <div className="grid grid-cols-3 gap-2 mt-1.5">
+                {evidence.map((u, i) => (
+                  <div key={i} className="relative group rounded-lg overflow-hidden border border-white/10 h-20">
+                    <img src={u} alt={`Evidence ${i+1}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setEvidence(evidence.filter((_, j) => j !== i))}
+                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 className="w-2.5 h-2.5 text-white" />
+                    </button>
+                  </div>
+                ))}
                 <button
-                  onClick={() => { if (newUrl) { setEvidence([...evidence, newUrl]); setNewUrl(""); } }}
-                  className="px-3 py-1.5 rounded-lg bg-white/5 text-xs text-foreground"
+                  type="button"
+                  onClick={() => evidenceInputRef.current?.click()}
+                  disabled={uploading}
+                  className="h-20 rounded-lg border border-dashed border-white/10 hover:border-coral/40 hover:bg-white/[0.02] text-muted-foreground hover:text-foreground text-[10px] flex flex-col items-center justify-center gap-1 disabled:opacity-50"
                 >
-                  <Plus className="w-3 h-3" />
+                  {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    : <><span className="text-lg leading-none">+</span><span>Add photo</span></>}
                 </button>
               </div>
+              <input
+                ref={evidenceInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => { if (e.target.files?.[0]) handleEvidenceFile(e.target.files[0]); }}
+              />
+              <p className="text-[10px] text-muted-foreground mt-1">Only you, the provider, and BION admins can see these.</p>
             </div>
 
             <div className="p-3 rounded-xl bg-amber/5 border border-amber/20">
