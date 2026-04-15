@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
+import AdminOpsStrip from "@/components/AdminOpsStrip";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { withTimeout } from "@/lib/safeQuery";
@@ -186,6 +187,9 @@ export default function AdminDashboard() {
           </div>
           <span className="text-[10px] px-2 py-1 rounded-pill glass-accent-coral text-coral">Admin</span>
         </div>
+
+        {/* Live ops metrics — pulled from /api/admin/metrics every 60s */}
+        <AdminOpsStrip />
 
         {/* KPI grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
