@@ -5,6 +5,8 @@ import { X, Send, Sparkles, Flame, Target, Calendar, TrendingUp, Brain,
 import { useAuth } from "@/contexts/AuthContext";
 import { getReminderSummary, getActiveReminders, requestNotificationPermission, fireReminderNotifications } from "@/lib/reminders";
 import { useLocation } from "react-router-dom";
+import { useHabitProfile } from "@/hooks/useHabits";
+import { trackEvent } from "@/lib/habits";
 
 interface Message {
   id: string;
@@ -307,6 +309,8 @@ export default function BionAssistant() {
   // here?" bubble next to the FAB for 5 seconds, then minimises. Dismissing
   // suppresses it for that path for the rest of the session so it never nags.
   const location = useLocation();
+  const { profile: habitProfile } = useHabitProfile();
+  const topCategory = habitProfile?.top_categories?.[0]?.category;
   const [nudgeVisible, setNudgeVisible] = useState(false);
   const [nudgeText, setNudgeText] = useState<string>("Need help on this page? Tap me.");
   const [nudgePrompt, setNudgePrompt] = useState<string>("Can you walk me through this page?");
@@ -378,15 +382,25 @@ export default function BionAssistant() {
     if (dismissed.has(location.pathname)) return;
 
     const hint = pageHint(location.pathname, role);
-    setNudgeText(hint.text);
-    setNudgePrompt(hint.prompt);
+    // Lean the prompt toward the user's most-engaged category when we have one.
+    // Keeps the nudge specific instead of generic — e.g. "fitness" user on
+    // /directory gets "Find me a trainer" flavour rather than a neutral prompt.
+    const categoryNudge =
+      topCategory && location.pathname.startsWith("/directory")
+        ? { text: `Looking for another ${topCategory} provider?`, prompt: `Recommend top ${topCategory} providers near me based on my history.` }
+        : topCategory && location.pathname === "/home"
+        ? { text: `Pick up where you left off in ${topCategory}?`, prompt: `What should I do today in my ${topCategory} routine?` }
+        : null;
+
+    setNudgeText(categoryNudge?.text ?? hint.text);
+    setNudgePrompt(categoryNudge?.prompt ?? hint.prompt);
     setNudgeVisible(true);
     if (nudgeTimer.current) clearTimeout(nudgeTimer.current);
     nudgeTimer.current = setTimeout(() => setNudgeVisible(false), 5000);
 
     return () => { if (nudgeTimer.current) clearTimeout(nudgeTimer.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, role]);
+  }, [location.pathname, role, topCategory]);
 
   const dismissNudge = (remember = true) => {
     setNudgeVisible(false);
@@ -398,11 +412,13 @@ export default function BionAssistant() {
         set.add(location.pathname);
         sessionStorage.setItem("bion_nudges_dismissed", JSON.stringify([...set]));
       } catch { /* no-op */ }
+      trackEvent("nudge_dismissed", { metadata: { pathname: location.pathname } });
     }
   };
 
   const acceptNudge = () => {
     dismissNudge(true);
+    trackEvent("nudge_accepted", { metadata: { pathname: location.pathname, prompt: nudgePrompt } });
     // Pre-seed the prompt and open the chat
     setInput(nudgePrompt);
     setOpen(true);

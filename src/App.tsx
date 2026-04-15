@@ -146,6 +146,7 @@ import Directory       from "./pages/Directory";
 import SplashOnboarding from "./pages/SplashOnboarding";
 import NotFound        from "./pages/NotFound";
 import NotificationBell from "./components/NotificationBell";
+import HabitTracker     from "./components/HabitTracker";
 import InstallButton    from "./components/InstallButton";
 import CalendarButton   from "./components/CalendarButton";
 import OfflineBanner    from "./components/OfflineBanner";
@@ -469,6 +470,7 @@ const App = () => (
                 <CalendarButton />
                 <NotificationBell />
                 <BookingReminderRunner />
+                <HabitTracker />
               </AuthGate>
               <InstallButton />
               <Suspense fallback={

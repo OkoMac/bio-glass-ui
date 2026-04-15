@@ -12,6 +12,7 @@ import { useVerifiedProviders } from "@/hooks/useVerifiedProviders";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { getProviderShareUrl, getBookingShareUrl, openWhatsApp } from "@/lib/whatsapp";
+import { trackEvent } from "@/lib/habits";
 import ProviderShopSection from "@/components/ProviderShopSection";
 import realData from "@/data/bion_pretoria_data.json";
 
@@ -123,6 +124,10 @@ export default function ProviderProfile() {
     setBookingBusy(true);
     try {
       const service = provider.servicesOffered[selectedService] ?? provider.specialty;
+      trackEvent("booking_started", {
+        category: (provider.category ?? provider.specialty ?? "").toString().toLowerCase(),
+        metadata: { provider_id: provider.id, service, date: bookingDate, time: bookingTime },
+      });
       const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
       const res = await fetch(`${API}/api/bookings/checkout`, {
         method: "POST",
@@ -172,6 +177,11 @@ export default function ProviderProfile() {
     setMeta("name", "twitter:image", provider.image.startsWith("http") ? provider.image : `https://bionhealth.co.za${provider.image}`);
     // Track recently viewed
     if (provider.id) trackView(provider.id);
+    // Feed B_'s personalisation
+    trackEvent("provider_view", {
+      category: (provider.category ?? provider.vertical ?? provider.specialty ?? "").toString().toLowerCase(),
+      metadata: { provider_id: provider.id, name: provider.name, specialty: provider.specialty, location: provider.location },
+    });
     return () => { document.title = "BION — Commit to Yourself"; };
   }, [provider, trackView]);
 
