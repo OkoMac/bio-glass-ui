@@ -77,14 +77,30 @@ const ONBOARDING_ROUTES: Record<UserRole, string> = {
 
 export default function SplashOnboarding() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
 
   // Returning visitors skip the splash + onboarding carousel and land directly
-  // on the role/auth picker. Flag is set when a user finishes the carousel
-  // OR clicks "Skip" the first time.
+  // on the role/auth picker. Flag is set as soon as the splash animation
+  // completes for the first time — no user action required.
   const hasSeenIntro = (() => {
     try { return localStorage.getItem("bion_seen_intro") === "1"; } catch { return false; }
   })();
+
+  // If the user is already signed in, /welcome is a dead-end — send them
+  // straight to their role home. (Clearing the cache / logging out is the
+  // intended way to see the splash again.)
+  useEffect(() => {
+    if (user) {
+      const home =
+        user.role === "admin"     ? "/admin/dashboard"     :
+        user.role === "provider"  ? "/pro/dashboard"       :
+        user.role === "corporate" ? "/corporate/dashboard" :
+        user.role === "sales_rep" ? "/rep/dashboard"       :
+        "/home";
+      navigate(home, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const [phase, setPhase]               = useState<Phase>(hasSeenIntro ? "role" : "splash");
   const [progress, setProgress]         = useState(0);
@@ -109,8 +125,13 @@ export default function SplashOnboarding() {
         return p + 2.5;
       });
     }, 20);
-    // Bulletproof fallback: move past the splash after 1.5s no matter what
-    const fallback = setTimeout(() => setPhase("onboarding"), 1500);
+    // Bulletproof fallback: move past the splash after 1.5s no matter what.
+    // Set `bion_seen_intro` here too — if the user reaches this point once,
+    // they should never see the intro carousel again on any future visit.
+    const fallback = setTimeout(() => {
+      try { localStorage.setItem("bion_seen_intro", "1"); } catch {}
+      setPhase("onboarding");
+    }, 1500);
     return () => { clearInterval(interval); clearTimeout(fallback); };
   }, [phase]);
 

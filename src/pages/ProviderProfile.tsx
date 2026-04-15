@@ -255,51 +255,63 @@ export default function ProviderProfile() {
         {/* Shop section (only if provider has enabled storefront) */}
         <ProviderShopSection providerId={provider.id} />
 
-        {/* Contact Details — gated */}
+        {/* Contact Details
+             Unauth users see email, website, address, and a phone with the
+             last 2 digits masked — enough to evaluate the provider, but the
+             full number still requires sign-up.
+         */}
         <section>
           <h2 className="text-lg font-semibold text-foreground mb-3">Contact Information</h2>
           <GlassCard className="p-4">
-            {isSignedIn ? (
-              <div className="space-y-3">
-                {provider.contact.email && (
-                  <div className="flex items-center gap-3">
-                    <Mail className="w-4 h-4 text-muted-foreground shrink-0" />
-                    <span className="text-sm text-foreground">{provider.contact.email}</span>
-                  </div>
-                )}
-                {provider.contact.phone && (
-                  <div className="flex items-center gap-3">
-                    <Phone className="w-4 h-4 text-muted-foreground shrink-0" />
-                    <span className="text-sm text-foreground">{provider.contact.phone}</span>
-                  </div>
-                )}
-                {provider.contact.website && (
-                  <div className="flex items-center gap-3">
-                    <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
-                    <a href={provider.contact.website} target="_blank" rel="noopener noreferrer" className="text-sm text-indigo hover:underline truncate">
-                      {provider.contact.website}
-                    </a>
-                  </div>
-                )}
-                {provider.address && (
-                  <div className="flex items-center gap-3">
-                    <Building className="w-4 h-4 text-muted-foreground shrink-0" />
-                    <span className="text-sm text-foreground">{provider.address}</span>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-6">
-                <Lock className="w-8 h-8 text-muted-foreground/40 mx-auto mb-3" />
-                <h3 className="text-sm font-semibold text-foreground mb-1">Sign up to view contact details</h3>
-                <p className="text-xs text-muted-foreground mb-3">
-                  Create a free account to see contact information and make bookings.
+            <div className="space-y-3">
+              {provider.contact.email && (
+                <div className="flex items-center gap-3">
+                  <Mail className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <span className="text-sm text-foreground">{provider.contact.email}</span>
+                </div>
+              )}
+              {provider.contact.phone && (
+                <div className="flex items-center gap-3">
+                  <Phone className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <span className="text-sm text-foreground font-data">
+                    {isSignedIn
+                      ? provider.contact.phone
+                      : `${provider.contact.phone.slice(0, Math.max(0, provider.contact.phone.length - 2))}••`}
+                  </span>
+                </div>
+              )}
+              {provider.contact.website && (
+                <div className="flex items-center gap-3">
+                  <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <a
+                    href={provider.contact.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-indigo hover:underline truncate"
+                  >
+                    {provider.contact.website}
+                  </a>
+                </div>
+              )}
+              {provider.address && (
+                <div className="flex items-center gap-3">
+                  <Building className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <span className="text-sm text-foreground">{provider.address}</span>
+                </div>
+              )}
+            </div>
+
+            {!isSignedIn && provider.contact.phone && (
+              <div className="mt-4 pt-4 border-t border-white/5 flex items-center gap-3">
+                <Lock className="w-4 h-4 text-muted-foreground shrink-0" />
+                <p className="text-xs text-muted-foreground flex-1">
+                  Sign up below to reveal the full phone number and book directly.
                 </p>
                 <button
                   onClick={() => navigate("/welcome")}
-                  className="px-5 py-2.5 gradient-indigo rounded-pill text-sm font-medium text-white shadow-cta"
+                  className="shrink-0 px-3 py-1.5 gradient-indigo rounded-pill text-xs font-medium text-white shadow-cta"
                 >
-                  Sign Up Free
+                  Sign Up
                 </button>
               </div>
             )}
