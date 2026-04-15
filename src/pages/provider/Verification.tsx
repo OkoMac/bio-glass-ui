@@ -279,6 +279,51 @@ export default function ProviderVerification() {
   const totalUploaded = documents.length;
   const verifiedCount = documents.filter(d => d.status === "verified").length;
 
+  const [submitting, setSubmitting] = useState(false);
+  const [submittedFor, setSubmittedFor] = useState<string | null>(null);
+  const [providerStatus, setProviderStatus] = useState<string>("pending_verification");
+
+  // Fetch current provider_status once we have a profile ID
+  useEffect(() => {
+    (async () => {
+      if (!user?.profileId) return;
+      const { data } = await supabase.from("profiles").select("provider_status").eq("id", user.profileId).maybeSingle();
+      if ((data as any)?.provider_status) setProviderStatus((data as any).provider_status);
+    })();
+  }, [user?.profileId]);
+
+  /** Submit uploaded docs for B_ AI + admin review. Flips provider_status. */
+  const submitForReview = async () => {
+    if (!user?.profileId) { setError("Please finish onboarding first."); return; }
+    if (!requiredDone)   { setError("Upload all required documents before submitting for review."); return; }
+    setSubmitting(true); setError(null); setSuccess(null);
+    try {
+      const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+      const findPath = (t: string) => documents.find(d => d.type === t)?.fileUrl;
+      const res = await fetch(`${API}/api/kyc/provider/submit-documents`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          profileId: user.profileId,
+          regulator_body: regNumber ? "HPCSA" : "NONE",  // simplification: any non-empty reg number → HPCSA lookup
+          regulator_number: regNumber || null,
+          id_document_path: findPath("sa_id"),
+          proof_of_address_path: findPath("proof_address"),
+          regulator_certificate_path: findPath("professional_reg"),
+        }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error ?? "Submission failed");
+      setProviderStatus(data.provider_status);
+      setSubmittedFor(data.auto_verified
+        ? "Your account is verified — you can now take bookings on BION."
+        : "Documents submitted for review. Our compliance team reviews within 1 business day. You'll be notified when approved.");
+      setSuccess(data.auto_verified ? "Verified ✓" : "Submitted for review");
+    } catch (err: any) {
+      setError(err.message ?? "Submission failed");
+    }
+    setSubmitting(false);
+  };
+
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
       <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -316,25 +361,50 @@ export default function ProviderVerification() {
         <GlassCard className="p-4">
           <div className="flex items-center gap-4">
             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${
-              requiredDone ? "bg-teal/10" : "bg-amber/10"
+              providerStatus === "verified" ? "bg-teal/10"
+              : providerStatus === "docs_submitted" ? "bg-indigo/10"
+              : requiredDone ? "bg-teal/10" : "bg-amber/10"
             }`}>
               {loading ? <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" /> :
+                providerStatus === "verified" ? <CheckCircle className="w-6 h-6 text-teal" /> :
+                providerStatus === "docs_submitted" ? <Clock className="w-6 h-6 text-indigo" /> :
                 requiredDone ? <CheckCircle className="w-6 h-6 text-teal" /> : <Clock className="w-6 h-6 text-amber" />}
             </div>
             <div className="flex-1">
               <p className="text-sm font-bold text-foreground">
-                {loading ? "Loading documents..." : requiredDone ? "Documents Submitted" : "Verification Pending"}
+                {loading ? "Loading documents..."
+                 : providerStatus === "verified" ? "Verified — you can take bookings"
+                 : providerStatus === "docs_submitted" ? "Under review"
+                 : requiredDone ? "Ready to submit" : "Upload required documents"}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {totalUploaded} of {REQUIRED_DOCS.length} documents uploaded
                 {verifiedCount > 0 && ` · ${verifiedCount} verified`}
               </p>
               <div className="h-1.5 rounded-full bg-white/5 mt-2">
-                <div className={`h-full rounded-full transition-all ${requiredDone ? "bg-teal" : "bg-amber"}`}
+                <div className={`h-full rounded-full transition-all ${
+                  providerStatus === "verified" ? "bg-teal"
+                  : providerStatus === "docs_submitted" ? "bg-indigo"
+                  : requiredDone ? "bg-teal" : "bg-amber"
+                }`}
                   style={{ width: `${Math.round((totalUploaded / REQUIRED_DOCS.length) * 100)}%` }} />
               </div>
             </div>
           </div>
+
+          {providerStatus === "pending_verification" && requiredDone && (
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              disabled={submitting}
+              onClick={submitForReview}
+              className="mt-4 w-full rounded-pill py-3 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta flex items-center justify-center gap-2 disabled:opacity-60"
+            >
+              {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</> : "Submit for verification"}
+            </motion.button>
+          )}
+          {submittedFor && (
+            <p className="mt-3 text-xs text-muted-foreground">{submittedFor}</p>
+          )}
         </GlassCard>
 
         {/* Registration number */}
