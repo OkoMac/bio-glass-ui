@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
 import {
   Heart, Activity, Droplets, Moon, Flame, Footprints,
-  Scale, TrendingUp, TrendingDown, Wind, Brain, Dumbbell,
+  Scale, TrendingUp, TrendingDown, Wind, Brain, Dumbbell, Plus,
 } from "lucide-react";
+import { useHealthLogs } from "@/hooks/useHealth";
+import { useNavigate } from "react-router-dom";
 
 interface Biometric {
   id: string;
@@ -200,39 +202,102 @@ function TrendChart({ data, color, height = 40 }: { data: number[]; color: strin
  * Main Biometrics Dashboard
  */
 export default function BiometricsDashboard({ compact = false }: { compact?: boolean }) {
-  // Mock data — in production, this comes from health_metrics table
-  const moveData = { current: 1847, goal: 2200 };       // active calories
-  const exerciseData = { current: 42, goal: 60 };       // exercise minutes
-  const standData = { current: 9, goal: 12 };           // stand hours
+  // ── Real data from health_logs + localStorage ──
+  // Empty state (new user with no entries) shows a prompt, not fake numbers.
+  const navigate = useNavigate();
+  const { logs, loading } = useHealthLogs(30);
 
-  const totalActiveScore = Math.round(
-    ((moveData.current / moveData.goal) +
-     (exerciseData.current / exerciseData.goal) +
-     (standData.current / standData.goal)) / 3 * 100
-  );
+  const today = new Date().toISOString().slice(0, 10);
+  const todayLog = logs.find(l => l.log_date === today);
+  const latestWithWeight = [...logs].reverse().find(l => l.weight_kg != null);
+  const latestWithBodyFat = [...logs].reverse().find(l => l.body_fat_pct != null);
+  const latestWithHR = [...logs].reverse().find(l => l.resting_hr != null);
+  const latestWithSleep = [...logs].reverse().find(l => l.sleep_hours != null);
+
+  // Water is logged locally by WaterTracker; read today's count.
+  let todayWater = 0;
+  try { todayWater = parseInt(localStorage.getItem(`bion_water_${today}`) ?? "0") || 0; } catch { /* no-op */ }
+
+  const hasAnyData = logs.length > 0 || todayWater > 0;
+
+  // Compute trends (only if we have ≥ 2 data points of that metric)
+  const diffSince = <K extends keyof typeof logs[number]>(key: K) => {
+    const withValues = logs.filter(l => (l as any)[key] != null);
+    if (withValues.length < 2) return undefined;
+    const first = Number((withValues[0] as any)[key]);
+    const last = Number((withValues[withValues.length - 1] as any)[key]);
+    const delta = last - first;
+    return { delta, first, last };
+  };
+  const weightDiff = diffSince("weight_kg");
+  const bodyFatDiff = diffSince("body_fat_pct");
+  const hrDiff = diffSince("resting_hr");
+  const sleepDiff = diffSince("sleep_hours");
+
+  const moveData     = { current: todayLog?.steps ?? 0, goal: 10000 };
+  const exerciseData = { current: 0, goal: 60 };  // no exercise minutes logged today — empty
+  const standData    = { current: 0, goal: 12 };  // stand-hours not yet logged
+
+  const totalActiveScore = moveData.goal > 0
+    ? Math.round((moveData.current / moveData.goal) * 100)
+    : 0;
 
   const metrics: Biometric[] = [
-    { id: "weight",   label: "Weight",     value: 74.2,  unit: "kg",    icon: Scale,      color: "text-indigo",     ringColor: "#6366F1",
-      trend: { direction: "down", value: "1.9 kg this month" } },
-    { id: "bodyfat",  label: "Body Fat",   value: 17.4,  unit: "%",     icon: Activity,   color: "text-teal",       ringColor: "#0D9488",
-      trend: { direction: "down", value: "0.7% this month" } },
-    { id: "hr",       label: "Resting HR", value: 58,    unit: "bpm",   icon: Heart,      color: "text-coral",      ringColor: "#FB7185",
-      trend: { direction: "down", value: "4 bpm — excellent" } },
-    { id: "steps",    label: "Steps",      value: 9200,  goal: 10000,   unit: "",        icon: Footprints, color: "text-amber",      ringColor: "#F59E0B" },
-    { id: "sleep",    label: "Sleep",      value: 7.4,   goal: 8,       unit: "h",       icon: Moon,       color: "text-violet",     ringColor: "#8B5CF6",
-      trend: { direction: "up", value: "0.5h this month" } },
-    { id: "water",    label: "Hydration",  value: 5,     goal: 8,       unit: "glasses", icon: Droplets,   color: "text-blue-400",   ringColor: "#60A5FA" },
-    { id: "stress",   label: "Stress",     value: 4.2,   unit: "/10",   icon: Brain,      color: "text-violet",     ringColor: "#8B5CF6",
-      trend: { direction: "down", value: "1.6 vs last month" } },
-    { id: "spo2",     label: "SpO2",       value: 98,    unit: "%",     icon: Wind,       color: "text-teal",       ringColor: "#5EEAD4" },
+    { id: "weight",   label: "Weight",     value: latestWithWeight?.weight_kg ?? 0, unit: "kg", icon: Scale, color: "text-indigo", ringColor: "#6366F1",
+      trend: weightDiff ? { direction: weightDiff.delta < 0 ? "down" : weightDiff.delta > 0 ? "up" : "stable", value: `${weightDiff.delta > 0 ? "+" : ""}${weightDiff.delta.toFixed(1)} kg over ${logs.length} entries` } : undefined },
+    { id: "bodyfat",  label: "Body Fat",   value: latestWithBodyFat?.body_fat_pct ?? 0, unit: "%", icon: Activity, color: "text-teal", ringColor: "#0D9488",
+      trend: bodyFatDiff ? { direction: bodyFatDiff.delta < 0 ? "down" : bodyFatDiff.delta > 0 ? "up" : "stable", value: `${bodyFatDiff.delta > 0 ? "+" : ""}${bodyFatDiff.delta.toFixed(1)}%` } : undefined },
+    { id: "hr",       label: "Resting HR", value: latestWithHR?.resting_hr ?? 0, unit: "bpm", icon: Heart, color: "text-coral", ringColor: "#FB7185",
+      trend: hrDiff ? { direction: hrDiff.delta < 0 ? "down" : hrDiff.delta > 0 ? "up" : "stable", value: `${hrDiff.delta > 0 ? "+" : ""}${hrDiff.delta} bpm` } : undefined },
+    { id: "steps",    label: "Steps",      value: todayLog?.steps ?? 0, goal: 10000, unit: "", icon: Footprints, color: "text-amber", ringColor: "#F59E0B" },
+    { id: "sleep",    label: "Sleep",      value: latestWithSleep?.sleep_hours ?? 0, goal: 8, unit: "h", icon: Moon, color: "text-violet", ringColor: "#8B5CF6",
+      trend: sleepDiff ? { direction: sleepDiff.delta > 0 ? "up" : sleepDiff.delta < 0 ? "down" : "stable", value: `${sleepDiff.delta > 0 ? "+" : ""}${sleepDiff.delta.toFixed(1)}h` } : undefined },
+    { id: "water",    label: "Hydration",  value: todayWater, goal: 8, unit: "glasses", icon: Droplets, color: "text-blue-400", ringColor: "#60A5FA" },
   ];
 
   const visibleMetrics = compact ? metrics.slice(0, 4) : metrics;
 
-  // Mock weekly trends for sparklines
-  const weightTrend = [76.1, 75.8, 75.5, 75.2, 74.8, 74.5, 74.2];
-  const stepTrend = [7800, 8200, 9100, 8900, 9500, 8700, 9200];
-  const sleepTrend = [7.1, 6.8, 7.5, 7.2, 7.6, 7.4, 7.4];
+  // Sparklines only when we have logged data
+  const weightTrend = logs.map(l => l.weight_kg).filter((v): v is number => v != null);
+  const stepTrend   = logs.map(l => l.steps).filter((v): v is number => v != null);
+  const sleepTrend  = logs.map(l => l.sleep_hours).filter((v): v is number => v != null);
+
+  // ── Empty-state prompt for brand-new users ──
+  if (!loading && !hasAnyData) {
+    return (
+      <div className="space-y-4">
+        <div className="glass-1 rounded-2xl p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo/15 flex items-center justify-center">
+              <Activity className="w-5 h-5 text-indigo" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">Start tracking your health</p>
+              <p className="text-xs text-muted-foreground">No data yet — your dashboard fills in as you log.</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2 mt-3">
+            <button onClick={() => navigate("/water-tracker")} className="glass-1 rounded-xl p-3 text-left hover:bg-white/5 transition-colors">
+              <Droplets className="w-4 h-4 text-blue-400 mb-1.5" />
+              <p className="text-xs font-medium text-foreground">Log water</p>
+            </button>
+            <button onClick={() => navigate("/food-tracker")} className="glass-1 rounded-xl p-3 text-left hover:bg-white/5 transition-colors">
+              <Flame className="w-4 h-4 text-coral mb-1.5" />
+              <p className="text-xs font-medium text-foreground">Log food</p>
+            </button>
+            <button onClick={() => navigate("/sleep-tracker")} className="glass-1 rounded-xl p-3 text-left hover:bg-white/5 transition-colors">
+              <Moon className="w-4 h-4 text-violet mb-1.5" />
+              <p className="text-xs font-medium text-foreground">Log sleep</p>
+            </button>
+            <button onClick={() => navigate("/health-profile")} className="glass-1 rounded-xl p-3 text-left hover:bg-white/5 transition-colors">
+              <Scale className="w-4 h-4 text-indigo mb-1.5" />
+              <p className="text-xs font-medium text-foreground">Add weight</p>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
