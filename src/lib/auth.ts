@@ -58,13 +58,50 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
     // If metaRole exists but DB role doesn't match, trust metaRole (RLS may block user_roles read)
     if (import.meta.env.DEV) console.log(`[auth] User ${supabaseUserId}: metaRole=${metaRole}, dbRole=${dbRole}, resolved=${role}`);
 
+    // First-time OAuth users (Google / etc.) have no profile row yet — create
+    // one on the fly so hooks that depend on profileId don't crash and so we
+    // have a stable identity for bookings, favourites, and wallet lookups.
+    let profileId = profile?.id;
+    let profileName = profile?.full_name;
+    let profileEmail = profile?.email;
+    let profileAvatar = profile?.avatar_url;
+
+    if (!profile && authData.user) {
+      const fallbackName = (authData.user.user_metadata?.full_name as string | undefined)
+        ?? (authData.user.user_metadata?.name as string | undefined)
+        ?? authData.user.email?.split("@")[0]
+        ?? "User";
+      const fallbackAvatar = (authData.user.user_metadata?.avatar_url as string | undefined)
+        ?? (authData.user.user_metadata?.picture as string | undefined);
+      try {
+        const { data: created } = await supabase
+          .from("profiles")
+          .upsert({
+            user_id: supabaseUserId,
+            full_name: fallbackName,
+            email: authData.user.email,
+            avatar_url: fallbackAvatar,
+          }, { onConflict: "user_id" })
+          .select("id, full_name, email, avatar_url")
+          .single();
+        profileId = (created as any)?.id;
+        profileName = (created as any)?.full_name;
+        profileEmail = (created as any)?.email;
+        profileAvatar = (created as any)?.avatar_url;
+      } catch (err) {
+        // Don't block sign-in if profile creation fails — caller still gets a
+        // usable BioUser and can retry on their next action.
+        if (import.meta.env.DEV) console.warn("[auth] profile upsert failed:", err);
+      }
+    }
+
     const user: BioUser = {
       id:        supabaseUserId,
-      profileId: profile?.id ?? undefined,
-      name:      profile?.full_name ?? authData.user?.email?.split("@")[0] ?? "User",
-      email:     profile?.email ?? authData.user?.email ?? "",
+      profileId: profileId ?? undefined,
+      name:      profileName ?? authData.user?.email?.split("@")[0] ?? "User",
+      email:     profileEmail ?? authData.user?.email ?? "",
       role,
-      avatar:    profile?.avatar_url ?? undefined,
+      avatar:    profileAvatar ?? undefined,
     };
     
     // Add subscription based on user role

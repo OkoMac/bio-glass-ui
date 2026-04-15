@@ -77,7 +77,7 @@ const ONBOARDING_ROUTES: Record<UserRole, string> = {
 
 export default function SplashOnboarding() {
   const navigate = useNavigate();
-  const { login, user } = useAuth();
+  const { login, user, loading: authLoading } = useAuth();
 
   // Returning visitors skip the splash + onboarding carousel and land directly
   // on the role/auth picker. Flag is set as soon as the splash animation
@@ -87,9 +87,10 @@ export default function SplashOnboarding() {
   })();
 
   // If the user is already signed in, /welcome is a dead-end — send them
-  // straight to their role home. (Clearing the cache / logging out is the
-  // intended way to see the splash again.)
+  // straight to their role home. Wait for auth to resolve first so we don't
+  // fire a premature redirect during an OAuth return handshake.
   useEffect(() => {
+    if (authLoading) return;
     if (user) {
       const home =
         user.role === "admin"     ? "/admin/dashboard"     :
@@ -100,7 +101,7 @@ export default function SplashOnboarding() {
       navigate(home, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, authLoading]);
 
   const [phase, setPhase]               = useState<Phase>(hasSeenIntro ? "role" : "splash");
   const [progress, setProgress]         = useState(0);

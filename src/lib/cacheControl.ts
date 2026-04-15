@@ -1,65 +1,69 @@
 /**
- * On-unload cache control.
+ * Conservative cache maintenance.
  *
- * When the user closes the tab or navigates away, we sweep localStorage and
- * keep ONLY keys that:
- *  (a) represent the user's identity or authenticated session, or
- *  (b) are UX-persistence flags that are cheap to keep and hostile to lose
- *      (e.g. "skip the intro carousel next time").
+ * Earlier this was an aggressive "sweep everything that's not in this allow-list"
+ * unload handler. That broke Google OAuth in the WhatsApp in-app browser — when
+ * the tab leaves BION for the Google consent screen, `pagehide` fired the sweep
+ * and some Supabase PKCE state ended up cleared, bouncing the user back to
+ * /welcome on return.
  *
- * Everything else — stale React Query snapshots, dismissed-notification sets,
- * draft forms, etc. — is cleared so the next visit doesn't surface stale data
- * and the app doesn't replay finished flows.
+ * New approach: inverted policy. Only clear KNOWN stale keys (temporary flags,
+ * dismissed-notification sets, draft form state). Everything else — including
+ * anything Supabase writes — is left alone by default.
  *
- * Also invalidates in-memory React Query cache on `visibilitychange → hidden`
- * so the NEXT time the tab regains focus, fresh data is fetched.
+ * React Query invalidation on tab-hidden is kept, because that was only about
+ * forcing a refetch when the user comes back — no localStorage mutation.
  */
 
-const KEEP_EXACT = new Set<string>([
-  "bion_seen_intro",         // "don't show the splash carousel again"
-  "bion_role",               // last-active role (for demo account selection)
-  "bion_notifs_muted",       // user preference
-  "bion_admin_token",        // admin WhatsApp viewer token (desktop admin only)
+// Explicit stale-clear list. Only these keys get wiped on unload.
+const CLEAR_EXACT = new Set<string>([
+  "bion_dismissed_notifs",   // per-session dismissal set
+  "bion_read_notifs",        // per-session read markers
 ]);
 
-// Prefixes we keep. Everything that matches is retained on cleanup.
-const KEEP_PREFIX = [
-  "sb-",                     // Supabase auth session (sb-*-auth-token etc.)
-  "supabase.auth",           // alternate Supabase key
-  "bion_onboarding_",        // per-user onboarding completion state
-  "bion_favorite_providers_",// per-user favourite providers
+// Prefix-based clear — keep narrow to avoid accidentally blowing away auth.
+const CLEAR_PREFIX: string[] = [
+  "bion_draft_",             // form drafts (not currently used, reserved)
 ];
 
-function shouldKeep(key: string): boolean {
-  if (KEEP_EXACT.has(key)) return true;
-  return KEEP_PREFIX.some(p => key.startsWith(p));
+// Date-scoped reminder dismissals — the date in the suffix keeps them bounded,
+// but let's proactively drop older-than-today entries.
+function purgeStaleDatedKeys(): void {
+  const today = new Date().toISOString().slice(0, 10);
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (!k) continue;
+      if (k.startsWith("bion_reminders_dismissed_") && !k.endsWith(today)) {
+        localStorage.removeItem(k);
+      }
+    }
+  } catch { /* no-op */ }
 }
 
 function sweep(): void {
   try {
+    for (const k of CLEAR_EXACT) localStorage.removeItem(k);
     const keys: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
       if (k) keys.push(k);
     }
     for (const k of keys) {
-      if (!shouldKeep(k)) localStorage.removeItem(k);
+      if (CLEAR_PREFIX.some(p => k.startsWith(p))) localStorage.removeItem(k);
     }
-  } catch {
-    // localStorage may throw in some privacy modes — fail silently.
-  }
-  try { sessionStorage.clear(); } catch {}
+    purgeStaleDatedKeys();
+  } catch { /* no-op */ }
+  // sessionStorage is tab-scoped anyway; no need to explicitly clear.
 }
 
 export function installCacheControl(queryClient?: { clear: () => void }): void {
-  // `pagehide` is the reliable unload hook on iOS Safari; `beforeunload` covers
-  // desktop and Android. Both are harmless to fire together — sweep is idempotent.
   const onLeave = () => sweep();
   window.addEventListener("pagehide", onLeave);
   window.addEventListener("beforeunload", onLeave);
 
-  // Invalidate query cache when the tab goes to background so the next focus
-  // refetches. This is what kills the "stale / repetitive / cut-off" feel.
+  // Force query cache refetch when the tab returns from background, so the
+  // UI isn't showing 20-minute-old data. This never touches localStorage.
   const onVisibility = () => {
     if (document.visibilityState === "hidden" && queryClient) {
       try { queryClient.clear(); } catch {}
