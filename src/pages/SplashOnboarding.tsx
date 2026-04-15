@@ -116,6 +116,12 @@ export default function SplashOnboarding() {
   const [error,    setError]            = useState("");
   const [busy,     setBusy]             = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  // KYC gate state — only used for signup
+  const [phone, setPhone] = useState("");
+  const [otpStep, setOtpStep] = useState<"idle" | "sent" | "verified">("idle");
+  const [otpCode, setOtpCode] = useState("");
+
+  const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
   // Splash loader — hard-coded timeout keeps users unblocked even if interval stalls
   useEffect(() => {
@@ -137,41 +143,120 @@ export default function SplashOnboarding() {
   }, [phase]);
 
   // ── Auth handlers ────────────────────────────────────────────────
-  const handleAuth = async () => {
-    if (!selectedRole) return;
-    setError("");
 
-    if (authMode === "signup" && !name.trim()) { setError("Please enter your name."); return; }
-    if (!email.trim() || !password.trim())     { setError("Please fill in all fields."); return; }
+  /** Normalise a user-entered SA phone to the E.164 format we store. */
+  const normalizePhone = (raw: string): string => {
+    const digits = raw.replace(/\D/g, "");
+    if (digits.startsWith("27") && digits.length === 11) return "+" + digits;
+    if (digits.startsWith("0")  && digits.length === 10) return "+27" + digits.slice(1);
+    if (digits.length === 9)                              return "+27" + digits;
+    return raw.startsWith("+") ? raw : "+" + digits;
+  };
+
+  /** Step 1 of signup: precheck (duplicate block) + send OTP. */
+  const startSignup = async () => {
+    setError("");
+    if (!selectedRole) return;
+    if (!name.trim())     { setError("Please enter your full name."); return; }
+    if (!email.trim())    { setError("Please enter your email."); return; }
+    if (!password.trim()) { setError("Please choose a password (min 8 chars)."); return; }
+    if (!phone.trim())    { setError("Please enter your mobile number — we'll send a verification code."); return; }
+    const normPhone = normalizePhone(phone.trim());
+    if (!/^\+27[0-9]{9}$/.test(normPhone)) { setError("Enter a valid SA mobile number (e.g. 072 688 4826)."); return; }
 
     setBusy(true);
+    try {
+      // Gate 1: duplicate phone/email block
+      const pcRes = await fetch(`${API}/api/kyc/signup/precheck`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: normPhone, email: email.trim().toLowerCase() }),
+      });
+      const pc = await pcRes.json();
+      if (!pc.ok) {
+        if (pc.duplicatePhone) setError("This mobile number already has an account. Try signing in instead.");
+        else if (pc.duplicateEmail) setError("This email already has an account. Try signing in instead.");
+        else setError(pc.error ?? "Couldn't verify your details.");
+        setBusy(false);
+        return;
+      }
 
-    if (authMode === "signup") {
+      // Gate 2: send OTP to the phone
+      const otpRes = await fetch(`${API}/api/kyc/phone/send-otp`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: normPhone, purpose: "signup" }),
+      });
+      const otp = await otpRes.json();
+      if (!otp.ok) { setError(otp.error ?? "Couldn't send verification code."); setBusy(false); return; }
+      setOtpStep("sent");
+    } catch (err: any) {
+      setError(err.message ?? "Network error.");
+    }
+    setBusy(false);
+  };
+
+  /** Step 2 of signup: verify OTP → create the actual Supabase auth user. */
+  const completeSignup = async () => {
+    setError("");
+    if (!selectedRole) return;
+    if (!otpCode.trim() || otpCode.trim().length !== 6) { setError("Enter the 6-digit code we sent."); return; }
+
+    setBusy(true);
+    try {
+      const normPhone = normalizePhone(phone.trim());
+      const vRes = await fetch(`${API}/api/kyc/phone/verify-otp`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: normPhone, code: otpCode.trim() }),
+      });
+      const v = await vRes.json();
+      if (!v.ok) { setError(v.error ?? "Invalid code."); setBusy(false); return; }
+
+      // OTP verified — NOW create the Supabase account
       const { user, error: err } = await signUpWithEmail(email.trim(), password, name.trim(), selectedRole);
       if (err || !user) { setError(err ?? "Signup failed"); setBusy(false); return; }
 
-      // Record referral if code provided (client-to-client referrals only)
+      // Attach the verified phone to the profile
+      try {
+        await supabase.from("profiles").update({
+          phone: normPhone,
+          phone_verified: true,
+          phone_verified_at: new Date().toISOString(),
+        }).eq("user_id", user.id);
+      } catch {/* non-fatal */}
+
       if (referralCode.trim() && user.profileId && selectedRole === "client") {
         recordReferralSignup(referralCode.trim().toUpperCase(), user.profileId).catch(() => {});
       }
 
-      // Supabase may require email confirmation — check if session is valid
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        // Email confirmation required — show message instead of logging in
         setError("");
         setBusy(false);
         setPhase("email-sent");
         return;
       }
-      login(user);
+      login({ ...user, phone: normPhone, phoneVerified: true } as any);
       navigate(ROLE_HOME[selectedRole], { replace: true });
-    } else {
-      const { user, error: err } = await signInWithEmail(email.trim(), password);
-      if (err || !user) { setError(err ?? "Login failed"); setBusy(false); return; }
-      login(user);
-      navigate(ROLE_HOME[user.role], { replace: true });
+    } catch (err: any) {
+      setError(err.message ?? "Couldn't complete signup.");
     }
+    setBusy(false);
+  };
+
+  const handleAuth = async () => {
+    if (authMode === "signup") {
+      if (otpStep === "idle")   return startSignup();
+      if (otpStep === "sent")   return completeSignup();
+      return;
+    }
+    // Sign in path — unchanged, no OTP required for existing users
+    setError("");
+    if (!selectedRole) return;
+    if (!email.trim() || !password.trim()) { setError("Please fill in all fields."); return; }
+    setBusy(true);
+    const { user, error: err } = await signInWithEmail(email.trim(), password);
+    if (err || !user) { setError(err ?? "Login failed"); setBusy(false); return; }
+    login(user);
+    navigate(ROLE_HOME[user.role], { replace: true });
     setBusy(false);
   };
 
@@ -480,31 +565,71 @@ export default function SplashOnboarding() {
         {error && <p className="text-xs text-coral px-1">{error}</p>}
 
         <div className="space-y-3">
-          {authMode === "signup" && (
-            <input value={name} onChange={e => setName(e.target.value)} placeholder="Full name" type="text"
-              className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
-          )}
-          <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" type="email"
-            className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
-          <div className="relative">
-            <input value={password} onChange={e => setPassword(e.target.value)}
-              placeholder="Password" type={showPw ? "text" : "password"}
-              onKeyDown={e => e.key === "Enter" && handleAuth()}
-              className="w-full glass-1 rounded-xl px-4 py-3 pr-10 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
-            <button type="button" onClick={() => setShowPw(v => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-              {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            </button>
-          </div>
-          {authMode === "signup" && selectedRole === "client" && (
-            <div>
-              <input value={referralCode} onChange={e => setReferralCode(e.target.value.toUpperCase())}
-                placeholder="Referral code (optional)" type="text" maxLength={20}
+          {authMode === "signup" && otpStep === "idle" && (
+            <>
+              <input value={name} onChange={e => setName(e.target.value)} placeholder="Full name" type="text"
                 className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
-              {referralCode && (
-                <p className="text-[10px] text-teal mt-1 px-1">✓ You'll get 50 BION points on signup</p>
+              <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" type="email"
+                className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
+              <div className="relative">
+                <input value={password} onChange={e => setPassword(e.target.value)}
+                  placeholder="Password (8+ chars)" type={showPw ? "text" : "password"}
+                  onKeyDown={e => e.key === "Enter" && handleAuth()}
+                  className="w-full glass-1 rounded-xl px-4 py-3 pr-10 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
+                <button type="button" onClick={() => setShowPw(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <input value={phone} onChange={e => setPhone(e.target.value)}
+                placeholder="Mobile number (e.g. 072 123 4567)" type="tel"
+                className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
+              <p className="text-[10px] text-muted-foreground px-1 leading-relaxed">
+                We'll send a 6-digit verification code via WhatsApp. Used for account recovery and booking confirmations.
+              </p>
+              {selectedRole === "client" && (
+                <div>
+                  <input value={referralCode} onChange={e => setReferralCode(e.target.value.toUpperCase())}
+                    placeholder="Referral code (optional)" type="text" maxLength={20}
+                    className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
+                  {referralCode && (
+                    <p className="text-[10px] text-teal mt-1 px-1">✓ You'll get 50 BION points on signup</p>
+                  )}
+                </div>
               )}
-            </div>
+            </>
+          )}
+          {authMode === "signup" && otpStep === "sent" && (
+            <>
+              <div className="glass-1 rounded-xl px-4 py-3 text-xs text-muted-foreground">
+                We sent a 6-digit code to <span className="text-foreground font-medium">{normalizePhone(phone)}</span>. Enter it below to finish creating your account.
+              </div>
+              <input value={otpCode} onChange={e => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                placeholder="6-digit code" inputMode="numeric" maxLength={6}
+                onKeyDown={e => e.key === "Enter" && handleAuth()}
+                className="w-full glass-1 rounded-xl px-4 py-3 text-center text-lg font-data tracking-widest text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
+              <button type="button"
+                onClick={() => { setOtpStep("idle"); setOtpCode(""); setError(""); }}
+                className="w-full text-[11px] text-muted-foreground underline px-1">
+                Use a different number
+              </button>
+            </>
+          )}
+          {authMode === "signin" && (
+            <>
+              <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" type="email"
+                className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
+              <div className="relative">
+                <input value={password} onChange={e => setPassword(e.target.value)}
+                  placeholder="Password" type={showPw ? "text" : "password"}
+                  onKeyDown={e => e.key === "Enter" && handleAuth()}
+                  className="w-full glass-1 rounded-xl px-4 py-3 pr-10 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
+                <button type="button" onClick={() => setShowPw(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </>
           )}
         </div>
 
@@ -534,8 +659,14 @@ export default function SplashOnboarding() {
         <motion.button whileTap={{ scale: 0.97 }} onClick={handleAuth} disabled={busy || (authMode === "signup" && !acceptedTerms)}
           className="w-full rounded-pill py-4 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta flex items-center justify-center gap-2 disabled:opacity-60">
           {busy
-            ? <><Loader2 className="w-4 h-4 animate-spin" /> {authMode === "signup" ? "Creating account…" : "Signing in…"}</>
-            : authMode === "signup" ? "Get Started" : "Sign In"
+            ? <><Loader2 className="w-4 h-4 animate-spin" /> {
+                authMode === "signup"
+                  ? (otpStep === "idle" ? "Sending code…" : "Verifying & creating account…")
+                  : "Signing in…"
+              }</>
+            : authMode === "signup"
+              ? (otpStep === "idle" ? "Send verification code" : "Verify & create account")
+              : "Sign In"
           }
         </motion.button>
 

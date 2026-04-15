@@ -70,26 +70,83 @@ export default function ProviderProfile() {
   const provider = PROVIDERS[id ?? ""];
   const isSignedIn = !!user;
 
-  const handleBook = () => {
+  // Directory providers are curated seed listings — they have no profiles row.
+  // Only a provider with a real Supabase profileId can take in-app bookings
+  // with payment. Everything else is a LEAD: notify our sales team + tell the
+  // user honestly that the provider hasn't claimed their BION listing yet.
+  const isRegisteredOnBion = false; // curated directory provider — update
+                                    // per-provider when we add a registered flag
+
+  const [bookingError, setBookingError] = useState<string | null>(null);
+  const [bookingBusy, setBookingBusy] = useState(false);
+
+  const handleBook = async () => {
     if (!provider) return;
-    const service = provider.servicesOffered[selectedService] ?? provider.specialty;
-    addBooking({
-      clientId: user?.profileId ?? user?.id ?? "guest",
-      clientName: user?.name ?? "Guest",
-      clientImage: user?.avatar ?? "",
-      providerName: provider.name,
-      service,
-      date: bookingDate,
-      time: bookingTime,
-      duration: provider.duration ?? "60 min",
-      price: provider.price ?? "R0",
-    });
-    setBookingConfirmed(true);
-    setTimeout(() => {
-      setShowBooking(false);
-      setBookingConfirmed(false);
-      navigate("/schedule");
-    }, 2000);
+    setBookingError(null);
+
+    // Gate 1 — must be signed in
+    if (!user?.profileId) {
+      setBookingError("Please sign up or log in first.");
+      setTimeout(() => navigate("/welcome"), 1500);
+      return;
+    }
+
+    // Gate 2 — provider must be registered on BION to take a real booking
+    if (!isRegisteredOnBion) {
+      setBookingBusy(true);
+      try {
+        // Fire a sales-team lead so we can onboard this provider for the user
+        const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+        await fetch(`${API}/api/providers/lead`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            providerId: provider.id,
+            providerName: provider.name,
+            providerService: provider.specialty,
+            providerSuburb: provider.location,
+            providerPhone: provider.contact?.phone,
+            requestedBy: { profileId: user.profileId, name: user.name, email: user.email },
+          }),
+        }).catch(() => {/* best-effort — still show the user the right message */});
+      } finally {
+        setBookingBusy(false);
+      }
+      setBookingError("This provider hasn't claimed their BION listing yet. Our team has been notified to onboard them — we'll message you when in-app booking is available. In the meantime, their contact info above lets you reach them directly.");
+      return;
+    }
+
+    // Gate 3 — registered provider, create a real booking via the backend API.
+    // The backend creates a pending booking row AND initiates a Paystack
+    // checkout session. We redirect to Paystack; on success, the booking
+    // auto-confirms. On cancel, the user returns without a charge.
+    setBookingBusy(true);
+    try {
+      const service = provider.servicesOffered[selectedService] ?? provider.specialty;
+      const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+      const res = await fetch(`${API}/api/bookings/checkout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientProfileId: user.profileId,
+          providerId: provider.id,
+          service,
+          bookingDate,
+          bookingTime,
+          amount: Number(String(provider.price).replace(/[^0-9.]/g, "")) || 0,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.checkoutUrl) {
+        throw new Error(data.error ?? "Could not start checkout");
+      }
+      // Go to Paystack hosted checkout. Success URL routes back to /schedule.
+      window.location.href = data.checkoutUrl;
+    } catch (err: any) {
+      setBookingError(err.message ?? "Something went wrong starting your booking.");
+    } finally {
+      setBookingBusy(false);
+    }
   };
 
   const TIME_SLOTS = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
@@ -404,19 +461,25 @@ export default function ProviderProfile() {
             className="fixed bottom-0 left-0 right-0 z-[90] max-w-lg mx-auto rounded-t-3xl p-6 space-y-5"
             style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", border: "1px solid rgba(255,255,255,0.08)" }}
           >
-            {bookingConfirmed ? (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 rounded-full bg-teal/20 flex items-center justify-center mx-auto mb-4">
-                  <Check className="w-8 h-8 text-teal" />
+            {bookingError ? (
+              // Failure / unregistered-provider message — NOT a confirmation
+              <div className="py-4 space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-amber/20 flex items-center justify-center shrink-0">
+                    <Shield className="w-5 h-5 text-amber" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-foreground mb-1">
+                      {isRegisteredOnBion ? "Couldn't start your booking" : "Provider not yet on BION"}
+                    </h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{bookingError}</p>
+                  </div>
                 </div>
-                <h3 className="text-lg font-bold text-foreground mb-1">Booking Confirmed!</h3>
-                <p className="text-sm text-muted-foreground mb-4">Redirecting to your schedule...</p>
                 <button
-                  onClick={() => openWhatsApp(getBookingShareUrl(provider.name, provider.servicesOffered[selectedService], bookingDate))}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-pill bg-[#25D366] text-white text-xs font-semibold"
+                  onClick={() => { setBookingError(null); setShowBooking(false); }}
+                  className="w-full py-2.5 glass-1 rounded-pill text-sm font-medium text-foreground"
                 >
-                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.34 0-4.508-.657-6.363-1.795l-.444-.267-3.072 1.03 1.03-3.072-.267-.444A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-                  Share on WhatsApp
+                  Close
                 </button>
               </div>
             ) : (
