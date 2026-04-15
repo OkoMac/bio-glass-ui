@@ -132,6 +132,31 @@ export default function AdminVerification() {
     rejected: docs.filter(d => d.status === "rejected").length,
   }), [docs]);
 
+  /** Once a provider has all required docs verified, promote profiles.provider_status
+   *  to 'verified' — that's the flag the booking checkout endpoint gates on. */
+  const maybePromoteProvider = async (providerId: string) => {
+    try {
+      const { data: providerDocs } = await supabase
+        .from("provider_documents" as any)
+        .select("doc_type, status")
+        .eq("provider_id", providerId);
+      const rows = (providerDocs ?? []) as any[];
+      const verified = new Set(rows.filter(d => d.status === "verified").map(d => d.doc_type));
+      const REQUIRED = ["sa_id", "professional_reg", "qualifications"];
+      const allDone = REQUIRED.every(r => verified.has(r));
+      if (allDone) {
+        await supabase.from("profiles").update({
+          provider_status: "verified",
+          provider_status_at: new Date().toISOString(),
+          identity_verified: true,
+          identity_verified_at: new Date().toISOString(),
+        }).eq("id", providerId);
+      }
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn("[admin verification] provider promote skipped:", err);
+    }
+  };
+
   // Approve action
   const approveDoc = async (doc: PendingDoc) => {
     setActionLoading(doc.id);
@@ -152,6 +177,9 @@ export default function AdminVerification() {
           ? { ...d, status: "verified", reviewed_at: new Date().toISOString(), reviewed_by: user?.id }
           : d
       ));
+
+      // Promote the provider once all required docs are verified.
+      await maybePromoteProvider(doc.provider_id);
     } catch (err: any) {
       if (import.meta.env.DEV) console.error("[admin verification] approve error:", err);
       setError(err.message ?? "Could not approve document");
