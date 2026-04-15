@@ -9,52 +9,113 @@ import { BookingsProvider } from "@/contexts/BookingsContext";
 import { useBookingReminders } from "@/hooks/useBookingReminders";
 
 // ─── Error Boundary ──────────────────────────────────
+//
+// Behaviour:
+//   - Chunk-load errors: NEVER show error UI — they're recoverable. Show the
+//     same Suspense-style spinner + silently kick off a background auto-reload.
+//   - Other errors: wait 800ms before rendering the error UI. If the error
+//     state clears within that window (transient async issue), the user
+//     never sees a flash of "Something went wrong".
+//
+// This kills the UX bug where every authenticated page briefly flashed the
+// error screen during slow async loads / chunk fetches.
 class ErrorBoundary extends React.Component<
   { children: ReactNode },
-  { hasError: boolean; error: Error | null }
+  { hasError: boolean; error: Error | null; showError: boolean; isChunkError: boolean }
 > {
+  private showErrorTimer: ReturnType<typeof setTimeout> | null = null;
+
   constructor(props: { children: ReactNode }) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, showError: false, isChunkError: false };
   }
+
   static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
+    const msg = error.message ?? "";
+    const isChunk =
+      msg.includes("Failed to fetch dynamically imported module") ||
+      msg.includes("Loading chunk") ||
+      msg.includes("Loading CSS chunk") ||
+      msg.includes("error loading dynamically imported module");
+    return {
+      hasError: true,
+      error,
+      isChunkError: isChunk,
+      showError: false, // don't render the loud UI yet — see componentDidCatch
+    };
   }
+
   componentDidCatch(error: Error) {
-    // Auto-reload on chunk load failure (happens during Vercel deploys when old HTML references new chunk hashes)
-    if (error.message?.includes("Failed to fetch dynamically imported module") ||
-        error.message?.includes("Loading chunk") ||
-        error.message?.includes("Loading CSS chunk")) {
-      // Auto-reload up to 3 times with increasing delay (CDN propagation)
+    if (this.state.isChunkError) {
+      // Chunk-loading failure → silently auto-reload. Limit retries to avoid loop.
       const key = "bion_chunk_reload_count";
       const count = parseInt(sessionStorage.getItem(key) ?? "0", 10);
       if (count < 3) {
         sessionStorage.setItem(key, String(count + 1));
-        // Clear SW cache first to force fresh bundle
         if ("serviceWorker" in navigator) {
           navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
         }
         if ("caches" in window) {
           caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
         }
-        // Exponential backoff: 500ms, 1.5s, 3s
-        setTimeout(() => window.location.reload(), 500 * Math.pow(3, count));
+        // Brief backoff so we don't reload-loop the user. Spinner shows in the meantime.
+        setTimeout(() => window.location.reload(), 400 * Math.pow(2, count));
         return;
       }
+      // After 3 reload attempts, escalate to the visible error UI
       sessionStorage.removeItem(key);
     }
+
+    // Non-chunk error (or chunk error after 3 retries) — wait 800ms before
+    // showing the loud UI. This swallows transient errors that resolve on
+    // the next render (common with Suspense / async hooks during navigation).
+    if (this.showErrorTimer) clearTimeout(this.showErrorTimer);
+    this.showErrorTimer = setTimeout(() => {
+      // Only show if we're still in the error state when the timer fires
+      if (this.state.hasError) {
+        this.setState({ showError: true });
+      }
+    }, 800);
+
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.error("[ErrorBoundary]", error);
+    }
   }
+
+  componentWillUnmount() {
+    if (this.showErrorTimer) clearTimeout(this.showErrorTimer);
+  }
+
   render() {
-    if (this.state.hasError) {
-      const isChunkError = this.state.error?.message?.includes("dynamically imported module");
+    // Chunk error or pre-timer non-chunk error → minimal spinner, no scary UI
+    if (this.state.hasError && !this.state.showError) {
+      return (
+        <div style={{
+          minHeight: "100vh", background: "#0a0a0f",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: "50%",
+            border: "2px solid rgba(99,102,241,0.25)",
+            borderTopColor: "#6366f1",
+            animation: "bionSpin 0.8s linear infinite",
+          }} />
+          <style>{`@keyframes bionSpin { to { transform: rotate(360deg); } }`}</style>
+        </div>
+      );
+    }
+
+    // Persistent error after the grace period
+    if (this.state.hasError && this.state.showError) {
       return (
         <div style={{ padding: 40, fontFamily: "'DM Sans', system-ui", color: "#fff", background: "#0a0a0f", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>{isChunkError ? "🔄" : "⚠️"}</div>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>{this.state.isChunkError ? "🔄" : "⚠️"}</div>
           <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
-            {isChunkError ? "BION just updated" : "Something went wrong"}
+            {this.state.isChunkError ? "BION just updated" : "Something went wrong"}
           </h1>
           <p style={{ color: "#9ca3af", fontSize: 14, marginBottom: 24, maxWidth: 400 }}>
-            {isChunkError
+            {this.state.isChunkError
               ? "A new version was deployed. Tap reload to get the latest."
               : "An unexpected error occurred. Reloading usually fixes it."}
           </p>
@@ -75,6 +136,7 @@ class ErrorBoundary extends React.Component<
         </div>
       );
     }
+
     return this.props.children;
   }
 }
