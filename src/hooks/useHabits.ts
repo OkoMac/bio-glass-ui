@@ -39,7 +39,18 @@ export function useHabitProfile() {
         .eq("profile_id", user.profileId)
         .maybeSingle();
       if (!alive) return;
-      if (data) setProfile(data as unknown as HabitProfile);
+      if (data) {
+        setProfile(data as unknown as HabitProfile);
+        // Cache peak_active_hours to localStorage so the reminder engine
+        // (which runs synchronously and can't wait on Supabase) can gate
+        // proactive nudges to the user's real active-hour window.
+        try {
+          const peak = (data as any).peak_active_hours;
+          if (Array.isArray(peak)) localStorage.setItem("bion_peak_hours", JSON.stringify(peak));
+          const cats = (data as any).top_categories;
+          if (Array.isArray(cats)) localStorage.setItem("bion_top_categories", JSON.stringify(cats));
+        } catch { /* no-op */ }
+      }
       setLoading(false);
     })();
     return () => { alive = false; };

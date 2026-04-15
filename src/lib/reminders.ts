@@ -34,6 +34,27 @@ export function dismissReminder(id: string): void {
   localStorage.setItem(`${STORAGE_KEY}_${today}`, JSON.stringify([...dismissed]));
 }
 
+/** Peak-active-hours cache written by useHabitProfile. When the user has no
+ *  habit data yet, we fall back to a sensible 8–20 daytime window so new
+ *  accounts still get reminders. */
+function getPeakHours(): number[] {
+  try {
+    const raw = localStorage.getItem("bion_peak_hours");
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr) && arr.length) return arr.map(Number);
+    }
+  } catch { /* no-op */ }
+  // fallback: reasonable daytime window
+  return [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
+}
+
+/** Whether a soft / proactive reminder is allowed at this hour. Critical
+ *  reminders (medications, appointments) always fire regardless. */
+function isPeakHour(hour: number): boolean {
+  return getPeakHours().includes(hour);
+}
+
 /**
  * Generate all reminders for the current time based on user data
  */
@@ -43,6 +64,7 @@ export function generateReminders(): Reminder[] {
   const today = now.toISOString().split("T")[0];
   const dismissed = getDismissed();
   const reminders: Reminder[] = [];
+  const softAllowed = isPeakHour(hour);
 
   // ── Routines ──────────────────────────────────────
   try {
@@ -207,7 +229,7 @@ export function generateReminders(): Reminder[] {
     const waterCount = parseInt(localStorage.getItem(`bion_water_${today}`) ?? "0");
     const goals = JSON.parse(localStorage.getItem("bion_food_goals") ?? "{}");
     const waterGoal = goals.water ?? 8;
-    if (hour >= 10 && hour < 20 && waterCount < Math.floor(waterGoal * (hour - 6) / 14)) {
+    if (softAllowed && hour >= 10 && hour < 20 && waterCount < Math.floor(waterGoal * (hour - 6) / 14)) {
       reminders.push({
         id: `water_${today}_${hour}`,
         type: "water",
@@ -226,7 +248,7 @@ export function generateReminders(): Reminder[] {
   try {
     const entries = JSON.parse(localStorage.getItem("bion_food_tracker") ?? "[]");
     const todayMeals = entries.filter((e: any) => e.date === today);
-    if (hour >= 12 && hour < 14 && !todayMeals.some((e: any) => e.meal === "lunch")) {
+    if (softAllowed && hour >= 12 && hour < 14 && !todayMeals.some((e: any) => e.meal === "lunch")) {
       reminders.push({
         id: `food_lunch_${today}`,
         type: "meal",

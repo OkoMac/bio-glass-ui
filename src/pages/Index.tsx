@@ -13,6 +13,7 @@ import {
   Droplets, Moon, HeartPulse, Activity
 } from "lucide-react";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { useHabitProfile } from "@/hooks/useHabits";
 import { useVerifiedProviders } from "@/hooks/useVerifiedProviders";
 import { distanceToSuburb } from "@/lib/pretoriaSuburbs";
 import BiometricsDashboard from "@/components/BiometricsDashboard";
@@ -77,6 +78,7 @@ const Index = () => {
   const navigate = useNavigate();
   const geo = useGeolocation();
   const verifiedProviders = useVerifiedProviders();
+  const { profile: habitProfile } = useHabitProfile();
 
   const filteredProviders = useMemo(() => {
     let list = ALL_HOME_PROVIDERS;
@@ -120,8 +122,28 @@ const Index = () => {
       }
     }
 
+    // ── Personalise by the user's top engaged categories (from habits) ──
+    // When the user hasn't explicitly picked a category chip, re-rank the list
+    // so providers whose specialty matches one of the user's top categories
+    // surface first. No-op for new users with no habit signal yet.
+    if (!cat && habitProfile?.top_categories?.length) {
+      const catWeight: Record<string, number> = {};
+      habitProfile.top_categories.forEach((c, idx) => {
+        catWeight[c.category.toLowerCase()] = (5 - idx) * c.count;
+      });
+      const score = (p: typeof list[number]) => {
+        const hay = `${p.specialty ?? ""} ${p.serviceCategory ?? ""}`.toLowerCase();
+        let s = (p.rating ?? 0);
+        for (const [key, weight] of Object.entries(catWeight)) {
+          if (hay.includes(key)) s += weight;
+        }
+        return s;
+      };
+      list = [...list].sort((a, b) => score(b) - score(a));
+    }
+
     return list.slice(0, 12);
-  }, [activeCategory, searchQuery, filterVersion, geo.latitude, geo.longitude]);
+  }, [activeCategory, searchQuery, filterVersion, geo.latitude, geo.longitude, habitProfile]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();

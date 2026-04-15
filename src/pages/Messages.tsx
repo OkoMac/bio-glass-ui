@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
+import { trackEvent } from "@/lib/habits";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
@@ -99,6 +100,7 @@ function ChatView({
         id: Date.now(), from: "client", text: draft.trim(), time: getTime(), status: "sent",
       }]);
     }
+    trackEvent("message_sent", { category: "messaging", metadata: { conversation_id: conversation?.id, chars: draft.trim().length } });
     setDraft("");
   };
 

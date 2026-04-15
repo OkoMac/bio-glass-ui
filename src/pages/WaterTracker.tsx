@@ -6,6 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { ArrowLeft, Droplets, Plus, Minus, Trophy, Target, Flame } from "lucide-react";
 import { useActivityPoints } from "@/hooks/useActivityPoints";
+import { trackEvent } from "@/lib/habits";
 
 const STORAGE_KEY = "bion_water_tracker";
 const STREAK_KEY = "bion_water_streak";
@@ -133,6 +134,7 @@ export default function WaterTracker() {
     // hook's idempotency: ref ID = today's date, so DB unique would prevent double-count.
     // We keep it simple here — points awarded per click; the yearly cap protects abuse.
     awardPoints("log_water", `${dateKey}-glass-${data.glasses + 1}`).catch(() => {});
+    trackEvent("tool_use", { category: "wellness_tracking", metadata: { tool: "water", amount_ml: 250 } });
   };
 
   const removeGlass = () => {

@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useCourseDetail, useEnrollments, useEnrollmentActions } from "@/hooks/useEcademy";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/habits";
 
 export default function EcademyLesson() {
   const { code, n } = useParams<{ code: string; n: string }>();
@@ -19,6 +20,15 @@ export default function EcademyLesson() {
 
   // Scroll to top on lesson change
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [lessonNumber]);
+
+  // Log the article_read event once we've resolved the lesson (content is on screen).
+  useEffect(() => {
+    if (!course || !code) return;
+    trackEvent("article_read", {
+      category: "education",
+      metadata: { course_code: code, lesson_number: lessonNumber, course_title: course.title },
+    });
+  }, [code, lessonNumber, course]);
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;

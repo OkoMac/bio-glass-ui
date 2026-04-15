@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
+import { trackEvent } from "@/lib/habits";
 import BionAssistant from "@/components/BionAssistant";
 import { ArrowLeft, Moon, Sun, Star, Clock, TrendingUp, Lightbulb } from "lucide-react";
 
@@ -86,6 +87,7 @@ export default function SleepTracker() {
     saveEntries(updated);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+    trackEvent("tool_use", { category: "wellness_tracking", metadata: { tool: "sleep", duration_hours: duration, quality } });
   };
 
   const maxDuration = Math.max(...weekData.map((e) => e.duration), 10);

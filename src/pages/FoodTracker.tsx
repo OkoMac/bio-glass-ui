@@ -7,6 +7,7 @@ import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFoodSync } from "@/hooks/useFoodSync";
 import { useActivityPoints } from "@/hooks/useActivityPoints";
+import { trackEvent } from "@/lib/habits";
 import {
   ArrowLeft, Camera, Plus, X, Flame, TrendingUp, TrendingDown,
   Utensils, Droplets, Apple, Coffee, Moon, Sun, ChevronRight,
@@ -174,6 +175,7 @@ export default function FoodTracker() {
     };
     syncAddEntry(entry);
     awardPoints("log_food", entry.id).catch(() => {});
+    trackEvent("tool_use", { category: "wellness_tracking", metadata: { tool: "food", meal: selectedMeal, calories: entry.calories } });
     setSearchQuery("");
   };
 
@@ -193,6 +195,7 @@ export default function FoodTracker() {
     };
     syncAddEntry(entry);
     awardPoints("log_food", entry.id).catch(() => {});
+    trackEvent("tool_use", { category: "wellness_tracking", metadata: { tool: "food", meal: selectedMeal, calories: entry.calories } });
     setManualEntry({ name: "", calories: "", protein: "", carbs: "", fat: "" });
     setPhotoPreview(null);
     setShowAdd(false);
