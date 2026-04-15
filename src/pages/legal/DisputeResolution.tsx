@@ -5,7 +5,7 @@ import GlassCard from "@/components/GlassCard";
 
 export default function DisputeResolution() {
   const navigate = useNavigate();
-  const updated = "9 April 2026";
+  const updated = "15 April 2026";
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-20">
@@ -44,9 +44,9 @@ export default function DisputeResolution() {
             <h2 className="text-base font-semibold text-foreground mb-2">3. How to Raise a Dispute</h2>
             <div className="space-y-3 mt-2">
               {[
-                { step: "1", title: "In-app reporting", desc: "Navigate to your booking history, select the relevant booking, and tap 'Report an Issue'. Provide a description and any supporting evidence (photos, messages)." },
-                { step: "2", title: "Email support", desc: "Email disputes@bionhealth.co.za with your booking reference, provider name, date of service, and a description of the issue." },
-                { step: "3", title: "Deadline", desc: "Disputes must be raised within 7 days of the service date. Billing disputes may be raised within 30 days of the transaction." },
+                { step: "1", title: "In-app reporting (preferred)", desc: "From your order or booking in BION, tap 'Report a problem'. Pick the reason, describe what happened, and upload photo evidence directly from the app. The evidence is uploaded to BION's private, RLS-scoped storage bucket visible only to you, the provider, and BION admins." },
+                { step: "2", title: "Email fallback", desc: "If you can't use the app, email disputes@bionhealth.co.za with your booking reference, provider name, date of service, and description." },
+                { step: "3", title: "Deadline", desc: "Product orders: 7 days from delivery. Service bookings: 7 days from appointment date. Billing disputes: 30 days from the transaction. After these windows the transaction is considered final." },
               ].map(item => (
                 <div key={item.step} className="flex gap-3">
                   <div className="w-7 h-7 rounded-lg bg-indigo/10 flex items-center justify-center text-xs font-bold text-indigo shrink-0">{item.step}</div>
@@ -60,14 +60,16 @@ export default function DisputeResolution() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold text-foreground mb-2">4. Resolution Process</h2>
+            <h2 className="text-base font-semibold text-foreground mb-2">4. Resolution Process — B_ AI Mediation</h2>
+            <p className="mb-2">Disputes on BION are mediated in-platform by <span className="text-foreground font-medium">B_</span>, our AI dispute mediator. Both sides keep full ownership of the outcome — B_ only recommends.</p>
             <div className="space-y-3 mt-2">
               {[
-                { step: "1", title: "Acknowledgement (24 hours)", desc: "BION acknowledges receipt of the dispute and assigns a case reference number." },
-                { step: "2", title: "Investigation (48–72 hours)", desc: "BION reviews the booking details, payment records, messages, and any evidence provided by both parties. Both the client and provider are contacted for their account." },
-                { step: "3", title: "Mediation", desc: "If the facts are disputed, BION facilitates communication between the parties to reach a mutually acceptable resolution." },
-                { step: "4", title: "Decision (within 7 business days)", desc: "BION issues a written decision with reasoning. Possible outcomes include full refund, partial refund, service credit, or no action." },
-                { step: "5", title: "Escalation", desc: "If either party is unsatisfied, they may escalate to the BION Dispute Review Panel or pursue external remedies (see Section 7)." },
+                { step: "1", title: "Buyer opens the dispute", desc: "Order status flips to 'disputed'; the provider is notified immediately and payout is frozen." },
+                { step: "2", title: "Provider responds (within 3 days)", desc: "Provider submits their side with photo evidence. Failure to respond automatically forfeits the dispute to the buyer." },
+                { step: "3", title: "B_ reviews both sides", desc: "B_ reads both statements and evidence, then issues a recommendation: refund_buyer, replace_product, decline_buyer, or admin_review_needed — with a confidence score and a short reasoning." },
+                { step: "4", title: "Provider decides", desc: "Provider can Refund (credits buyer's wallet with full amount, marks order refunded), Ship Replacement (order returns to 'preparing', buyer ships the original back at their own cost), or Escalate to BION admin." },
+                { step: "5", title: "Admin final call", desc: "Escalated disputes land in the BION admin queue. Admin can approve a refund or decline. Decision is final subject to external remedies (Section 7)." },
+                { step: "6", title: "Timeline", desc: "Full resolution target: within 7 business days from opening. B_ reviews are near-instant; provider + admin actions extend the window." },
               ].map(item => (
                 <div key={item.step} className="flex gap-3">
                   <div className="w-7 h-7 rounded-lg bg-teal/10 flex items-center justify-center text-xs font-bold text-teal shrink-0">{item.step}</div>
@@ -81,23 +83,27 @@ export default function DisputeResolution() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold text-foreground mb-2">5. Refund Outcomes</h2>
+            <h2 className="text-base font-semibold text-foreground mb-2">5. Refund Outcomes & Settlement</h2>
             <div className="space-y-2">
               <div className="glass-1 rounded-xl p-3">
                 <p className="text-xs text-foreground font-medium">Provider no-show:</p>
-                <p className="text-xs text-muted-foreground">Full refund to client. Provider receives a warning; repeated no-shows result in suspension.</p>
+                <p className="text-xs text-muted-foreground">Full refund credited to client's BION Wallet within minutes of B_ or admin confirmation. Provider receives a warning on their profile.</p>
               </div>
               <div className="glass-1 rounded-xl p-3">
-                <p className="text-xs text-foreground font-medium">Service quality issue (verified):</p>
-                <p className="text-xs text-muted-foreground">Partial or full refund at BION's discretion. Provider may be required to offer a complimentary follow-up session.</p>
+                <p className="text-xs text-foreground font-medium">Service quality / product defect (verified):</p>
+                <p className="text-xs text-muted-foreground">Full or partial refund per B_'s recommendation and provider decision. For products: provider can alternatively ship a replacement; the buyer returns the original at their own cost.</p>
               </div>
               <div className="glass-1 rounded-xl p-3">
                 <p className="text-xs text-foreground font-medium">Client no-show (no cancellation):</p>
-                <p className="text-xs text-muted-foreground">No refund. Provider receives full payment for the booked session.</p>
+                <p className="text-xs text-muted-foreground">No refund. Provider receives full payout for the booked session.</p>
               </div>
               <div className="glass-1 rounded-xl p-3">
-                <p className="text-xs text-foreground font-medium">Billing error:</p>
-                <p className="text-xs text-muted-foreground">Full refund of the erroneous amount. Processed via Paystack within 5–10 business days.</p>
+                <p className="text-xs text-foreground font-medium">Billing error / unauthorised charge:</p>
+                <p className="text-xs text-muted-foreground">Full refund via Paystack to the original payment method within 5–10 business days.</p>
+              </div>
+              <div className="glass-1 rounded-xl p-3">
+                <p className="text-xs text-foreground font-medium">Refund destination:</p>
+                <p className="text-xs text-muted-foreground">Default is the client's BION Wallet (fast, no bank fees). Clients may request bank refund via Paystack — this applies standard 5–10 business day processing.</p>
               </div>
             </div>
           </section>

@@ -16,7 +16,7 @@ const STEPS: OnboardingStep[] = [
     icon: "🏥",
     highlights: [
       { icon: "📅", title: "Effortless Bookings", desc: "Clients book you 24/7 — calendar, confirmations and reminders handled automatically." },
-      { icon: "💰", title: "95% Payout Rate", desc: "BION charges only 5%. The rest is yours. Instant via Paystack split payment to your bank account after each completed session." },
+      { icon: "💰", title: "90% of every booking is yours", desc: "BION deducts a 5% platform fee and ring-fences a 5% acquisition-marketing contribution that we spend acquiring new clients for you. Payout lands in your wallet instantly via Paystack." },
       { icon: "📊", title: "Built-in Analytics", desc: "Track revenue, client retention, no-show rates and growth trends in real time." },
       { icon: "🤖", title: "AI-Powered Growth", desc: "B_ matches you with clients whose needs fit your services automatically." },
     ],
@@ -66,10 +66,10 @@ const STEPS: OnboardingStep[] = [
     title: "BION Fee & Payouts",
     subtitle: "Simple, transparent pricing.",
     highlights: [
-      { icon: "💸", title: "5% Platform Fee", desc: "BION charges 5% per completed booking — covering payment processing, client acquisition, insurance and platform infrastructure." },
-      { icon: "🏦", title: "Instant Payouts", desc: "Instant via Paystack split payment to your bank account after each completed session." },
-      { icon: "🛡️", title: "No-Show Protection", desc: "Enable your cancellation policy to protect revenue. Late-cancellation fees (your choice) go directly to you." },
-      { icon: "📈", title: "Grow Your Revenue", desc: "Track your revenue growth with built-in analytics." },
+      { icon: "💸", title: "5% Platform Fee", desc: "Deducted from every completed booking — covers payment processing, insurance, support and platform infrastructure." },
+      { icon: "📣", title: "5% Acquisition Marketing", desc: "Ring-fenced from every completed booking and spent on vouchers that bring you new clients. Vouchers are redeemable only at your practice and go to nearby people who have never booked with you." },
+      { icon: "🧮", title: "You keep 90% + client fee", desc: "On a R100 service, the client pays R105. Provider net: R90. The 5% client fee and BION's share of costs are invisible to you." },
+      { icon: "🏦", title: "Instant Wallet Payout", desc: "Your share lands in your BION wallet the moment a booking completes. Withdraw to your bank any time (10% cash-out fee covers bank transfers + FICA); free to keep in-wallet for re-investing." },
     ],
   },
   {
@@ -90,10 +90,12 @@ const STEPS: OnboardingStep[] = [
     title: "Provider Agreement",
     subtitle: "Review and accept to continue.",
     consentItems: [
-      { id: "fee_agree", label: "I understand and accept the 5% platform fee on completed bookings, with 95% paid directly to my bank account via Paystack.", required: true },
-      { id: "popia_dpa", label: "I consent to BION processing my personal and business data as a data processor under POPIA. Client data shared with me will be used only for service delivery.", required: true },
-      { id: "cancellation", label: "I will honour my published cancellation policy and respond to booking requests within 24 hours.", required: true },
-      { id: "verification", label: "I confirm that my qualifications and professional registrations (if applicable) are current and valid.", required: true },
+      { id: "fee_agree",     label: "I understand and accept: a 5% platform fee is deducted from every completed booking, and a further 5% is ring-fenced as an acquisition-marketing contribution that BION spends on client-acquisition vouchers redeemable only at my practice. My net payout is 90% of the bill, settled to my BION wallet on completion.", required: true },
+      { id: "voucher_ack",   label: "I understand that BION charges a 5% transaction fee on acquisition vouchers when they are redeemed at my practice. Withdrawals from my BION wallet to my bank incur a 10% cash-out fee; keeping funds in-wallet is free.", required: true },
+      { id: "popia_dpa",     label: "I consent to BION processing my personal and business data as a data processor under POPIA. Client data shared with me will be used only for service delivery.", required: true },
+      { id: "cancellation",  label: "I will honour my published cancellation policy and respond to booking requests within 24 hours.", required: true },
+      { id: "verification",  label: "I confirm that my qualifications and professional registrations (if applicable — HPCSA/SANC/AHPCSA) are current and valid, and I authorise BION to verify them against the relevant public register.", required: true },
+      { id: "dispute_ack",   label: "I accept that disputes raised by clients are mediated by BION's B_ AI, and that my response + evidence must be submitted within the 7-day window to avoid automatic refund to the buyer.", required: true },
     ],
   },
   {
@@ -106,16 +108,16 @@ const STEPS: OnboardingStep[] = [
     questions: [
       {
         id: "pq1",
-        question: "What percentage of each booking does BION keep?",
+        question: "On a R100 booking, what is your net payout after all BION deductions?",
         type: "single",
         required: true,
         isKnowledgeCheck: true,
-        explanation: "BION charges a 5% platform fee. You keep 95% of every completed booking.",
+        explanation: "Client pays R105. After the 5% platform fee and 5% acquisition-marketing contribution, you keep R90 (90%). The marketing contribution funds new-client vouchers redeemable only at your practice — it is not revenue to BION.",
         options: [
-          { id: "a", text: "5%", isCorrect: true },
-          { id: "b", text: "8%" },
-          { id: "c", text: "15%" },
-          { id: "d", text: "20%" },
+          { id: "a", text: "R95" },
+          { id: "b", text: "R90", isCorrect: true },
+          { id: "c", text: "R85" },
+          { id: "d", text: "R100" },
         ],
       },
       {

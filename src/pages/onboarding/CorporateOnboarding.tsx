@@ -116,10 +116,12 @@ const STEPS: OnboardingStep[] = [
     title: "Data Processing Agreement",
     subtitle: "Required for POPIA compliance when handling employee wellness data.",
     consentItems: [
-      { id: "dpa_agree", label: "I accept the BION Data Processing Agreement. Employee personal data will be processed in accordance with POPIA and used solely for wellness programme delivery.", required: true },
-      { id: "aggregate_only", label: "I understand that HR/management will only see aggregate anonymised data. Individual employee session details are never disclosed to the employer.", required: true },
+      { id: "dpa_agree",        label: "I accept the BION Data Processing Agreement. Employee personal data will be processed in accordance with POPIA and used solely for wellness programme delivery.", required: true },
+      { id: "aggregate_only",   label: "I understand that HR/management will only see aggregate anonymised data. Individual employee session details are never disclosed to the employer.", required: true },
       { id: "employee_consent", label: "I confirm that employees will be informed about the wellness programme and their participation is voluntary.", required: true },
-      { id: "billing_terms", label: "I accept the corporate billing terms: monthly budget per employee, unused credits do not roll over unless otherwise agreed.", required: true },
+      { id: "billing_terms",    label: "I accept the corporate billing terms: monthly budget per employee, unused credits do not roll over unless otherwise agreed.", required: true },
+      { id: "wallet_closed",    label: "I understand that the Corporate Wallet is a closed-loop credit system. Credits can only be spent on services within BION, are non-refundable, non-transferable, and non-withdrawable once allocated to employees.", required: true },
+      { id: "fees_pass_through",label: "I accept that the 5% client service fee applies to each employee booking on top of the service price and is paid from the employee's wallet balance. Employees on our corporate plan do not separately pay a personal Premium subscription.", required: true },
     ],
   },
   {
