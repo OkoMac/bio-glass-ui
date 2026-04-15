@@ -46,21 +46,8 @@ interface HealthGoal {
   vertical: string;
 }
 
-const METRICS: HealthMetric[] = [
-  { label: "Weight",          value: "74.2", unit: "kg",  trend: "↓ 1.9 this month", color: "text-indigo",  icon: Scale    },
-  { label: "Body Fat",        value: "17.4", unit: "%",   trend: "↓ 0.7 this month", color: "text-teal",    icon: Activity },
-  { label: "Lean Mass",       value: "61.3", unit: "kg",  trend: "↑ 0.3 this month", color: "text-violet",  icon: Dna      },
-  { label: "Resting HR",      value: "58",   unit: "bpm", trend: "↓ 4 this month",   color: "text-coral",   icon: Heart    },
-  { label: "Daily Steps",     value: "9,200", unit: "steps",trend: "↑ 1.4k avg",    color: "text-amber",   icon: TrendingUp },
-  { label: "Sleep Avg",       value: "7.4",  unit: "h",   trend: "↑ 0.5 this month", color: "text-teal",   icon: Eye      },
-];
-
-const INITIAL_GOALS: HealthGoal[] = [
-  { id: "g1", label: "Reach 72kg",           target: "72 kg",   progress: 48, deadline: "Apr 2026", vertical: "fitness"     },
-  { id: "g2", label: "Body fat under 15%",   target: "15%",     progress: 35, deadline: "Jun 2026", vertical: "fitness"     },
-  { id: "g3", label: "Run 10km",             target: "10 km",   progress: 60, deadline: "May 2026", vertical: "fitness"     },
-  { id: "g4", label: "Reduce stress score",  target: "< 4/10",  progress: 40, deadline: "Mar 2026", vertical: "mindfulness" },
-];
+// Goals start empty — users create their own via "Add Goal" in the UI.
+const INITIAL_GOALS: HealthGoal[] = [];
 
 const VERTICAL_OPTIONS = [
   { value: "fitness",     label: "Fitness",     color: "text-teal"   },
@@ -99,8 +86,39 @@ const VERT_COLOR: Record<string, string> = {
 
 export default function HealthProfile() {
   const navigate = useNavigate();
-  const { logToday } = useHealthLogs(7);
+  const { logs, logToday } = useHealthLogs(30);
   const [tab, setTab]   = useState<Tab>("metrics");
+
+  // Derive current metric values from the user's actual health_logs.
+  // New users (no logs) see em-dashes and a call-to-action to log their first reading.
+  const METRICS: HealthMetric[] = (() => {
+    const latest = <K extends keyof typeof logs[number]>(key: K) => {
+      const rev = [...logs].reverse().find(l => (l as any)[key] != null);
+      return rev ? Number((rev as any)[key]) : null;
+    };
+    const diff = <K extends keyof typeof logs[number]>(key: K) => {
+      const withVals = logs.filter(l => (l as any)[key] != null);
+      if (withVals.length < 2) return null;
+      const d = Number((withVals[withVals.length - 1] as any)[key]) - Number((withVals[0] as any)[key]);
+      return d;
+    };
+    const fmt = (n: number | null, digits = 1) => (n == null ? "—" : n.toFixed(digits));
+    const w = latest("weight_kg"), bf = latest("body_fat_pct"), lm = latest("lean_mass_kg");
+    const hr = latest("resting_hr"), steps = latest("steps"), sleep = latest("sleep_hours");
+    const wD = diff("weight_kg"), bfD = diff("body_fat_pct"), hrD = diff("resting_hr"), sleepD = diff("sleep_hours");
+    return [
+      { label: "Weight",      value: fmt(w),  unit: "kg",    color: "text-indigo", icon: Scale,
+        trend: wD != null ? `${wD < 0 ? "↓" : wD > 0 ? "↑" : "="} ${Math.abs(wD).toFixed(1)} this month` : "" },
+      { label: "Body Fat",    value: fmt(bf), unit: "%",     color: "text-teal",   icon: Activity,
+        trend: bfD != null ? `${bfD < 0 ? "↓" : "↑"} ${Math.abs(bfD).toFixed(1)}` : "" },
+      { label: "Lean Mass",   value: fmt(lm), unit: "kg",    color: "text-violet", icon: Dna, trend: "" },
+      { label: "Resting HR",  value: hr == null ? "—" : String(hr), unit: "bpm", color: "text-coral", icon: Heart,
+        trend: hrD != null ? `${hrD < 0 ? "↓" : "↑"} ${Math.abs(hrD)} this month` : "" },
+      { label: "Daily Steps", value: steps == null ? "—" : steps.toLocaleString("en-ZA"), unit: "steps", color: "text-amber", icon: TrendingUp, trend: "" },
+      { label: "Sleep Avg",   value: fmt(sleep), unit: "h", color: "text-teal", icon: Eye,
+        trend: sleepD != null ? `${sleepD > 0 ? "↑" : "↓"} ${Math.abs(sleepD).toFixed(1)}` : "" },
+    ];
+  })();
   const [privacy, setPrivacy] = useState<Record<string, PrivacyLevel>>({
     metrics: "provider", goals: "provider", medical: "private", documents: "private",
   });
