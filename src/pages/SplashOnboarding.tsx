@@ -79,7 +79,14 @@ export default function SplashOnboarding() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const [phase, setPhase]               = useState<Phase>("splash");
+  // Returning visitors skip the splash + onboarding carousel and land directly
+  // on the role/auth picker. Flag is set when a user finishes the carousel
+  // OR clicks "Skip" the first time.
+  const hasSeenIntro = (() => {
+    try { return localStorage.getItem("bion_seen_intro") === "1"; } catch { return false; }
+  })();
+
+  const [phase, setPhase]               = useState<Phase>(hasSeenIntro ? "role" : "splash");
   const [progress, setProgress]         = useState(0);
   const [currentStep, setCurrentStep]   = useState(0);
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
@@ -244,12 +251,24 @@ export default function SplashOnboarding() {
             ))}
           </div>
           <motion.button whileTap={{ scale: 0.97 }}
-            onClick={() => currentStep < 3 ? setCurrentStep(s => s + 1) : setPhase("role")}
+            onClick={() => {
+              if (currentStep < 3) { setCurrentStep(s => s + 1); return; }
+              try { localStorage.setItem("bion_seen_intro", "1"); } catch {}
+              setPhase("role");
+            }}
             className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta">
             {currentStep < 3 ? "Continue" : "Get Started"}
           </motion.button>
           {currentStep < 3 && (
-            <button onClick={() => setPhase("role")} className="w-full text-center text-sm text-muted-foreground">Skip</button>
+            <button
+              onClick={() => {
+                try { localStorage.setItem("bion_seen_intro", "1"); } catch {}
+                setPhase("role");
+              }}
+              className="w-full text-center text-sm text-muted-foreground"
+            >
+              Skip
+            </button>
           )}
         </div>
       </div>

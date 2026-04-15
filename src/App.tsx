@@ -248,6 +248,12 @@ const RepAgreement  = lazy(() => import("./pages/rep/Agreement"));
 
 const queryClient = new QueryClient();
 
+// Install the on-unload cache sweep + background-tab query invalidation.
+// Runs exactly once on first import.
+if (typeof window !== "undefined") {
+  import("./lib/cacheControl").then(m => m.installCacheControl(queryClient)).catch(() => {});
+}
+
 // ─── Onboarding check ─────────────────────────────────────────────────────────
 
 const ONBOARDING_ROUTES: Record<string, string> = {
@@ -364,7 +370,7 @@ function AppRoutes() {
       <Route path="/onboarding/admin"     element={<RequireAuth skipOnboardingCheck><AdminOnboarding /></RequireAuth>} />
 
       {/* Client routes */}
-      <Route path="/provider/:id" element={<RequireAuth><ProviderProfile /></RequireAuth>} />
+      <Route path="/provider/:id" element={<ProviderProfile />} />
       <Route path="/schedule"    element={<RequireAuth allowedRoles={["client"]}><Schedule /></RequireAuth>} />
       <Route path="/messages"    element={<RequireAuth allowedRoles={["client"]}><Messages /></RequireAuth>} />
       <Route path="/profile"     element={<RequireAuth allowedRoles={["client"]}><Profile /></RequireAuth>} />
