@@ -6,9 +6,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 const tabs = [
   { icon: Compass,       label: "Discover",  path: "/home" },
   { icon: Dumbbell,      label: "Routines",  path: "/routines" },
-  { label: "BION",       path: "/profile",   isFab: true },   // ← center FAB now opens Me tab
+  { label: "BION",       path: "/profile",   isFab: true },
   { icon: MessageCircle, label: "Messages",  path: "/messages" },
-  { icon: Zap,           label: "Quick",     path: "/quick-book" },
+  { icon: Zap,           label: "Book",      path: "/quick-book" },
 ];
 
 const BottomNav = () => {
@@ -38,7 +38,7 @@ const BottomNav = () => {
                 <div className="flex items-center justify-center w-9 h-9 rounded-full gradient-indigo shadow-cta">
                   <span className="text-[10px] font-bold tracking-wider text-primary-foreground">BION</span>
                 </div>
-                <span className="text-[10px] font-medium text-muted-foreground">Quick</span>
+                <span className="text-[10px] font-medium text-muted-foreground">Me</span>
               </motion.button>
             );
           }

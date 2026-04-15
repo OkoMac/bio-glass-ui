@@ -78,14 +78,34 @@ const METRICS: Record<Period, {
   },
 };
 
-const DEPT_BREAKDOWN = [
-  { dept: "Engineering", employees: 52, sessions: 124, spend: "R27,900", score: 82 },
-  { dept: "Product",     employees: 31, sessions: 78,  spend: "R17,550", score: 79 },
-  { dept: "Finance",     employees: 28, sessions: 56,  spend: "R12,600", score: 71 },
-  { dept: "HR",          employees: 18, sessions: 38,  spend: "R8,550",  score: 88 },
-  { dept: "Marketing",   employees: 24, sessions: 29,  spend: "R6,525",  score: 64 },
-  { dept: "Operations",  employees: 34, sessions: 17,  spend: "R3,825",  score: 52 },
-];
+// Department breakdown scales with the selected period.
+// Quarter ≈ 3× month · Year ≈ 12× month.
+const DEPT_BREAKDOWN_BY_PERIOD: Record<Period, Array<{ dept: string; employees: number; sessions: number; spend: string; score: number }>> = {
+  Month: [
+    { dept: "Engineering", employees: 52, sessions: 124, spend: "R27,900", score: 82 },
+    { dept: "Product",     employees: 31, sessions: 78,  spend: "R17,550", score: 79 },
+    { dept: "Finance",     employees: 28, sessions: 56,  spend: "R12,600", score: 71 },
+    { dept: "HR",          employees: 18, sessions: 38,  spend: "R8,550",  score: 88 },
+    { dept: "Marketing",   employees: 24, sessions: 29,  spend: "R6,525",  score: 64 },
+    { dept: "Operations",  employees: 34, sessions: 17,  spend: "R3,825",  score: 52 },
+  ],
+  Quarter: [
+    { dept: "Engineering", employees: 54, sessions: 402, spend: "R90,450",  score: 83 },
+    { dept: "Product",     employees: 33, sessions: 255, spend: "R57,375",  score: 78 },
+    { dept: "Finance",     employees: 29, sessions: 181, spend: "R40,725",  score: 72 },
+    { dept: "HR",          employees: 19, sessions: 124, spend: "R27,900",  score: 86 },
+    { dept: "Marketing",   employees: 25, sessions: 94,  spend: "R21,150",  score: 66 },
+    { dept: "Operations",  employees: 33, sessions: 56,  spend: "R12,600",  score: 55 },
+  ],
+  Year: [
+    { dept: "Engineering", employees: 55, sessions: 1_480, spend: "R333,000", score: 80 },
+    { dept: "Product",     employees: 32, sessions: 935,   spend: "R210,375", score: 76 },
+    { dept: "Finance",     employees: 27, sessions: 668,   spend: "R150,300", score: 74 },
+    { dept: "HR",          employees: 19, sessions: 456,   spend: "R102,600", score: 85 },
+    { dept: "Marketing",   employees: 26, sessions: 348,   spend: "R78,300",  score: 68 },
+    { dept: "Operations",  employees: 31, sessions: 204,   spend: "R45,900",  score: 58 },
+  ],
+};
 
 const INSIGHTS = [
   { emoji: "🔥", text: "Engineering has the highest wellness score (82/100). Consider expanding their budget.", color: "#2DD4BF" },
@@ -184,7 +204,7 @@ export default function CorporateAnalytics() {
         <div>
           <h2 className="text-sm font-semibold text-foreground mb-3">Department Breakdown</h2>
           <div className="space-y-2">
-            {DEPT_BREAKDOWN.map((d, i) => (
+            {DEPT_BREAKDOWN_BY_PERIOD[period].map((d, i) => (
               <motion.div key={d.dept} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
                 <GlassCard className="p-3.5">
                   <div className="flex items-center gap-3">

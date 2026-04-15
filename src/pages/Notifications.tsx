@@ -254,16 +254,23 @@ export default function Notifications() {
   const markAllAsRead = () => {
     setReadIds(prev => new Set([...prev, ...notifications.map(n => n.id)]));
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    // Also dismiss the B_ reminder engine items so the floating assistant badge
+    // decrements in step with the user's "all caught up" intent.
+    getActiveReminders().forEach(r => dismissReminder(r.id));
   };
 
   const deleteNotification = (id: string) => {
     setDismissedIds(prev => new Set([...prev, id]));
     setNotifications(prev => prev.filter(n => n.id !== id));
+    // If this notification maps to a B_ reminder, dismiss it too.
+    if (id.startsWith("reminder_")) dismissReminder(id.replace(/^reminder_/, ""));
   };
 
   const clearAll = () => {
     setDismissedIds(prev => new Set([...prev, ...notifications.map(n => n.id)]));
     setNotifications([]);
+    // Clearing everything implies dismissing all active reminders too.
+    getActiveReminders().forEach(r => dismissReminder(r.id));
   };
 
   // Get unique providers mentioned in notifications

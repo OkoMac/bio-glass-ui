@@ -6,6 +6,7 @@ import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useStorefront } from "@/hooks/useStorefront";
 import { useMyProducts, Product } from "@/hooks/useProducts";
+import { useSubscription } from "@/hooks/useSubscription";
 import ImageUpload from "@/components/ImageUpload";
 import {
   Store, Package, Plus, X, Loader2, Check, AlertTriangle, Eye, EyeOff,
@@ -16,6 +17,8 @@ export default function ProviderStorefront() {
   const navigate = useNavigate();
   const sf = useStorefront();
   const { products, loading: productsLoading, createProduct, deleteProduct } = useMyProducts();
+  const { subscription } = useSubscription();
+  const canStorefront = subscription?.tier === "pro" || subscription?.tier === "elite";
 
   const [setupOpen, setSetupOpen] = useState(false);
   const [productModal, setProductModal] = useState(false);
@@ -99,10 +102,10 @@ export default function ProviderStorefront() {
             </p>
 
             <button
-              onClick={() => setSetupOpen(true)}
+              onClick={() => canStorefront ? setSetupOpen(true) : navigate("/pro/billing?upgrade=pro")}
               className="rounded-pill px-6 py-3 gradient-indigo text-white text-sm font-semibold inline-flex items-center gap-2"
             >
-              <Plus className="w-4 h-4" /> Set up storefront
+              <Plus className="w-4 h-4" /> {canStorefront ? "Set up storefront" : "Upgrade to Pro to enable"}
             </button>
           </GlassCard>
 

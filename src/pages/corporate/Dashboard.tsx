@@ -50,8 +50,12 @@ export default function CorporateDashboard() {
   const { user } = useAuth();
   const [period, setPeriod] = useState<"month" | "quarter" | "year">("month");
   const analytics = useCorporateAnalytics();
+  // Seed with the same demo figures Analytics uses for the Month period, so
+  // demo_corporate sees consistent numbers across /corporate/dashboard,
+  // /corporate/wallet and /corporate/analytics. Overwritten by real data as
+  // soon as the analytics hook / /api/corporate/stats resolves.
   const [stats, setStats] = useState<CorporateStats>({
-    total_employees: 0, total_budget: 0, total_spent: 0, active_providers: 0, linked_rep: null,
+    total_employees: 187, total_budget: 95000, total_spent: 79500, active_providers: 24, linked_rep: null,
   });
 
   // Pull live KPIs from the analytics hook, falling back to legacy stats fetch

@@ -4,6 +4,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
+import { useWallet } from "@/hooks/useWallet";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Bell, CreditCard, Eye, User, ChevronLeft, Save, Check,
@@ -100,6 +101,7 @@ export default function Settings() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { balance: walletBalance } = useWallet();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const initialTab = (params.get("tab") as Tab | null) ?? "notifications";
@@ -259,7 +261,7 @@ export default function Settings() {
               <h2 className="text-sm font-semibold text-foreground mb-1">BIONWallet</h2>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-2xl font-bold font-data text-teal">R1,250</p>
+                  <p className="text-2xl font-bold font-data text-teal">R{walletBalance.toLocaleString("en-ZA")}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">Available balance</p>
                 </div>
                 <motion.button

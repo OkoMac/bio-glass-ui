@@ -93,6 +93,14 @@ export default function AdminProviders() {
 
     if (activeFilter === "Top Rated") {
       list = [...list].sort((a, b) => b.rating - a.rating);
+    } else if (activeFilter === "Recently Added") {
+      // Most-recent additions live at the end of the providers dataset.
+      list = [...list].reverse();
+    } else if (activeFilter === "Needs Review") {
+      // Providers without qualifications OR without any reviews are flagged
+      // for admin vetting. Matches the vetting signal used elsewhere in the
+      // Admin Verification page.
+      list = list.filter(p => (p.qualifications?.length ?? 0) === 0 || p.reviews === 0);
     }
 
     return list;

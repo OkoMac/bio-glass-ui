@@ -48,7 +48,11 @@ export default function ProviderBookings() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Bookings</h1>
           <p className="text-xs text-muted-foreground">
-            {pendingCount > 0 ? `${pendingCount} request${pendingCount > 1 ? "s" : ""} awaiting response` : "No pending requests"}
+            {tab === "requests"
+              ? (pendingCount > 0 ? `${pendingCount} request${pendingCount > 1 ? "s" : ""} awaiting response` : "No pending requests")
+              : tab === "upcoming"
+              ? (upcoming.length > 0 ? `${upcoming.length} upcoming booking${upcoming.length > 1 ? "s" : ""}` : "No upcoming bookings")
+              : (past.length > 0 ? `${past.length} past booking${past.length > 1 ? "s" : ""}` : "No past bookings yet")}
           </p>
         </div>
 
