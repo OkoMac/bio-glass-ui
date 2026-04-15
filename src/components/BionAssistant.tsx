@@ -4,6 +4,7 @@ import { X, Send, Sparkles, Flame, Target, Calendar, TrendingUp, Brain,
   Apple, Dumbbell, Heart, Pill, Clock, ChevronRight, Bell, UserCheck, Mail, ExternalLink } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getReminderSummary, getActiveReminders, requestNotificationPermission, fireReminderNotifications } from "@/lib/reminders";
+import { useLocation } from "react-router-dom";
 
 interface Message {
   id: string;
@@ -301,8 +302,159 @@ export default function BionAssistant() {
     setMessages([{ id: "init", role: "assistant", text: buildGreeting(role, user?.name), ts: new Date() }]);
   };
 
+  // ── Page-aware nudge bubble ──
+  // Every time the user lands on a new page, B_ surfaces a small "Need help
+  // here?" bubble next to the FAB for 5 seconds, then minimises. Dismissing
+  // suppresses it for that path for the rest of the session so it never nags.
+  const location = useLocation();
+  const [nudgeVisible, setNudgeVisible] = useState(false);
+  const [nudgeText, setNudgeText] = useState<string>("Need help on this page? Tap me.");
+  const [nudgePrompt, setNudgePrompt] = useState<string>("Can you walk me through this page?");
+  const nudgeTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const pageHint = (pathname: string, userRole: string): { text: string; prompt: string } => {
+    const p = pathname.toLowerCase();
+    // Client pages
+    if (p === "/home")                 return { text: "Welcome home! Tap me if you want a tour.", prompt: "Walk me through the home page — what should I focus on first?" };
+    if (p.startsWith("/directory"))    return { text: "Looking for someone? I can narrow it down.", prompt: "Help me find the right provider — what do I tell you?" };
+    if (p.startsWith("/provider/"))    return { text: "Need help deciding? Ask me anything.",      prompt: "Tell me what I should check before booking this provider." };
+    if (p.startsWith("/quick-book"))   return { text: "Here to help you book quickly.",            prompt: "What's the fastest way to book a session right now?" };
+    if (p.startsWith("/schedule"))     return { text: "Questions about a booking?",                prompt: "Explain what each status (pending/confirmed/completed) means." };
+    if (p.startsWith("/messages"))     return { text: "Need to reach a provider? I can draft a message.", prompt: "Help me write a message to my provider." };
+    if (p.startsWith("/wallet"))       return { text: "Wallet / top-up questions?",                prompt: "How does the BION wallet work and what's the cash-out fee?" };
+    if (p.startsWith("/notifications"))return { text: "Want to mute certain notifications?",       prompt: "How do I control what notifications I get?" };
+    if (p.startsWith("/settings"))     return { text: "Setting something up? Ask away.",           prompt: "Walk me through each settings tab." };
+    if (p.startsWith("/routines"))     return { text: "Building a routine? I can suggest one.",    prompt: "Help me build a realistic wellness routine for this week." };
+    if (p.startsWith("/progress"))     return { text: "Reading your progress? I can interpret.",   prompt: "Interpret my progress — what's trending, what to watch." };
+    if (p.startsWith("/health-profile"))return{ text: "Privacy or sharing questions?",             prompt: "Explain what providers can see from my health profile." };
+    if (p.startsWith("/health-insights"))return{ text: "Want insights on your vitals?",            prompt: "Analyse my biometrics and flag anything worth checking." };
+    if (p.startsWith("/medical-card")) return { text: "Need to add a medication?",                 prompt: "Walk me through adding allergies / conditions / medications." };
+    if (p.startsWith("/water"))        return { text: "How much water is right for you?",          prompt: "How much water should I be drinking today?" };
+    if (p.startsWith("/food"))         return { text: "Snap a meal photo — I'll estimate calories.",prompt: "Take a photo of my food and tell me the calories." };
+    if (p.startsWith("/sleep"))        return { text: "Need tips for better sleep?",               prompt: "What can I change to sleep better this week?" };
+    if (p.startsWith("/life-coach"))   return { text: "Life questions I can help with.",           prompt: "I want to talk through something I'm stuck on." };
+    if (p.startsWith("/calendar"))     return { text: "Planning your week?",                       prompt: "Help me plan my wellness week based on my bookings." };
+    if (p.startsWith("/favorites"))    return { text: "Curating your shortlist?",                  prompt: "Recommend providers to add to my favourites based on my goals." };
+    if (p.startsWith("/ecademy"))      return { text: "Want a reading plan?",                      prompt: "Pick the top 3 articles I should read this week." };
+    if (p.startsWith("/challenges"))   return { text: "Which challenge fits you?",                 prompt: "Which challenge should I join based on my current habits?" };
+    if (p.startsWith("/onboarding"))   return { text: "Need help with onboarding?",                prompt: "Explain what I need for onboarding and why each step matters." };
+    if (p.startsWith("/welcome"))      return { text: "Hi! I'm B_. Tap me if you're stuck.",       prompt: "What's the right sign-up flow for me?" };
+    // Legal
+    if (p.startsWith("/legal/payment-flow"))       return { text: "Questions about fees?",       prompt: "Summarise how fees split between me, my provider, and BION." };
+    if (p.startsWith("/legal/dispute-resolution")) return { text: "Explaining a dispute step?",  prompt: "How do I raise a dispute step-by-step?" };
+    if (p.startsWith("/legal/acceptable-use"))     return { text: "What's allowed, what isn't?", prompt: "Summarise what behaviours are banned on BION." };
+    // Provider pages
+    if (p.startsWith("/pro/dashboard"))  return { text: "Need a quick morning briefing?",       prompt: "Give me my morning briefing — bookings, revenue, follow-ups." };
+    if (p.startsWith("/pro/bookings"))   return { text: "Accept/decline questions?",            prompt: "How do I handle a pending request professionally?" };
+    if (p.startsWith("/pro/clients"))    return { text: "At-risk clients on your list?",        prompt: "Which of my clients might be drifting and what should I send them?" };
+    if (p.startsWith("/pro/services"))   return { text: "Pricing / duration help?",             prompt: "Suggest a pricing structure for my top service." };
+    if (p.startsWith("/pro/analytics"))  return { text: "Want a quick analytics read?",         prompt: "Interpret my analytics — what's growing, what's not." };
+    if (p.startsWith("/pro/billing"))    return { text: "Upgrade questions?",                   prompt: "What do I unlock if I upgrade to Elite?" };
+    if (p.startsWith("/pro/programs"))   return { text: "Need a programme template?",           prompt: "Draft a 4-week programme for a beginner client." };
+    if (p.startsWith("/pro/storefront")) return { text: "Storefront tips?",                     prompt: "What products sell best for providers like me?" };
+    if (p.startsWith("/pro/verification"))return{ text: "Verification help?",                   prompt: "Walk me through exactly what documents I need." };
+    if (p.startsWith("/pro/catalogs"))   return { text: "Flipbook / catalogue help?",           prompt: "How do I build a catalogue my clients will actually read?" };
+    if (p.startsWith("/pro/messages"))   return { text: "Drafting a client reply?",             prompt: "Help me reply to a client without sounding robotic." };
+    if (p.startsWith("/pro/schedule"))   return { text: "Schedule optimisation?",               prompt: "Spot gaps in my week where I could fit more bookings." };
+    if (p.startsWith("/pro/availability"))return{text: "Setting your hours?",                   prompt: "Recommend an availability pattern for a physio who does home visits." };
+    if (p.startsWith("/pro/orders"))     return { text: "Order management questions?",          prompt: "How do I mark an order as shipped and handle returns?" };
+    if (p.startsWith("/pro/settings"))   return { text: "Profile / settings help?",             prompt: "What should I fill in on my provider settings first?" };
+    // Admin
+    if (p.startsWith("/admin"))          return { text: "Admin panel quick help.",              prompt: "Give me a quick tour of this admin screen." };
+    // Corporate
+    if (p.startsWith("/corporate"))      return { text: "Wellness programme help?",             prompt: "What should I prioritise for my team's wellness this quarter?" };
+    return { text: "Need help? I'm B_.", prompt: "Walk me through this page — what can I do here?" };
+  };
+
+  useEffect(() => {
+    // Don't interrupt an open chat or repeat on re-renders
+    if (open) return;
+    // If dismissed for this path during this session, skip
+    let dismissed = new Set<string>();
+    try {
+      const raw = sessionStorage.getItem("bion_nudges_dismissed");
+      if (raw) dismissed = new Set(JSON.parse(raw));
+    } catch { /* no-op */ }
+    if (dismissed.has(location.pathname)) return;
+
+    const hint = pageHint(location.pathname, role);
+    setNudgeText(hint.text);
+    setNudgePrompt(hint.prompt);
+    setNudgeVisible(true);
+    if (nudgeTimer.current) clearTimeout(nudgeTimer.current);
+    nudgeTimer.current = setTimeout(() => setNudgeVisible(false), 5000);
+
+    return () => { if (nudgeTimer.current) clearTimeout(nudgeTimer.current); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, role]);
+
+  const dismissNudge = (remember = true) => {
+    setNudgeVisible(false);
+    if (nudgeTimer.current) { clearTimeout(nudgeTimer.current); nudgeTimer.current = null; }
+    if (remember) {
+      try {
+        const raw = sessionStorage.getItem("bion_nudges_dismissed");
+        const set = new Set<string>(raw ? JSON.parse(raw) : []);
+        set.add(location.pathname);
+        sessionStorage.setItem("bion_nudges_dismissed", JSON.stringify([...set]));
+      } catch { /* no-op */ }
+    }
+  };
+
+  const acceptNudge = () => {
+    dismissNudge(true);
+    // Pre-seed the prompt and open the chat
+    setInput(nudgePrompt);
+    setOpen(true);
+  };
+
   return (
     <>
+      {/* Page-aware nudge bubble */}
+      <AnimatePresence>
+        {nudgeVisible && !open && (
+          <motion.div
+            key="nudge"
+            initial={{ opacity: 0, y: 12, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: 0.9, transition: { duration: 0.2 } }}
+            transition={{ type: "spring", stiffness: 260, damping: 22 }}
+            className="fixed bottom-44 right-4 z-[56] max-w-[260px] rounded-2xl shadow-xl overflow-hidden"
+            style={{ background: "rgba(14,14,22,0.96)", backdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            <button
+              onClick={() => dismissNudge(true)}
+              className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/10"
+              aria-label="Dismiss"
+            >
+              <X className="w-3 h-3" />
+            </button>
+            <div className="px-4 py-3 pr-8">
+              <div className="flex items-start gap-2.5">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet to-indigo flex items-center justify-center shrink-0">
+                  <span className="text-[11px] font-bold text-white">B_</span>
+                </div>
+                <p className="text-[12px] text-foreground leading-snug">{nudgeText}</p>
+              </div>
+              <div className="flex gap-2 mt-2 pl-9">
+                <button
+                  onClick={acceptNudge}
+                  className="text-[11px] font-medium text-indigo hover:underline"
+                >
+                  Yes, help me
+                </button>
+                <button
+                  onClick={() => dismissNudge(true)}
+                  className="text-[11px] text-muted-foreground hover:text-foreground"
+                >
+                  Not now
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* FAB */}
       <motion.button
         onClick={() => setOpen(true)}
