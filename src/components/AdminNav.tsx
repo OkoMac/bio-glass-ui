@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Users, Briefcase, BarChart2,
   Settings, ShieldCheck, LogOut, UserCog, FileCheck,
-  AlertTriangle, Sparkles, BookOpen,
+  AlertTriangle, Sparkles, BookOpen, MessageSquare,
 } from "lucide-react";
 
 const navItems = [
@@ -14,6 +14,7 @@ const navItems = [
   { icon: UserCog,         label: "Users",        path: "/admin/users"          },
   { icon: AlertTriangle,   label: "Disputes",     path: "/admin/disputes"       },
   { icon: Sparkles,        label: "B_ Queue",     path: "/admin/b-queue"        },
+  { icon: MessageSquare,   label: "WhatsApp",     path: "/admin/whatsapp"       },
   { icon: BookOpen,        label: "Catalogs",     path: "/admin/catalogs"       },
   { icon: BarChart2,       label: "Analytics",    path: "/admin/analytics"      },
   { icon: Settings,        label: "Settings",     path: "/admin/settings"       },

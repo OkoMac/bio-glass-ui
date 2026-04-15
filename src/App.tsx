@@ -220,6 +220,7 @@ const AdminVerification = lazy(() => import("./pages/admin/Verification"));
 const AdminDisputes     = lazy(() => import("./pages/admin/Disputes"));
 const AdminBQueue       = lazy(() => import("./pages/admin/BQueue"));
 const AdminCatalogs     = lazy(() => import("./pages/admin/Catalogs"));
+const AdminWhatsApp     = lazy(() => import("./pages/admin/WhatsApp"));
 
 // Catalogs (provider + public viewer)
 const ProviderCatalogs  = lazy(() => import("./pages/provider/Catalogs"));
@@ -427,6 +428,7 @@ function AppRoutes() {
       <Route path="/admin/disputes"     element={<RequireAuth allowedRoles={["admin"]}><AdminDisputes /></RequireAuth>} />
       <Route path="/admin/b-queue"      element={<RequireAuth allowedRoles={["admin"]}><AdminBQueue /></RequireAuth>} />
       <Route path="/admin/catalogs"     element={<RequireAuth allowedRoles={["admin"]}><AdminCatalogs /></RequireAuth>} />
+      <Route path="/admin/whatsapp"     element={<RequireAuth allowedRoles={["admin"]}><AdminWhatsApp /></RequireAuth>} />
 
       {/* Corporate portal */}
       <Route path="/corporate/dashboard" element={<RequireAuth allowedRoles={["corporate"]}><CorporateDashboard /></RequireAuth>} />
