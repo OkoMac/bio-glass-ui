@@ -222,6 +222,9 @@ export default function AdminSettings() {
                 <div key={f.label}>
                   <label className="text-[10px] text-muted-foreground uppercase tracking-wider block mb-1">{f.label}</label>
                   <input value={f.value} onChange={e => f.set(e.target.value)} type={f.type ?? "text"} placeholder={f.placeholder}
+                    min={f.type === "number" ? 0 : undefined}
+                    step={f.type === "number" ? 1 : undefined}
+                    inputMode={f.type === "number" ? "numeric" : undefined}
                     className="w-full h-10 glass-1 rounded-xl px-3 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none" />
                 </div>
               ))}

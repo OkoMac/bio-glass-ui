@@ -15,6 +15,7 @@ export default function NotificationBell() {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const { unreadCount: dbUnread } = useNotifications();
 
   // Don't show if not logged in
   if (!user) return null;
@@ -26,7 +27,6 @@ export default function NotificationBell() {
   if (hidden) return null;
 
   const reminderCount = getActiveReminders().length;
-  const { unreadCount: dbUnread } = useNotifications();
   const totalCount = reminderCount + dbUnread;
 
   return (

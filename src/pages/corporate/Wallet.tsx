@@ -119,6 +119,9 @@ export default function CorporateWallet() {
                 value={customAmount}
                 onChange={e => { setCustomAmount(e.target.value); setTopUpAmount(null); }}
                 placeholder="Custom amount"
+                min={100}
+                step={100}
+                inputMode="numeric"
                 className="w-full glass-1 rounded-xl pl-7 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5"
               />
             </div>

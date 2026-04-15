@@ -40,9 +40,11 @@ export function useSubscription() {
     return getTrialDaysRemaining(subscription);
   };
   
-  // Get tier display name
+  // Get tier display name — default to "Free" when no subscription is loaded
+  // so demo users and logged-in users without an active sub see a consistent
+  // label across the app (sidebar, billing, gated pages).
   const tierDisplayName = (): string => {
-    if (!subscription) return 'N/A';
+    if (!subscription) return 'Free';
     return getTierDisplayName(subscription.tier, userType);
   };
   

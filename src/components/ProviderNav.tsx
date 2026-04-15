@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
+import { useSubscription } from "@/hooks/useSubscription";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard, CalendarDays, BookOpen, Users,
@@ -39,6 +40,7 @@ export default function ProviderNav() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { pendingCount } = useBookings();
+  const { tierDisplayName, isActive } = useSubscription();
 
   return (
     <>
@@ -86,7 +88,7 @@ export default function ProviderNav() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-foreground truncate">{user?.name ?? "Provider"}</p>
-              <p className="text-[10px] text-muted-foreground">Pro Plan · Active</p>
+              <p className="text-[10px] text-muted-foreground">{tierDisplayName()} Plan{isActive() ? " · Active" : ""}</p>
             </div>
           </div>
           <button
