@@ -27,22 +27,19 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
   );
 }
 
+// Metric shells — visual config only. All numeric values come from the user's
+// own health_logs at render time. No seed data that fakes a history.
 const metrics = [
-  { label: "Weight",      unit: "kg",  current: 74.2, prev: 75.8, data: [76.1,75.8,75.4,75.0,74.8,74.5,74.2], color: "#6366F1", trend: "down" },
-  { label: "Body Fat",    unit: "%",   current: 17.4, prev: 18.1, data: [18.5,18.3,18.1,17.9,17.7,17.5,17.4], color: "#2DD4BF", trend: "down" },
-  { label: "Lean Mass",   unit: "kg",  current: 61.3, prev: 61.0, data: [60.5,60.7,61.0,61.0,61.2,61.2,61.3], color: "#A78BFA", trend: "up" },
-  { label: "Resting HR",  unit: "bpm", current: 58,   prev: 62,   data: [64,63,62,61,60,59,58],              color: "#FB7185", trend: "down" },
-  { label: "Steps/day",   unit: "k",   current: 9.2,  prev: 7.8,  data: [7.1,7.8,8.2,8.5,8.8,9.0,9.2],      color: "#FBBF24", trend: "up" },
-  { label: "Sleep",       unit: "h",   current: 7.4,  prev: 6.9,  data: [6.5,6.9,7.0,7.1,7.2,7.3,7.4],      color: "#2DD4BF", trend: "up" },
+  { label: "Weight",      unit: "kg",  current: 0, prev: 0, data: [] as number[], color: "#6366F1", trend: "stable" },
+  { label: "Body Fat",    unit: "%",   current: 0, prev: 0, data: [] as number[], color: "#2DD4BF", trend: "stable" },
+  { label: "Lean Mass",   unit: "kg",  current: 0, prev: 0, data: [] as number[], color: "#A78BFA", trend: "stable" },
+  { label: "Resting HR",  unit: "bpm", current: 0, prev: 0, data: [] as number[], color: "#FB7185", trend: "stable" },
+  { label: "Steps/day",   unit: "k",   current: 0, prev: 0, data: [] as number[], color: "#FBBF24", trend: "stable" },
+  { label: "Sleep",       unit: "h",   current: 0, prev: 0, data: [] as number[], color: "#2DD4BF", trend: "stable" },
 ];
 
-const milestones = [
-  { emoji: "🎯", label: "First session completed",     date: "Jan 10", earned: true },
-  { emoji: "🔥", label: "7-day workout streak",        date: "Feb 3",  earned: true },
-  { emoji: "⚡", label: "Lost first 2kg",              date: "Feb 12", earned: true },
-  { emoji: "💪", label: "50 sessions milestone",       date: "—",       earned: false },
-  { emoji: "🏆", label: "Body fat under 15%",          date: "—",       earned: false },
-];
+// Milestones are earned — users start with none. Populated as they unlock.
+const milestones: Array<{ emoji: string; label: string; date: string; earned: boolean }> = [];
 
 const logLabels = ["Jan 17", "Jan 24", "Jan 31", "Feb 7", "Feb 14", "Feb 21", "Today"];
 
