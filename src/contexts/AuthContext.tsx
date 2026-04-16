@@ -22,7 +22,21 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser]       = useState<BioUser | null>(getStoredUser);
+  // Synchronously read stored user, but discard a demo-mode user when the
+  // Supabase SDK already has a session cached in localStorage (indicating a
+  // real sign-in). This prevents the "stale demo flash" where demo role
+  // briefly decides route guards before the real session resolves.
+  const [user, setUser] = useState<BioUser | null>(() => {
+    const stored = getStoredUser();
+    if (!stored) return null;
+    if (stored.id?.startsWith("demo_")) {
+      try {
+        const sbKey = Object.keys(localStorage).find(k => k.includes("-auth-token"));
+        if (sbKey && localStorage.getItem(sbKey)) return null;  // real session exists → ignore demo
+      } catch { /* */ }
+    }
+    return stored;
+  });
   const [loading, setLoading] = useState(true);
 
   // ── Sync with Supabase session ──────────────────────────────────
@@ -34,6 +48,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (mounted && !resolved) { resolved = true; setLoading(false); }
     };
 
+    // A real Supabase session always beats a stale demo user stored from a
+    // previous "Try as client/provider" preview. Clear demo identity before
+    // the async profile fetch resolves so no admin/role-gated page picks up
+    // the demo role in the gap.
+    const clearDemoIfPresent = () => {
+      const cur = getStoredUser();
+      if (cur?.id?.startsWith("demo_")) {
+        removeUser();
+        if (mounted) setUser(null);
+      }
+    };
+
     // Safety timeout — never spin forever
     const timeout = setTimeout(finish, 5000);
 
@@ -41,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!mounted) return;
       if (session?.user) {
+        clearDemoIfPresent();
         try {
           const profile = await fetchUserProfile(session.user.id);
           if (mounted && profile) { storeUser(profile); setUser(profile); }
@@ -56,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!mounted) return;
       if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
         if (session?.user) {
+          clearDemoIfPresent();
           try {
             const profile = await fetchUserProfile(session.user.id);
             if (mounted && profile) { storeUser(profile); setUser(profile); }
