@@ -14,7 +14,7 @@ import {
   Copy, Share2, CheckCircle, MessageCircle, Camera,
   Mail, Phone, MapPin, Cake, Plus, Edit3, X, Save,
   Droplets, Moon, HeartPulse, Brain, Utensils, CalendarDays,
-  BarChart3, Dumbbell, FileText, Wallet,
+  BarChart3, Dumbbell, FileText, Wallet, LifeBuoy,
 } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import { getReferralShareUrl, openWhatsApp } from "@/lib/whatsapp";
@@ -414,6 +414,15 @@ const Profile = () => {
                 <Tile icon={<Edit3 className="w-5 h-5" />}      label="Edit Profile" color="text-indigo" onClick={openEditModal} />
                 <Tile icon={<Eye className="w-5 h-5" />}        label="Privacy" color="text-muted-foreground" onClick={() => navigate("/settings?tab=privacy")} />
                 <Tile icon={<CreditCard className="w-5 h-5" />} label="Billing" color="text-muted-foreground" onClick={() => navigate("/billing")} />
+              </div>
+            </div>
+
+            {/* ── Support & Help ─────────────────────── */}
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Support & Help</p>
+              <div className="grid grid-cols-2 gap-2.5">
+                <Tile icon={<LifeBuoy className="w-5 h-5" />}  label="Help Center"  color="text-indigo" onClick={() => navigate("/help")} />
+                <Tile icon={<MessageCircle className="w-5 h-5" />} label="My Tickets" color="text-teal" onClick={() => navigate("/my-tickets")} />
               </div>
             </div>
 

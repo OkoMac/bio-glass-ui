@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, Briefcase, BarChart2,
   Settings, ShieldCheck, LogOut, UserCog, FileCheck,
   AlertTriangle, Sparkles, BookOpen, MessageSquare, Shield, UserCheck,
-  DollarSign, RotateCcw,
+  DollarSign, RotateCcw, LifeBuoy,
 } from "lucide-react";
 
 const navItems = [
@@ -17,6 +17,7 @@ const navItems = [
   { icon: UserCog,         label: "Users",        path: "/admin/users"          },
   { icon: AlertTriangle,   label: "Disputes",     path: "/admin/disputes"       },
   { icon: RotateCcw,       label: "Refunds",      path: "/admin/refunds"        },
+  { icon: LifeBuoy,        label: "Tickets",      path: "/admin/tickets"        },
   { icon: Sparkles,        label: "B_ Queue",     path: "/admin/b-queue"        },
   { icon: MessageSquare,   label: "WhatsApp",     path: "/admin/whatsapp"       },
   { icon: BookOpen,        label: "Catalogs",     path: "/admin/catalogs"       },

@@ -230,7 +230,10 @@ const AdminCompliance   = lazy(() => import("./pages/admin/Compliance"));
 const AdminProviderClaims = lazy(() => import("./pages/admin/ProviderClaims"));
 const AdminSubscriptions  = lazy(() => import("./pages/admin/Subscriptions"));
 const AdminRefunds        = lazy(() => import("./pages/admin/Refunds"));
+const AdminTickets        = lazy(() => import("./pages/admin/Tickets"));
 const Logout              = lazy(() => import("./pages/Logout"));
+const Help                = lazy(() => import("./pages/Help"));
+const MyTickets           = lazy(() => import("./pages/MyTickets"));
 const SeoCategoryCity     = lazy(() => import("./pages/seo/SeoCategoryCity"));
 
 // Catalogs (provider + public viewer)
@@ -385,6 +388,11 @@ function AppRoutes() {
       <Route path="/for-corporate"  element={<ForCorporate />} />
       <Route path="/for-rangers"    element={<ForRangers />} />
 
+      {/* Help & support (public ticket creation allowed) */}
+      <Route path="/help" element={<Help />} />
+      <Route path="/my-tickets"      element={<RequireAuth><MyTickets /></RequireAuth>} />
+      <Route path="/my-tickets/:id"  element={<RequireAuth><MyTickets /></RequireAuth>} />
+
       {/* Public legal pages */}
       <Route path="/legal/acceptable-use"     element={<AcceptableUse />} />
       <Route path="/legal/payment-flow"       element={<PaymentFlow />} />
@@ -476,6 +484,7 @@ function AppRoutes() {
       <Route path="/admin/provider-claims" element={<RequireAuth allowedRoles={["admin"]}><AdminProviderClaims /></RequireAuth>} />
       <Route path="/admin/subscriptions"   element={<RequireAuth allowedRoles={["admin"]}><AdminSubscriptions /></RequireAuth>} />
       <Route path="/admin/refunds"         element={<RequireAuth allowedRoles={["admin"]}><AdminRefunds /></RequireAuth>} />
+      <Route path="/admin/tickets"         element={<RequireAuth allowedRoles={["admin"]}><AdminTickets /></RequireAuth>} />
 
       {/* Corporate portal */}
       <Route path="/corporate/dashboard" element={<RequireAuth allowedRoles={["corporate"]}><CorporateDashboard /></RequireAuth>} />

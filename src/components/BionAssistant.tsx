@@ -1,12 +1,15 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Sparkles, Flame, Target, Calendar, TrendingUp, Brain,
-  Apple, Dumbbell, Heart, Pill, Clock, ChevronRight, Bell, UserCheck, Mail, ExternalLink } from "lucide-react";
+  Apple, Dumbbell, Heart, Pill, Clock, ChevronRight, Bell, UserCheck, Mail, ExternalLink,
+  LifeBuoy } from "lucide-react";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { getReminderSummary, getActiveReminders, requestNotificationPermission, fireReminderNotifications } from "@/lib/reminders";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useHabitProfile } from "@/hooks/useHabits";
 import { trackEvent } from "@/lib/habits";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   id: string;
@@ -39,6 +42,7 @@ const CLIENT_QUICK: { label: string; icon: typeof Target; prompt: string }[] = [
   { label: "Medication",       icon: Pill,     prompt: "What medication do I need to take today?" },
   { label: "This week",        icon: Calendar, prompt: "Show me my calendar for this week" },
   { label: "Reminders",        icon: Bell,     prompt: "What do I need to do today?" },
+  { label: "I need help",      icon: LifeBuoy, prompt: "__OPEN_SUPPORT_TICKET__" },
 ];
 
 const PROVIDER_QUICK: { label: string; icon: typeof Target; prompt: string }[] = [
@@ -182,6 +186,7 @@ const STORAGE_KEY = "bion_b_chat";
 /* ── B_ Assistant Component ────────────────────────── */
 export default function BionAssistant() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const role = user?.role ?? "client";
   const quickActions = role === "provider" ? PROVIDER_QUICK : CLIENT_QUICK;
 
@@ -190,6 +195,7 @@ export default function BionAssistant() {
   const [showHumanModal, setShowHumanModal] = useState(false);
   const [humanReason, setHumanReason] = useState("");
   const [humanChannel, setHumanChannel] = useState("support");
+  const [submittingTicket, setSubmittingTicket] = useState(false);
   const reminderCount = role === "client" ? getActiveReminders().length : 0;
 
   // Request notification permission on first render + fire pending reminders
@@ -244,6 +250,16 @@ export default function BionAssistant() {
 
   const send = async (text: string) => {
     if (!text.trim()) return;
+
+    // Magic token from the "I need help" quick action → open the ticket modal inline.
+    if (text.trim() === "__OPEN_SUPPORT_TICKET__") {
+      // Prefill the reason with the last user message so context carries over
+      const lastUserMsg = [...messages].reverse().find(m => m.role === "user")?.text ?? "";
+      setHumanReason(lastUserMsg);
+      setShowHumanModal(true);
+      return;
+    }
+
     const userMsg: Message = { id: Date.now() + "u", role: "user", text: text.trim(), ts: new Date() };
     setMessages(prev => [...prev, userMsg]);
     setInput("");
@@ -254,7 +270,7 @@ export default function BionAssistant() {
         const reply: Message = {
           id: Date.now() + "h",
           role: "assistant",
-          text: `I hear you. Let me connect you with a real person from our support team. They'll get back to you within a few hours during business hours (Mon-Fri 8am-6pm SAST).\n\nTap the **"Talk to Human"** button below to send your question to **support@bionhealth.co.za**.`,
+          text: `I hear you. Let me raise a support ticket for you — a real person from our team will reply by email within a few hours (Mon-Fri 8am-6pm SAST).\n\nTap the **"Talk to Human"** button below. Your recent messages with me will be attached to the ticket automatically.`,
           ts: new Date(),
         };
         setMessages(prev => [...prev, reply]);
@@ -666,43 +682,76 @@ export default function BionAssistant() {
                   Cancel
                 </button>
                 <button
-                  onClick={() => {
-                    const targetEmail =
-                      humanChannel === "bookings" ? "bookings@bionhealth.co.za" :
-                      humanChannel === "disputes" ? "disputes@bionhealth.co.za" :
-                      humanChannel === "accounts" ? "accounts@bionhealth.co.za" :
-                      humanChannel === "sales" ? "sales@bionhealth.co.za" :
-                      "support@bionhealth.co.za";
-                    const dept = humanChannel === "bookings" ? "Bookings" : humanChannel === "disputes" ? "Disputes" : humanChannel === "accounts" ? "Accounts" : humanChannel === "sales" ? "Sales" : "Support";
-                    const subject = `BION ${dept} — ${user?.name ?? "User"}`;
-                    const body = [
-                      `Hi BION ${dept} team,`,
-                      ``,
-                      humanReason || "I need help.",
-                      ``,
-                      `---`,
-                      `User: ${user?.name ?? "Unknown"}`,
-                      `Email: ${user?.email ?? "Unknown"}`,
-                      `Role: ${role}`,
-                      `Category: ${dept}`,
-                      `Sent from: B_ Assistant`,
-                      `Date: ${new Date().toLocaleString("en-ZA")}`,
-                    ].join("\n");
-                    window.location.href = `mailto:${targetEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                    const confirmMsg: Message = {
-                      id: Date.now() + "c",
-                      role: "assistant",
-                      text: `📧 Opening your email to **${targetEmail}** (${dept} team). They'll reply within a few hours. I'm still here if you need anything else.`,
-                      ts: new Date(),
-                    };
-                    setMessages(prev => [...prev, confirmMsg]);
-                    setShowHumanModal(false);
-                    setHumanReason("");
-                    setHumanChannel("support");
+                  onClick={async () => {
+                    if (!humanReason.trim()) return;
+                    if (!user?.email) {
+                      toast.error("Sign in or provide your email on /help to raise a ticket");
+                      navigate("/help");
+                      setShowHumanModal(false);
+                      return;
+                    }
+                    const category =
+                      humanChannel === "bookings" ? "booking" :
+                      humanChannel === "disputes" ? "dispute" :
+                      humanChannel === "accounts" ? "billing" :
+                      humanChannel === "sales" ? "provider" :
+                      "other";
+                    const dept =
+                      humanChannel === "bookings" ? "Bookings"
+                      : humanChannel === "disputes" ? "Disputes"
+                      : humanChannel === "accounts" ? "Accounts"
+                      : humanChannel === "sales" ? "Sales"
+                      : "Support";
+
+                    // Last 6 messages as a transcript prefix
+                    const lastMessages = messages.slice(-6);
+                    const transcript = lastMessages.length > 0
+                      ? `--- Conversation with B_ ---\n${lastMessages.map(m => `${m.role === "user" ? "You" : "B_"}: ${m.text}`).join("\n\n")}\n\n--- User's issue ---\n`
+                      : "";
+
+                    setSubmittingTicket(true);
+                    try {
+                      const headers: Record<string, string> = { "Content-Type": "application/json" };
+                      try {
+                        const { data: { session } } = await supabase.auth.getSession();
+                        if (session?.access_token) headers["Authorization"] = `Bearer ${session.access_token}`;
+                      } catch { /* */ }
+
+                      const res = await fetch(`${API_URL}/api/support/tickets`, {
+                        method: "POST",
+                        headers,
+                        body: JSON.stringify({
+                          email: user.email,
+                          name: user.name,
+                          category,
+                          priority: "normal",
+                          subject: humanReason.slice(0, 120) || `BION ${dept} request`,
+                          body: transcript + humanReason,
+                        }),
+                      });
+                      const j = await res.json();
+                      if (!j.ok) throw new Error(j.error ?? "Failed to raise ticket");
+
+                      const confirmMsg: Message = {
+                        id: Date.now() + "c",
+                        role: "assistant",
+                        text: `✅ Ticket **#${j.ticketNumber}** raised with the ${dept} team. You'll get an email confirmation now — they'll reply within a few hours.\n\nYou can track the ticket any time at /my-tickets.`,
+                        ts: new Date(),
+                      };
+                      setMessages(prev => [...prev, confirmMsg]);
+                      toast.success(`Ticket #${j.ticketNumber} created`);
+                      setShowHumanModal(false);
+                      setHumanReason("");
+                      setHumanChannel("support");
+                    } catch (err: any) {
+                      toast.error(err?.message ?? "Could not raise ticket");
+                    } finally {
+                      setSubmittingTicket(false);
+                    }
                   }}
-                  disabled={!humanReason.trim()}
+                  disabled={!humanReason.trim() || submittingTicket}
                   className="flex-1 py-2.5 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 flex items-center justify-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5" /> Send Email
+                  <LifeBuoy className="w-3.5 h-3.5" /> {submittingTicket ? "Raising…" : "Raise Ticket"}
                 </button>
               </div>
             </motion.div>
