@@ -145,6 +145,7 @@ class ErrorBoundary extends React.Component<
 import Directory       from "./pages/Directory";
 import SplashOnboarding from "./pages/SplashOnboarding";
 import NotFound        from "./pages/NotFound";
+import FloatingLogout  from "./components/FloatingLogout";
 import NotificationBell from "./components/NotificationBell";
 import HabitTracker     from "./components/HabitTracker";
 import InstallButton    from "./components/InstallButton";
@@ -226,6 +227,7 @@ const AdminWhatsApp     = lazy(() => import("./pages/admin/WhatsApp"));
 const AdminCompliance   = lazy(() => import("./pages/admin/Compliance"));
 const AdminProviderClaims = lazy(() => import("./pages/admin/ProviderClaims"));
 const AdminSubscriptions  = lazy(() => import("./pages/admin/Subscriptions"));
+const Logout              = lazy(() => import("./pages/Logout"));
 
 // Catalogs (provider + public viewer)
 const ProviderCatalogs  = lazy(() => import("./pages/provider/Catalogs"));
@@ -353,6 +355,9 @@ function AppRoutes() {
   const { user } = useAuth();
 
   return (
+    <>
+    {/* Global sign-out escape hatch — visible on every authenticated page */}
+    <FloatingLogout />
     <Routes>
       {/* Public — Directory IS the root landing page */}
       <Route path="/" element={
@@ -365,6 +370,10 @@ function AppRoutes() {
       } />
       <Route path="/directory" element={<Directory />} />
       <Route path="/welcome" element={<SplashOnboarding />} />
+
+      {/* Universal sign-out: go to /logout from anywhere to clear session. */}
+      <Route path="/logout" element={<Logout />} />
+      <Route path="/signout" element={<Logout />} />
 
       {/* Public marketing landing pages */}
       <Route path="/for-providers"  element={<ForProviders />} />
@@ -473,6 +482,7 @@ function AppRoutes() {
 
       <Route path="*" element={<NotFound />} />
     </Routes>
+    </>
   );
 }
 
