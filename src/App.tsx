@@ -176,6 +176,7 @@ const Store           = lazy(() => import("./pages/Store"));
 const AcceptableUse     = lazy(() => import("./pages/legal/AcceptableUse"));
 const PaymentFlow       = lazy(() => import("./pages/legal/PaymentFlow"));
 const DisputeResolution = lazy(() => import("./pages/legal/DisputeResolution"));
+const Privacy           = lazy(() => import("./pages/legal/Privacy"));
 
 // Client free tools
 const WaterTracker  = lazy(() => import("./pages/WaterTracker"));
@@ -223,6 +224,8 @@ const AdminBQueue       = lazy(() => import("./pages/admin/BQueue"));
 const AdminCatalogs     = lazy(() => import("./pages/admin/Catalogs"));
 const AdminWhatsApp     = lazy(() => import("./pages/admin/WhatsApp"));
 const AdminCompliance   = lazy(() => import("./pages/admin/Compliance"));
+const AdminProviderClaims = lazy(() => import("./pages/admin/ProviderClaims"));
+const AdminSubscriptions  = lazy(() => import("./pages/admin/Subscriptions"));
 
 // Catalogs (provider + public viewer)
 const ProviderCatalogs  = lazy(() => import("./pages/provider/Catalogs"));
@@ -242,11 +245,17 @@ const CorporateAnalytics = lazy(() => import("./pages/corporate/Analytics"));
 const CorporateWallet    = lazy(() => import("./pages/corporate/Wallet"));
 const CorporateSettings  = lazy(() => import("./pages/corporate/Settings"));
 const CorporateProviders = lazy(() => import("./pages/corporate/Providers"));
+const CorporateBeneficialOwners = lazy(() => import("./pages/corporate/BeneficialOwners"));
 
 // Sales rep portal
 const RepDashboard  = lazy(() => import("./pages/rep/Dashboard"));
 const RepProviders  = lazy(() => import("./pages/rep/Providers"));
 const RepAgreement  = lazy(() => import("./pages/rep/Agreement"));
+
+// Public marketing landing pages
+const ForProviders = lazy(() => import("./pages/landing/ForProviders"));
+const ForCorporate = lazy(() => import("./pages/landing/ForCorporate"));
+const ForRangers   = lazy(() => import("./pages/landing/ForRangers"));
 
 const queryClient = new QueryClient();
 
@@ -357,10 +366,17 @@ function AppRoutes() {
       <Route path="/directory" element={<Directory />} />
       <Route path="/welcome" element={<SplashOnboarding />} />
 
+      {/* Public marketing landing pages */}
+      <Route path="/for-providers"  element={<ForProviders />} />
+      <Route path="/for-corporate"  element={<ForCorporate />} />
+      <Route path="/for-rangers"    element={<ForRangers />} />
+
       {/* Public legal pages */}
       <Route path="/legal/acceptable-use"     element={<AcceptableUse />} />
       <Route path="/legal/payment-flow"       element={<PaymentFlow />} />
       <Route path="/legal/dispute-resolution" element={<DisputeResolution />} />
+      <Route path="/legal/privacy"            element={<Privacy />} />
+      <Route path="/privacy"                  element={<Navigate to="/legal/privacy" replace />} />
 
       {/* Client home (authenticated) */}
       <Route path="/home" element={<RequireAuth allowedRoles={["client"]}><Index /></RequireAuth>} />
@@ -438,6 +454,8 @@ function AppRoutes() {
       <Route path="/admin/catalogs"     element={<RequireAuth allowedRoles={["admin"]}><AdminCatalogs /></RequireAuth>} />
       <Route path="/admin/whatsapp"     element={<RequireAuth allowedRoles={["admin"]}><AdminWhatsApp /></RequireAuth>} />
       <Route path="/admin/compliance"   element={<RequireAuth allowedRoles={["admin"]}><AdminCompliance /></RequireAuth>} />
+      <Route path="/admin/provider-claims" element={<RequireAuth allowedRoles={["admin"]}><AdminProviderClaims /></RequireAuth>} />
+      <Route path="/admin/subscriptions"   element={<RequireAuth allowedRoles={["admin"]}><AdminSubscriptions /></RequireAuth>} />
 
       {/* Corporate portal */}
       <Route path="/corporate/dashboard" element={<RequireAuth allowedRoles={["corporate"]}><CorporateDashboard /></RequireAuth>} />
@@ -446,6 +464,7 @@ function AppRoutes() {
       <Route path="/corporate/analytics" element={<RequireAuth allowedRoles={["corporate"]}><CorporateAnalytics /></RequireAuth>} />
       <Route path="/corporate/wallet"    element={<RequireAuth allowedRoles={["corporate"]}><CorporateWallet /></RequireAuth>} />
       <Route path="/corporate/settings"  element={<RequireAuth allowedRoles={["corporate"]}><CorporateSettings /></RequireAuth>} />
+      <Route path="/corporate/beneficial-owners" element={<RequireAuth allowedRoles={["corporate"]}><CorporateBeneficialOwners /></RequireAuth>} />
 
       {/* Sales rep portal */}
       <Route path="/rep/agreement" element={<RequireAuth allowedRoles={["sales_rep"]}><RepAgreement /></RequireAuth>} />

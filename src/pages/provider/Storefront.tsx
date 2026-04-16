@@ -320,7 +320,7 @@ function SetupModal(props: any) {
           </button>
         </div>
 
-        <Field label="Store name" value={props.storeName} onChange={props.setStoreName} placeholder="e.g. James Okafor Wellness Shop" />
+        <Field label="Store name" value={props.storeName} onChange={props.setStoreName} placeholder="e.g. My Wellness Shop" />
         <Field label="Description" value={props.storeDesc} onChange={props.setStoreDesc} placeholder="What you sell and why clients should buy from you" textarea />
         <Field label="Pickup address" value={props.pickupAddress} onChange={props.setPickupAddress} placeholder="Where customers can collect orders" icon={<MapPin className="w-3 h-3" />} />
         <Field label="Shipping policy" value={props.shippingPolicy} onChange={props.setShippingPolicy} placeholder="e.g. Orders ship within 24 hours" textarea />

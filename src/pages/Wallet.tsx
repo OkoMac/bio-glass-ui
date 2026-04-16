@@ -91,6 +91,9 @@ export default function Wallet() {
   };
 
   // ── Withdrawal handler ──
+  // Posts to /api/wallet/withdraw which debits the wallet and queues a
+  // pending wallet_transactions row. The Payouts worker (server-side
+  // setInterval) picks the row up every 10 min and runs the Paystack Transfer.
   const handleWithdraw = async () => {
     const amount = parseFloat(withdrawAmount);
     const source = showWithdraw;
@@ -101,22 +104,42 @@ export default function Wallet() {
       showMessage("error", "Insufficient balance");
       return;
     }
-    if (amount < 50) {
-      showMessage("error", "Minimum withdrawal is R50");
+    // Backend enforces R200 minimum + 10% cash-out fee
+    if (amount < 200) {
+      showMessage("error", "Minimum withdrawal is R200");
       return;
     }
 
     setProcessing(true);
-    const calc = source === "wallet" ? wallet.calculateWithdrawal(amount) : earnings.calculateWithdrawal(amount);
-
-    // Create withdrawal request
-    // TODO: Real Paystack Transfer integration
-    showMessage("success", `Withdrawal of R${calc.net.toFixed(2)} requested (R${calc.fee.toFixed(2)} fee). Processed on the 15th.`);
-    setTimeout(() => {
-      setShowWithdraw(null);
-      setWithdrawAmount("");
+    try {
+      const token = (await (await import("@/integrations/supabase/client")).supabase.auth.getSession()).data.session?.access_token;
+      const endpoint = source === "wallet" ? "/api/wallet/withdraw" : "/api/earnings/withdraw";
+      const resp = await fetch(`${API}${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ amount }),
+      });
+      const body = await resp.json();
+      if (!resp.ok || !body.ok) {
+        showMessage("error", body.error ?? "Withdrawal failed");
+      } else {
+        const net = body.data?.net_payout ?? amount * 0.9;
+        const fee = body.data?.fee ?? amount * 0.1;
+        showMessage(
+          "success",
+          `R${Number(net).toFixed(2)} queued (R${Number(fee).toFixed(2)} BION fee). Expected to land in 1-2 business days.`,
+        );
+        setShowWithdraw(null);
+        setWithdrawAmount("");
+      }
+    } catch (err: any) {
+      showMessage("error", err?.message ?? "Network error");
+    } finally {
       setProcessing(false);
-    }, 2500);
+    }
   };
 
   // Derived displays
@@ -243,28 +266,45 @@ export default function Wallet() {
                 </GlassCard>
               ) : (
                 <div className="space-y-2">
-                  {wallet.transactions.slice(0, 20).map(t => (
-                    <GlassCard key={t.id} className="p-3 flex items-center gap-3">
-                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                        Number(t.amount_rand) > 0 ? "bg-teal/10" : "bg-coral/10"
-                      }`}>
-                        {Number(t.amount_rand) > 0
-                          ? <ArrowDownLeft className="w-4 h-4 text-teal" />
-                          : <ArrowUpRight className="w-4 h-4 text-coral" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-foreground truncate">{t.description ?? t.type}</p>
-                        <p className="text-[10px] text-muted-foreground">
-                          {new Date(t.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })} · {t.type}
+                  {wallet.transactions.slice(0, 20).map(t => {
+                    const isPending = t.status === "pending" || t.status === "processing";
+                    const isFailed = t.status === "failed";
+                    return (
+                      <GlassCard key={t.id} className="p-3 flex items-center gap-3">
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                          Number(t.amount_rand) > 0 ? "bg-teal/10" : "bg-coral/10"
+                        }`}>
+                          {Number(t.amount_rand) > 0
+                            ? <ArrowDownLeft className="w-4 h-4 text-teal" />
+                            : <ArrowUpRight className="w-4 h-4 text-coral" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <p className="text-sm text-foreground truncate">{t.description ?? t.type}</p>
+                            {isPending && (
+                              <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-amber/15 text-amber border border-amber/30">
+                                {t.status === "processing" ? "processing" : "pending"}
+                              </span>
+                            )}
+                            {isFailed && (
+                              <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-coral/15 text-coral border border-coral/30">
+                                failed
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-muted-foreground">
+                            {new Date(t.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })} · {t.type}
+                            {isPending && t.type === "withdrawal" && " · arrives in 1-2 business days"}
+                          </p>
+                        </div>
+                        <p className={`text-sm font-bold font-data shrink-0 ${
+                          Number(t.amount_rand) > 0 ? "text-teal" : "text-foreground"
+                        }`}>
+                          {Number(t.amount_rand) > 0 ? "+" : ""}R{Number(t.amount_rand).toFixed(2)}
                         </p>
-                      </div>
-                      <p className={`text-sm font-bold font-data shrink-0 ${
-                        Number(t.amount_rand) > 0 ? "text-teal" : "text-foreground"
-                      }`}>
-                        {Number(t.amount_rand) > 0 ? "+" : ""}R{Number(t.amount_rand).toFixed(2)}
-                      </p>
-                    </GlassCard>
-                  ))}
+                      </GlassCard>
+                    );
+                  })}
                 </div>
               )}
             </div>

@@ -29,5 +29,43 @@
   ],
   "categories": ["health", "fitness", "lifestyle", "medical"],
   "lang": "en-ZA",
-  "dir": "ltr"
+  "dir": "ltr",
+  "shortcuts": [
+    {
+      "name": "Book a session",
+      "short_name": "Book",
+      "description": "Quickly book a wellness session",
+      "url": "/quick-book",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Log progress",
+      "short_name": "Progress",
+      "description": "Log today's weight, sleep, steps",
+      "url": "/progress",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "My schedule",
+      "short_name": "Schedule",
+      "description": "View your upcoming bookings",
+      "url": "/schedule",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Directory",
+      "short_name": "Browse",
+      "description": "Browse 800+ providers",
+      "url": "/directory",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "form_factor": "wide"
+    }
+  ]
 }

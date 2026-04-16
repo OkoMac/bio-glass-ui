@@ -3,13 +3,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Users, Briefcase, BarChart2,
   Settings, ShieldCheck, LogOut, UserCog, FileCheck,
-  AlertTriangle, Sparkles, BookOpen, MessageSquare, Shield,
+  AlertTriangle, Sparkles, BookOpen, MessageSquare, Shield, UserCheck,
+  DollarSign,
 } from "lucide-react";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Overview",     path: "/admin/dashboard"      },
   { icon: Briefcase,       label: "Providers",    path: "/admin/providers"      },
   { icon: FileCheck,       label: "Verification", path: "/admin/verification"   },
+  { icon: UserCheck,       label: "Claims",       path: "/admin/provider-claims" },
   { icon: Shield,          label: "Compliance",   path: "/admin/compliance"     },
   { icon: Users,           label: "Clients",      path: "/admin/clients"        },
   { icon: UserCog,         label: "Users",        path: "/admin/users"          },
@@ -18,6 +20,7 @@ const navItems = [
   { icon: MessageSquare,   label: "WhatsApp",     path: "/admin/whatsapp"       },
   { icon: BookOpen,        label: "Catalogs",     path: "/admin/catalogs"       },
   { icon: BarChart2,       label: "Analytics",    path: "/admin/analytics"      },
+  { icon: DollarSign,      label: "Subscriptions", path: "/admin/subscriptions" },
   { icon: Settings,        label: "Settings",     path: "/admin/settings"       },
 ];
 

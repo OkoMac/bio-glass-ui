@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
@@ -7,6 +7,8 @@ import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHealthLogs } from "@/hooks/useHealth";
+import { useHabitProfile } from "@/hooks/useHabits";
+import { deriveInsights } from "@/lib/insights";
 import {
   ArrowLeft, AlertTriangle, CheckCircle, AlertCircle, TrendingUp,
   TrendingDown, Heart, Brain, Droplets, Moon, Dumbbell, Apple,
@@ -46,29 +48,10 @@ const BIOMETRIC_SOURCES: BiometricSync[] = [
   { source: "Whoop",          lastSync: "Coming soon", connected: false, metrics: ["Recovery", "Strain", "Sleep", "HRV"] },
 ];
 
-/* ── Insights engine ──────────────────────────────── */
-const INSIGHTS: Insight[] = [
-  // Fitness
-  { id: "fit1", category: "fitness", title: "Activity Streak", description: "You're on a 14-day activity streak — your longest this quarter.", severity: "good", metric: "14 days", trend: "up", recommendation: "Keep it up! 7 more days unlocks the Consistency badge." },
-  { id: "fit2", category: "fitness", title: "Recovery Score Low", description: "Your recovery routine compliance is only 21% (3/14 days). This may lead to overtraining or injury.", severity: "alert", metric: "21%", trend: "down", recommendation: "Complete your physio recovery exercises at least 3× per week. Consider booking a follow-up with The Chiropractors." },
-  { id: "fit3", category: "fitness", title: "Lean Mass Increasing", description: "Lean body mass increased by 0.3kg this month while body fat decreased.", severity: "good", metric: "+0.3 kg", trend: "up", recommendation: "Your training programme is working. Maintain current protein intake of 1.6g/kg body weight." },
-  // Nutrition
-  { id: "nut1", category: "nutrition", title: "Protein Intake Inconsistent", description: "You hit your protein target only 4 of the last 7 days. Average: 95g (target: 120g).", severity: "warning", metric: "95g avg", trend: "down", recommendation: "Add a protein shake post-workout and include eggs or chicken at breakfast to consistently hit 120g." },
-  { id: "nut2", category: "nutrition", title: "Calorie Surplus on Weekends", description: "Weekend calories average 2,450 kcal — 22% above your 2,000 kcal goal. This slows weight loss progress.", severity: "warning", metric: "+450 kcal", trend: "up", recommendation: "Plan meals ahead for Saturday/Sunday. Prep healthy snacks to avoid impulse eating." },
-  // Sleep
-  { id: "slp1", category: "sleep", title: "Sleep Quality Good", description: "Average 7.4 hours over the last 7 nights — above the 7h minimum for recovery.", severity: "good", metric: "7.4h avg", trend: "stable", recommendation: "Maintain your 10:30pm bedtime. Sleep quality drops noticeably when you exercise after 8pm." },
-  { id: "slp2", category: "sleep", title: "Wednesday Sleep Dip", description: "You consistently get less than 6.5h on Wednesday nights (avg: 6.1h).", severity: "warning", metric: "6.1h Wed", trend: "down", recommendation: "Consider moving Wednesday evening activities earlier or implementing a wind-down routine by 9:30pm." },
-  // Mental
-  { id: "men1", category: "mental", title: "Stress Score Improving", description: "Stress score decreased from 5.8 to 4.2 over 2 weeks. Goal: under 4.", severity: "good", metric: "4.2/10", trend: "down", recommendation: "Your meditation habit is helping. Try adding a 5-min breathing exercise before bed for further improvement." },
-  { id: "men2", category: "mental", title: "Mindfulness Gaps", description: "You skipped meditation on 3 of the last 7 days, correlating with higher stress scores.", severity: "warning", metric: "4/7 days", trend: "down", recommendation: "Even 5 minutes of focused breathing counts. Try the B_ guided session — it takes just 5 minutes." },
-  // Medical
-  { id: "med1", category: "medical", title: "Resting Heart Rate Excellent", description: "58 bpm is in the athlete range — indicates strong cardiovascular fitness.", severity: "good", metric: "58 bpm", trend: "down", recommendation: "Continue your cardio mix. Consider adding a 5km run once per week to maintain." },
-  { id: "med2", category: "medical", title: "Medication Compliance", description: "Morning supplements taken 12/14 days. Evening supplements only 8/14 days.", severity: "warning", metric: "57% PM", trend: "down", recommendation: "Set an 8pm alarm for evening supplements. Place them next to your toothbrush as a visual cue." },
-  // Beauty
-  { id: "bty1", category: "beauty", title: "Skincare Routine Adherence", description: "You completed your full skincare routine 5 of the last 7 days.", severity: "good", metric: "5/7 days", trend: "stable", recommendation: "Good consistency! Your skin hydration markers are improving. Don't skip SPF — even on cloudy days." },
-  // Hydration
-  { id: "hyd1", category: "hydration", title: "Hydration Below Target", description: "Average 5.6 glasses per day (target: 8). Three days below 5 glasses this week.", severity: "alert", metric: "5.6/8", trend: "down", recommendation: "Dehydration impacts energy, skin, and recovery. Set hourly water reminders or carry a marked water bottle." },
-];
+/* ── Insights engine ──────────────────────────────────
+   Real insights are derived per-user from health_logs + habit events inside
+   the component via deriveInsights(). Module-level const stays empty as a
+   documented no-op — see /src/lib/insights.ts for the rules.                 */
 
 const CATEGORY_ICONS: Record<Category, typeof Heart> = {
   fitness: Dumbbell, nutrition: Apple, sleep: Moon, mental: Brain,
@@ -96,11 +79,32 @@ export default function HealthInsights() {
   const [severityFilter, setSeverityFilter] = useState<Severity | "all">("all");
   // Fixed: device sources are all "Coming soon" — no toggle state needed
 
+  const { logs } = useHealthLogs(30);
+  const { profile: habitProfile } = useHabitProfile();
+
+  // Read today's water count from the flat localStorage key used across the app
+  const waterToday = useMemo(() => {
+    try {
+      const key = `bion_water_${new Date().toISOString().slice(0, 10)}`;
+      return parseInt(localStorage.getItem(key) ?? "0") || 0;
+    } catch {
+      return 0;
+    }
+  }, []);
+
+  const INSIGHTS = useMemo(
+    () => deriveInsights({ logs, habitProfile, waterToday, waterGoal: 8 }),
+    [logs, habitProfile, waterToday],
+  );
+
   const filtered = severityFilter === "all" ? INSIGHTS : INSIGHTS.filter(i => i.severity === severityFilter);
   const goodCount = INSIGHTS.filter(i => i.severity === "good").length;
   const warnCount = INSIGHTS.filter(i => i.severity === "warning").length;
   const alertCount = INSIGHTS.filter(i => i.severity === "alert").length;
-  const overallScore = Math.round(((goodCount * 3 + warnCount * 1) / (INSIGHTS.length * 3)) * 100);
+  const hasInsights = INSIGHTS.length > 0;
+  const overallScore = hasInsights
+    ? Math.round(((goodCount * 3 + warnCount * 1) / (INSIGHTS.length * 3)) * 100)
+    : 0;
 
   // toggleConnection removed — device sync is "Coming soon", not interactive yet
 
@@ -123,39 +127,41 @@ export default function HealthInsights() {
         {/* Biometrics Dashboard with rings + trend charts */}
         <BiometricsDashboard />
 
-        {/* Overall score */}
-        <GlassCard className="p-5">
-          <div className="flex items-center gap-5">
-            <div className="relative w-20 h-20 shrink-0">
-              <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
-                <circle cx="50" cy="50" r="42" fill="none" stroke="#0D9488" strokeWidth="8"
-                  strokeDasharray={`${overallScore * 2.64} 264`} strokeLinecap="round" />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold text-foreground">{overallScore}</span>
-                <span className="text-[9px] text-muted-foreground">/100</span>
-              </div>
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-foreground mb-2">{firstName}'s Health Score</p>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-teal" />
-                  <span className="text-xs text-foreground">{goodCount} areas looking good</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <AlertCircle className="w-3.5 h-3.5 text-amber" />
-                  <span className="text-xs text-foreground">{warnCount} areas to watch</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-3.5 h-3.5 text-coral" />
-                  <span className="text-xs text-foreground">{alertCount} actions needed</span>
+        {/* Overall score — only shown once we have real insights to score */}
+        {hasInsights && (
+          <GlassCard className="p-5">
+            <div className="flex items-center gap-5">
+              <div className="relative w-20 h-20 shrink-0">
+                <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="#0D9488" strokeWidth="8"
+                    strokeDasharray={`${overallScore * 2.64} 264`} strokeLinecap="round" />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-2xl font-bold text-foreground">{overallScore}</span>
+                  <span className="text-[9px] text-muted-foreground">/100</span>
                 </div>
               </div>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-foreground mb-2">{firstName}'s Health Score</p>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-3.5 h-3.5 text-teal" />
+                    <span className="text-xs text-foreground">{goodCount} areas looking good</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-3.5 h-3.5 text-amber" />
+                    <span className="text-xs text-foreground">{warnCount} areas to watch</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-3.5 h-3.5 text-coral" />
+                    <span className="text-xs text-foreground">{alertCount} actions needed</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </GlassCard>
+          </GlassCard>
+        )}
 
         {/* Tab switch */}
         <div className="flex gap-2">
@@ -175,7 +181,8 @@ export default function HealthInsights() {
 
         {tab === "insights" && (
           <>
-            {/* Severity filter */}
+            {/* Severity filter — hidden until we have insights to filter */}
+            {hasInsights && (
             <div className="flex gap-2">
               {([
                 { key: "all" as const, label: "All" },
@@ -194,8 +201,24 @@ export default function HealthInsights() {
                   }`}>{f.label}</button>
               ))}
             </div>
+            )}
 
             {/* Insights list */}
+            {!hasInsights ? (
+              <GlassCard className="p-8 text-center">
+                <Sparkles className="w-8 h-8 text-muted-foreground mx-auto mb-3 opacity-50" />
+                <p className="text-sm font-semibold text-foreground">No insights yet</p>
+                <p className="text-xs text-muted-foreground mt-1.5 max-w-xs mx-auto leading-relaxed">
+                  Log your weight, sleep, steps and meals for a week. B_ will spot patterns and surface personalised recommendations here.
+                </p>
+                <button
+                  onClick={() => navigate("/progress")}
+                  className="mt-4 inline-flex items-center gap-1.5 rounded-pill px-4 py-2 gradient-indigo text-primary-foreground text-xs font-semibold"
+                >
+                  Start tracking <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </GlassCard>
+            ) : (
             <div className="space-y-3">
               {filtered.map((insight, i) => {
                 const sev = SEVERITY_CONFIG[insight.severity];
@@ -235,6 +258,7 @@ export default function HealthInsights() {
                 );
               })}
             </div>
+            )}
           </>
         )}
 

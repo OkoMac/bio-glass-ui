@@ -6,6 +6,7 @@ import BookingRequestForm from "@/components/BookingRequestForm";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import ServiceCategoryBlock, { SERVICE_CATEGORIES, type ServiceCategory } from "@/components/ServiceCategoryBlock";
 import { useAuth } from "@/contexts/AuthContext";
+import { useHabitProfile } from "@/hooks/useHabits";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 import realData from "@/data/bion_pretoria_data.json";
 
@@ -69,6 +70,7 @@ export default function Directory() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const geo = useGeolocation();
+  const { profile: habitProfile } = useHabitProfile();
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("Top Rated");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
@@ -106,11 +108,30 @@ export default function Directory() {
       list = [...list].sort((a, b) => a.location.localeCompare(b.location));
     }
 
+    // Personalise by the user's top engaged categories (from habits). When the
+    // user hasn't picked a specific category, boost providers that match their
+    // most-used verticals. No-op for new users with no habit signal.
+    if (!selectedCategoryId && habitProfile?.top_categories?.length) {
+      const catWeight: Record<string, number> = {};
+      habitProfile.top_categories.forEach((c: any, idx: number) => {
+        catWeight[c.category.toLowerCase()] = (5 - idx) * (c.count ?? 1);
+      });
+      const score = (p: typeof list[number]) => {
+        const hay = `${p.specialty ?? ""} ${p.category ?? ""}`.toLowerCase();
+        let s = p.rating;
+        for (const [key, weight] of Object.entries(catWeight)) {
+          if (hay.includes(key)) s += weight;
+        }
+        return s;
+      };
+      list = [...list].sort((a, b) => score(b) - score(a));
+    }
+
     // Always put providers with logos/images first — recognizable brands on top
     list = [...list].sort((a, b) => (b.hasLogo ? 1 : 0) - (a.hasLogo ? 1 : 0));
 
     return list;
-  }, [selectedCategoryId, search, activeFilter]);
+  }, [selectedCategoryId, search, activeFilter, habitProfile]);
 
   const displayProviders = useMemo(() => filteredProviders.slice(0, visibleCount), [filteredProviders, visibleCount]);
   const hasMore = visibleCount < filteredProviders.length;

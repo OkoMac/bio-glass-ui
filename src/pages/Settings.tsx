@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
@@ -8,74 +8,402 @@ import { useWallet } from "@/hooks/useWallet";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Bell, CreditCard, Eye, User, ChevronLeft, Save, Check,
-  Smartphone, Mail, Shield, Trash2, Plus, Loader2,
+  Smartphone, Mail, Shield, Trash2, Plus, Loader2, Download,
+  AlertTriangle, FileText, X,
 } from "lucide-react";
 
 type Tab = "notifications" | "payment" | "privacy" | "account";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
-function DeleteAccountConfirm({ onCancel, onDeleted }: { onCancel: () => void; onDeleted: () => void }) {
-  const [deleting, setDeleting] = useState(false);
-  const [error, setError] = useState("");
+type PopiaRequest = {
+  id: string;
+  request_type: "export" | "delete" | "correction" | "objection";
+  status: "pending" | "processing" | "completed" | "rejected";
+  requested_at: string;
+  completed_at: string | null;
+  export_file_url: string | null;
+  notes: string | null;
+};
 
-  const handleDelete = async () => {
-    setDeleting(true);
+const DELETION_REASONS = [
+  "Too expensive",
+  "Not useful",
+  "Bad experience",
+  "Privacy concerns",
+  "Moving to another app",
+  "Other",
+];
+
+async function authToken(): Promise<string | null> {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.access_token ?? null;
+}
+
+// ─── Data export card ────────────────────────────────────────────
+function ExportDataCard() {
+  const [state, setState] = useState<"idle" | "requesting" | "ready" | "error">("idle");
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string>("");
+
+  const requestExport = async () => {
+    setState("requesting");
     setError("");
+    setDownloadUrl(null);
     try {
-      // Get the current session token
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.access_token;
-
+      const token = await authToken();
       if (!token) {
-        // Demo account — just log out
-        onDeleted();
+        setState("error");
+        setError("Please sign in with a real account to export your data.");
         return;
       }
-
-      const res = await fetch(`${API}/api/popia/delete-my-data`, {
+      const res = await fetch(`${API}/api/popia/export`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       });
-
-      const data = await res.json();
-      if (data.ok) {
-        onDeleted();
+      const json = await res.json();
+      if (json.ok && json.downloadUrl) {
+        setDownloadUrl(json.downloadUrl);
+        setState("ready");
+      } else if (json.ok && json.inline) {
+        // Storage bucket not provisioned — inline fallback
+        const blob = new Blob([JSON.stringify(json.inline, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        setDownloadUrl(url);
+        setState("ready");
       } else {
-        setError(data.error ?? "Deletion failed. Contact support@bionhealth.co.za");
+        setState("error");
+        setError(json.error ?? "Export failed. Contact support@bionhealth.co.za");
       }
     } catch {
-      setError("Network error. Please try again or contact support@bionhealth.co.za");
+      setState("error");
+      setError("Network error. Please try again.");
     }
-    setDeleting(false);
   };
 
   return (
-    <div className="mt-3 p-3 rounded-xl border border-coral/20 bg-coral/5 space-y-2">
-      <p className="text-xs text-foreground font-medium">
-        Are you sure? This permanently deletes all your data — bookings, messages, profile, health records. This cannot be undone.
-      </p>
-      {error && <p className="text-[10px] text-coral">{error}</p>}
-      <div className="flex gap-2">
-        <button
-          onClick={handleDelete}
-          disabled={deleting}
-          className="flex-1 rounded-xl py-2 text-xs font-semibold bg-coral text-white flex items-center justify-center gap-1.5 disabled:opacity-50"
-        >
-          {deleting ? <><Loader2 className="w-3 h-3 animate-spin" /> Deleting...</> : "Yes, delete my account"}
-        </button>
-        <button
-          onClick={onCancel}
-          disabled={deleting}
-          className="flex-1 rounded-xl py-2 text-xs font-semibold glass-1 text-foreground disabled:opacity-50"
-        >
-          Cancel
-        </button>
+    <GlassCard className="p-5 space-y-3">
+      <div className="flex items-center gap-2">
+        <FileText className="w-4 h-4 text-teal" />
+        <h2 className="text-sm font-semibold text-foreground">Export my data</h2>
       </div>
+      <p className="text-[11px] text-muted-foreground leading-relaxed">
+        Under POPIA you have the right to a full copy of everything BION holds about you. The export is a single JSON file covering your profile, bookings, messages, health logs, reviews, wallet history, notifications and KYC metadata.
+      </p>
+
+      {state === "idle" && (
+        <button
+          onClick={requestExport}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl gradient-indigo text-primary-foreground text-xs font-semibold"
+        >
+          <Download className="w-3.5 h-3.5" />
+          Request export
+        </button>
+      )}
+
+      {state === "requesting" && (
+        <div className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl glass-1 text-xs text-muted-foreground">
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          Preparing your data... this usually takes under a minute
+        </div>
+      )}
+
+      {state === "ready" && downloadUrl && (
+        <div className="space-y-2">
+          <a
+            href={downloadUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-teal/10 border border-teal/30 text-teal text-xs font-semibold"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Download your data
+          </a>
+          <p className="text-[10px] text-muted-foreground">
+            We also emailed this link to you. It expires in 7 days.
+          </p>
+        </div>
+      )}
+
+      {state === "error" && (
+        <div className="space-y-2">
+          <p className="text-[10px] text-coral">{error}</p>
+          <button
+            onClick={requestExport}
+            className="w-full py-2 rounded-xl glass-1 text-xs text-foreground"
+          >
+            Try again
+          </button>
+        </div>
+      )}
+    </GlassCard>
+  );
+}
+
+// ─── Deletion modal ──────────────────────────────────────────────
+function DeleteRequestModal({
+  userEmail, onClose, onSubmitted,
+}: { userEmail: string; onClose: () => void; onSubmitted: () => void }) {
+  const [reason, setReason] = useState<string>("");
+  const [otherReason, setOtherReason] = useState("");
+  const [confirmEmail, setConfirmEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const canSubmit =
+    reason.length > 0 &&
+    (reason !== "Other" || otherReason.trim().length > 2) &&
+    confirmEmail.toLowerCase().trim() === userEmail.toLowerCase().trim();
+
+  const submit = async () => {
+    setSubmitting(true);
+    setError("");
+    try {
+      const token = await authToken();
+      if (!token) {
+        setError("Please sign in with a real account to delete.");
+        setSubmitting(false);
+        return;
+      }
+      const res = await fetch(`${API}/api/popia/delete-request`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reason,
+          other_reason: reason === "Other" ? otherReason : undefined,
+          confirm: confirmEmail,
+        }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        onSubmitted();
+      } else {
+        setError(json.error ?? "Could not submit request.");
+      }
+    } catch {
+      setError("Network error. Please try again.");
+    }
+    setSubmitting(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="w-full max-w-md rounded-3xl bg-obsidian border border-coral/30 p-5 space-y-4"
+      >
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-coral" />
+            <h3 className="text-base font-semibold text-foreground">Request account deletion</h3>
+          </div>
+          <button onClick={onClose} className="w-7 h-7 rounded-full glass-1 flex items-center justify-center">
+            <X className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
+        </div>
+
+        <p className="text-[11px] text-muted-foreground leading-relaxed">
+          This starts a <strong className="text-foreground">7-day grace period</strong>. After 7 days your personal data is permanently removed. Financial records are retained for 5 years as required by SARB, but they are fully anonymised.
+        </p>
+
+        <div>
+          <label className="text-[10px] text-muted-foreground">Why are you leaving? <span className="text-coral">*</span></label>
+          <select
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="w-full mt-1 glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground outline-none border border-white/5 bg-transparent"
+          >
+            <option value="" className="bg-obsidian">Select a reason…</option>
+            {DELETION_REASONS.map((r) => (
+              <option key={r} value={r} className="bg-obsidian">{r}</option>
+            ))}
+          </select>
+        </div>
+
+        {reason === "Other" && (
+          <div>
+            <label className="text-[10px] text-muted-foreground">Tell us more <span className="text-coral">*</span></label>
+            <textarea
+              value={otherReason}
+              onChange={(e) => setOtherReason(e.target.value)}
+              rows={2}
+              className="w-full mt-1 glass-1 rounded-xl px-3 py-2 text-sm text-foreground outline-none border border-white/5 bg-transparent resize-none"
+            />
+          </div>
+        )}
+
+        <div>
+          <label className="text-[10px] text-muted-foreground">
+            Type your email (<span className="text-foreground font-mono">{userEmail}</span>) to confirm <span className="text-coral">*</span>
+          </label>
+          <input
+            type="email"
+            value={confirmEmail}
+            onChange={(e) => setConfirmEmail(e.target.value)}
+            autoComplete="off"
+            className="w-full mt-1 glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground outline-none border border-white/5 bg-transparent"
+          />
+        </div>
+
+        {error && <p className="text-[11px] text-coral">{error}</p>}
+
+        <div className="flex gap-2 pt-1">
+          <button
+            onClick={onClose}
+            disabled={submitting}
+            className="flex-1 py-2.5 rounded-xl glass-1 text-xs font-semibold text-foreground disabled:opacity-50"
+          >
+            Keep my account
+          </button>
+          <button
+            onClick={submit}
+            disabled={!canSubmit || submitting}
+            className="flex-1 py-2.5 rounded-xl bg-coral text-white text-xs font-semibold flex items-center justify-center gap-1.5 disabled:opacity-50"
+          >
+            {submitting ? <><Loader2 className="w-3 h-3 animate-spin" /> Submitting…</> : "Request deletion"}
+          </button>
+        </div>
+      </motion.div>
     </div>
+  );
+}
+
+// ─── Delete account card ─────────────────────────────────────────
+function DeleteAccountCard({ userEmail }: { userEmail: string }) {
+  const [requests, setRequests] = useState<PopiaRequest[]>([]);
+  const [pendingDelete, setPendingDelete] = useState<PopiaRequest | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [confirmBanner, setConfirmBanner] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const token = await authToken();
+      if (!token) { setLoading(false); return; }
+      const res = await fetch(`${API}/api/popia/my-requests`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = await res.json();
+      if (json.ok) {
+        const list = (json.requests ?? []) as PopiaRequest[];
+        setRequests(list);
+        const inflight = list.find(
+          (r) => r.request_type === "delete" && r.status === "pending",
+        );
+        setPendingDelete(inflight ?? null);
+      }
+    } catch { /* ignore */ }
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const cancelDelete = async () => {
+    setCancelling(true);
+    try {
+      const token = await authToken();
+      if (!token) return;
+      const res = await fetch(`${API}/api/popia/delete-cancel`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      });
+      const json = await res.json();
+      if (json.ok) {
+        setPendingDelete(null);
+        setConfirmBanner("Deletion cancelled. Welcome back.");
+        await load();
+      }
+    } catch { /* ignore */ }
+    setCancelling(false);
+  };
+
+  return (
+    <>
+      <GlassCard className="p-5 space-y-3 border border-coral/20">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 text-coral" />
+          <h2 className="text-sm font-semibold text-coral">Delete my account</h2>
+        </div>
+        <p className="text-[11px] text-muted-foreground leading-relaxed">
+          Requesting deletion starts a <strong className="text-foreground">7-day grace period</strong>. After 7 days, your data is permanently removed (financial records retained for 5 years per SARB).
+        </p>
+
+        {confirmBanner && (
+          <div className="p-2.5 rounded-xl bg-teal/10 border border-teal/30">
+            <p className="text-[11px] text-teal">{confirmBanner}</p>
+          </div>
+        )}
+
+        {loading ? (
+          <div className="flex items-center gap-2 py-2 text-[11px] text-muted-foreground">
+            <Loader2 className="w-3 h-3 animate-spin" /> Loading…
+          </div>
+        ) : pendingDelete ? (
+          <div className="space-y-2">
+            <div className="p-3 rounded-xl border border-coral/30 bg-coral/5">
+              <p className="text-[11px] text-foreground font-medium">
+                Deletion requested {new Date(pendingDelete.requested_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}
+              </p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                Grace period ends {new Date(new Date(pendingDelete.requested_at).getTime() + 7 * 864e5).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}
+              </p>
+            </div>
+            <button
+              onClick={cancelDelete}
+              disabled={cancelling}
+              className="w-full py-2.5 rounded-xl gradient-indigo text-primary-foreground text-xs font-semibold disabled:opacity-50"
+            >
+              {cancelling ? "Cancelling…" : "Cancel deletion request"}
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setModalOpen(true)}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-coral/10 border border-coral/30 text-coral text-xs font-semibold"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            Request deletion
+          </button>
+        )}
+
+        {requests.length > 0 && (
+          <details className="text-[10px] text-muted-foreground">
+            <summary className="cursor-pointer hover:text-foreground">
+              View my {requests.length} POPIA request{requests.length === 1 ? "" : "s"}
+            </summary>
+            <div className="mt-2 space-y-1.5">
+              {requests.slice(0, 10).map((r) => (
+                <div key={r.id} className="flex items-center justify-between text-[10px]">
+                  <span className="capitalize text-foreground">{r.request_type}</span>
+                  <span className={
+                    r.status === "completed" ? "text-teal" :
+                    r.status === "rejected"  ? "text-coral" :
+                    r.status === "processing" ? "text-warning" : "text-muted-foreground"
+                  }>
+                    {r.status} · {new Date(r.requested_at).toLocaleDateString("en-ZA")}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </details>
+        )}
+      </GlassCard>
+
+      {modalOpen && (
+        <DeleteRequestModal
+          userEmail={userEmail}
+          onClose={() => setModalOpen(false)}
+          onSubmitted={() => {
+            setModalOpen(false);
+            setConfirmBanner("Deletion scheduled. Check your email for confirmation.");
+            load();
+          }}
+        />
+      )}
+    </>
   );
 }
 
@@ -100,9 +428,8 @@ const TABS: { id: Tab; label: string; icon: typeof Bell }[] = [
 export default function Settings() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { balance: walletBalance } = useWallet();
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const initialTab = (params.get("tab") as Tab | null) ?? "notifications";
   const [tab, setTab]     = useState<Tab>(initialTab);
@@ -304,63 +631,16 @@ export default function Settings() {
               ))}
             </GlassCard>
 
-            <GlassCard className="p-5 space-y-3">
-              <h2 className="text-sm font-semibold text-foreground">Your Data</h2>
-              <button
-                onClick={async () => {
-                  try {
-                    const { data: { session } } = await supabase.auth.getSession();
-                    const token = session?.access_token;
-                    if (!token) { window.alert("Sign in with a real account to download your data."); return; }
-                    const res = await fetch(`${API}/api/popia/my-data`, { headers: { Authorization: `Bearer ${token}` } });
-                    const json = await res.json();
-                    const blob = new Blob([JSON.stringify(json.data, null, 2)], { type: "application/json" });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement("a"); a.href = url; a.download = "bion-my-data.json"; a.click();
-                    URL.revokeObjectURL(url);
-                  } catch { window.alert("Failed to download. Try again or contact support@bionhealth.co.za"); }
-                }}
-                className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl glass-1 text-sm text-foreground hover:bg-white/5 transition-colors"
-              >
-                <span>Download my data</span>
-                <ChevronLeft className="w-4 h-4 rotate-180 text-muted-foreground" />
-              </button>
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl glass-1 text-sm text-foreground hover:bg-white/5 transition-colors"
-              >
-                <span>Request data deletion</span>
-                <ChevronLeft className="w-4 h-4 rotate-180 text-muted-foreground" />
-              </button>
-              <p className="text-[10px] text-muted-foreground leading-relaxed">
-                Your data is protected under POPIA. All health-related data is end-to-end encrypted
-                and anonymised at aggregate reporting level.
-              </p>
-            </GlassCard>
+            <ExportDataCard />
 
-            <GlassCard className="p-4 border border-coral/15">
-              <div className="flex items-start gap-3">
-                <Trash2 className="w-4 h-4 text-coral shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-coral">Delete Account</p>
-                  <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">
-                    Permanently delete your BION account and all associated data. This cannot be undone.
-                  </p>
-                  {!showDeleteConfirm ? (
-                    <button
-                      onClick={() => setShowDeleteConfirm(true)}
-                      className="mt-2 text-[11px] text-coral font-medium underline underline-offset-2"
-                    >
-                      Request account deletion
-                    </button>
-                  ) : (
-                    <DeleteAccountConfirm
-                      onCancel={() => setShowDeleteConfirm(false)}
-                      onDeleted={() => { logout(); navigate("/welcome"); }}
-                    />
-                  )}
-                </div>
-              </div>
+            <DeleteAccountCard userEmail={user?.email ?? ""} />
+
+            <GlassCard className="p-4">
+              <p className="text-[10px] text-muted-foreground leading-relaxed">
+                Your data is protected under the Protection of Personal Information Act (POPIA).
+                Read our full <a href="/legal/privacy" className="text-teal underline">Privacy Policy</a> or
+                contact our Information Officer at <span className="text-teal">support@bionhealth.co.za</span>.
+              </p>
             </GlassCard>
           </motion.div>
         )}
@@ -405,7 +685,7 @@ export default function Settings() {
             <GlassCard className="p-4">
               <p className="text-[10px] text-muted-foreground">
                 Member since <span className="text-foreground font-medium">January 2026</span> ·
-                Role: <span className="text-indigo font-medium capitalize">{user?.role ?? "client"}</span>
+                Role: <span className="text-indigo font-medium capitalize">{(user?.role ?? "client").replace(/_/g, " ")}</span>
               </p>
             </GlassCard>
           </motion.div>

@@ -2,24 +2,57 @@
   "appId": "co.za.bionhealth.app",
   "appName": "BION",
   "webDir": "dist",
+  "bundledWebRuntime": false,
   "server": {
+    "url": "https://bionhealth.co.za",
+    "cleartext": false,
     "androidScheme": "https",
-    "iosScheme": "https"
+    "iosScheme": "https",
+    "allowNavigation": [
+      "bionhealth.co.za",
+      "*.bionhealth.co.za",
+      "*.supabase.co",
+      "bion-backend.onrender.com",
+      "api.paystack.co",
+      "checkout.paystack.com",
+      "*.paystack.co",
+      "graph.facebook.com"
+    ]
+  },
+  "ios": {
+    "contentInset": "automatic",
+    "backgroundColor": "#0A0A0F",
+    "preferredContentMode": "mobile",
+    "scheme": "BION"
+  },
+  "android": {
+    "backgroundColor": "#0A0A0F",
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false
   },
   "plugins": {
     "SplashScreen": {
-      "launchShowDuration": 2000,
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
       "backgroundColor": "#0A0A0F",
       "androidSplashResourceName": "splash",
-      "showSpinner": false
+      "showSpinner": false,
+      "androidScaleType": "CENTER_CROP",
+      "splashFullScreen": true,
+      "splashImmersive": true
     },
     "StatusBar": {
       "style": "DARK",
-      "backgroundColor": "#0A0A0F"
+      "backgroundColor": "#0A0A0F",
+      "overlaysWebView": false
     },
     "Keyboard": {
       "resize": "body",
+      "style": "DARK",
       "resizeOnFullScreen": true
+    },
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
     }
   }
 }

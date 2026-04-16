@@ -8,6 +8,7 @@ import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useMessages, useUnreadCount } from "@/hooks/useMessages";
+import { useConversations } from "@/hooks/useMessaging";
 import { supabase } from "@/integrations/supabase/client";
 import { getProviderImage } from "@/lib/providerImages";
 import realData from "@/data/bion_pretoria_data.json";
@@ -271,6 +272,11 @@ export default function Messages() {
 
   const isDemo = user?.id?.startsWith("demo_") ?? false;
 
+  // Realtime conversations from the new server-side threads table. We fold
+  // these into the booking-derived list so partners with no booking but an
+  // active chat still appear, and unread counts stay accurate.
+  const { conversations: liveConvs } = useConversations();
+
   /* ── Build conversations list from booking history ────────────── */
   useEffect(() => {
     const loadConversations = async () => {
@@ -366,6 +372,52 @@ export default function Messages() {
 
     loadConversations();
   }, [bookings, user?.id, isDemo]);
+
+  // Merge server-side realtime conversations (unread counts + lastMessage).
+  // Booking-derived rows stay, but live data wins where it exists. New
+  // partners that only exist as chat (no booking yet) are appended.
+  useEffect(() => {
+    if (!liveConvs?.length) return;
+    setConversations(prev => {
+      const byPartner = new Map(prev.filter(c => c.supabaseId).map(c => [c.supabaseId!, c]));
+      const next = [...prev];
+
+      liveConvs.forEach(lc => {
+        const existing = byPartner.get(lc.partnerId);
+        if (existing) {
+          existing.unread = lc.unread;
+          if (lc.lastMessagePreview) existing.lastMessage = lc.lastMessagePreview;
+          if (lc.lastMessageAt) {
+            existing.time = new Date(lc.lastMessageAt).toLocaleString("en-ZA", {
+              hour: "2-digit", minute: "2-digit",
+            });
+          }
+        } else {
+          next.push({
+            id: `live_${lc.partnerId}`,
+            supabaseId: lc.partnerId,
+            name: lc.partnerName,
+            specialty: lc.partnerSpecialty ?? "Provider",
+            specialization: lc.partnerSpecialty ?? "",
+            image: lc.partnerAvatar ?? getProviderImage(lc.partnerId, lc.partnerName),
+            vertical: categorizeVertical(lc.partnerSpecialty ?? ""),
+            time: lc.lastMessageAt
+              ? new Date(lc.lastMessageAt).toLocaleString("en-ZA", { hour: "2-digit", minute: "2-digit" })
+              : "",
+            unread: lc.unread,
+            online: false,
+            location: "",
+            providerId: lc.partnerId,
+            lastMessage: lc.lastMessagePreview ?? "",
+          });
+        }
+      });
+
+      // Sort — any row with unread at the top, then by time present.
+      next.sort((a, b) => (b.unread ?? 0) - (a.unread ?? 0));
+      return next;
+    });
+  }, [liveConvs]);
 
   const selectedConv = conversations.find(c => c.id === selected);
 

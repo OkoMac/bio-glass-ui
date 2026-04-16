@@ -4,13 +4,17 @@ import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
 import BionAssistant from "@/components/BionAssistant";
+import OnboardingChecklistCard from "@/components/OnboardingChecklistCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCorporateAnalytics } from "@/hooks/useCorporateAnalytics";
+import { getSastGreeting } from "@/lib/greeting";
 import {
   Users, TrendingUp, Wallet, Star, ChevronRight,
   ArrowUpRight, ArrowDownRight, Zap, Calendar, BarChart2,
-  Briefcase, UserPlus, Link2, Plus, X,
+  Briefcase, UserPlus, Link2, Plus, X, Shield, AlertTriangle,
 } from "lucide-react";
+
+const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
 // Simple SVG bar chart
 function BarChart({ data, color }: { data: { label: string; value: number }[]; color: string }) {
@@ -50,12 +54,11 @@ export default function CorporateDashboard() {
   const { user } = useAuth();
   const [period, setPeriod] = useState<"month" | "quarter" | "year">("month");
   const analytics = useCorporateAnalytics();
-  // Seed with the same demo figures Analytics uses for the Month period, so
-  // demo_corporate sees consistent numbers across /corporate/dashboard,
-  // /corporate/wallet and /corporate/analytics. Overwritten by real data as
-  // soon as the analytics hook / /api/corporate/stats resolves.
+  // Start at zero so a brand-new corporate account doesn't flash fabricated
+  // "187 employees · R95 000 budget" figures before the real analytics hook
+  // resolves. Real values populate via the effect below.
   const [stats, setStats] = useState<CorporateStats>({
-    total_employees: 187, total_budget: 95000, total_spent: 79500, active_providers: 24, linked_rep: null,
+    total_employees: 0, total_budget: 0, total_spent: 0, active_providers: 0, linked_rep: null,
   });
 
   // Pull live KPIs from the analytics hook, falling back to legacy stats fetch
@@ -73,6 +76,27 @@ export default function CorporateDashboard() {
   const [showRepModal, setShowRepModal] = useState(false);
   const [repCode, setRepCode] = useState("");
   const [repLinking, setRepLinking] = useState(false);
+
+  // Compliance — BO declaration status. Corporate users above the R50k/mo
+  // budget threshold must declare beneficial owners before wallet top-ups
+  // can be processed. Show a surfaced warning so they don't get stuck.
+  const [boStatus, setBoStatus] = useState<"not_required" | "required" | "submitted" | "approved" | "rejected" | null>(null);
+  const [boMonthly, setBoMonthly] = useState(0);
+
+  useEffect(() => {
+    const profileId = user?.profileId ?? user?.id;
+    if (!profileId) return;
+    const ctrl = new AbortController();
+    fetch(`${API}/api/compliance/corporate/${profileId}/required`, { signal: ctrl.signal })
+      .then(r => r.json())
+      .then(j => {
+        if (!j?.ok) return;
+        setBoStatus(j.bo_status ?? "not_required");
+        setBoMonthly(Number(j.monthly_budget_rand ?? 0));
+      })
+      .catch(() => { /* non-blocking */ });
+    return () => ctrl.abort();
+  }, [user?.profileId, user?.id]);
 
   // Fetch stats from API with timeout fallback
   useEffect(() => {
@@ -146,7 +170,7 @@ export default function CorporateDashboard() {
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground">
-              Good morning, {user?.name.split(" ")[0]} 👋
+              {getSastGreeting()}, {user?.name.split(" ")[0]} 👋
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">
               Corporate Wellness Dashboard
@@ -158,6 +182,56 @@ export default function CorporateDashboard() {
             <Zap className="w-3.5 h-3.5" /> Allocate Credits
           </motion.button>
         </div>
+
+        {/* BO compliance banner — only when action required */}
+        {boStatus === "required" && (
+          <motion.button
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileTap={{ scale: 0.99 }}
+            onClick={() => navigate("/corporate/beneficial-owners")}
+            className="w-full glass-1 rounded-2xl p-4 border border-amber/30 text-left flex items-start gap-3 hover:bg-white/5 transition-all">
+            <AlertTriangle className="w-4 h-4 text-amber shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-amber">
+                Beneficial ownership declaration required
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                Monthly budget R{boMonthly.toLocaleString()} — declare your beneficial
+                owners to unlock wallet top-ups. BION compliance reviews within 1 business day.
+              </p>
+            </div>
+            <div className="flex items-center gap-1 text-xs font-semibold text-amber shrink-0">
+              <Shield className="w-3.5 h-3.5" /> Declare
+              <ChevronRight className="w-3.5 h-3.5" />
+            </div>
+          </motion.button>
+        )}
+        {boStatus === "rejected" && (
+          <motion.button
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileTap={{ scale: 0.99 }}
+            onClick={() => navigate("/corporate/beneficial-owners")}
+            className="w-full glass-1 rounded-2xl p-4 border border-coral/30 text-left flex items-start gap-3 hover:bg-white/5 transition-all">
+            <AlertTriangle className="w-4 h-4 text-coral shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-coral">
+                Beneficial ownership declaration rejected
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                Please review and resubmit your declaration to continue processing
+                wallet top-ups.
+              </p>
+            </div>
+            <div className="flex items-center gap-1 text-xs font-semibold text-coral shrink-0">
+              Resubmit <ChevronRight className="w-3.5 h-3.5" />
+            </div>
+          </motion.button>
+        )}
+
+        {/* Onboarding checklist — nudges corporate admins to finish company, wallet, employees, etc. */}
+        <OnboardingChecklistCard role="corporate" />
 
         {/* KPI grid */}
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">

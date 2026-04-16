@@ -1,5 +1,31 @@
 import { supabase } from "@/integrations/supabase/client";
 
+// ── Ranger share-link attribution ────────────────────────────────────────
+//
+// Rangers share:   https://bionhealth.co.za/welcome?ref=<CODE>
+//
+// Helpers below are deliberately independent of the legacy
+// `sessionStorage["bion_pending_referral"]` key (used for user-to-user
+// refs) so Ranger attribution survives tab switches, OAuth redirects,
+// and multi-step signup flows where sessionStorage is wiped.
+const RANGER_LS_KEY = "bion_ref_code";
+
+export function getStoredRefCode(): string | null {
+  if (typeof window === "undefined") return null;
+  try { return localStorage.getItem(RANGER_LS_KEY); } catch { return null; }
+}
+
+export function setStoredRefCode(code: string): void {
+  if (typeof window === "undefined") return;
+  try { localStorage.setItem(RANGER_LS_KEY, code.trim().toUpperCase()); } catch {}
+}
+
+export function clearStoredRefCode(): void {
+  if (typeof window === "undefined") return;
+  try { localStorage.removeItem(RANGER_LS_KEY); } catch {}
+}
+
+
 /**
  * Deterministic referral code based on user name + profile ID.
  * Format: BION-XXX9999 (3 letters + 4 digits)

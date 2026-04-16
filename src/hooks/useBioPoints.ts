@@ -14,7 +14,10 @@ export function useBioPoints() {
   const { user } = useAuth();
   // biopoints.user_id references profiles.id — use profileId, not auth user id
   const profileId = user?.profileId;
-  const [balance, setBalance]   = useState(2450); // demo default - replaced with real data when user logs in
+  // Start at 0 — the previous 2450 "demo default" was being shown on /profile
+  // even for brand-new users, creating a mismatch with /wallet which reads
+  // the real balance via useActivityPoints.
+  const [balance, setBalance]   = useState(0);
   const [history, setHistory]   = useState<BioPointsEntry[]>([]);
   const [loading, setLoading]   = useState(false);
 

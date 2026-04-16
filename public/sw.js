@@ -1,8 +1,9 @@
 // BION Service Worker — offline shell + caching + push notifications
-const CACHE_NAME = "bion-v3";
+const CACHE_NAME = "bion-v4";
 const SHELL_ASSETS = [
   "/",
   "/manifest.json",
+  "/offline.html",
 ];
 
 // Install: cache shell assets
@@ -117,8 +118,10 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
-  // HTML pages: network-first, fall back to cached shell
+  // HTML pages: network-first, fall back to cached shell, then offline page
   e.respondWith(
-    fetch(e.request).catch(() => caches.match("/") || caches.match(e.request))
+    fetch(e.request)
+      .catch(() => caches.match(e.request))
+      .then(res => res || caches.match("/") || caches.match("/offline.html"))
   );
 });

@@ -151,6 +151,15 @@ export default function AdminVerification() {
           identity_verified: true,
           identity_verified_at: new Date().toISOString(),
         }).eq("id", providerId);
+
+        // Notify the provider via backend email endpoint
+        try {
+          await fetch(`${API}/api/email/verification-status`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+            body: JSON.stringify({ profileId: providerId, status: "verified" }),
+          });
+        } catch { /* email is best-effort */ }
       }
     } catch (err) {
       if (import.meta.env.DEV) console.warn("[admin verification] provider promote skipped:", err);

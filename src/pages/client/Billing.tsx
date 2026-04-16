@@ -1,65 +1,64 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
-import { storeUser } from "@/lib/auth";
-import { CLIENT_TIER_FEATURES } from "@/lib/subscription";
 import {
   CreditCard, Heart, Activity, TrendingUp, Check,
   Shield, Zap, Target, BarChart, Smartphone, Bell,
   Crown, Star, CheckCircle, Loader2
 } from "lucide-react";
 
-const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
-
 export default function ClientBilling() {
   const { user } = useAuth();
-  const { subscription, tierDisplayName, getUpgradeUrl, CLIENT_TIER_PRICING } = useSubscription();
-  
+  const {
+    subscription, tierDisplayName, CLIENT_TIER_PRICING,
+    live, startCheckout, cancel, refresh,
+  } = useSubscription();
+
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('monthly');
   const [upgrading, setUpgrading] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Refresh subscription after returning from Paystack callback.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("subscription") || params.get("subscribed") || params.get("reference")) {
+      void refresh();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleUpgrade = async () => {
     if (!user) return;
     setUpgrading(true);
+    setError(null);
     try {
-      const res = await fetch(`${API}/api/paystack/subscribe/client`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: user.email,
-          plan: selectedPlan,
-          userId: user.id,
-        }),
-      });
-      const data = await res.json();
-      if (data.authorization_url) {
-        window.location.href = data.authorization_url;
-        return;
-      }
-    } catch {
-      // Paystack API not available — activate locally for demo
+      const url = await startCheckout("premium");
+      window.location.href = url;
+    } catch (err: any) {
+      setError(err?.message ?? "Failed to start checkout");
+      setUpgrading(false);
     }
-    // Fallback: activate premium locally
-    const updated = {
-      ...user,
-      subscription: {
-        userType: 'client' as const,
-        tier: 'premium' as const,
-        status: 'active' as const,
-        currentPeriodEnd: null,
-        trialEnd: null,
-        features: CLIENT_TIER_FEATURES.premium,
-      },
-    };
-    storeUser(updated);
-    window.location.reload();
   };
-  
+
+  const handleCancel = async () => {
+    if (!window.confirm("Cancel Premium? You'll keep access until the current period ends.")) return;
+    setCancelling(true);
+    setError(null);
+    try {
+      await cancel();
+    } catch (err: any) {
+      setError(err?.message ?? "Failed to cancel");
+    } finally {
+      setCancelling(false);
+    }
+  };
+
   // Check if user is a client
   const isClient = user?.role === 'client';
-  
+
   if (!isClient) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow">
@@ -75,8 +74,11 @@ export default function ClientBilling() {
     );
   }
   
-  const currentTier = subscription?.tier || 'free';
-  const isPremium = currentTier === 'premium';
+  // Prefer live subscription state when available (real Paystack data).
+  const isPremiumLive = live?.tier === "premium" && (live.status === "active" || live.status === "non_renewing");
+  const currentTier = isPremiumLive ? "premium" : (subscription?.tier ?? "free");
+  const isPremium = currentTier === "premium";
+  const nextBillingDate = live?.next_billing_at ? new Date(live.next_billing_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" }) : null;
   
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow">
@@ -124,14 +126,34 @@ export default function ClientBilling() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-foreground">Premium Health Tracking</p>
-                  <p className="text-xs text-muted-foreground">Lower booking fees active</p>
+                  <p className="text-xs text-muted-foreground">
+                    {live?.status === "non_renewing"
+                      ? "Cancels at end of current period"
+                      : "Lower booking fees active"}
+                  </p>
                 </div>
                 <div className="text-right">
                   <p className="text-lg font-bold text-foreground">R29<span className="text-sm font-normal text-muted-foreground">/month</span></p>
-                  <p className="text-xs text-muted-foreground">Next billing: 28 Apr 2026</p>
+                  {nextBillingDate && (
+                    <p className="text-xs text-muted-foreground">
+                      {live?.status === "non_renewing" ? "Ends" : "Next billing"}: {nextBillingDate}
+                    </p>
+                  )}
                 </div>
               </div>
+              {live?.status === "active" && (
+                <button
+                  onClick={handleCancel}
+                  disabled={cancelling}
+                  className="mt-3 text-xs text-coral font-medium disabled:opacity-40"
+                >
+                  {cancelling ? "Cancelling..." : "Cancel subscription"}
+                </button>
+              )}
             </div>
+          )}
+          {error && (
+            <div className="mt-3 rounded-xl glass-accent-coral p-3 text-xs text-coral">{error}</div>
           )}
         </GlassCard>
         
@@ -282,16 +304,29 @@ export default function ClientBilling() {
             </div>
             
             {isPremium ? (
-              <button className="w-full glass-1 rounded-pill py-3 text-sm font-medium text-foreground">
-                Manage Subscription
-              </button>
+              live?.status === "active" ? (
+                <button
+                  onClick={handleCancel}
+                  disabled={cancelling}
+                  className="w-full glass-1 rounded-pill py-3 text-sm font-medium text-foreground disabled:opacity-40"
+                >
+                  {cancelling ? "Cancelling..." : "Cancel Subscription"}
+                </button>
+              ) : (
+                <button className="w-full glass-1 rounded-pill py-3 text-sm font-medium text-foreground">
+                  {live?.status === "non_renewing" ? "Will not renew" : "Manage Subscription"}
+                </button>
+              )
             ) : (
               <button
                 onClick={handleUpgrade} disabled={upgrading}
                 className="w-full gradient-indigo rounded-pill py-3 text-sm font-semibold text-white flex items-center justify-center gap-2"
               >
-                <CreditCard className="w-4 h-4" />
-                Upgrade to Premium - R{selectedPlan === 'monthly' ? '29' : '290'}/{selectedPlan === 'monthly' ? 'month' : 'year'}
+                {upgrading ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Redirecting to Paystack...</>
+                ) : (
+                  <><CreditCard className="w-4 h-4" /> Upgrade to Premium - R29/month</>
+                )}
               </button>
             )}
           </GlassCard>
@@ -424,13 +459,16 @@ export default function ClientBilling() {
           <div className="text-center">
             <button
               onClick={handleUpgrade} disabled={upgrading}
-              className="gradient-indigo rounded-pill px-6 py-3 text-sm font-semibold text-white inline-flex items-center gap-2"
+              className="gradient-indigo rounded-pill px-6 py-3 text-sm font-semibold text-white inline-flex items-center gap-2 disabled:opacity-40"
             >
-              <Crown className="w-4 h-4" />
-              Start Your 7-Day Free Trial
+              {upgrading ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Redirecting...</>
+              ) : (
+                <><Crown className="w-4 h-4" /> Go Premium — R29/month</>
+              )}
             </button>
             <p className="text-xs text-muted-foreground mt-2">
-              No credit card required for trial. Cancel anytime.
+              Secure checkout via Paystack. Cancel anytime.
             </p>
           </div>
         )}

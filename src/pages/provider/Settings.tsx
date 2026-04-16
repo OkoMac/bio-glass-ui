@@ -1,13 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import ServiceAreaCard from "@/components/provider/ServiceAreaCard";
+import BankConnectSection from "@/components/provider/BankConnectSection";
 import { ImagePickerOverlay } from "@/components/ImagePickerOverlay";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProviderAvailability, type AvailabilitySlot } from "@/hooks/useProviderAvailability";
 import {
   User, Bell, CreditCard, Shield, ChevronRight,
   CheckCircle, Globe, Clock, Percent, MessageSquare, Sparkles,
+  CalendarClock, Loader2,
 } from "lucide-react";
 
 import { getProviderImage } from "@/lib/providerImages";
@@ -23,27 +27,36 @@ const CANCEL_POLICIES = [
 
 export default function ProviderSettings() {
   const { user, updateAvatar } = useAuth();
-  const [tab, setTab] = useState<Tab>("profile");
+  const [searchParams] = useSearchParams();
+  // Start on whichever tab the URL requested (?tab=billing is how the
+  // verification-success email drives newly-verified providers straight to
+  // the bank-connection form). Default to "profile".
+  const qsTab = searchParams.get("tab");
+  const initialTab: Tab =
+    qsTab === "billing" || qsTab === "notifications" || qsTab === "privacy" ? qsTab : "profile";
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [saved, setSaved] = useState(false);
 
-  // Profile state
-  const [displayName, setDisplayName] = useState("James Okafor");
-  const [tagline, setTagline]         = useState("Personal Trainer · NASM Certified · 8 yrs exp.");
-  const [bio, setBio]                 = useState("Helping Joburg professionals build lean strength, balance and sustainable performance.");
+  // Profile state — derive from the signed-in provider so we don't leak
+  // "James Okafor / Sandton" defaults to every new provider. Fields start
+  // empty (or from user.name / user.email) and the provider fills them in.
+  const slugify = (s: string) =>
+    s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "my-practice";
+  const [displayName, setDisplayName] = useState(user?.name ?? "");
+  const [tagline, setTagline]         = useState("");
+  const [bio, setBio]                 = useState("");
   const [vertical, setVertical]       = useState("Fitness");
-  const [location, setLocation]       = useState("Sandton, Gauteng");
+  const [location, setLocation]       = useState("");
   const [sessionLength, setSessionLength] = useState("60");
   const [cancelPolicy, setCancelPolicy]   = useState("moderate");
-  const [miniSiteUrl, setMiniSiteUrl]     = useState("bion.app/james-okafor");
+  const [miniSiteUrl, setMiniSiteUrl]     = useState(
+    user?.name ? `bion.app/${slugify(user.name)}` : "bion.app/",
+  );
 
-  // Billing
-  const [plan] = useState("Growth");
-  const [nextBilling] = useState("15 Mar 2026");
-  const payouts = [
-    { month: "Feb 2026", amount: "R7 840", status: "paid" },
-    { month: "Jan 2026", amount: "R6 210", status: "paid" },
-    { month: "Dec 2025", amount: "R9 120", status: "paid" },
-  ];
+  // Billing — plan / payouts come from the backend once wired up.
+  const [plan] = useState("Starter");
+  const [nextBilling] = useState("—");
+  const payouts: { month: string; amount: string; status: string }[] = [];
 
   // Notifications
   const [notifs, setNotifs] = useState({
@@ -262,6 +275,9 @@ export default function ProviderSettings() {
                   <motion.div animate={{ x: 16 }} className="w-4 h-4 rounded-full bg-white shadow-sm" />
                 </button>
               </GlassCard>
+
+              {/* Availability — weekly working hours */}
+              <AvailabilitySection />
             </motion.div>
           )}
 
@@ -298,7 +314,9 @@ export default function ProviderSettings() {
               <GlassCard className="p-4">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Payout History</p>
                 <div className="space-y-2">
-                  {payouts.map(p => (
+                  {payouts.length === 0 ? (
+                    <p className="text-xs text-muted-foreground py-2">No payouts yet. Your first payout appears here after your first paid booking is completed.</p>
+                  ) : payouts.map(p => (
                     <div key={p.month} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
                       <div>
                         <p className="text-sm font-medium text-foreground">{p.month}</p>
@@ -310,17 +328,8 @@ export default function ProviderSettings() {
                 </div>
               </GlassCard>
 
-              {/* Payment method */}
-              <GlassCard className="p-4 flex items-center gap-3">
-                <div className="w-10 h-6 bg-white/10 rounded flex items-center justify-center">
-                  <CreditCard className="w-4 h-4 text-muted-foreground" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">•••• •••• •••• 4242</p>
-                  <p className="text-[11px] text-muted-foreground">Expires 09/27</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </GlassCard>
+              {/* Payout bank — real Paystack subaccount integration */}
+              <BankConnectSection />
             </motion.div>
           )}
 
@@ -397,3 +406,160 @@ export default function ProviderSettings() {
     </div>
   );
 }
+
+// ────────────────────────────────────────────────────────────────────
+// Availability sub-section — lives under the Profile tab. Lets a provider
+// toggle each weekday on/off and set start/end times. Saves via the
+// useProviderAvailability hook which hits /api/providers/availability.
+// ────────────────────────────────────────────────────────────────────
+
+// Mon=1 ... Sat=6, Sun=0 — matches backend day_of_week convention.
+const WEEKDAYS: { key: number; label: string }[] = [
+  { key: 1, label: "Mon" },
+  { key: 2, label: "Tue" },
+  { key: 3, label: "Wed" },
+  { key: 4, label: "Thu" },
+  { key: 5, label: "Fri" },
+  { key: 6, label: "Sat" },
+  { key: 0, label: "Sun" },
+];
+
+interface DayState { enabled: boolean; start: string; end: string }
+
+function trimTime(t: string | undefined): string {
+  if (!t) return "";
+  return t.length >= 5 ? t.slice(0, 5) : t;
+}
+
+function AvailabilitySection() {
+  const { slots, loading, saving, error, saveSlots } = useProviderAvailability();
+  const [days, setDays] = useState<Record<number, DayState>>({});
+  const [saved, setSaved] = useState(false);
+
+  // Seed local state from server slots (first matching block per day wins)
+  useEffect(() => {
+    const next: Record<number, DayState> = {};
+    for (const d of WEEKDAYS) {
+      next[d.key] = { enabled: false, start: "09:00", end: "17:00" };
+    }
+    for (const s of slots as AvailabilitySlot[]) {
+      const existing = next[s.day_of_week];
+      if (!existing || !existing.enabled) {
+        next[s.day_of_week] = {
+          enabled: true,
+          start: trimTime(s.start_time) || "09:00",
+          end:   trimTime(s.end_time)   || "17:00",
+        };
+      }
+    }
+    setDays(next);
+  }, [slots]);
+
+  const setDay = (k: number, patch: Partial<DayState>) =>
+    setDays(prev => ({ ...prev, [k]: { ...prev[k], ...patch } }));
+
+  const handleSave = async () => {
+    // Only include enabled days with a valid window
+    const payload: AvailabilitySlot[] = WEEKDAYS
+      .map(d => ({ k: d.key, s: days[d.key] }))
+      .filter(x => x.s?.enabled && x.s.start && x.s.end && x.s.end > x.s.start)
+      .map(x => ({
+        day_of_week: x.k,
+        start_time: x.s!.start,
+        end_time: x.s!.end,
+      }));
+
+    const ok = await saveSlots(payload);
+    if (ok) {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    }
+  };
+
+  return (
+    <GlassCard className="p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+          <CalendarClock className="w-3.5 h-3.5" /> Availability
+        </p>
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={handleSave}
+          disabled={saving || loading}
+          className={`px-3 py-1.5 rounded-pill text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            saved ? "bg-teal/20 text-teal" : "gradient-indigo text-primary-foreground"
+          } ${saving || loading ? "opacity-60" : ""}`}
+        >
+          {saving ? (
+            <><Loader2 className="w-3 h-3 animate-spin" /> Saving</>
+          ) : saved ? (
+            <><CheckCircle className="w-3 h-3" /> Saved</>
+          ) : (
+            "Save"
+          )}
+        </motion.button>
+      </div>
+
+      <p className="text-[11px] text-muted-foreground">
+        Set the weekly hours clients can book you. Toggle a day off to mark it closed.
+      </p>
+
+      {loading ? (
+        <div className="flex items-center justify-center py-6">
+          <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {WEEKDAYS.map(d => {
+            const state = days[d.key] ?? { enabled: false, start: "09:00", end: "17:00" };
+            return (
+              <div
+                key={d.key}
+                className="flex items-center gap-2 glass-1 rounded-xl p-2.5"
+              >
+                <button
+                  onClick={() => setDay(d.key, { enabled: !state.enabled })}
+                  className={`w-9 h-5 rounded-full transition-all flex items-center px-0.5 shrink-0 ${
+                    state.enabled ? "bg-indigo-500" : "bg-white/10"
+                  }`}
+                  aria-label={`Toggle ${d.label}`}
+                >
+                  <motion.div
+                    animate={{ x: state.enabled ? 16 : 0 }}
+                    className="w-4 h-4 rounded-full bg-white shadow-sm"
+                  />
+                </button>
+                <span className="text-xs font-medium text-foreground w-9">{d.label}</span>
+                {state.enabled ? (
+                  <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                    <Clock className="w-3 h-3 text-muted-foreground shrink-0" />
+                    <input
+                      type="time"
+                      value={state.start}
+                      onChange={e => setDay(d.key, { start: e.target.value })}
+                      className="flex-1 min-w-0 bg-white/5 text-foreground text-xs rounded-lg px-2 py-1 outline-none border border-white/10 focus:border-indigo/50 transition-colors"
+                    />
+                    <span className="text-[10px] text-muted-foreground">to</span>
+                    <input
+                      type="time"
+                      value={state.end}
+                      onChange={e => setDay(d.key, { end: e.target.value })}
+                      className="flex-1 min-w-0 bg-white/5 text-foreground text-xs rounded-lg px-2 py-1 outline-none border border-white/10 focus:border-indigo/50 transition-colors"
+                    />
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground flex-1">Closed</p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {error && (
+        <p className="text-[11px] text-coral">{error}</p>
+      )}
+    </GlassCard>
+  );
+}
+

@@ -4,6 +4,7 @@ import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useBookings } from "@/contexts/BookingsContext";
+import { useProviderAvailability, AvailabilitySlot, AvailabilityOverride } from "@/hooks/useProviderAvailability";
 import { getProviderImage } from "@/lib/providerImages";
 import { ChevronLeft, ChevronRight, Clock, User, MessageSquare, X, Plus, Calendar } from "lucide-react";
 
@@ -66,9 +67,54 @@ function statusToColor(status: string): string {
 }
 
 const HOUR_H = 56; // px per hour
+const GRID_START_HOUR = 6;
+const GRID_END_HOUR   = 6 + 14; // 20:00 (exclusive upper bound for shading)
+
+// Format a Date as YYYY-MM-DD in local time (matches DB override date strings).
+function fmtLocalDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+// Normalise an "HH:MM" or "HH:MM:SS" string to "HH:MM".
+function trimTime(t: string | null | undefined): string {
+  if (!t) return "";
+  return t.length >= 5 ? t.slice(0, 5) : t;
+}
+
+// DB day_of_week is 0=Sun..6=Sat; our column order is Mon..Sun.
+// Convert DB dow -> Mon-first column index.
+function dowToMonIdx(dow: number): number {
+  return dow === 0 ? 6 : dow - 1;
+}
+
+// Clamp a time string to the rendered grid range and return a { top, height }
+// pair in px — or null if the band falls entirely outside the grid.
+function bandRect(start: string, end: string, hourH: number): { top: number; height: number } | null {
+  const [sh, sm] = trimTime(start).split(":").map(Number);
+  const [eh, em] = trimTime(end).split(":").map(Number);
+  if (Number.isNaN(sh) || Number.isNaN(eh)) return null;
+  const startMin = sh * 60 + (sm || 0);
+  const endMin   = eh * 60 + (em || 0);
+  const gridStartMin = GRID_START_HOUR * 60;
+  const gridEndMin   = GRID_END_HOUR   * 60;
+  const clippedStart = Math.max(startMin, gridStartMin);
+  const clippedEnd   = Math.min(endMin,   gridEndMin);
+  if (clippedEnd <= clippedStart) return null;
+  const top    = ((clippedStart - gridStartMin) / 60) * hourH;
+  const height = ((clippedEnd   - clippedStart) / 60) * hourH;
+  return { top, height };
+}
 
 export default function ProviderSchedule() {
   const { bookings: allBookings } = useBookings();
+  const {
+    slots: availabilitySlots,
+    overrides: availabilityOverrides,
+    loading: availabilityLoading,
+  } = useProviderAvailability();
   const [weekOffset, setWeekOffset] = useState(0);
   const [viewDay, setViewDay]       = useState(0); // index 0-6 within week
   const [mode, setMode]             = useState<"week" | "day">("week");
@@ -76,6 +122,29 @@ export default function ProviderSchedule() {
 
   const weekDates = getWeekDates(weekOffset);
   const today     = new Date();
+
+  // Group weekly recurring slots by Mon-first column index.
+  const slotsByCol = useMemo<Record<number, AvailabilitySlot[]>>(() => {
+    const grouped: Record<number, AvailabilitySlot[]> = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+    for (const s of availabilitySlots) {
+      if (s.active === false) continue;
+      const col = dowToMonIdx(s.day_of_week);
+      if (col >= 0 && col <= 6) grouped[col].push(s);
+    }
+    return grouped;
+  }, [availabilitySlots]);
+
+  // Map override date -> override (only for the currently visible week).
+  const overridesByCol = useMemo<Record<number, AvailabilityOverride | undefined>>(() => {
+    const result: Record<number, AvailabilityOverride | undefined> = {};
+    const dateKeyByCol: Record<number, string> = {};
+    weekDates.forEach((d, i) => { dateKeyByCol[i] = fmtLocalDate(d); });
+    for (const o of availabilityOverrides) {
+      const col = Object.keys(dateKeyByCol).find(k => dateKeyByCol[Number(k)] === o.date);
+      if (col !== undefined) result[Number(col)] = o;
+    }
+    return result;
+  }, [availabilityOverrides, weekDates]);
 
   // Build scheduleData from real bookings, grouped by day-of-week within current viewing week
   const scheduleData = useMemo<Record<number, Booking[]>>(() => {
@@ -211,12 +280,56 @@ export default function ProviderSchedule() {
                 ))}
               </div>
               {/* Day columns */}
-              {DAY_LABELS.map((label, di) => (
+              {DAY_LABELS.map((label, di) => {
+                const override   = overridesByCol[di];
+                const fullClosed = override && !override.start_time && !override.end_time;
+                const columnSlots = slotsByCol[di] ?? [];
+                return (
                 <div key={di} className="relative">
                   <div className="text-center text-xs font-medium text-muted-foreground pb-2">
                     {label}
                   </div>
-                  <div className="relative border-l border-white/5" style={{ height: totalH }}>
+                  <div className="relative border-l border-white/5 overflow-hidden" style={{ height: totalH }}>
+                    {/* Closed background for the whole column */}
+                    <div className="absolute inset-0 bg-white/[0.02]" />
+                    {/* Availability skeleton while loading */}
+                    {availabilityLoading && (
+                      <div className="absolute inset-0 animate-pulse bg-white/[0.03]" />
+                    )}
+                    {/* Weekly available bands (green/teal tint) — hidden if day fully closed by override */}
+                    {!fullClosed && columnSlots.map((s, idx) => {
+                      const rect = bandRect(s.start_time, s.end_time, HOUR_H);
+                      if (!rect) return null;
+                      return (
+                        <div
+                          key={`avail-${idx}`}
+                          className="absolute left-0 right-0 bg-teal/10 border-y border-teal/20"
+                          style={{ top: rect.top, height: rect.height }}
+                          title={`Available ${trimTime(s.start_time)}–${trimTime(s.end_time)}`}
+                        />
+                      );
+                    })}
+                    {/* Override overlay */}
+                    {override && fullClosed && (
+                      <div
+                        className="absolute inset-0 bg-coral/15 border-y border-coral/30 flex items-start justify-center pointer-events-none"
+                      >
+                        <span className="mt-3 text-[9px] font-semibold uppercase tracking-wider text-coral/90 bg-coral/20 px-1.5 py-0.5 rounded">
+                          Closed
+                        </span>
+                      </div>
+                    )}
+                    {override && !fullClosed && override.start_time && override.end_time && (() => {
+                      const rect = bandRect(override.start_time, override.end_time, HOUR_H);
+                      if (!rect) return null;
+                      return (
+                        <div
+                          className="absolute left-0 right-0 bg-coral/20 border-y border-coral/40 pointer-events-none"
+                          style={{ top: rect.top, height: rect.height }}
+                          title={override.reason ?? "Override"}
+                        />
+                      );
+                    })()}
                     {/* Hour lines */}
                     {HOURS.map(h => (
                       <div key={h} className="absolute w-full border-t border-white/5" style={{ top: (h - 6) * HOUR_H }} />
@@ -258,7 +371,27 @@ export default function ProviderSchedule() {
                     })}
                   </div>
                 </div>
-              ))}
+                );
+              })}
+            </div>
+            {/* Legend */}
+            <div className="mt-4 flex flex-wrap items-center gap-3 text-[10px] text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded bg-teal/20 border border-teal/30" />
+                Available
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded bg-white/[0.04] border border-white/10" />
+                Closed
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded bg-coral/30 border border-coral/40" />
+                Override
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded bg-indigo/60 border border-indigo/70" />
+                Booked
+              </div>
             </div>
           </div>
         )}
@@ -276,7 +409,52 @@ export default function ProviderSchedule() {
                 ))}
               </div>
               {/* Schedule column */}
-              <div className="col-span-11 relative border-l border-white/5" style={{ height: totalH }}>
+              <div className="col-span-11 relative border-l border-white/5 overflow-hidden" style={{ height: totalH }}>
+                {/* Closed background */}
+                <div className="absolute inset-0 bg-white/[0.02]" />
+                {availabilityLoading && (
+                  <div className="absolute inset-0 animate-pulse bg-white/[0.03]" />
+                )}
+                {/* Availability bands for the selected day */}
+                {(() => {
+                  const override   = overridesByCol[viewDay];
+                  const fullClosed = override && !override.start_time && !override.end_time;
+                  const columnSlots = slotsByCol[viewDay] ?? [];
+                  return (
+                    <>
+                      {!fullClosed && columnSlots.map((s, idx) => {
+                        const rect = bandRect(s.start_time, s.end_time, HOUR_H);
+                        if (!rect) return null;
+                        return (
+                          <div
+                            key={`davail-${idx}`}
+                            className="absolute left-0 right-0 bg-teal/10 border-y border-teal/20"
+                            style={{ top: rect.top, height: rect.height }}
+                            title={`Available ${trimTime(s.start_time)}–${trimTime(s.end_time)}`}
+                          />
+                        );
+                      })}
+                      {override && fullClosed && (
+                        <div className="absolute inset-0 bg-coral/15 border-y border-coral/30 flex items-start justify-center pointer-events-none">
+                          <span className="mt-3 text-[10px] font-semibold uppercase tracking-wider text-coral/90 bg-coral/20 px-2 py-0.5 rounded">
+                            Closed{override.reason ? ` — ${override.reason}` : ""}
+                          </span>
+                        </div>
+                      )}
+                      {override && !fullClosed && override.start_time && override.end_time && (() => {
+                        const rect = bandRect(override.start_time, override.end_time, HOUR_H);
+                        if (!rect) return null;
+                        return (
+                          <div
+                            className="absolute left-0 right-0 bg-coral/20 border-y border-coral/40 pointer-events-none"
+                            style={{ top: rect.top, height: rect.height }}
+                            title={override.reason ?? "Override"}
+                          />
+                        );
+                      })()}
+                    </>
+                  );
+                })()}
                 {/* Hour lines */}
                 {HOURS.map(h => (
                   <div key={h} className="absolute w-full border-t border-white/5" style={{ top: (h - 6) * HOUR_H }} />
@@ -345,6 +523,25 @@ export default function ProviderSchedule() {
                 </button>
               </div>
             )}
+            {/* Legend */}
+            <div className="mt-4 flex flex-wrap items-center gap-3 text-[10px] text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded bg-teal/20 border border-teal/30" />
+                Available
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded bg-white/[0.04] border border-white/10" />
+                Closed
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded bg-coral/30 border border-coral/40" />
+                Override
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded bg-indigo/60 border border-indigo/70" />
+                Booked
+              </div>
+            </div>
           </div>
         )}
 

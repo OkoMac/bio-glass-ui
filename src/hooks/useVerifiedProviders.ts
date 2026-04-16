@@ -31,10 +31,14 @@ export function useVerifiedProviders(): Set<string> {
   useEffect(() => {
     const fetchVerified = async () => {
       try {
-        // Query all approved documents grouped by provider
+        // Query all approved documents grouped by provider.
+        // NOTE: the column is `doc_type` (matching the schema in
+        // bion-kyc-gates.sql / 20260409_data_persistence.sql); the hook
+        // previously queried `document_type` which returned 400 on every
+        // /home render.
         const { data, error } = await supabase
           .from("provider_documents" as any)
-          .select("provider_id, document_type, status")
+          .select("provider_id, doc_type, status")
           .eq("status", "verified");
 
         if (error || !data) return;
@@ -45,7 +49,7 @@ export function useVerifiedProviders(): Set<string> {
           if (!providerDocs.has(doc.provider_id)) {
             providerDocs.set(doc.provider_id, new Set());
           }
-          providerDocs.get(doc.provider_id)!.add(doc.document_type);
+          providerDocs.get(doc.provider_id)!.add(doc.doc_type);
         });
 
         const verifiedIds = new Set<string>();

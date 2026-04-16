@@ -166,7 +166,7 @@ export default function QuickBook() {
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo to-violet flex items-center justify-center">
                 <Zap className="w-4 h-4 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-foreground">Quick</h1>
+              <h1 className="text-2xl font-bold text-foreground">Quick Book</h1>
             </div>
             <p className="text-xs text-muted-foreground">Your tools and providers, one tap away</p>
           </div>

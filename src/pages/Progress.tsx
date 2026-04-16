@@ -8,21 +8,37 @@ import { ArrowLeft, TrendingUp, TrendingDown, Minus, Plus } from "lucide-react";
 import { useHealthLogs } from "@/hooks/useHealth";
 import { toast } from "sonner";
 
-// Simple SVG sparkline
+// Simple SVG sparkline. Handles empty/short series gracefully — new users
+// (no health_logs yet) reach this with data=[] and must not crash.
 function Sparkline({ data, color }: { data: number[]; color: string }) {
+  const w = 100, h = 32;
+  if (!data || data.length === 0) {
+    return (
+      <svg viewBox={`0 0 ${w} ${h}`} className="w-16 h-8">
+        <line x1="0" y1={h / 2} x2={w} y2={h / 2} stroke="rgba(255,255,255,0.08)" strokeWidth="1" strokeDasharray="2 3" />
+      </svg>
+    );
+  }
+  if (data.length === 1) {
+    return (
+      <svg viewBox={`0 0 ${w} ${h}`} className="w-16 h-8">
+        <circle cx={w / 2} cy={h / 2} r="2.5" fill={color} />
+      </svg>
+    );
+  }
   const min = Math.min(...data);
   const max = Math.max(...data);
   const range = max - min || 1;
-  const w = 100, h = 32;
   const pts = data.map((v, i) => ({
     x: (i / (data.length - 1)) * w,
     y: h - ((v - min) / range) * (h - 4) - 2,
   }));
   const d = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" ");
+  const last = pts[pts.length - 1];
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="w-16 h-8">
       <path d={d} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={pts[pts.length - 1].x} cy={pts[pts.length - 1].y} r="2.5" fill={color} />
+      <circle cx={last.x} cy={last.y} r="2.5" fill={color} />
     </svg>
   );
 }

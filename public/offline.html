@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#6366F1" />
+  <title>Offline — BION</title>
+  <style>
+    *,*::before,*::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #0A0A0F;
+      color: #E5E7EB;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background-image:
+        radial-gradient(ellipse at top, rgba(99,102,241,0.08), transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(13,148,136,0.06), transparent 50%);
+    }
+    .card {
+      max-width: 420px;
+      width: 100%;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 32px;
+      text-align: center;
+      backdrop-filter: blur(24px);
+    }
+    .logo {
+      width: 64px; height: 64px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #6366F1, #8B5CF6);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.15em;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 22px;
+      margin: 0 0 8px;
+      color: #fff;
+    }
+    p {
+      font-size: 14px;
+      color: #9CA3AF;
+      line-height: 1.6;
+      margin: 0 0 24px;
+    }
+    button {
+      appearance: none;
+      border: none;
+      background: linear-gradient(135deg, #6366F1, #8B5CF6);
+      color: #fff;
+      font-weight: 600;
+      padding: 12px 32px;
+      border-radius: 999px;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 24px rgba(99,102,241,0.4);
+    }
+    button:active { transform: scale(0.97); }
+    .cached {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #6B7280;
+    }
+    .cached a { color: #6366F1; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="logo">BION</div>
+    <h1>You're offline</h1>
+    <p>We can't reach the BION servers right now. Check your connection and try again.</p>
+    <button onclick="location.reload()">Retry</button>
+    <p class="cached">
+      Some of your data (progress logs, habits) may still be available from cache —
+      <a href="/">open the app</a>.
+    </p>
+  </main>
+  <script>
+    // Auto-retry when network comes back
+    window.addEventListener('online', () => location.reload());
+  </script>
+</body>
+</html>

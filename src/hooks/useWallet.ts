@@ -6,6 +6,7 @@ export interface WalletTransaction {
   id: string;
   amount_rand: number;
   type: string;
+  status?: string | null;           // 'pending' | 'processing' | 'completed' | 'failed'
   reference_id: string | null;
   paystack_ref: string | null;
   description: string | null;

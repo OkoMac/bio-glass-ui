@@ -5,7 +5,10 @@ import SearchBar from "@/components/SearchBar";
 import CategoryChip from "@/components/CategoryChip";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
+import EnablePushCard from "@/components/EnablePushCard";
+import OnboardingChecklistCard from "@/components/OnboardingChecklistCard";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBookings } from "@/contexts/BookingsContext";
 import GlassCard from "@/components/GlassCard";
 import {
   Sparkles, MapPin, Star, Clock, Search as SearchIcon, Flame, Camera,
@@ -20,6 +23,7 @@ import BiometricsDashboard from "@/components/BiometricsDashboard";
 import ExpenditureRewardsStrip from "@/components/ExpenditureRewardsStrip";
 import realData from "@/data/bion_pretoria_data.json";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
+import { getSastGreeting } from "@/lib/greeting";
 
 const categories = ["All", "Fitness", "Medical", "Beauty", "Professional", "Free Sessions", "Available Now"];
 
@@ -79,6 +83,29 @@ const Index = () => {
   const geo = useGeolocation();
   const verifiedProviders = useVerifiedProviders();
   const { profile: habitProfile } = useHabitProfile();
+  const { bookings } = useBookings();
+
+  // Only invite push opt-in for new clients with no bookings yet, and only if
+  // the browser hasn't already locked permission in either direction (granted
+  // means there's no remaining prompt to show; denied means the OS/browser
+  // has blocked us).
+  const showPushCta = bookings.length === 0
+    && typeof window !== "undefined"
+    && "Notification" in window
+    && Notification.permission === "default";
+
+  // Hide category chips that would yield zero providers. Recomputed whenever
+  // the source list changes (it's static seed data today, but verifiedProviders
+  // could extend it later). Previously users saw dead chips like "Free Sessions"
+  // that produced an empty list when tapped.
+  const availableCategories = useMemo(() => {
+    return categories.filter(c => {
+      if (c === "All") return true;
+      if (c === "Free Sessions") return ALL_HOME_PROVIDERS.some(p => /free|r0|R0/i.test(p.price));
+      if (c === "Available Now") return ALL_HOME_PROVIDERS.some(p => /weekday|daily|today|by appointment/i.test(p.availability));
+      return ALL_HOME_PROVIDERS.some(p => p.serviceCategory === c);
+    });
+  }, []);
 
   const filteredProviders = useMemo(() => {
     let list = ALL_HOME_PROVIDERS;
@@ -145,12 +172,7 @@ const Index = () => {
     return list.slice(0, 12);
   }, [activeCategory, searchQuery, filterVersion, geo.latitude, geo.longitude, habitProfile]);
 
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 18) return "Good afternoon";
-    return "Good evening";
-  };
+  const getGreeting = getSastGreeting;
 
   // Cover banner image (uploadable)
   const coverImage = (() => {
@@ -261,6 +283,9 @@ const Index = () => {
           <BiometricsDashboard compact />
         </section>
 
+        {/* Onboarding checklist — nudges clients to fill missing profile signals */}
+        {user?.role === "client" && <OnboardingChecklistCard role="client" />}
+
         <div className="flex items-center gap-2 text-sm">
           <MapPin className="w-4 h-4 text-muted-foreground" />
           {geo.permitted ? (
@@ -275,8 +300,13 @@ const Index = () => {
         {/* Expenditure Rewards — acquisition vouchers from nearby providers user has never visited */}
         <ExpenditureRewardsStrip />
 
+        {/* Push opt-in — only for new clients who haven't booked yet (see showPushCta guard) */}
+        {showPushCta && (
+          <EnablePushCard role="client" profileId={user?.profileId ?? null} />
+        )}
+
         <div className="flex gap-2 overflow-x-auto scrollbar-none -mx-4 px-4">
-          {categories.map((cat) => (
+          {availableCategories.map((cat) => (
             <CategoryChip
               key={cat}
               label={cat}

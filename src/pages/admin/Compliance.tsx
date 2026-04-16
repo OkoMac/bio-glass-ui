@@ -9,14 +9,16 @@
  */
 
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import AdminNav from "@/components/AdminNav";
 import GlassCard from "@/components/GlassCard";
 import {
   AlertTriangle, ShieldCheck, Loader2, CheckCircle, XCircle,
-  FileText, Users as UsersIcon, Clock,
+  FileText, Users as UsersIcon, Clock, Shield, ScrollText,
 } from "lucide-react";
 import { toast } from "sonner";
+import { formatRelativeTime } from "@/lib/relativeTime";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -41,7 +43,31 @@ interface BoSubmission {
   bo_submitted_at: string;
 }
 
-type Tab = "fica" | "bo";
+type Tab = "fica" | "bo" | "audit";
+
+type AuditFilter = "all" | "fica" | "bo" | "sars";
+
+interface AuditEvent {
+  id: string;
+  actor_profile: string | null;
+  event_type: string;
+  payload: any;
+  created_at: string;
+  profile_name: string | null;
+}
+
+const FICA_EVENT_TYPES = [
+  "ranger_fica_hold",
+  "ranger_withdrawal_approved",
+  "admin_fica_released",
+  "admin_fica_rejected",
+];
+const BO_EVENT_TYPES = [
+  "corporate_bo_submitted",
+  "admin_bo_approved",
+  "admin_bo_rejected",
+];
+const SARS_EVENT_TYPES = ["ranger_sars_declared"];
 
 export default function AdminCompliance() {
   const [tab, setTab] = useState<Tab>("fica");
@@ -52,6 +78,9 @@ export default function AdminCompliance() {
   const [boSubmissions, setBoSubmissions] = useState<BoSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
+  const [auditLoading, setAuditLoading] = useState(false);
+  const [auditFilter, setAuditFilter] = useState<AuditFilter>("all");
 
   const load = async () => {
     if (!token) return;
@@ -87,17 +116,91 @@ export default function AdminCompliance() {
 
   useEffect(() => { if (token) load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [token]);
 
+  // ═══ Audit log ═══
+  const loadAudit = async (filter: AuditFilter = auditFilter) => {
+    if (!token) return;
+    setAuditLoading(true);
+    try {
+      // Backend supports one exact-match event_type filter. For our group
+      // filters (fica/bo/sars) we fetch everything and filter client-side so
+      // one request covers "all" + any grouping.
+      const res = await fetch(`${API}/api/compliance/admin/events?limit=500`, {
+        headers: { "X-Admin-Token": token },
+      });
+      const j = await res.json();
+      if (!j.ok) throw new Error(j.error ?? "Failed to load events");
+      const all = (j.events ?? []) as AuditEvent[];
+      setAuditEvents(all);
+      setAuditFilter(filter);
+    } catch (err: any) {
+      toast.error(err.message ?? "Failed to load audit log");
+    }
+    setAuditLoading(false);
+  };
+
+  useEffect(() => {
+    if (token && tab === "audit" && auditEvents.length === 0 && !auditLoading) {
+      loadAudit("all");
+    }
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [tab, token]);
+
+  const filteredAudit = auditEvents.filter(e => {
+    if (auditFilter === "all") return true;
+    if (auditFilter === "fica") return FICA_EVENT_TYPES.includes(e.event_type);
+    if (auditFilter === "bo")   return BO_EVENT_TYPES.includes(e.event_type);
+    if (auditFilter === "sars") return SARS_EVENT_TYPES.includes(e.event_type);
+    return true;
+  });
+
+  const eventMeta = (e: AuditEvent): { icon: typeof AlertTriangle; color: string; bg: string; summary: string } => {
+    const name = e.profile_name ?? (e.actor_profile ? e.actor_profile.slice(0, 8) : "admin");
+    const p = e.payload ?? {};
+    const rand = (v: any) => `R${Number(v ?? 0).toLocaleString("en-ZA")}`;
+    switch (e.event_type) {
+      case "ranger_fica_hold":
+        return { icon: AlertTriangle, color: "text-amber", bg: "bg-amber/10",
+          summary: `FICA hold · ${rand(p.amount_rand)} · ${name}` };
+      case "ranger_withdrawal_approved":
+        return { icon: CheckCircle, color: "text-teal", bg: "bg-teal/10",
+          summary: `Withdrawal auto-approved · ${rand(p.amount_rand)} · ${name}` };
+      case "admin_fica_released":
+        return { icon: CheckCircle, color: "text-teal", bg: "bg-teal/10",
+          summary: `FICA released · ${rand(p.amount_rand)} · withdrawal ${String(p.withdrawal_id ?? "").slice(0, 8)}` };
+      case "admin_fica_rejected":
+        return { icon: XCircle, color: "text-coral", bg: "bg-coral/10",
+          summary: `FICA rejected · ${rand(p.amount_rand)}${p.reason ? ` · ${p.reason}` : ""}` };
+      case "corporate_bo_submitted":
+        return { icon: FileText, color: "text-indigo", bg: "bg-indigo/10",
+          summary: `BO submitted · ${p.owner_count ?? 0} owners · ${p.total_ownership_pct ?? 0}%` };
+      case "admin_bo_approved":
+        return { icon: CheckCircle, color: "text-teal", bg: "bg-teal/10",
+          summary: `BO approved · corporate ${String(p.corporate_id ?? "").slice(0, 8)}` };
+      case "admin_bo_rejected":
+        return { icon: XCircle, color: "text-coral", bg: "bg-coral/10",
+          summary: `BO rejected${p.reason ? ` · ${p.reason}` : ""}` };
+      case "ranger_sars_declared":
+        return { icon: Shield, color: "text-indigo", bg: "bg-indigo/10",
+          summary: `SARS declared · ${name} · tax# ${p.sars_tax_number ?? "—"}` };
+      default:
+        return { icon: ScrollText, color: "text-muted-foreground", bg: "bg-muted/10",
+          summary: `${e.event_type} · ${name}` };
+    }
+  };
+
+  // All admin actions now route through the backend (compliance.ts admin
+  // endpoints) so they hit the auditEvent() trail + send email notifications
+  // to the affected user. Previously these wrote directly to Supabase.
   const releaseFicaHold = async (f: FicaHold) => {
     setBusy(f.id);
     try {
-      // Flip withdrawal to approved + increment ytd on the profile
-      const { error: wdErr } = await supabase.from("ranger_withdrawals" as any).update({
-        status: "approved", reviewed_at: new Date().toISOString(),
-      }).eq("id", f.id);
-      if (wdErr) throw wdErr;
-      await supabase.from("profiles").update({
-        ytd_withdrawals_rand: f.ytd_after,
-      }).eq("id", f.profile_id);
+      const res = await fetch(`${API}/api/compliance/admin/fica/release`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+        body: JSON.stringify({ withdrawalId: f.id }),
+      });
+      const j = await res.json();
+      if (!j.ok) throw new Error(j.error ?? "Release failed");
       toast.success(`Released R${f.amount_rand.toLocaleString("en-ZA")} for ${f.profile_name ?? "ranger"}`);
       await load();
     } catch (err: any) {
@@ -109,10 +212,13 @@ export default function AdminCompliance() {
   const rejectFicaHold = async (f: FicaHold) => {
     setBusy(f.id);
     try {
-      const { error } = await supabase.from("ranger_withdrawals" as any).update({
-        status: "rejected", reviewed_at: new Date().toISOString(),
-      }).eq("id", f.id);
-      if (error) throw error;
+      const res = await fetch(`${API}/api/compliance/admin/fica/reject`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+        body: JSON.stringify({ withdrawalId: f.id, reason: "Admin rejected" }),
+      });
+      const j = await res.json();
+      if (!j.ok) throw new Error(j.error ?? "Reject failed");
       toast.success("Withdrawal rejected");
       await load();
     } catch (err: any) {
@@ -124,10 +230,13 @@ export default function AdminCompliance() {
   const approveBo = async (bo: BoSubmission) => {
     setBusy(bo.id);
     try {
-      const { error } = await supabase.from("corporate_accounts" as any).update({
-        bo_status: "approved", bo_reviewed_at: new Date().toISOString(),
-      }).eq("id", bo.id);
-      if (error) throw error;
+      const res = await fetch(`${API}/api/compliance/admin/bo/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+        body: JSON.stringify({ corporateId: bo.id }),
+      });
+      const j = await res.json();
+      if (!j.ok) throw new Error(j.error ?? "Approve failed");
       toast.success(`${bo.company_name} approved`);
       await load();
     } catch (err: any) {
@@ -139,10 +248,13 @@ export default function AdminCompliance() {
   const rejectBo = async (bo: BoSubmission) => {
     setBusy(bo.id);
     try {
-      const { error } = await supabase.from("corporate_accounts" as any).update({
-        bo_status: "rejected", bo_reviewed_at: new Date().toISOString(),
-      }).eq("id", bo.id);
-      if (error) throw error;
+      const res = await fetch(`${API}/api/compliance/admin/bo/reject`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+        body: JSON.stringify({ corporateId: bo.id, reason: "Admin rejected" }),
+      });
+      const j = await res.json();
+      if (!j.ok) throw new Error(j.error ?? "Reject failed");
       toast.success(`${bo.company_name} rejected`);
       await load();
     } catch (err: any) {
@@ -204,9 +316,15 @@ export default function AdminCompliance() {
           >
             BO submissions · {boSubmissions.length}
           </button>
+          <button
+            onClick={() => setTab("audit")}
+            className={`px-4 py-2 rounded-pill text-sm font-medium ${tab === "audit" ? "gradient-indigo text-primary-foreground" : "glass-1 text-foreground"}`}
+          >
+            Audit log · {auditEvents.length}
+          </button>
         </div>
 
-        {loading ? (
+        {loading && tab !== "audit" ? (
           <GlassCard className="p-12 flex justify-center">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </GlassCard>
@@ -254,7 +372,7 @@ export default function AdminCompliance() {
               ))}
             </div>
           )
-        ) : (
+        ) : tab === "bo" ? (
           // BO tab
           boSubmissions.length === 0 ? (
             <GlassCard className="p-10 text-center">
@@ -306,6 +424,87 @@ export default function AdminCompliance() {
               ))}
             </div>
           )
+        ) : (
+          // Audit log tab
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={auditFilter}
+                onChange={e => setAuditFilter(e.target.value as AuditFilter)}
+                className="h-9 glass-1 rounded-xl px-3 text-xs text-foreground bg-transparent outline-none"
+              >
+                <option value="all" className="bg-obsidian">All events</option>
+                <option value="fica" className="bg-obsidian">FICA only</option>
+                <option value="bo" className="bg-obsidian">BO only</option>
+                <option value="sars" className="bg-obsidian">SARS only</option>
+              </select>
+              <button
+                onClick={() => loadAudit(auditFilter)}
+                disabled={auditLoading}
+                className="px-3 h-9 glass-1 rounded-xl text-xs text-foreground disabled:opacity-50 flex items-center gap-1.5"
+              >
+                {auditLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Clock className="w-3.5 h-3.5" />}
+                Refresh
+              </button>
+              <span className="text-[10px] text-muted-foreground ml-auto">
+                Showing {filteredAudit.length} of {auditEvents.length} events
+              </span>
+            </div>
+
+            {auditLoading && auditEvents.length === 0 ? (
+              <GlassCard className="p-12 flex justify-center">
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              </GlassCard>
+            ) : filteredAudit.length === 0 ? (
+              <GlassCard className="p-10 text-center">
+                <Shield className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm font-semibold text-foreground">No compliance events yet</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Events are written whenever a FICA hold, BO submission, SARS declaration, or admin decision happens.
+                </p>
+              </GlassCard>
+            ) : (
+              <div className="max-h-[70vh] overflow-y-auto pr-1 space-y-2">
+                <AnimatePresence initial={false}>
+                  {filteredAudit.map((e, idx) => {
+                    const meta = eventMeta(e);
+                    const Icon = meta.icon;
+                    return (
+                      <motion.div
+                        key={e.id}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.18, delay: Math.min(idx * 0.01, 0.15) }}
+                      >
+                        <GlassCard className="p-3">
+                          <div className="flex items-start gap-3">
+                            <div className={`w-9 h-9 rounded-xl ${meta.bg} flex items-center justify-center shrink-0`}>
+                              <Icon className={`w-4 h-4 ${meta.color}`} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-foreground truncate">{meta.summary}</p>
+                              <p className="text-[10px] text-muted-foreground font-data mt-0.5">
+                                {e.event_type} · {formatRelativeTime(e.created_at)}
+                              </p>
+                              <details className="mt-1.5 group">
+                                <summary className="text-[10px] text-indigo cursor-pointer select-none list-none group-open:mb-1.5">
+                                  View payload
+                                </summary>
+                                <pre className="text-[10px] text-muted-foreground font-data glass-1 rounded-xl p-2 overflow-x-auto whitespace-pre-wrap break-all">
+{JSON.stringify(e.payload ?? {}, null, 2)}
+                                </pre>
+                              </details>
+                            </div>
+                          </div>
+                        </GlassCard>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>

@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { capturePendingReferralCode, recordReferralSignup } from "@/lib/referral";
+import {
+  capturePendingReferralCode, recordReferralSignup,
+  getStoredRefCode, setStoredRefCode, clearStoredRefCode,
+} from "@/lib/referral";
 import {
   DEMO_ACCOUNTS, BioUser, UserRole,
   signInWithEmail, signUpWithEmail, signInWithGoogle,
@@ -77,7 +80,20 @@ const ONBOARDING_ROUTES: Record<UserRole, string> = {
 
 export default function SplashOnboarding() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login, user, loading: authLoading } = useAuth();
+
+  // Ranger share-link state — populated from the ?ref=<CODE> query param
+  // and persisted to localStorage so it survives OAuth redirects + tab
+  // switches. Badge is shown above the signup form when resolved.
+  const [rangerRef, setRangerRef] = useState<{
+    code: string;
+    name: string | null;
+    resolved: boolean;
+  } | null>(() => {
+    const stored = getStoredRefCode();
+    return stored ? { code: stored, name: null, resolved: false } : null;
+  });
 
   // Returning visitors skip the splash + onboarding carousel and land directly
   // on the role/auth picker. Flag is set as soon as the splash animation
@@ -102,6 +118,57 @@ export default function SplashOnboarding() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, authLoading]);
+
+  // ── Ranger share-link capture ───────────────────────────────────────
+  // Read ?ref=<CODE> from the URL. If present:
+  //   1. Persist to localStorage (survives OAuth + tab switches)
+  //   2. Fire a single /api/referrals/click (guarded by sessionStorage
+  //      so React StrictMode double-mounts don't duplicate rows)
+  //   3. Resolve the Ranger's name for the signup badge
+  useEffect(() => {
+    const urlCode = (searchParams.get("ref") ?? "").trim().toUpperCase();
+    const utmSource = searchParams.get("utm_source") ?? undefined;
+    const code = urlCode || getStoredRefCode();
+    if (!code) return;
+
+    // Persist new codes. If an existing stored code is overwritten by a
+    // fresh URL param, the fresh one wins — the user just clicked it.
+    if (urlCode) setStoredRefCode(urlCode);
+
+    setRangerRef(prev => prev && prev.code === code ? prev : { code, name: null, resolved: false });
+
+    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+
+    // Click logging — de-dupe via sessionStorage so StrictMode's double
+    // effect fire can't double-insert. Keyed by code so a Ranger hopping
+    // between share links still gets each hit logged once per session.
+    const clickKey = `bion_ref_clicked_${code}`;
+    if (urlCode && typeof window !== "undefined" && !sessionStorage.getItem(clickKey)) {
+      sessionStorage.setItem(clickKey, "1");
+      fetch(`${API}/api/referrals/click`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, utm_source: utmSource }),
+      }).catch(() => {/* best-effort */});
+    }
+
+    // Resolve Ranger name for the badge
+    fetch(`${API}/api/referrals/resolve?code=${encodeURIComponent(code)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data?.ok && data.ranger) {
+          setRangerRef({ code, name: data.ranger.name ?? null, resolved: true });
+          // Pre-fill the manual referral code field too, so the legacy
+          // user-to-user flow still awards points when the ref'er is a
+          // regular user rather than a Ranger.
+          setReferralCode(code);
+        } else {
+          setRangerRef({ code, name: null, resolved: true });
+        }
+      })
+      .catch(() => setRangerRef({ code, name: null, resolved: true }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [phase, setPhase]               = useState<Phase>(hasSeenIntro ? "role" : "splash");
   const [progress, setProgress]         = useState(0);
@@ -225,6 +292,20 @@ export default function SplashOnboarding() {
 
       if (referralCode.trim() && user.profileId && selectedRole === "client") {
         recordReferralSignup(referralCode.trim().toUpperCase(), user.profileId).catch(() => {});
+      }
+
+      // Ranger attribution — best-effort, never blocks signup completion.
+      // Backend enforces idempotency, role check, and self-referral guard.
+      const storedRef = getStoredRefCode();
+      if (storedRef && user.profileId) {
+        fetch(`${API}/api/referrals/attribute`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: storedRef, profileId: user.profileId }),
+        })
+          .then(r => r.json())
+          .then(() => clearStoredRefCode())
+          .catch(() => {/* keep the code around; retry next time */});
       }
 
       const { data: { session } } = await supabase.auth.getSession();
@@ -429,7 +510,7 @@ export default function SplashOnboarding() {
                 <div key={acc.role} className="flex flex-col items-center gap-1">
                   <motion.button whileTap={{ scale: 0.95 }} onClick={() => handleDemoLogin(acc)}
                     className="px-3 py-2.5 glass-1 rounded-pill text-[11px] md:text-xs font-medium text-muted-foreground capitalize hover:text-foreground transition-colors">
-                    {acc.role}
+                    {acc.role.replace(/_/g, " ")}
                   </motion.button>
                   <button onClick={() => handleDemoOnboarding(acc)}
                     className="text-[10px] text-indigo/60 hover:text-indigo transition-colors leading-none py-1">
@@ -540,7 +621,7 @@ export default function SplashOnboarding() {
             </h2>
             <p className="text-xs text-muted-foreground">
               {authMode === "signup"
-                ? <>Joining as <span className="text-indigo font-medium capitalize">{selectedRole}</span></>
+                ? <>Joining as <span className="text-indigo font-medium capitalize">{selectedRole.replace(/_/g, " ")}</span></>
                 : "Sign in to continue"
               }
             </p>
@@ -561,6 +642,23 @@ export default function SplashOnboarding() {
             </button>
           ))}
         </div>
+
+        {/* Ranger referral badge — shown when arriving via ?ref=<CODE>.
+            We display it for both signup and signin so the user knows
+            their link worked, but attribution only runs on signup. */}
+        {rangerRef && authMode === "signup" && (
+          <div className="glass-1 border border-emerald-400/20 rounded-xl px-3 py-2.5">
+            <p className="text-xs text-foreground leading-relaxed">
+              <span className="text-emerald-400 font-semibold">🤝 </span>
+              {rangerRef.name
+                ? <>You're joining via <span className="font-semibold text-foreground">{rangerRef.name}</span>'s link — they'll receive a commission on your subscription. You pay nothing extra.</>
+                : rangerRef.resolved
+                  ? <>Referral code <span className="font-mono text-emerald-400">{rangerRef.code}</span> applied.</>
+                  : <>Checking referral code <span className="font-mono text-emerald-400">{rangerRef.code}</span>…</>
+              }
+            </p>
+          </div>
+        )}
 
         {error && <p className="text-xs text-coral px-1">{error}</p>}
 
@@ -648,9 +746,9 @@ export default function SplashOnboarding() {
                 Terms of Service
               </button>{" "}
               and{" "}
-              <button type="button" onClick={() => setPhase("terms")} className="text-indigo underline">
+              <a href="/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-indigo underline">
                 Privacy Policy
-              </button>
+              </a>
               . I understand that BION processes my data in accordance with POPIA.
             </span>
           </label>

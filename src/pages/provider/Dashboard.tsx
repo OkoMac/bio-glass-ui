@@ -5,8 +5,12 @@ import BioAvatar from "@/components/BioAvatar";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
 import MarketingLevyCard from "@/components/provider/MarketingLevyCard";
+import VerificationStatusBanner from "@/components/provider/VerificationStatusBanner";
+import EnablePushCard from "@/components/EnablePushCard";
+import OnboardingChecklistCard from "@/components/OnboardingChecklistCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
+import { getSastGreeting } from "@/lib/greeting";
 import {
   CheckCircle, XCircle, MessageSquare, TrendingUp,
   Users, Calendar, AlertTriangle, ChevronRight,
@@ -78,7 +82,7 @@ export default function ProviderDashboard() {
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-xs text-muted-foreground">Good morning 👋</p>
+            <p className="text-xs text-muted-foreground">{getSastGreeting()} 👋</p>
             <h1 className="text-2xl md:text-3xl font-bold text-foreground">{user?.name ?? "Provider"}</h1>
             <p className="text-xs text-muted-foreground">
               {pending.length > 0 ? `${pending.length} request${pending.length > 1 ? "s" : ""} waiting` : "All caught up"}
@@ -86,6 +90,15 @@ export default function ProviderDashboard() {
           </div>
           <button onClick={logout} className="text-[10px] text-muted-foreground glass-1 px-3 py-1.5 rounded-pill">Sign out</button>
         </div>
+
+        {/* Verification / bank-connect status — surfaces anything blocking bookable state */}
+        <VerificationStatusBanner />
+
+        {/* Web-push opt-in — dismissible, only renders when supported + not yet subscribed */}
+        <EnablePushCard role="provider" profileId={user?.profileId ?? null} />
+
+        {/* Onboarding checklist — nudges providers to complete services, bank, bio, avatar */}
+        <OnboardingChecklistCard role="provider" />
 
         {/* KPI row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

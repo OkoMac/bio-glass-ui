@@ -4,6 +4,7 @@ import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/hooks/useSubscription";
 import {
   CreditCard, TrendingUp, CheckCircle, Download,
   Building2, Zap, Shield, Clock, Check, Loader2,
@@ -26,6 +27,7 @@ interface BankDetails {
 
 export default function ProviderBilling() {
   const { user } = useAuth();
+  const { live, loading: loadingSub, startCheckout, cancel, refresh } = useSubscription();
 
   // Bank setup state
   const [banks, setBanks] = useState<Bank[]>([]);
@@ -40,6 +42,43 @@ export default function ProviderBilling() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [bankSearch, setBankSearch] = useState("");
+  const [upgradingTier, setUpgradingTier] = useState<"pro" | "elite" | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+
+  const handleUpgrade = async (tier: "pro" | "elite") => {
+    setUpgradingTier(tier);
+    setMessage(null);
+    try {
+      const url = await startCheckout(tier);
+      window.location.href = url;
+    } catch (err: any) {
+      setMessage({ type: "error", text: err?.message ?? "Failed to start checkout" });
+      setUpgradingTier(null);
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!window.confirm("Cancel your subscription? You'll keep access until your current period ends.")) return;
+    setCancelling(true);
+    setMessage(null);
+    try {
+      await cancel();
+      setMessage({ type: "success", text: "Subscription will not renew after the current period." });
+    } catch (err: any) {
+      setMessage({ type: "error", text: err?.message ?? "Failed to cancel" });
+    } finally {
+      setCancelling(false);
+    }
+  };
+
+  // Refresh after returning from Paystack checkout.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("subscription") || params.get("subscribed") || params.get("reference")) {
+      void refresh();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Load SA banks and saved details on mount
   useEffect(() => {
@@ -351,7 +390,40 @@ export default function ProviderBilling() {
           <div className="flex items-center gap-2 mb-4">
             <Crown className="w-4 h-4 text-amber" />
             <h2 className="text-sm font-semibold text-foreground">Subscription Plan</h2>
+            {loadingSub && (
+              <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
+            )}
           </div>
+
+          {/* Active subscription summary */}
+          {live && (live.status === "active" || live.status === "non_renewing") && (
+            <div className="mb-4 p-4 rounded-xl glass-accent-indigo">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-foreground capitalize">
+                    {live.tier} plan — R{live.amount_rand}/mo
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {live.status === "non_renewing"
+                      ? `Cancels on ${live.current_period_end ? new Date(live.current_period_end).toLocaleDateString("en-ZA") : "end of period"}`
+                      : live.next_billing_at
+                        ? `Next billing: ${new Date(live.next_billing_at).toLocaleDateString("en-ZA")}`
+                        : "Active"}
+                  </p>
+                </div>
+                {live.status === "active" && (
+                  <button
+                    onClick={handleCancel}
+                    disabled={cancelling}
+                    className="px-3 py-1.5 rounded-pill text-[11px] font-medium glass-accent-coral text-coral disabled:opacity-40"
+                  >
+                    {cancelling ? "Cancelling..." : "Cancel"}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {([
               {
@@ -394,13 +466,17 @@ export default function ProviderBilling() {
                   "Custom branding",
                   "API access",
                   "Multi-location support",
-                  "Reduced platform fees (3%)",
+                  "Reduced platform fees (3.5%)",
                   "Featured provider badge",
                 ],
               },
             ] as const).map((plan) => {
-              const currentPlan = "free";
+              const currentPlan: "free" | "pro" | "elite" =
+                live && (live.status === "active" || live.status === "non_renewing") && (live.tier === "pro" || live.tier === "elite")
+                  ? (live.tier as "pro" | "elite")
+                  : "free";
               const isActive = plan.id === currentPlan;
+              const canUpgrade = plan.id !== "free" && plan.id !== currentPlan;
               return (
                 <motion.div
                   key={plan.id}
@@ -430,13 +506,18 @@ export default function ProviderBilling() {
                       </li>
                     ))}
                   </ul>
-                  {!isActive && (
+                  {canUpgrade && (
                     <motion.button
                       whileTap={{ scale: 0.97 }}
-                      onClick={() => window.alert("Subscription payments coming soon \u2014 currently on Free plan")}
-                      className="w-full py-2.5 rounded-pill text-xs font-semibold glass-accent-indigo text-indigo"
+                      onClick={() => handleUpgrade(plan.id as "pro" | "elite")}
+                      disabled={upgradingTier !== null}
+                      className="w-full py-2.5 rounded-pill text-xs font-semibold glass-accent-indigo text-indigo flex items-center justify-center gap-1.5 disabled:opacity-40"
                     >
-                      Upgrade to {plan.name}
+                      {upgradingTier === plan.id ? (
+                        <><Loader2 className="w-3 h-3 animate-spin" /> Redirecting...</>
+                      ) : (
+                        <>Upgrade to {plan.name}</>
+                      )}
                     </motion.button>
                   )}
                 </motion.div>

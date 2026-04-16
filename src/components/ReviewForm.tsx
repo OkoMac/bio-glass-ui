@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, X, CheckCircle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import GlassCard from "./GlassCard";
+import { useSubmitReview } from "@/hooks/useReviews";
 
 interface ReviewFormProps {
   bookingId: string;
@@ -9,8 +11,6 @@ interface ReviewFormProps {
   onClose: () => void;
   onSubmitted: () => void;
 }
-
-const API_BASE = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
 export default function ReviewForm({
   bookingId,
@@ -21,9 +21,10 @@ export default function ReviewForm({
   const [rating, setRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
   const [comment, setComment] = useState("");
-  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { submit, submitting } = useSubmitReview();
 
   const ratingLabels = ["", "Poor", "Fair", "Good", "Great", "Excellent"];
 
@@ -33,39 +34,25 @@ export default function ReviewForm({
       return;
     }
 
-    setSubmitting(true);
     setError(null);
 
     try {
-      const token = localStorage.getItem("supabase_token") ?? "";
-      const res = await fetch(`${API_BASE}/api/reviews`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          booking_id: bookingId,
-          rating,
-          comment: comment.trim() || undefined,
-        }),
+      await submit({
+        bookingId,
+        rating,
+        comment: comment.trim() || undefined,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error ?? "Failed to submit review");
-        setSubmitting(false);
-        return;
-      }
-
       setSubmitted(true);
+      toast.success(`Thanks for reviewing ${providerName}!`);
       setTimeout(() => {
         onSubmitted();
       }, 1500);
-    } catch {
-      setError("Network error — please try again");
-      setSubmitting(false);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to submit review";
+      setError(message);
+      toast.error(message);
     }
   }
 

@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useConversations, useConversation } from "@/hooks/useMessaging";
 import { Search, Send, ChevronLeft, Mic, Paperclip, CheckCheck, MessageSquare, Lock, CreditCard, Zap, X } from "lucide-react";
 import { QUICK_REPLIES, fillTemplate } from "@/lib/quickReplies";
 
@@ -27,31 +28,42 @@ interface Thread {
   messages: Msg[];
 }
 
-// Real accounts have no threads until actual conversations happen
-const generateThreads = (_isDemoAccount: boolean): Thread[] => {
-  return [];
-};
-
 export default function ProviderMessages() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { canAccess, requiresUpgrade, getUpgradeUrl, tierDisplayName } = useSubscription();
+  const { canAccess: _canAccess, requiresUpgrade, getUpgradeUrl, tierDisplayName } = useSubscription();
   const [query, setQuery]           = useState("");
   const [activeId, setActiveId]     = useState<string | null>(null);
   const [input, setInput]           = useState("");
   const [showQuickReplies, setShowQuickReplies] = useState(false);
   const messagesEndRef               = useRef<HTMLDivElement>(null);
-  
-  // Check if this is a demo account (simplified check - in real app would check user.role or user.isDemo)
-  const isDemoAccount = user?.email?.includes('demo') || user?.name?.includes('Demo') || false;
-  
+
   // Check if user can access messaging feature
-  const canMessage = canAccess('messaging');
   const needsUpgrade = requiresUpgrade('messaging');
-  
-  // Generate threads based on account type and subscription
-  const threads = generateThreads(isDemoAccount && canMessage);
-  const [threadData, setThreadData] = useState(threads);
+
+  // ── Live conversations + active thread messages ──
+  const { conversations: liveConvs } = useConversations();
+  const { messages: liveMessages, sendMessage: liveSend } = useConversation(activeId);
+
+  const profileId = user?.profileId;
+
+  // Project live conversations into the Thread shape the existing UI expects.
+  const threadData: Thread[] = useMemo(
+    () => liveConvs.map(c => ({
+      id: c.id,
+      name: c.partnerName,
+      image: c.partnerAvatar ?? "",
+      lastMsg: c.lastMessagePreview ?? "",
+      time: c.lastMessageAt
+        ? new Date(c.lastMessageAt).toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" })
+        : "",
+      unread: c.unread,
+      online: false,
+      // Per-thread history is served by useConversation when the thread is opened.
+      messages: [],
+    })),
+    [liveConvs],
+  );
 
   const filtered = threadData.filter(t =>
     t.name.toLowerCase().includes(query.toLowerCase())
@@ -59,36 +71,32 @@ export default function ProviderMessages() {
 
   const active = threadData.find(t => t.id === activeId);
 
+  // Messages-for-render: mapped from the realtime hook for the active thread.
+  const activeMessages: Msg[] = useMemo(
+    () => liveMessages.map(m => ({
+      id: m.id,
+      from: m.senderId === profileId ? "provider" : "client",
+      text: m.content,
+      time: new Date(m.createdAt).toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" }),
+      read: m.isRead,
+    })),
+    [liveMessages, profileId],
+  );
+
   const openThread = (id: string) => {
     setActiveId(id);
-    // mark unread as read
-    setThreadData(prev =>
-      prev.map(t => t.id === id ? { ...t, unread: 0 } : t)
-    );
+    // useConversation marks-read automatically on inbound messages.
   };
 
   const send = () => {
     if (!input.trim() || !activeId) return;
-    const newMsg: Msg = {
-      id: `m${Date.now()}`,
-      from: "provider",
-      text: input.trim(),
-      time: new Date().toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" }),
-      read: false,
-    };
-    setThreadData(prev =>
-      prev.map(t =>
-        t.id === activeId
-          ? { ...t, messages: [...t.messages, newMsg], lastMsg: input.trim(), time: "Now" }
-          : t
-      )
-    );
+    void liveSend(input.trim());
     setInput("");
   };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [active?.messages.length]);
+  }, [activeMessages.length]);
 
   // Show upgrade prompt if messaging feature is not available
   if (needsUpgrade) {
@@ -254,7 +262,7 @@ export default function ProviderMessages() {
 
               {/* Messages */}
               <GlassCard className="p-4 min-h-64 max-h-96 overflow-y-auto flex flex-col gap-3">
-                {active.messages.map(msg => (
+                {activeMessages.map(msg => (
                   <div
                     key={msg.id}
                     className={`flex ${msg.from === "provider" ? "justify-end" : "justify-start"}`}
@@ -292,7 +300,7 @@ export default function ProviderMessages() {
                   <input
                     value={input}
                     onChange={e => setInput(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && send()}
+                    onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
                     placeholder="Message…"
                     className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
                   />

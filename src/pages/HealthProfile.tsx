@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useHealthLogs } from "@/hooks/useHealth";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -56,18 +57,9 @@ const VERTICAL_OPTIONS = [
   { value: "medical",     label: "Medical",     color: "text-indigo" },
 ];
 
-const CONDITIONS: { label: string; note: string; severity: "none" | "mild" | "managed" }[] = [
-  { label: "Lactose intolerance", note: "Avoid dairy. Whey protein OK.",       severity: "managed" },
-  { label: "Left knee strain",    note: "Old sports injury — avoid deep squats.", severity: "managed" },
-];
-
-const ALLERGIES = ["Dairy", "Penicillin"];
-
-const MEDICATIONS: { name: string; dose: string; frequency: string }[] = [
-  { name: "Vitamin D3",   dose: "2000 IU", frequency: "Daily" },
-  { name: "Omega-3",      dose: "1000mg",  frequency: "Daily" },
-  { name: "Magnesium",    dose: "400mg",   frequency: "Nightly" },
-];
+// Types for medical entries (persisted to localStorage per user)
+interface MedCondition { id: string; label: string; note: string; severity: "none" | "mild" | "managed" }
+interface MedMedication { id: string; name: string; dose: string; frequency: string }
 
 const PRIVACY_LABELS: Record<PrivacyLevel, { label: string; icon: typeof Lock; color: string }> = {
   private:  { label: "Only me",         icon: Lock,   color: "text-coral"  },
@@ -132,6 +124,57 @@ export default function HealthProfile() {
   const [showAddGoal, setShowAddGoal] = useState(false);
   const [newGoal, setNewGoal] = useState({ label: "", target: "", deadline: "", vertical: "fitness" });
 
+  // ── Medical data (localStorage-persisted) ──
+  const { user } = useAuth();
+  const uid = user?.id ?? "guest";
+  const lsKey = useCallback((k: string) => `bion_medical_${uid}_${k}`, [uid]);
+
+  const loadLS = <T,>(key: string, fallback: T): T => {
+    try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+    catch { return fallback; }
+  };
+
+  const [conditions, setConditions]   = useState<MedCondition[]>(() => loadLS(lsKey("conditions"), []));
+  const [allergies, setAllergies]     = useState<string[]>(() => loadLS(lsKey("allergies"), []));
+  const [medications, setMedications] = useState<MedMedication[]>(() => loadLS(lsKey("medications"), []));
+
+  useEffect(() => { localStorage.setItem(lsKey("conditions"), JSON.stringify(conditions)); },  [conditions, lsKey]);
+  useEffect(() => { localStorage.setItem(lsKey("allergies"), JSON.stringify(allergies)); },    [allergies, lsKey]);
+  useEffect(() => { localStorage.setItem(lsKey("medications"), JSON.stringify(medications)); }, [medications, lsKey]);
+
+  // Inline form visibility
+  const [showAddCondition, setShowAddCondition]   = useState(false);
+  const [showAddAllergy, setShowAddAllergy]       = useState(false);
+  const [showAddMedication, setShowAddMedication] = useState(false);
+
+  // Edit targets (null = not editing)
+  const [editCondition, setEditCondition]     = useState<string | null>(null);
+  const [editMedication, setEditMedication]   = useState<string | null>(null);
+
+  // New-entry drafts
+  const [newCondition, setNewCondition]   = useState({ label: "", note: "", severity: "none" as MedCondition["severity"] });
+  const [newAllergy, setNewAllergy]       = useState("");
+  const [newMedication, setNewMedication] = useState({ name: "", dose: "", frequency: "" });
+
+  const handleAddCondition = () => {
+    if (!newCondition.label.trim()) return;
+    setConditions(prev => [...prev, { id: `c${Date.now()}`, ...newCondition }]);
+    setNewCondition({ label: "", note: "", severity: "none" });
+    setShowAddCondition(false);
+  };
+  const handleAddAllergy = () => {
+    if (!newAllergy.trim()) return;
+    setAllergies(prev => [...prev, newAllergy.trim()]);
+    setNewAllergy("");
+    setShowAddAllergy(false);
+  };
+  const handleAddMedication = () => {
+    if (!newMedication.name.trim()) return;
+    setMedications(prev => [...prev, { id: `m${Date.now()}`, ...newMedication }]);
+    setNewMedication({ name: "", dose: "", frequency: "" });
+    setShowAddMedication(false);
+  };
+
   const handleAddGoal = () => {
     if (!newGoal.label.trim()) return;
     const goal: HealthGoal = {
@@ -169,39 +212,71 @@ export default function HealthProfile() {
           </div>
         </div>
 
-        {/* Wellness score card */}
-        <GlassCard className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">Wellness Score</p>
-              <p className="text-4xl font-bold text-foreground mt-1">72<span className="text-lg text-muted-foreground">/100</span></p>
-              <p className="text-xs text-teal mt-1">↑ 8 points this month · Top 25%</p>
-            </div>
-            <div className="relative w-20 h-20">
-              <svg viewBox="0 0 36 36" className="rotate-[-90deg]" width="80" height="80">
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3" />
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#6366F1" strokeWidth="3"
-                  strokeDasharray={`${72} ${100}`} strokeLinecap="round" />
-              </svg>
-              <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-indigo">72%</span>
-            </div>
-          </div>
-          <div className="grid grid-cols-3 gap-2 mt-3">
-            {[
-              { label: "Fitness",     val: "82%", color: "bg-teal"  },
-              { label: "Nutrition",   val: "68%", color: "bg-amber" },
-              { label: "Mindfulness", val: "55%", color: "bg-indigo"},
-            ].map(s => (
-              <div key={s.label} className="glass-1 rounded-xl p-2 text-center">
-                <div className="h-1 rounded-full bg-white/05 mb-1.5">
-                  <div className={`h-full rounded-full ${s.color} opacity-70`} style={{ width: s.val }} />
+        {/* Wellness score card — only shown once we have enough data to score.
+            Previously hardcoded 72/100, Fitness 82% etc for brand-new users. */}
+        {logs.length >= 5 ? (
+          (() => {
+            // Simple composite: proportion of last 7 days with meaningful logs.
+            const recent = logs.slice(-7);
+            const hasMetric = (l: any, k: string) => l?.[k] != null && Number(l[k]) > 0;
+            const metricScore = (key: string) => {
+              const filled = recent.filter(l => hasMetric(l, key)).length;
+              return Math.round((filled / Math.max(recent.length, 1)) * 100);
+            };
+            const fitness = metricScore("steps");
+            const nutrition = metricScore("weight_kg");
+            const sleep = metricScore("sleep_hours");
+            const score = Math.round((fitness + nutrition + sleep) / 3);
+            return (
+              <GlassCard className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Wellness Score</p>
+                    <p className="text-4xl font-bold text-foreground mt-1">{score}<span className="text-lg text-muted-foreground">/100</span></p>
+                    <p className="text-xs text-muted-foreground mt-1">Based on your last 7 days of tracking</p>
+                  </div>
+                  <div className="relative w-20 h-20">
+                    <svg viewBox="0 0 36 36" className="rotate-[-90deg]" width="80" height="80">
+                      <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3" />
+                      <circle cx="18" cy="18" r="15.9" fill="none" stroke="#6366F1" strokeWidth="3"
+                        strokeDasharray={`${score} ${100}`} strokeLinecap="round" />
+                    </svg>
+                    <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-indigo">{score}%</span>
+                  </div>
                 </div>
-                <p className="text-[10px] text-muted-foreground">{s.label}</p>
-                <p className="text-xs font-bold text-foreground">{s.val}</p>
+                <div className="grid grid-cols-3 gap-2 mt-3">
+                  {[
+                    { label: "Fitness",   val: `${fitness}%`,   color: "bg-teal"  },
+                    { label: "Nutrition", val: `${nutrition}%`, color: "bg-amber" },
+                    { label: "Sleep",     val: `${sleep}%`,     color: "bg-indigo"},
+                  ].map(s => (
+                    <div key={s.label} className="glass-1 rounded-xl p-2 text-center">
+                      <div className="h-1 rounded-full bg-white/05 mb-1.5">
+                        <div className={`h-full rounded-full ${s.color} opacity-70`} style={{ width: s.val }} />
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">{s.label}</p>
+                      <p className="text-xs font-bold text-foreground">{s.val}</p>
+                    </div>
+                  ))}
+                </div>
+              </GlassCard>
+            );
+          })()
+        ) : (
+          <GlassCard className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-indigo/10 flex items-center justify-center shrink-0">
+                <TrendingUp className="w-5 h-5 text-indigo" />
               </div>
-            ))}
-          </div>
-        </GlassCard>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-foreground">Wellness Score</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Log metrics on Progress for 5+ days to unlock your score.
+                </p>
+              </div>
+            </div>
+          </GlassCard>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-1 glass-1 p-1 rounded-2xl">
@@ -440,39 +515,256 @@ export default function HealthProfile() {
         {/* ── Medical ── */}
         {tab === "medical" && (
           <div className="space-y-4">
-            <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Conditions</p>
-              {CONDITIONS.map(c => (
-                <GlassCard key={c.label} className="p-3.5 mb-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-foreground">{c.label}</p>
-                    <span className={`text-[10px] font-semibold capitalize ${SEV_COLOR[c.severity]}`}>{c.severity}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">{c.note}</p>
-                </GlassCard>
-              ))}
-            </div>
 
+            {/* ── Conditions ── */}
             <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Allergies</p>
-              <div className="flex gap-2 flex-wrap">
-                {ALLERGIES.map(a => (
-                  <span key={a} className="px-3 py-1.5 glass-accent-coral rounded-pill text-xs text-coral">{a}</span>
-                ))}
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Conditions</p>
+                <button onClick={() => setShowAddCondition(true)}
+                  className="flex items-center gap-1 text-[10px] text-teal font-medium hover:text-teal/80 transition-colors">
+                  <Plus className="w-3 h-3" /> Add
+                </button>
               </div>
+
+              <AnimatePresence mode="popLayout">
+                {conditions.length === 0 && !showAddCondition && (
+                  <motion.div key="cond-empty" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
+                    <GlassCard className="p-4 text-center">
+                      <AlertCircle className="w-5 h-5 text-muted-foreground/30 mx-auto mb-1.5" />
+                      <p className="text-xs text-muted-foreground">No conditions recorded</p>
+                      <button onClick={() => setShowAddCondition(true)} className="text-[10px] text-teal mt-1.5 inline-block">Add your first condition</button>
+                    </GlassCard>
+                  </motion.div>
+                )}
+
+                {conditions.map(c => {
+                  const isEditing = editCondition === c.id;
+                  return (
+                    <motion.div key={c.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -60 }} className="mb-2">
+                      <GlassCard className="p-3.5">
+                        {isEditing ? (
+                          <div className="space-y-2">
+                            <input value={c.label}
+                              onChange={e => setConditions(prev => prev.map(x => x.id === c.id ? { ...x, label: e.target.value } : x))}
+                              className="w-full px-3 py-2 glass-1 rounded-xl text-sm text-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors" />
+                            <input value={c.note}
+                              onChange={e => setConditions(prev => prev.map(x => x.id === c.id ? { ...x, note: e.target.value } : x))}
+                              placeholder="Note"
+                              className="w-full px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors" />
+                            <div className="flex gap-1.5">
+                              {(["none", "mild", "managed"] as const).map(s => (
+                                <button key={s} onClick={() => setConditions(prev => prev.map(x => x.id === c.id ? { ...x, severity: s } : x))}
+                                  className={`flex-1 py-1.5 rounded-lg text-[10px] font-medium border capitalize transition-all ${
+                                    c.severity === s ? `${SEV_COLOR[s]} border-current bg-white/05` : "border-white/08 text-muted-foreground"
+                                  }`}>{s}</button>
+                              ))}
+                            </div>
+                            <button onClick={() => setEditCondition(null)}
+                              className="w-full py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400">Done</button>
+                          </div>
+                        ) : (
+                          <div className="flex items-start justify-between">
+                            <button onClick={() => setEditCondition(c.id)} className="flex-1 text-left">
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm font-semibold text-foreground">{c.label}</p>
+                                <span className={`text-[10px] font-semibold capitalize ${SEV_COLOR[c.severity]}`}>{c.severity}</span>
+                              </div>
+                              {c.note && <p className="text-xs text-muted-foreground mt-0.5">{c.note}</p>}
+                            </button>
+                            <button onClick={() => setConditions(prev => prev.filter(x => x.id !== c.id))}
+                              className="w-6 h-6 flex items-center justify-center rounded-full text-muted-foreground/40 hover:text-coral hover:bg-coral/10 transition-colors shrink-0 ml-2">
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        )}
+                      </GlassCard>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+
+              {/* Add Condition inline form */}
+              <AnimatePresence>
+                {showAddCondition && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+                    <GlassCard className="p-3.5 space-y-2 mt-2">
+                      <input value={newCondition.label}
+                        onChange={e => setNewCondition(prev => ({ ...prev, label: e.target.value }))}
+                        placeholder="Condition name *"
+                        className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors" />
+                      <input value={newCondition.note}
+                        onChange={e => setNewCondition(prev => ({ ...prev, note: e.target.value }))}
+                        placeholder="Notes (optional)"
+                        className="w-full px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors" />
+                      <div className="flex gap-1.5">
+                        {(["none", "mild", "managed"] as const).map(s => (
+                          <button key={s} onClick={() => setNewCondition(prev => ({ ...prev, severity: s }))}
+                            className={`flex-1 py-1.5 rounded-lg text-[10px] font-medium border capitalize transition-all ${
+                              newCondition.severity === s ? `${SEV_COLOR[s]} border-current bg-white/05` : "border-white/08 text-muted-foreground"
+                            }`}>{s}</button>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => { setShowAddCondition(false); setNewCondition({ label: "", note: "", severity: "none" }); }}
+                          className="flex-1 py-2 rounded-xl text-xs font-medium border border-white/08 text-muted-foreground">Cancel</button>
+                        <button onClick={handleAddCondition} disabled={!newCondition.label.trim()}
+                          className="flex-1 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 transition-opacity">Save</button>
+                      </div>
+                    </GlassCard>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
+            {/* ── Allergies ── */}
             <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Supplements & Medications</p>
-              {MEDICATIONS.map(m => (
-                <GlassCard key={m.name} className="p-3 mb-2 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Pill className="w-3.5 h-3.5 text-indigo" />
-                    <p className="text-sm text-foreground">{m.name}</p>
-                  </div>
-                  <span className="text-[11px] text-muted-foreground">{m.dose} · {m.frequency}</span>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Allergies</p>
+                <button onClick={() => setShowAddAllergy(true)}
+                  className="flex items-center gap-1 text-[10px] text-teal font-medium hover:text-teal/80 transition-colors">
+                  <Plus className="w-3 h-3" /> Add
+                </button>
+              </div>
+
+              {allergies.length === 0 && !showAddAllergy && (
+                <GlassCard className="p-4 text-center">
+                  <AlertTriangle className="w-5 h-5 text-muted-foreground/30 mx-auto mb-1.5" />
+                  <p className="text-xs text-muted-foreground">No allergies recorded</p>
+                  <button onClick={() => setShowAddAllergy(true)} className="text-[10px] text-teal mt-1.5 inline-block">Add your first allergy</button>
                 </GlassCard>
-              ))}
+              )}
+
+              <div className="flex gap-2 flex-wrap">
+                <AnimatePresence>
+                  {allergies.map((a, i) => (
+                    <motion.span key={a + i} layout initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.6 }}
+                      className="px-3 py-1.5 glass-accent-coral rounded-pill text-xs text-coral inline-flex items-center gap-1.5 group">
+                      {a}
+                      <button onClick={() => setAllergies(prev => prev.filter((_, idx) => idx !== i))}
+                        className="w-3.5 h-3.5 flex items-center justify-center rounded-full opacity-40 group-hover:opacity-100 hover:bg-coral/20 transition-all">
+                        <X className="w-2.5 h-2.5" />
+                      </button>
+                    </motion.span>
+                  ))}
+                </AnimatePresence>
+              </div>
+
+              {/* Add Allergy inline form */}
+              <AnimatePresence>
+                {showAddAllergy && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+                    <GlassCard className="p-3.5 mt-2">
+                      <div className="flex gap-2">
+                        <input value={newAllergy}
+                          onChange={e => setNewAllergy(e.target.value)}
+                          onKeyDown={e => e.key === "Enter" && handleAddAllergy()}
+                          placeholder="Allergy name *"
+                          className="flex-1 px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors" />
+                        <button onClick={() => { setShowAddAllergy(false); setNewAllergy(""); }}
+                          className="px-3 py-2 rounded-xl text-xs font-medium border border-white/08 text-muted-foreground">Cancel</button>
+                        <button onClick={handleAddAllergy} disabled={!newAllergy.trim()}
+                          className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 transition-opacity">Add</button>
+                      </div>
+                    </GlassCard>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* ── Supplements & Medications ── */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Supplements & Medications</p>
+                <button onClick={() => setShowAddMedication(true)}
+                  className="flex items-center gap-1 text-[10px] text-teal font-medium hover:text-teal/80 transition-colors">
+                  <Plus className="w-3 h-3" /> Add
+                </button>
+              </div>
+
+              <AnimatePresence mode="popLayout">
+                {medications.length === 0 && !showAddMedication && (
+                  <motion.div key="med-empty" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
+                    <GlassCard className="p-4 text-center">
+                      <Pill className="w-5 h-5 text-muted-foreground/30 mx-auto mb-1.5" />
+                      <p className="text-xs text-muted-foreground">No medications recorded</p>
+                      <button onClick={() => setShowAddMedication(true)} className="text-[10px] text-teal mt-1.5 inline-block">Add your first medication</button>
+                    </GlassCard>
+                  </motion.div>
+                )}
+
+                {medications.map(m => {
+                  const isEditing = editMedication === m.id;
+                  return (
+                    <motion.div key={m.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -60 }} className="mb-2">
+                      <GlassCard className="p-3">
+                        {isEditing ? (
+                          <div className="space-y-2">
+                            <input value={m.name}
+                              onChange={e => setMedications(prev => prev.map(x => x.id === m.id ? { ...x, name: e.target.value } : x))}
+                              className="w-full px-3 py-2 glass-1 rounded-xl text-sm text-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors" />
+                            <div className="grid grid-cols-2 gap-2">
+                              <input value={m.dose}
+                                onChange={e => setMedications(prev => prev.map(x => x.id === m.id ? { ...x, dose: e.target.value } : x))}
+                                placeholder="Dose"
+                                className="w-full px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors" />
+                              <input value={m.frequency}
+                                onChange={e => setMedications(prev => prev.map(x => x.id === m.id ? { ...x, frequency: e.target.value } : x))}
+                                placeholder="Frequency"
+                                className="w-full px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors" />
+                            </div>
+                            <button onClick={() => setEditMedication(null)}
+                              className="w-full py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400">Done</button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between">
+                            <button onClick={() => setEditMedication(m.id)} className="flex items-center gap-2 flex-1 text-left">
+                              <Pill className="w-3.5 h-3.5 text-indigo shrink-0" />
+                              <p className="text-sm text-foreground">{m.name}</p>
+                            </button>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[11px] text-muted-foreground">{m.dose}{m.dose && m.frequency ? " · " : ""}{m.frequency}</span>
+                              <button onClick={() => setMedications(prev => prev.filter(x => x.id !== m.id))}
+                                className="w-6 h-6 flex items-center justify-center rounded-full text-muted-foreground/40 hover:text-coral hover:bg-coral/10 transition-colors shrink-0">
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </GlassCard>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+
+              {/* Add Medication inline form */}
+              <AnimatePresence>
+                {showAddMedication && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+                    <GlassCard className="p-3.5 space-y-2 mt-2">
+                      <input value={newMedication.name}
+                        onChange={e => setNewMedication(prev => ({ ...prev, name: e.target.value }))}
+                        placeholder="Medication / supplement name *"
+                        className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors" />
+                      <div className="grid grid-cols-2 gap-2">
+                        <input value={newMedication.dose}
+                          onChange={e => setNewMedication(prev => ({ ...prev, dose: e.target.value }))}
+                          placeholder="Dose (e.g. 500mg)"
+                          className="w-full px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors" />
+                        <input value={newMedication.frequency}
+                          onChange={e => setNewMedication(prev => ({ ...prev, frequency: e.target.value }))}
+                          placeholder="Frequency (e.g. Daily)"
+                          className="w-full px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors" />
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => { setShowAddMedication(false); setNewMedication({ name: "", dose: "", frequency: "" }); }}
+                          className="flex-1 py-2 rounded-xl text-xs font-medium border border-white/08 text-muted-foreground">Cancel</button>
+                        <button onClick={handleAddMedication} disabled={!newMedication.name.trim()}
+                          className="flex-1 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 transition-opacity">Save</button>
+                      </div>
+                    </GlassCard>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             <GlassCard className="p-3.5">

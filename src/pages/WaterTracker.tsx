@@ -19,7 +19,12 @@ function getStoredData(dateKey: string) {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     const all = raw ? JSON.parse(raw) : {};
-    return all[dateKey] || { glasses: 0, goal: 8, log: [] };
+    const base = all[dateKey] || { glasses: 0, goal: 8, log: [] };
+    // Reconcile with the flat key — FoodTracker writes directly to
+    // `bion_water_<date>`, so we prefer the higher count when they disagree.
+    const flat = parseInt(localStorage.getItem(`bion_water_${dateKey}`) ?? "0") || 0;
+    if (flat > (base.glasses ?? 0)) return { ...base, glasses: flat };
+    return base;
   } catch { return { glasses: 0, goal: 8, log: [] }; }
 }
 
@@ -29,6 +34,11 @@ function saveData(dateKey: string, data: any) {
     const all = raw ? JSON.parse(raw) : {};
     all[dateKey] = data;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+    // Mirror the glass count to the flat per-day key that BionAssistant,
+    // BiometricsDashboard, Index, FoodTracker and reminders all read from.
+    // Keeping both keys in sync avoids the "I logged water here but the home
+    // screen still says 0 glasses" bug.
+    localStorage.setItem(`bion_water_${dateKey}`, String(data.glasses ?? 0));
   } catch {}
 }
 

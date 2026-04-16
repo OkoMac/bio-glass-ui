@@ -10,7 +10,7 @@ import { getProviderImage } from "@/lib/providerImages";
 // Import real data scraped from Pretoria service providers
 import realData from "@/data/bion_pretoria_data.json";
 
-export type BookingStatus = "pending" | "confirmed" | "declined" | "completed" | "no_show";
+export type BookingStatus = "pending" | "confirmed" | "declined" | "completed" | "no_show" | "cancelled";
 
 export interface Booking {
   id: string;
@@ -120,6 +120,7 @@ interface BookingsContextType {
   pendingCount: number;
   confirm:      (id: string) => void;
   decline:      (id: string) => void;
+  cancel:       (id: string) => Promise<{ ok: boolean; refund_instructions?: string; voucher_restored?: boolean; error?: string }>;
   markComplete: (id: string) => void;
   markNoShow:   (id: string) => void;
   reschedule:   (id: string, newDate: string, newTime: string) => void;
@@ -218,6 +219,31 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
       await supabase.from("bookings").update({ booking_date: newDate, booking_time: newTime, status: "pending" }).eq("id", id);
     }
   }, [user?.id]);
+
+  /** Client-initiated cancellation. Calls the backend which voids the booking
+   *  (no automatic refund). Returns the server's instructions so the UI can
+   *  tell the user how to request a refund if they need one. */
+  const cancel = useCallback(async (id: string) => {
+    if (!user?.profileId) return { ok: false, error: "Not signed in" };
+    try {
+      const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+      const res = await fetch(`${API}/api/bookings/${id}/cancel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientProfileId: user.profileId }),
+      });
+      const data = await res.json();
+      if (!data.ok) return { ok: false, error: data.error ?? "Cancel failed" };
+      setBookings(prev => prev.map(b => b.id === id ? { ...b, status: "cancelled" as BookingStatus } : b));
+      return {
+        ok: true,
+        refund_instructions: data.refund_instructions,
+        voucher_restored: data.voucher_restored,
+      };
+    } catch (err: any) {
+      return { ok: false, error: err.message ?? "Cancel failed" };
+    }
+  }, [user?.profileId]);
 
   const addBooking = useCallback(async (booking: Omit<Booking, "id" | "status">) => {
     const newBooking: Booking = { ...booking, id: `b${Date.now()}`, status: "pending" };
@@ -390,7 +416,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
   return (
     <BookingsContext.Provider value={{
       bookings, pendingCount, providers,
-      confirm, decline, markComplete, markNoShow, reschedule, addBooking,
+      confirm, decline, cancel, markComplete, markNoShow, reschedule, addBooking,
       getByStatus, getByClient, getProvidersBySuburb, getProvidersByService,
     }}>
       {children}

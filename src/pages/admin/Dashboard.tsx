@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
 import AdminOpsStrip from "@/components/AdminOpsStrip";
+import AdminAlertsPanel from "@/components/admin/AdminAlertsPanel";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { withTimeout } from "@/lib/safeQuery";
@@ -190,6 +191,9 @@ export default function AdminDashboard() {
 
         {/* Live ops metrics — pulled from /api/admin/metrics every 60s */}
         <AdminOpsStrip />
+
+        {/* Real-time operational alerts — disputes overdue, FICA aging, etc. */}
+        <AdminAlertsPanel />
 
         {/* KPI grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">

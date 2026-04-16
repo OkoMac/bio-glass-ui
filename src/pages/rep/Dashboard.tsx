@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import RepNav from "@/components/RepNav";
+import OnboardingChecklistCard from "@/components/OnboardingChecklistCard";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import {
   TrendingUp, Users, DollarSign, CalendarClock, Copy, Share2,
-  CreditCard, History, Landmark, ChevronRight, Package,
+  CreditCard, History, Landmark, ChevronRight, Package, MessageCircle,
 } from "lucide-react";
 
 // ── Helpers ──────────────────────────────────────────────────────────
@@ -48,13 +50,56 @@ export default function RepDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   // Redirect to agreement page if not yet accepted
   const agreementRaw = localStorage.getItem("bion_rep_agreement");
   const agreement = agreementRaw ? JSON.parse(agreementRaw) : null;
   if (!agreement?.accepted) { navigate("/rep/agreement"); return null; }
 
-  const referralCode = generateReferralCode(user?.name ?? "REP");
+  // Referral code — prefer the canonical one stored on the Ranger's profile
+  // (written once when the rep accepts the agreement). Fall back to the
+  // legacy localStorage-only helper so existing demo flows still work.
+  const [referralCode, setReferralCode] = useState<string>(() => generateReferralCode(user?.name ?? "REP"));
+  const [attributionCount, setAttributionCount] = useState<number>(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!user?.id) return;
+      try {
+        // Pull the profile to get the authoritative referral_code + profile id.
+        // Profile id (not auth user_id) is what `ranger_attribution_summary` keys on.
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("id, referral_code")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (cancelled) return;
+        if (prof?.referral_code) setReferralCode(prof.referral_code);
+
+        if (prof?.id) {
+          // Fetch aggregated attribution count from the view. View may not
+          // exist yet in dev — swallow errors.
+          const { data: summary } = await supabase
+            .from("ranger_attribution_summary" as any)
+            .select("total_referred")
+            .eq("ranger_id", prof.id)
+            .maybeSingle();
+
+          if (!cancelled && summary && (summary as any).total_referred != null) {
+            setAttributionCount(Number((summary as any).total_referred));
+          }
+        }
+      } catch {/* non-fatal */}
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id]);
+
+  const shareUrl = `https://bionhealth.co.za/welcome?ref=${encodeURIComponent(referralCode)}`;
+  const shareMessage = `Join BION — Africa's health, beauty and wellness platform. Sign up via my link and I'll be here to help you get onboarded. ${shareUrl}`;
+
   const providers = getRepProviders();
   const commissions = getCommissionHistory();
 
@@ -64,10 +109,15 @@ export default function RepDashboard() {
     .reduce((sum: number, p: any) => sum + (p.monthlyCommission ?? 0), 0);
   const totalEarned = commissions.reduce((sum: number, c: any) => sum + (c.amount ?? 0), 0);
 
+  const markShared = () => {
+    try { localStorage.setItem("bion_rep_shared_at", new Date().toISOString()); } catch { /* ignore */ }
+  };
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(referralCode);
       setCopied(true);
+      markShared();
       setTimeout(() => setCopied(false), 2000);
     } catch {
       setCopied(false);
@@ -81,17 +131,33 @@ export default function RepDashboard() {
         text: `Sign up as a provider on BION using my referral code: ${referralCode}`,
         url: "https://bion.app",
       }).catch(() => {});
+      markShared();
     } else {
       handleCopy();
     }
   };
 
   const kpis = [
-    { label: "Providers Signed", value: String(totalProviders),      icon: Users,         color: "#10B981" },
-    { label: "This Month",       value: `R${monthlyCommission.toLocaleString()}`, icon: TrendingUp,    color: "#6366F1" },
-    { label: "Total Earned",     value: `R${totalEarned.toLocaleString()}`,       icon: DollarSign,    color: "#2DD4BF" },
-    { label: "Next Payout",      value: getNextPayout(),              icon: CalendarClock, color: "#FBBF24" },
+    { label: "Signups via Link",  value: String(attributionCount),    icon: Users,         color: "#10B981" },
+    { label: "This Month",        value: `R${monthlyCommission.toLocaleString()}`, icon: TrendingUp,    color: "#6366F1" },
+    { label: "Total Earned",      value: `R${totalEarned.toLocaleString()}`,       icon: DollarSign,    color: "#2DD4BF" },
+    { label: "Next Payout",       value: getNextPayout(),              icon: CalendarClock, color: "#FBBF24" },
   ];
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopiedLink(true);
+      markShared();
+      setTimeout(() => setCopiedLink(false), 2000);
+    } catch { setCopiedLink(false); }
+  };
+
+  const handleWhatsAppShare = () => {
+    const encoded = encodeURIComponent(shareMessage);
+    window.open(`https://wa.me/?text=${encoded}`, "_blank", "noopener,noreferrer");
+    markShared();
+  };
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow">
@@ -106,9 +172,11 @@ export default function RepDashboard() {
             </div>
             <h1 className="text-2xl font-bold text-foreground">Sales Dashboard</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {totalProviders > 0
-                ? `${totalProviders} provider${totalProviders > 1 ? "s" : ""} signed up`
-                : "Start earning by signing up providers"}
+              {attributionCount > 0
+                ? `${attributionCount} signup${attributionCount > 1 ? "s" : ""} via your link`
+                : totalProviders > 0
+                  ? `${totalProviders} provider${totalProviders > 1 ? "s" : ""} signed up`
+                  : "Share your link to start earning"}
             </p>
           </div>
           <button onClick={logout} className="text-[10px] text-muted-foreground glass-1 px-3 py-1.5 rounded-pill">Sign out</button>
@@ -128,6 +196,9 @@ export default function RepDashboard() {
             </motion.div>
           ))}
         </div>
+
+        {/* Onboarding checklist — nudges Rangers to complete SARS, bank, share link, first signup */}
+        <OnboardingChecklistCard role="sales_rep" />
 
         {/* Referral Code */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
@@ -158,6 +229,42 @@ export default function RepDashboard() {
                 Copied to clipboard!
               </motion.p>
             )}
+          </GlassCard>
+        </motion.div>
+
+        {/* Your share link — the canonical on-ramp. Every signup that lands
+            via this URL is durably attributed to this Ranger for perpetual
+            commissions. Copying a raw code still works (legacy flow), but
+            the full link is friction-free for WhatsApp + SMS shares. */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.27 }}>
+          <GlassCard className="p-5">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h2 className="text-sm font-semibold text-foreground">Your share link</h2>
+                <p className="text-[11px] text-muted-foreground">Every signup via this link is attributed to you — forever.</p>
+              </div>
+            </div>
+            <div className="glass-1 rounded-xl px-3 py-2.5 mb-3 break-all">
+              <p className="text-[11px] font-mono text-foreground/90 leading-snug">{shareUrl}</p>
+            </div>
+            <div className="flex gap-2">
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={handleCopyLink}
+                className="flex-1 rounded-pill py-2.5 text-xs font-semibold glass-1 border border-white/8 text-foreground flex items-center justify-center gap-1.5 hover:border-white/20 transition-colors"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                {copiedLink ? "Copied!" : "Copy link"}
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={handleWhatsAppShare}
+                className="flex-1 rounded-pill py-2.5 text-xs font-semibold bg-emerald-500/90 hover:bg-emerald-500 text-white flex items-center justify-center gap-1.5 transition-colors"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                Share on WhatsApp
+              </motion.button>
+            </div>
           </GlassCard>
         </motion.div>
 
