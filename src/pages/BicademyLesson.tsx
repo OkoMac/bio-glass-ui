@@ -5,11 +5,11 @@ import ReactMarkdown from "react-markdown";
 import {
   ArrowLeft, ChevronLeft, ChevronRight, CheckCircle, Clock, Sparkles, Loader2,
 } from "lucide-react";
-import { useCourseDetail, useEnrollments, useEnrollmentActions } from "@/hooks/useEcademy";
+import { useCourseDetail, useEnrollments, useEnrollmentActions } from "@/hooks/useBicademy";
 import { toast } from "sonner";
 import { trackEvent } from "@/lib/habits";
 
-export default function EcademyLesson() {
+export default function BicademyLesson() {
   const { code, n } = useParams<{ code: string; n: string }>();
   const lessonNumber = parseInt(n ?? "1", 10);
   const navigate = useNavigate();
@@ -40,7 +40,7 @@ export default function EcademyLesson() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
         <p className="text-sm text-muted-foreground">Lesson not found.</p>
-        <button onClick={() => navigate(`/ecademy/${code}`)} className="mt-3 text-xs text-indigo">← Back</button>
+        <button onClick={() => navigate(`/bicademy/${code}`)} className="mt-3 text-xs text-indigo">← Back</button>
       </div>
     );
   }
@@ -58,9 +58,9 @@ export default function EcademyLesson() {
       await refresh();
       toast.success("Lesson complete");
       if (nextLesson) {
-        navigate(`/ecademy/${code}/lesson/${nextLesson.lesson_number}`);
+        navigate(`/bicademy/${code}/lesson/${nextLesson.lesson_number}`);
       } else {
-        navigate(`/ecademy/${code}`);
+        navigate(`/bicademy/${code}`);
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed");
@@ -73,7 +73,7 @@ export default function EcademyLesson() {
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-2xl mx-auto px-4 md:px-8 pt-8 md:pt-12 space-y-6">
         <button
-          onClick={() => navigate(`/ecademy/${code}`)}
+          onClick={() => navigate(`/bicademy/${code}`)}
           className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="w-4 h-4" /> {course.course_code}
@@ -139,7 +139,7 @@ export default function EcademyLesson() {
         {/* Footer nav */}
         <div className="flex items-center justify-between gap-3 pt-4">
           <button
-            onClick={() => prevLesson && navigate(`/ecademy/${code}/lesson/${prevLesson.lesson_number}`)}
+            onClick={() => prevLesson && navigate(`/bicademy/${code}/lesson/${prevLesson.lesson_number}`)}
             disabled={!prevLesson}
             className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground disabled:opacity-30"
           >

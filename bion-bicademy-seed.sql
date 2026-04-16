@@ -1,5 +1,5 @@
 -- ============================================================
--- BION Ecademy — Seed lessons + assessment questions for first 3 courses
+-- BION Bicademy — Seed lessons + assessment questions for first 3 courses
 -- Run in Supabase SQL Editor (idempotent — safe to re-run)
 --
 -- Seeds:

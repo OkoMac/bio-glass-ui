@@ -1,7 +1,7 @@
 -- ============================================================
--- BION Catalogs + Ecademy Schema
+-- BION Catalogs + Bicademy Schema
 -- 1. Flippable product/service catalogs (for providers + BION marketing)
--- 2. Ecademy: courses, lessons, assessments, Ranger accreditation
+-- 2. Bicademy: courses, lessons, assessments, Ranger accreditation
 -- ============================================================
 
 -- ════════════════════════════════════════════════════════════
@@ -82,7 +82,7 @@ CREATE POLICY "Owners manage own pages" ON catalog_pages
   );
 
 -- ════════════════════════════════════════════════════════════
--- PART 2: BION ECADEMY (Rangers training)
+-- PART 2: BION BICADEMY (Rangers training)
 -- ════════════════════════════════════════════════════════════
 
 -- Course catalog

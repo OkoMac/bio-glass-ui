@@ -5,10 +5,10 @@ import {
   ArrowLeft, BookOpen, CheckCircle, Circle, ChevronRight,
   Sparkles, Clock, Loader2, Award, AlertTriangle,
 } from "lucide-react";
-import { useCourseDetail, useEnrollments, useEnrollmentActions } from "@/hooks/useEcademy";
+import { useCourseDetail, useEnrollments, useEnrollmentActions } from "@/hooks/useBicademy";
 import GlassCard from "@/components/GlassCard";
 
-export default function EcademyCourse() {
+export default function BicademyCourse() {
   const { code } = useParams<{ code: string }>();
   const navigate = useNavigate();
   const { course, lessons, questions, loading } = useCourseDetail(code ?? null);
@@ -31,7 +31,7 @@ export default function EcademyCourse() {
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 px-6 text-center">
         <AlertTriangle className="w-8 h-8 text-coral" />
         <p className="text-sm">Course not found.</p>
-        <Link to="/ecademy" className="text-xs text-indigo">← Back to Ecademy</Link>
+        <Link to="/bicademy" className="text-xs text-indigo">← Back to Bicademy</Link>
       </div>
     );
   }
@@ -40,15 +40,18 @@ export default function EcademyCourse() {
   const done = new Set(enrollment?.lessons_completed ?? []);
   const doneCount = lessons.filter((l) => done.has(l.id)).length;
   const allLessonsDone = lessons.length > 0 && doneCount === lessons.length;
+  // Certificate is available as soon as every lesson is complete — the
+  // formal assessment is optional for the certificate page itself.
+  const certificateAvailable = allLessonsDone;
 
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-3xl mx-auto px-4 md:px-8 pt-8 md:pt-12 space-y-6">
         <button
-          onClick={() => navigate("/ecademy")}
+          onClick={() => navigate("/bicademy")}
           className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="w-4 h-4" /> Ecademy
+          <ArrowLeft className="w-4 h-4" /> Bicademy
         </button>
 
         <header className="space-y-3">
@@ -105,7 +108,7 @@ export default function EcademyCourse() {
               return (
                 <Link
                   key={l.id}
-                  to={`/ecademy/${course.course_code}/lesson/${l.lesson_number}`}
+                  to={`/bicademy/${course.course_code}/lesson/${l.lesson_number}`}
                   className="block"
                 >
                   <GlassCard hover className="p-3 flex items-center gap-3">
@@ -130,11 +133,30 @@ export default function EcademyCourse() {
           </div>
         )}
 
+        {/* Certificate CTA — unlocks the moment every lesson is complete */}
+        {certificateAvailable && (
+          <div className="pt-2">
+            <Link
+              to={`/bicademy/certificate/${course.course_code}`}
+              className="w-full p-4 rounded-2xl bg-gradient-to-br from-teal via-teal/90 to-indigo text-white hover:brightness-110 flex items-center gap-3 transition-all"
+            >
+              <Award className="w-5 h-5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold">Get your certificate</p>
+                <p className="text-[11px] opacity-85">
+                  You've completed every lesson. Print or save as PDF.
+                </p>
+              </div>
+              <ChevronRight className="w-5 h-5" />
+            </Link>
+          </div>
+        )}
+
         {/* Assessment CTA */}
         {questions.length > 0 && (
           <div className="pt-2">
             <button
-              onClick={() => navigate(`/ecademy/${course.course_code}/assessment`)}
+              onClick={() => navigate(`/bicademy/${course.course_code}/assessment`)}
               disabled={!allLessonsDone && !enrollment?.assessment_attempts}
               className={`w-full p-4 rounded-2xl text-left flex items-center gap-3 transition-all ${
                 allLessonsDone || (enrollment?.assessment_attempts ?? 0) > 0

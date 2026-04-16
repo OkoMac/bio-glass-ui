@@ -7,6 +7,7 @@
  */
 
 import { supabase } from "@/integrations/supabase/client";
+import { hasConsent } from "./cookieConsent";
 
 type EventType =
   | "page_view"
@@ -34,6 +35,11 @@ const DEBOUNCE_MS = 5000;
 
 export async function trackEvent(event: EventType, args: TrackArgs = {}): Promise<void> {
   try {
+    // POPIA / GDPR — never write to user_habits without explicit analytics consent.
+    // Pre-consent (or after the user rejected), this short-circuits so no tracking
+    // data leaves the device. Re-enables automatically once the user opts in.
+    if (!hasConsent("analytics")) return;
+
     // Skip for demo accounts — no real profile row to attribute to
     const stored = localStorage.getItem("bio_user");
     if (!stored) return;
@@ -73,7 +79,7 @@ export function pathToCategory(pathname: string): string | undefined {
   if (pathname.startsWith("/schedule"))  return "bookings";
   if (pathname.startsWith("/wallet"))    return "money";
   if (pathname.startsWith("/messages"))  return "messaging";
-  if (pathname.startsWith("/ecademy"))   return "education";
+  if (pathname.startsWith("/bicademy"))   return "education";
   if (pathname.startsWith("/challenges"))return "challenges";
   return undefined;
 }

@@ -9,7 +9,9 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   TrendingUp, Users, DollarSign, CalendarClock, Copy, Share2,
   CreditCard, History, Landmark, ChevronRight, Package, MessageCircle,
+  GraduationCap, Lock,
 } from "lucide-react";
+import { useCourseCompletion } from "@/hooks/useBicademy";
 
 // ── Helpers ──────────────────────────────────────────────────────────
 function generateReferralCode(name: string): string {
@@ -99,6 +101,12 @@ export default function RepDashboard() {
 
   const shareUrl = `https://bionhealth.co.za/welcome?ref=${encodeURIComponent(referralCode)}`;
   const shareMessage = `Join BION — Africa's health, beauty and wellness platform. Sign up via my link and I'll be here to help you get onboarded. ${shareUrl}`;
+
+  // Ranger Foundations gate — until RANGER-101 is complete, the sign-up
+  // flow (share link + referral code) is replaced with a blocking card.
+  // Gracefully returns `completed: false` if bicademy tables aren't migrated.
+  const { completed: foundationsDone, loading: foundationsLoading } =
+    useCourseCompletion("RANGER-101");
 
   const providers = getRepProviders();
   const commissions = getCommissionHistory();
@@ -200,7 +208,43 @@ export default function RepDashboard() {
         {/* Onboarding checklist — nudges Rangers to complete SARS, bank, share link, first signup */}
         <OnboardingChecklistCard role="sales_rep" />
 
-        {/* Referral Code */}
+        {/* Ranger Foundations gate — must complete RANGER-101 before the
+            provider sign-up flow unlocks. Shown only while loading finishes
+            with foundationsDone === false. */}
+        {!foundationsLoading && !foundationsDone && (
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}>
+            <GlassCard className="p-5 border border-indigo/30">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo/15 flex items-center justify-center shrink-0">
+                  <Lock className="w-5 h-5 text-indigo" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h2 className="text-sm font-semibold text-foreground">Complete Ranger Foundations</h2>
+                    <span className="text-[10px] font-semibold text-indigo px-2 py-0.5 rounded-full bg-indigo/10">Required</span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
+                    The provider sign-up flow unlocks once you finish RANGER-101.
+                    Takes about 25 minutes — covers the platform, revenue streams
+                    and the basics every Ranger must know.
+                  </p>
+                  <motion.button
+                    whileTap={{ scale: 0.96 }}
+                    onClick={() => navigate("/bicademy/RANGER-101")}
+                    className="inline-flex items-center gap-2 rounded-pill px-4 py-2 text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta"
+                  >
+                    <GraduationCap className="w-3.5 h-3.5" />
+                    Start Ranger Foundations
+                  </motion.button>
+                </div>
+              </div>
+            </GlassCard>
+          </motion.div>
+        )}
+
+        {/* Referral Code + Share link — visible once Ranger Foundations is complete */}
+        {foundationsDone && (
+        <>
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
           <GlassCard variant="accent-teal" className="p-5">
             <h2 className="text-sm font-semibold text-foreground mb-1">Your Referral Code</h2>
@@ -267,6 +311,8 @@ export default function RepDashboard() {
             </div>
           </GlassCard>
         </motion.div>
+        </>
+        )}
 
         {/* My Providers Preview */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>

@@ -22,6 +22,7 @@ import { ArrowLeft, Share2, Star, MapPin, Clock, Lock, CreditCard, Shield, Mail,
 import { getProviderImage, getProviderCover } from "@/lib/providerImages";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useVerifiedProviders } from "@/hooks/useVerifiedProviders";
+import { useProviderVerifiedTrainer } from "@/hooks/useBicademy";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { getProviderShareUrl, getBookingShareUrl, openWhatsApp } from "@/lib/whatsapp";
@@ -72,6 +73,10 @@ export default function ProviderProfile() {
   const { user } = useAuth();
   const { addBooking } = useBookings();
   const verifiedProviders = useVerifiedProviders();
+  // BION Verified Trainer — true once this provider has finished PROVIDER-101
+  // in the Bicademy. Returns false for scraped-only providers (no matching
+  // enrollment row) so the badge is additive + safe.
+  const isVerifiedTrainer = useProviderVerifiedTrainer(id ?? null);
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
   const { trackView } = useRecentlyViewed();
   const [showAllServices, setShowAllServices] = useState(false);
@@ -140,6 +145,31 @@ export default function ProviderProfile() {
   }, [id, isRegisteredOnBion]);
 
   const hasRealServices = bionServices.length > 0;
+
+  // ── Published programs by this provider ─────────────────────────────────
+  // GET /api/programs/by-provider/:id returns active + published programs.
+  // Directory-only listings skip (they have no profiles row → no programs).
+  type ProgramCard = {
+    id: string; title: string; description: string | null; vertical: string;
+    duration_days: number; price_rand: number; cover_image_url: string | null;
+  };
+  const [programs, setPrograms] = useState<ProgramCard[]>([]);
+  const [programsLoading, setProgramsLoading] = useState(false);
+  useEffect(() => {
+    if (!isRegisteredOnBion || !id) { setPrograms([]); return; }
+    let cancelled = false;
+    setProgramsLoading(true);
+    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+    fetch(`${API}/api/programs/by-provider/${id}`)
+      .then(r => r.json())
+      .then(json => {
+        if (cancelled) return;
+        if (json?.ok && Array.isArray(json.data)) setPrograms(json.data as ProgramCard[]);
+      })
+      .catch(() => { /* non-fatal */ })
+      .finally(() => { if (!cancelled) setProgramsLoading(false); });
+    return () => { cancelled = true; };
+  }, [id, isRegisteredOnBion]);
 
   // Keep selectedService in range when the service list changes (e.g.
   // bionServices loads after the modal already opened).
@@ -463,7 +493,18 @@ export default function ProviderProfile() {
             <BioAvatar src={provider.image} alt={provider.name} size="xl" verticalColor={provider.vertical} verified={verifiedProviders.has(provider.id)} />
           </motion.div>
           <div className="flex-1 min-w-0 pb-1">
-            <h1 className="text-2xl font-bold text-foreground">{provider.name}</h1>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl font-bold text-foreground">{provider.name}</h1>
+              {isVerifiedTrainer && (
+                <span
+                  title="Completed BION Provider Onboarding 101"
+                  className="inline-flex items-center gap-1 text-[10px] font-semibold text-indigo px-2 py-0.5 rounded-full bg-indigo/10 border border-indigo/20"
+                >
+                  <UserCheck className="w-3 h-3" />
+                  BION Verified Trainer
+                </span>
+              )}
+            </div>
             <p className="text-sm text-muted-foreground">{provider.specialty}</p>
             <div className="flex items-center gap-2 mt-1">
               <Star className="w-4 h-4 text-amber fill-amber" />
@@ -767,6 +808,56 @@ export default function ProviderProfile() {
                       </div>
                     </div>
                   </GlassCard>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Programs — registered providers only. Lists published day-by-day
+             programs the provider sells. Tapping a card opens the public
+             /program/:id page where the client can read about it and enroll. */}
+        {isRegisteredOnBion && (programsLoading || programs.length > 0) && (
+          <section>
+            <h2 className="text-lg font-semibold text-foreground mb-3">Programs</h2>
+            {programsLoading ? (
+              <GlassCard className="p-4 flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading programs…
+              </GlassCard>
+            ) : (
+              <div className="space-y-2">
+                {programs.map((pg) => (
+                  <button
+                    key={pg.id}
+                    onClick={() => navigate(`/program/${pg.id}`)}
+                    className="block w-full text-left"
+                  >
+                    <GlassCard hover className="p-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-[10px] glass-accent-indigo rounded-pill px-2 py-0.5 text-indigo capitalize">
+                              {pg.vertical}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {pg.duration_days}d
+                            </span>
+                          </div>
+                          <p className="text-sm font-semibold text-foreground truncate">{pg.title}</p>
+                          {pg.description && (
+                            <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">
+                              {pg.description}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="font-data text-sm text-foreground">
+                            {pg.price_rand === 0 ? "Free" : `R${pg.price_rand}`}
+                          </p>
+                        </div>
+                      </div>
+                    </GlassCard>
+                  </button>
                 ))}
               </div>
             )}

@@ -1,816 +1,567 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
-import SubscriptionGate from "@/components/SubscriptionGate";
 import { useSubscription } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Plus, Trash2, ChevronDown, ChevronUp, Check, X,
-  Dumbbell, Salad, Heart, ArrowLeft, Copy, Send,
-  GripVertical, Users, Lock, CreditCard,
+  Plus, Trash2, ChevronDown, ChevronUp, Check,
+  ArrowLeft, Loader2, Lock, CreditCard, Send, Rocket, Pencil,
 } from "lucide-react";
 
-// Import real Pretoria data
-import realData from "@/data/bion_pretoria_data.json";
+type Vertical = "fitness" | "nutrition" | "rehab" | "care" | "mental" | "wellness" | "beauty";
 
-// ── Types ───────────────────────────────────────────────────────────
-
-type ProgramType = "workout" | "meal" | "care";
-
-interface Exercise {
-  id:   string;
-  name: string;
-  sets: number;
-  reps: string;   // "12" | "30s" | "failure"
-  rest: number;   // seconds
-  note: string;
-}
-
-interface WorkoutDay {
-  id:        string;
-  name:      string;
-  exercises: Exercise[];
-}
-
-interface MealItem {
-  id:   string;
-  name: string;
-  qty:  string;
-  kcal: number;
-}
-
-interface MealPlan {
-  id:    string;
-  label: string;  // "Breakfast" | "Lunch" | "Dinner" | "Snack"
-  items: MealItem[];
-}
-
-interface CareStep {
-  id:       string;
-  name:     string;
-  detail:   string;
-  durationMins: number;
+interface ProgramDay {
+  id?: string;
+  day_number: number;
+  title: string;
+  body_markdown: string;
+  media_urls?: string[];
 }
 
 interface Program {
-  id:          string;
-  type:        ProgramType;
-  title:       string;
-  description: string;
-  durationWeeks: number;
-  days:        WorkoutDay[];
-  meals:       MealPlan[];
-  careSteps:   CareStep[];
-  assignedTo:  string[];
+  id: string;
+  slug?: string;
+  title: string;
+  description: string | null;
+  vertical: Vertical;
+  duration_days: number;
+  price_rand: number;
+  cover_image_url: string | null;
+  active: boolean;
+  published_at: string | null;
+  days?: ProgramDay[];
 }
 
-// Exercise library - using only real exercise names that would be offered by Pretoria providers
-// Based on actual services offered by Pretoria providers in our data
-const EXERCISE_LIBRARY: { name: string; category: string }[] = [
-  // Exercises derived from actual service types in Pretoria data
-  { name: "Physiotherapy Session", category: "Physiotherapy" },
-  { name: "Sports Rehabilitation", category: "Physiotherapy" },
-  { name: "Fitness Assessment", category: "Assessment" },
-  { name: "Strength Training", category: "Training" },
-  { name: "Senior Fitness Session", category: "Senior Care" },
-  { name: "Yoga Instruction", category: "Wellness" },
-  { name: "Personal Training", category: "Training" },
-  { name: "Massage Therapy", category: "Therapy" },
-  { name: "Nutrition Consultation", category: "Nutrition" },
-  { name: "Health Screening", category: "Assessment" },
+const API = (import.meta.env.VITE_API_URL as string | undefined) ?? "https://bion-backend.onrender.com";
+
+const VERTICAL_OPTIONS: { key: Vertical; label: string; gradient: string }[] = [
+  { key: "fitness",   label: "Fitness",   gradient: "gradient-indigo" },
+  { key: "nutrition", label: "Nutrition", gradient: "gradient-teal" },
+  { key: "rehab",     label: "Rehab",     gradient: "gradient-coral" },
+  { key: "care",      label: "Care",      gradient: "gradient-coral" },
+  { key: "mental",    label: "Mental",    gradient: "gradient-indigo" },
+  { key: "wellness",  label: "Wellness",  gradient: "gradient-teal" },
+  { key: "beauty",    label: "Beauty",    gradient: "gradient-coral" },
 ];
 
-// Real clients from Pretoria data - limited to actual clients
-const REAL_CLIENTS = [...new Set((realData.bookings ?? []).map((b: any) => b.clientName))].slice(0, 5);
-
-// Standard meal labels
-const MEAL_LABELS = ["Breakfast", "Lunch", "Dinner"];
-
-function newId() { return `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`; }
-
-// ── Sub-components ────────────────────────────────────────────────────
-
-function TypeBadge({ type }: { type: ProgramType }) {
-  const cfg = {
-    workout: { label: "Workout",  icon: Dumbbell, color: "text-indigo", bg: "glass-accent-indigo" },
-    meal:    { label: "Meal Plan", icon: Salad,   color: "text-teal",   bg: "glass-accent-teal"   },
-    care:    { label: "Care Plan", icon: Heart,   color: "text-coral",  bg: "glass-accent-coral"  },
-  }[type];
-  return (
-    <span className={`inline-flex items-center gap-1 rounded-pill px-2 py-0.5 text-[10px] font-medium ${cfg.bg} ${cfg.color}`}>
-      <cfg.icon className="w-3 h-3" />
-      {cfg.label}
-    </span>
-  );
+async function authFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  const { data: { session } } = await supabase.auth.getSession();
+  const headers = new Headers(init.headers);
+  headers.set("Content-Type", "application/json");
+  if (session?.access_token) {
+    headers.set("Authorization", `Bearer ${session.access_token}`);
+  }
+  return fetch(`${API}${path}`, { ...init, headers });
 }
 
-// ── Exercise Row ───────────────────────────────────────────────────────
-function ExerciseRow({
-  ex,
+// ── Day editor ──────────────────────────────────────────────────────────
+function DayEditor({
+  day,
   onChange,
+  onSave,
   onDelete,
+  saving,
 }: {
-  ex: Exercise;
-  onChange: (updated: Exercise) => void;
+  day: ProgramDay;
+  onChange: (d: ProgramDay) => void;
+  onSave: () => void;
   onDelete: () => void;
+  saving: boolean;
 }) {
-  const [open, setOpen] = useState(false);
   return (
-    <div className="glass-1 rounded-xl overflow-hidden">
-      <div className="flex items-center gap-2 px-3 py-2.5">
-        <GripVertical className="w-4 h-4 text-muted-foreground/40 shrink-0" />
-        <p className="flex-1 text-xs font-medium text-foreground truncate">{ex.name}</p>
-        <span className="text-[10px] text-muted-foreground">{ex.sets}×{ex.reps}</span>
-        <button onClick={() => setOpen(o => !o)} className="text-muted-foreground">
-          {open ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-        </button>
-        <button onClick={onDelete} className="text-muted-foreground/50 hover:text-coral transition-colors">
+    <GlassCard className="p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
+          Day {day.day_number}
+        </p>
+        <button
+          onClick={onDelete}
+          className="text-muted-foreground/50 hover:text-coral transition-colors"
+          aria-label="Remove day"
+        >
           <Trash2 className="w-3.5 h-3.5" />
         </button>
       </div>
-      {open && (
-        <div className="grid grid-cols-3 gap-2 px-3 pb-3">
-          {[
-            { label: "Sets",  value: String(ex.sets), key: "sets" as const, type: "number" },
-            { label: "Reps",  value: ex.reps,          key: "reps" as const, type: "text"   },
-            { label: "Rest (s)", value: String(ex.rest), key: "rest" as const, type: "number" },
-          ].map(field => (
-            <div key={field.key}>
-              <label className="text-[9px] text-muted-foreground">{field.label}</label>
-              <input
-                type={field.type}
-                value={field.value}
-                onChange={e => onChange({ ...ex, [field.key]: field.type === "number" ? Number(e.target.value) : e.target.value })}
-                className="w-full mt-0.5 h-8 glass-1 rounded-lg px-2 text-xs text-foreground bg-transparent outline-none"
-              />
-            </div>
-          ))}
-          <div className="col-span-3">
-            <label className="text-[9px] text-muted-foreground">Coach note</label>
-            <input
-              type="text"
-              value={ex.note}
-              onChange={e => onChange({ ...ex, note: e.target.value })}
-              placeholder="Optional cue or note..."
-              className="w-full mt-0.5 h-8 glass-1 rounded-lg px-2 text-xs text-foreground bg-transparent outline-none placeholder:text-muted-foreground/50"
-            />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Builder form ────────────────────────────────────────────────────────
-function BuilderForm({
-  program,
-  onChange,
-  onSave,
-  onCancel,
-}: {
-  program: Program;
-  onChange: (p: Program) => void;
-  onSave: () => void;
-  onCancel: () => void;
-}) {
-  const [libQuery, setLibQuery] = useState("");
-  const [activeDayId, setActiveDayId] = useState<string>(program.days[0]?.id ?? "");
-  const [showLib, setShowLib] = useState(false);
-  const [assignOpen, setAssignOpen] = useState(false);
-
-  const filteredLib = EXERCISE_LIBRARY.filter(e =>
-    e.name.toLowerCase().includes(libQuery.toLowerCase()),
-  );
-
-  const updateDay = (dayId: string, updated: WorkoutDay) => {
-    onChange({ ...program, days: program.days.map(d => d.id === dayId ? updated : d) });
-  };
-
-  const addDay = () => {
-    const newDay: WorkoutDay = { id: newId(), name: `Day ${program.days.length + 1}`, exercises: [] };
-    onChange({ ...program, days: [...program.days, newDay] });
-    setActiveDayId(newDay.id);
-  };
-
-  const addExercise = (name: string) => {
-    const day = program.days.find(d => d.id === activeDayId);
-    if (!day) return;
-    const ex: Exercise = { id: newId(), name, sets: 3, reps: "12", rest: 60, note: "" };
-    updateDay(activeDayId, { ...day, exercises: [...day.exercises, ex] });
-    setShowLib(false);
-  };
-
-  const updateMeal = (mealId: string, updated: MealPlan) => {
-    onChange({ ...program, meals: program.meals.map(m => m.id === mealId ? updated : m) });
-  };
-
-  const updateCareStep = (stepId: string, updated: CareStep) => {
-    onChange({ ...program, careSteps: program.careSteps.map(s => s.id === stepId ? updated : s) });
-  };
-
-  const activeDay = program.days.find(d => d.id === activeDayId);
-
-  return (
-    <div className="space-y-5">
-      {/* Meta */}
-      <GlassCard className="p-4 space-y-3">
-        <div className="flex items-center gap-2">
-          <TypeBadge type={program.type} />
-          <span className="text-xs text-muted-foreground">· {program.durationWeeks}w program</span>
-        </div>
-        <div>
-          <label className="text-[10px] text-muted-foreground">Program Title</label>
-          <input
-            value={program.title}
-            onChange={e => onChange({ ...program, title: e.target.value })}
-            placeholder="e.g. 8-Week Strength Block"
-            className="w-full mt-1 glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground bg-transparent outline-none placeholder:text-muted-foreground/50"
-          />
-        </div>
-        <div>
-          <label className="text-[10px] text-muted-foreground">Description / Goal</label>
-          <textarea
-            value={program.description}
-            onChange={e => onChange({ ...program, description: e.target.value })}
-            placeholder="Briefly describe the goal and method..."
-            rows={2}
-            className="w-full mt-1 glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground bg-transparent outline-none placeholder:text-muted-foreground/50 resize-none"
-          />
-        </div>
-        <div>
-          <label className="text-[10px] text-muted-foreground">Duration (weeks)</label>
-          <div className="flex gap-2 mt-1">
-            {[4, 6, 8, 12].map(w => (
-              <button
-                key={w}
-                onClick={() => onChange({ ...program, durationWeeks: w })}
-                className={`flex-1 rounded-xl py-2 text-xs font-medium transition-all ${
-                  program.durationWeeks === w ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
-                }`}
-              >
-                {w}w
-              </button>
-            ))}
-          </div>
-        </div>
-      </GlassCard>
-
-      {/* Workout builder */}
-      {program.type === "workout" && (
-        <GlassCard className="p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-foreground">Training Days</h3>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={addDay}
-              className="flex items-center gap-1 text-xs text-indigo font-medium"
-            >
-              <Plus className="w-3.5 h-3.5" /> Add Day
-            </motion.button>
-          </div>
-
-          {/* Day tabs */}
-          <div className="flex gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1">
-            {program.days.map(day => (
-              <button
-                key={day.id}
-                onClick={() => setActiveDayId(day.id)}
-                className={`shrink-0 rounded-pill px-3 py-1.5 text-[11px] font-medium whitespace-nowrap transition-all ${
-                  activeDayId === day.id ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
-                }`}
-              >
-                {day.name}
-              </button>
-            ))}
-          </div>
-
-          {activeDay && (
-            <div className="space-y-2">
-              {/* Day name */}
-              <input
-                value={activeDay.name}
-                onChange={e => updateDay(activeDay.id, { ...activeDay, name: e.target.value })}
-                className="w-full glass-1 rounded-xl px-3 py-2 text-xs text-foreground bg-transparent outline-none"
-                placeholder="Day name (e.g. Push, Legs...)"
-              />
-
-              {/* Exercise list */}
-              {activeDay.exercises.map(ex => (
-                <ExerciseRow
-                  key={ex.id}
-                  ex={ex}
-                  onChange={updated => updateDay(activeDay.id, {
-                    ...activeDay,
-                    exercises: activeDay.exercises.map(e => e.id === ex.id ? updated : e),
-                  })}
-                  onDelete={() => updateDay(activeDay.id, {
-                    ...activeDay,
-                    exercises: activeDay.exercises.filter(e => e.id !== ex.id),
-                  })}
-                />
-              ))}
-
-              {activeDay.exercises.length === 0 && (
-                <p className="text-center text-xs text-muted-foreground py-3">No exercises yet — add from library</p>
-              )}
-
-              {/* Add from library */}
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setShowLib(o => !o)}
-                className="w-full glass-1 rounded-xl py-2.5 flex items-center justify-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-all"
-              >
-                <Dumbbell className="w-3.5 h-3.5" />
-                {showLib ? "Close Library" : "Add Exercise from Library"}
-              </motion.button>
-
-              <AnimatePresence>
-                {showLib && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="glass-1 rounded-xl p-3 space-y-2">
-                      <input
-                        value={libQuery}
-                        onChange={e => setLibQuery(e.target.value)}
-                        placeholder="Search exercises..."
-                        className="w-full glass-1 rounded-lg px-3 py-2 text-xs text-foreground bg-transparent outline-none placeholder:text-muted-foreground/60"
-                      />
-                      <div className="max-h-40 overflow-y-auto space-y-1">
-                        {filteredLib.map(e => (
-                          <button
-                            key={e.name}
-                            onClick={() => addExercise(e.name)}
-                            className="w-full text-left rounded-lg px-3 py-2 hover:bg-white/5 transition-all flex items-center justify-between"
-                          >
-                            <span className="text-xs text-foreground">{e.name}</span>
-                            <span className="text-[9px] text-muted-foreground">{e.category}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          )}
-        </GlassCard>
-      )}
-
-      {/* Meal plan builder */}
-      {program.type === "meal" && (
-        <GlassCard className="p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-foreground">Daily Meal Plan</h3>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                const unused = MEAL_LABELS.find(l => !program.meals.find(m => m.label === l));
-                if (!unused) return;
-                onChange({ ...program, meals: [...program.meals, { id: newId(), label: unused, items: [] }] });
-              }}
-              className="flex items-center gap-1 text-xs text-teal font-medium"
-            >
-              <Plus className="w-3.5 h-3.5" /> Add Meal
-            </motion.button>
-          </div>
-
-          {program.meals.map(meal => (
-            <div key={meal.id} className="space-y-2">
-              <p className="text-xs font-medium text-foreground">{meal.label}</p>
-              {meal.items.map(item => (
-                <div key={item.id} className="glass-1 rounded-xl p-2.5 flex items-center gap-2">
-                  <input
-                    value={item.name}
-                    onChange={e => updateMeal(meal.id, {
-                      ...meal,
-                      items: meal.items.map(i => i.id === item.id ? { ...i, name: e.target.value } : i),
-                    })}
-                    placeholder="Food item"
-                    className="flex-1 bg-transparent text-xs text-foreground outline-none"
-                  />
-                  <input
-                    value={item.qty}
-                    onChange={e => updateMeal(meal.id, {
-                      ...meal,
-                      items: meal.items.map(i => i.id === item.id ? { ...i, qty: e.target.value } : i),
-                    })}
-                    placeholder="200g"
-                    className="w-14 bg-transparent text-xs text-muted-foreground outline-none text-right"
-                  />
-                  <button
-                    onClick={() => updateMeal(meal.id, { ...meal, items: meal.items.filter(i => i.id !== item.id) })}
-                    className="text-muted-foreground/40 hover:text-coral transition-colors"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              ))}
-              <button
-                onClick={() => updateMeal(meal.id, { ...meal, items: [...meal.items, { id: newId(), name: "", qty: "", kcal: 0 }] })}
-                className="text-[10px] text-teal flex items-center gap-1"
-              >
-                <Plus className="w-3 h-3" /> Add item
-              </button>
-            </div>
-          ))}
-
-          {program.meals.length === 0 && (
-            <p className="text-center text-xs text-muted-foreground py-3">No meals yet — click Add Meal</p>
-          )}
-        </GlassCard>
-      )}
-
-      {/* Care plan builder */}
-      {program.type === "care" && (
-        <GlassCard className="p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-foreground">Care Protocol Steps</h3>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => onChange({
-                ...program,
-                careSteps: [...program.careSteps, { id: newId(), name: "", detail: "", durationMins: 10 }],
-              })}
-              className="flex items-center gap-1 text-xs text-coral font-medium"
-            >
-              <Plus className="w-3.5 h-3.5" /> Add Step
-            </motion.button>
-          </div>
-
-          {program.careSteps.map((step, idx) => (
-            <div key={step.id} className="glass-1 rounded-xl p-3 space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full gradient-coral flex items-center justify-center text-[9px] font-bold text-white shrink-0">
-                  {idx + 1}
-                </span>
-                <input
-                  value={step.name}
-                  onChange={e => updateCareStep(step.id, { ...step, name: e.target.value })}
-                  placeholder="Step name (e.g. Cleanse, Apply serum...)"
-                  className="flex-1 bg-transparent text-xs text-foreground outline-none"
-                />
-                <button
-                  onClick={() => onChange({ ...program, careSteps: program.careSteps.filter(s => s.id !== step.id) })}
-                  className="text-muted-foreground/40 hover:text-coral"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-              <input
-                value={step.detail}
-                onChange={e => updateCareStep(step.id, { ...step, detail: e.target.value })}
-                placeholder="Instructions or product details..."
-                className="w-full bg-transparent text-[11px] text-muted-foreground outline-none"
-              />
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] text-muted-foreground">Duration:</span>
-                <input
-                  type="number"
-                  value={step.durationMins}
-                  onChange={e => updateCareStep(step.id, { ...step, durationMins: Number(e.target.value) })}
-                  className="w-14 glass-1 rounded-lg px-2 py-1 text-xs text-foreground bg-transparent outline-none"
-                />
-                <span className="text-[10px] text-muted-foreground">min</span>
-              </div>
-            </div>
-          ))}
-
-          {program.careSteps.length === 0 && (
-            <p className="text-center text-xs text-muted-foreground py-3">No steps yet — click Add Step</p>
-          )}
-        </GlassCard>
-      )}
-
-      {/* Assign to clients */}
-      <GlassCard className="p-4">
-        <button
-          onClick={() => setAssignOpen(o => !o)}
-          className="w-full flex items-center justify-between"
-        >
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-foreground">Assign to Clients</span>
-            {program.assignedTo.length > 0 && (
-              <span className="text-[10px] px-1.5 py-0.5 glass-accent-indigo rounded-pill text-indigo">
-                {program.assignedTo.length} selected
-              </span>
-            )}
-          </div>
-          {assignOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
-        </button>
-        <AnimatePresence>
-          {assignOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-3 space-y-1.5 overflow-hidden"
-            >
-              {MOCK_CLIENTS.map(client => {
-                const selected = program.assignedTo.includes(client);
-                return (
-                  <button
-                    key={client}
-                    onClick={() => onChange({
-                      ...program,
-                      assignedTo: selected
-                        ? program.assignedTo.filter(c => c !== client)
-                        : [...program.assignedTo, client],
-                    })}
-                    className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all ${
-                      selected ? "glass-accent-indigo" : "glass-1"
-                    }`}
-                  >
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                      selected ? "bg-indigo border-indigo" : "border-muted-foreground/30"
-                    }`}>
-                      {selected && <Check className="w-2.5 h-2.5 text-white" />}
-                    </div>
-                    <span className={selected ? "text-foreground" : "text-muted-foreground"}>{client}</span>
-                  </button>
-                );
-              })}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </GlassCard>
-
-      {/* Actions */}
-      <div className="flex gap-2 pb-2">
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={onCancel}
-          className="flex-1 rounded-pill py-3 glass-1 text-muted-foreground text-sm font-medium"
-        >
-          Cancel
-        </motion.button>
+      <input
+        value={day.title}
+        onChange={e => onChange({ ...day, title: e.target.value })}
+        placeholder="Day title (e.g. Foundation — Upper Body)"
+        className="w-full glass-1 rounded-xl px-3 py-2 text-sm text-foreground bg-transparent outline-none"
+      />
+      <textarea
+        value={day.body_markdown}
+        onChange={e => onChange({ ...day, body_markdown: e.target.value })}
+        placeholder="Day content (Markdown). Use **bold**, - bullets, ## headings..."
+        rows={7}
+        className="w-full glass-1 rounded-xl px-3 py-2 text-xs text-foreground bg-transparent outline-none placeholder:text-muted-foreground/50 resize-y font-mono"
+      />
+      <div className="flex justify-end">
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={onSave}
-          className="flex-1 rounded-pill py-3 gradient-indigo text-primary-foreground text-sm font-semibold flex items-center justify-center gap-2"
+          disabled={saving || !day.title.trim() || !day.body_markdown.trim()}
+          className="rounded-pill px-4 py-1.5 text-[11px] font-semibold gradient-indigo text-white disabled:opacity-50 flex items-center gap-1.5"
         >
-          <Send className="w-4 h-4" /> Save & Send
+          {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+          Save day
         </motion.button>
+      </div>
+    </GlassCard>
+  );
+}
+
+// ── New program form ────────────────────────────────────────────────────
+function NewProgramForm({
+  onCreate,
+  onCancel,
+  busy,
+}: {
+  onCreate: (p: {
+    title: string;
+    description: string;
+    vertical: Vertical;
+    duration_days: number;
+    price_rand: number;
+  }) => void;
+  onCancel: () => void;
+  busy: boolean;
+}) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [vertical, setVertical] = useState<Vertical>("fitness");
+  const [durationDays, setDurationDays] = useState(21);
+  const [priceRand, setPriceRand] = useState(499);
+
+  const canSave = title.trim().length >= 2 && durationDays > 0 && priceRand >= 0;
+
+  return (
+    <GlassCard className="p-4 space-y-4">
+      <h2 className="text-sm font-semibold text-foreground">New program</h2>
+      <div>
+        <label className="text-[10px] text-muted-foreground uppercase tracking-widest">Title</label>
+        <input
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          placeholder="e.g. 21-Day Pretoria Reset"
+          className="w-full mt-1 glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground bg-transparent outline-none"
+        />
+      </div>
+      <div>
+        <label className="text-[10px] text-muted-foreground uppercase tracking-widest">Description</label>
+        <textarea
+          value={description}
+          onChange={e => setDescription(e.target.value)}
+          rows={2}
+          placeholder="Short sales pitch — who it's for, what they get."
+          className="w-full mt-1 glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground bg-transparent outline-none resize-none"
+        />
+      </div>
+      <div>
+        <label className="text-[10px] text-muted-foreground uppercase tracking-widest">Vertical</label>
+        <div className="flex flex-wrap gap-1.5 mt-1.5">
+          {VERTICAL_OPTIONS.map(v => (
+            <button
+              key={v.key}
+              onClick={() => setVertical(v.key)}
+              className={`rounded-pill px-3 py-1.5 text-[11px] font-medium ${
+                vertical === v.key ? `${v.gradient} text-primary-foreground` : "glass-1 text-muted-foreground"
+              }`}
+            >
+              {v.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-[10px] text-muted-foreground uppercase tracking-widest">Duration (days)</label>
+          <input
+            type="number"
+            min={1}
+            max={365}
+            value={durationDays}
+            onChange={e => setDurationDays(Math.max(1, Math.min(365, Number(e.target.value))))}
+            className="w-full mt-1 glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground bg-transparent outline-none"
+          />
+        </div>
+        <div>
+          <label className="text-[10px] text-muted-foreground uppercase tracking-widest">Price (R)</label>
+          <input
+            type="number"
+            min={0}
+            value={priceRand}
+            onChange={e => setPriceRand(Math.max(0, Number(e.target.value)))}
+            className="w-full mt-1 glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground bg-transparent outline-none"
+          />
+        </div>
+      </div>
+      <p className="text-[10px] text-muted-foreground">
+        You keep 90% per sale — BION takes a 10% platform fee, same as bookings.
+      </p>
+      <div className="flex gap-2">
+        <button
+          onClick={onCancel}
+          className="flex-1 glass-1 rounded-pill py-3 text-sm text-muted-foreground"
+        >
+          Cancel
+        </button>
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={() => canSave && onCreate({ title, description, vertical, duration_days: durationDays, price_rand: priceRand })}
+          disabled={!canSave || busy}
+          className="flex-1 gradient-indigo rounded-pill py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+          Create
+        </motion.button>
+      </div>
+    </GlassCard>
+  );
+}
+
+// ── Program editor (selected program) ───────────────────────────────────
+function ProgramEditor({
+  program,
+  onClose,
+  onReload,
+}: {
+  program: Program;
+  onClose: () => void;
+  onReload: () => void;
+}) {
+  const [days, setDays] = useState<ProgramDay[]>([]);
+  const [savingDay, setSavingDay] = useState<number | null>(null);
+  const [publishing, setPublishing] = useState(false);
+  const [meta, setMeta] = useState({
+    title: program.title,
+    description: program.description ?? "",
+    price_rand: program.price_rand,
+    duration_days: program.duration_days,
+    vertical: program.vertical,
+  });
+  const [savingMeta, setSavingMeta] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Seed the day list with any already-saved days + pad to duration_days
+    const seeded = Array.from({ length: program.duration_days }, (_, i) => {
+      const existing = (program.days ?? []).find(d => d.day_number === i + 1);
+      return (
+        existing ?? {
+          day_number: i + 1,
+          title: `Day ${i + 1}`,
+          body_markdown: "",
+          media_urls: [],
+        }
+      );
+    });
+    setDays(seeded);
+  }, [program.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const saveMeta = async () => {
+    setSavingMeta(true);
+    setError(null);
+    try {
+      const res = await authFetch(`/api/programs/${program.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          title: meta.title,
+          description: meta.description,
+          price_rand: meta.price_rand,
+          duration_days: meta.duration_days,
+          vertical: meta.vertical,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.ok) throw new Error(json.error ?? "Save failed");
+      onReload();
+    } catch (err: any) {
+      setError(err.message ?? "Could not save");
+    } finally {
+      setSavingMeta(false);
+    }
+  };
+
+  const saveDay = async (idx: number) => {
+    const day = days[idx];
+    if (!day) return;
+    setSavingDay(day.day_number);
+    setError(null);
+    try {
+      const res = await authFetch(`/api/programs/${program.id}/days`, {
+        method: "POST",
+        body: JSON.stringify({
+          day_number: day.day_number,
+          title: day.title,
+          body_markdown: day.body_markdown,
+          media_urls: day.media_urls ?? [],
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.ok) throw new Error(json.error ?? "Save failed");
+    } catch (err: any) {
+      setError(err.message ?? "Could not save day");
+    } finally {
+      setSavingDay(null);
+    }
+  };
+
+  const publish = async () => {
+    setPublishing(true);
+    setError(null);
+    try {
+      const res = await authFetch(`/api/programs/${program.id}/publish`, { method: "POST" });
+      const json = await res.json();
+      if (!res.ok || !json.ok) throw new Error(json.error ?? "Publish failed");
+      onReload();
+    } catch (err: any) {
+      setError(err.message ?? "Could not publish");
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={onClose}
+          className="w-9 h-9 glass-1 rounded-full flex items-center justify-center"
+        >
+          <ArrowLeft className="w-4 h-4 text-foreground" />
+        </motion.button>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl font-bold text-foreground truncate">{program.title || "Untitled program"}</h1>
+          <p className="text-[11px] text-muted-foreground">
+            {program.published_at ? "Published" : "Draft"} · {program.vertical} · {program.duration_days}d · R{program.price_rand}
+          </p>
+        </div>
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={publish}
+          disabled={publishing || !!program.published_at}
+          className={`rounded-pill px-4 py-2 text-xs font-semibold flex items-center gap-1.5 ${
+            program.published_at
+              ? "glass-1 text-muted-foreground"
+              : "gradient-indigo text-primary-foreground"
+          } disabled:opacity-60`}
+        >
+          {publishing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Rocket className="w-3.5 h-3.5" />}
+          {program.published_at ? "Live" : "Publish"}
+        </motion.button>
+      </div>
+
+      {error && (
+        <div className="rounded-xl border border-coral/30 bg-coral/10 px-3 py-2 text-xs text-coral">
+          {error}
+        </div>
+      )}
+
+      <GlassCard className="p-4 space-y-3">
+        <h2 className="text-sm font-semibold text-foreground">Details</h2>
+        <input
+          value={meta.title}
+          onChange={e => setMeta({ ...meta, title: e.target.value })}
+          className="w-full glass-1 rounded-xl px-3 py-2 text-sm text-foreground bg-transparent outline-none"
+          placeholder="Program title"
+        />
+        <textarea
+          value={meta.description}
+          onChange={e => setMeta({ ...meta, description: e.target.value })}
+          rows={2}
+          className="w-full glass-1 rounded-xl px-3 py-2 text-xs text-foreground bg-transparent outline-none resize-none"
+          placeholder="Short description"
+        />
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="text-[10px] text-muted-foreground">Duration (days)</label>
+            <input
+              type="number"
+              min={1}
+              max={365}
+              value={meta.duration_days}
+              onChange={e => setMeta({ ...meta, duration_days: Math.max(1, Math.min(365, Number(e.target.value))) })}
+              className="w-full mt-0.5 glass-1 rounded-xl px-3 py-2 text-sm text-foreground bg-transparent outline-none"
+            />
+          </div>
+          <div>
+            <label className="text-[10px] text-muted-foreground">Price (R)</label>
+            <input
+              type="number"
+              min={0}
+              value={meta.price_rand}
+              onChange={e => setMeta({ ...meta, price_rand: Math.max(0, Number(e.target.value)) })}
+              className="w-full mt-0.5 glass-1 rounded-xl px-3 py-2 text-sm text-foreground bg-transparent outline-none"
+            />
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {VERTICAL_OPTIONS.map(v => (
+            <button
+              key={v.key}
+              onClick={() => setMeta({ ...meta, vertical: v.key })}
+              className={`rounded-pill px-3 py-1.5 text-[11px] font-medium ${
+                meta.vertical === v.key ? `${v.gradient} text-primary-foreground` : "glass-1 text-muted-foreground"
+              }`}
+            >
+              {v.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex justify-end">
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={saveMeta}
+            disabled={savingMeta}
+            className="rounded-pill px-4 py-2 text-xs font-semibold gradient-indigo text-white disabled:opacity-60 flex items-center gap-1.5"
+          >
+            {savingMeta ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+            Save details
+          </motion.button>
+        </div>
+      </GlassCard>
+
+      <div>
+        <h2 className="text-sm font-semibold text-foreground mb-2">Day-by-day content</h2>
+        <div className="space-y-2">
+          {days.map((d, idx) => (
+            <DayEditor
+              key={d.day_number}
+              day={d}
+              saving={savingDay === d.day_number}
+              onChange={(next) => {
+                setDays(prev => prev.map((x, i) => (i === idx ? next : x)));
+              }}
+              onSave={() => saveDay(idx)}
+              onDelete={() => {
+                // Just clear the content; duration_days governs actual count
+                setDays(prev => prev.map((x, i) => (i === idx ? { ...x, title: `Day ${x.day_number}`, body_markdown: "" } : x)));
+              }}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
 }
 
-// ── Main page ─────────────────────────────────────────────────────────
-const emptyWorkout = (): Program => ({
-  id:            newId(),
-  type:          "workout",
-  title:         "",
-  description:   "",
-  durationWeeks: 8,
-  days:          [{ id: newId(), name: "Day 1 — Push", exercises: [] }],
-  meals:         [],
-  careSteps:     [],
-  assignedTo:    [],
-});
-
-// Sample programs using ONLY real data - no manufactured programs
-// These are template programs that would be created by providers for their actual services
-const SAMPLE_PROGRAMS: Program[] = [
-  // Demo program template - the only manufactured content allowed
-  {
-    id: "demo", type: "workout", title: "Demo Program Template", 
-    description: "Template program for demonstration purposes only. Real programs would be created by providers for their specific services.",
-    durationWeeks: 4,
-    days: [
-      { 
-        id: "d1", name: "Initial Assessment",  
-        exercises: [
-          { id: "e1", name: "Service Consultation", sets: 1, reps: "60 min", rest: 0, note: "Initial client assessment and goal setting" },
-        ] 
-      },
-    ],
-    meals: [], careSteps: [], 
-    assignedTo: ["Demo User"], // Only manufactured user account
-  },
-  
-  // Empty state programs - real programs would be created here
-  {
-    id: "empty1", type: "workout", title: "Create New Program", 
-    description: "Create a custom program for your clients based on your service offerings.",
-    durationWeeks: 0,
-    days: [],
-    meals: [], careSteps: [], 
-    assignedTo: [],
-  },
-  {
-    id: "empty2", type: "meal", title: "Create Meal Plan", 
-    description: "Design nutrition plans for your clients.",
-    durationWeeks: 0,
-    days: [],
-    meals: [],
-    careSteps: [], 
-    assignedTo: [],
-  },
-  {
-    id: "empty3", type: "care", title: "Create Care Plan", 
-    description: "Develop wellness and care programs for your clients.",
-    durationWeeks: 0,
-    days: [], meals: [],
-    careSteps: [],
-    assignedTo: [],
-  },
-];
-
+// ── Main page ───────────────────────────────────────────────────────────
 export default function ProgramBuilder() {
   const navigate = useNavigate();
-  const { canAccess, requiresUpgrade, getUpgradeUrl, tierDisplayName } = useSubscription();
-  
-  // Check if user can access program builder feature
-  const canUseProgramBuilder = canAccess('basicAnalytics'); // Using basicAnalytics as proxy for program builder access
-  const needsUpgrade = requiresUpgrade('basicAnalytics');
-  
-  // Show upgrade prompt if program builder feature is not available
+  const { requiresUpgrade, getUpgradeUrl, tierDisplayName } = useSubscription();
+  const needsUpgrade = requiresUpgrade("basicAnalytics");
+
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showNew, setShowNew] = useState(false);
+  const [creatingBusy, setCreatingBusy] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const editingProgram = useMemo(
+    () => programs.find(p => p.id === editingId) ?? null,
+    [programs, editingId],
+  );
+
+  const load = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await authFetch("/api/programs/my");
+      const json = await res.json();
+      if (!res.ok || !json.ok) throw new Error(json.error ?? "Could not load programs");
+      setPrograms(((json.data ?? []) as Program[]));
+    } catch (err: any) {
+      setError(err.message ?? "Could not load programs");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!needsUpgrade) load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [needsUpgrade]);
+
+  const createProgram = async (input: {
+    title: string;
+    description: string;
+    vertical: Vertical;
+    duration_days: number;
+    price_rand: number;
+  }) => {
+    setCreatingBusy(true);
+    setError(null);
+    try {
+      const res = await authFetch("/api/programs", {
+        method: "POST",
+        body: JSON.stringify(input),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.ok) throw new Error(json.error ?? "Create failed");
+      const created = json.data as Program;
+      setPrograms(prev => [created, ...prev]);
+      setShowNew(false);
+      setEditingId(created.id);
+    } catch (err: any) {
+      setError(err.message ?? "Could not create program");
+    } finally {
+      setCreatingBusy(false);
+    }
+  };
+
   if (needsUpgrade) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28">
         <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-12 space-y-5">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => navigate(-1)}
-                className="w-9 h-9 glass-1 rounded-full flex items-center justify-center"
-              >
-                <ArrowLeft className="w-4 h-4 text-foreground" />
-              </motion.button>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Programs</h1>
-                <p className="text-xs text-muted-foreground">Upgrade required to access program builder</p>
-              </div>
+          <div className="flex items-center gap-3">
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => navigate(-1)}
+              className="w-9 h-9 glass-1 rounded-full flex items-center justify-center"
+            >
+              <ArrowLeft className="w-4 h-4 text-foreground" />
+            </motion.button>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Programs</h1>
+              <p className="text-xs text-muted-foreground">Upgrade required to build programs</p>
             </div>
           </div>
-          
-          {/* Upgrade Prompt */}
           <GlassCard className="p-6 text-center">
             <Lock className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
             <h2 className="text-lg font-semibold text-foreground mb-2">
-              Program Builder Requires Pro Subscription
+              Program Builder Requires Pro
             </h2>
             <p className="text-sm text-muted-foreground mb-4">
-              Your current plan ({tierDisplayName()}) doesn't include program creation tools. 
-              Upgrade to Pro or Elite to create custom workout, meal, and care plans for your clients.
+              Your plan ({tierDisplayName()}) doesn't include program creation.
+              Upgrade to sell day-by-day programs to your clients.
             </p>
-            <div className="space-y-3 max-w-md mx-auto">
-              <div className="glass-1 rounded-xl p-4 text-left">
-                <h3 className="text-sm font-semibold text-foreground mb-2">Pro Plan Includes:</h3>
-                <ul className="text-xs text-muted-foreground space-y-1">
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-indigo"></div>
-                    Custom program builder (workout, meal, care plans)
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-indigo"></div>
-                    Client messaging & notifications
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-indigo"></div>
-                    Booking management & calendar sync
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-indigo"></div>
-                    Basic analytics & insights
-                  </li>
-                </ul>
-              </div>
-              
-              <button
-                onClick={() => navigate(getUpgradeUrl())}
-                className="w-full gradient-indigo rounded-pill py-3.5 text-sm font-semibold text-white flex items-center justify-center gap-2"
-              >
-                <CreditCard className="w-4 h-4" />
-                Upgrade to Pro - R499/month
-              </button>
-              
-              <button
-                onClick={() => navigate('/provider/billing')}
-                className="w-full glass-1 rounded-pill py-3 text-sm font-medium text-foreground"
-              >
-                View All Plans
-              </button>
-            </div>
+            <button
+              onClick={() => navigate(getUpgradeUrl())}
+              className="w-full gradient-indigo rounded-pill py-3.5 text-sm font-semibold text-white flex items-center justify-center gap-2"
+            >
+              <CreditCard className="w-4 h-4" />
+              Upgrade to Pro
+            </button>
           </GlassCard>
-          
           <ProviderNav />
         </div>
       </div>
     );
   }
-  
-  const [programs, setPrograms]   = useState<Program[]>(SAMPLE_PROGRAMS);
-  const [editing, setEditing]     = useState<Program | null>(null);
-  const [typeFilter, setTypeFilter] = useState<ProgramType | "all">("all");
-  const [showForm, setShowForm]   = useState(false);
-  const [savedId, setSavedId]     = useState<string | null>(null);
 
-  const visible = typeFilter === "all" ? programs : programs.filter(p => p.type === typeFilter);
-
-  const handleSave = async () => {
-    if (!editing) return;
-    if (programs.find(p => p.id === editing.id)) {
-      setPrograms(prev => prev.map(p => p.id === editing.id ? editing : p));
-    } else {
-      setPrograms(prev => [editing, ...prev]);
-    }
-
-    // ── Push assigned programs to clients via Supabase + localStorage bridge ──
-    if (editing.assignedTo.length > 0) {
-      const routineType = editing.type === "workout" ? "workout" : editing.type === "meal" ? "meal" : "rehab";
-      const exercises = editing.type === "workout"
-        ? editing.days.flatMap(d => d.exercises.map(e => ({ name: e.name, sets: `${e.sets}×${e.reps}`, done: false })))
-        : editing.type === "meal"
-        ? editing.meals.flatMap(m => m.items.map(i => ({ name: `${m.label}: ${i.name}`, sets: `${i.qty} · ${i.kcal} kcal`, done: false })))
-        : editing.careSteps.map(s => ({ name: s.name, sets: `${s.durationMins} min`, done: false }));
-
-      const providerName = "Your Provider"; // provider context not pulled here yet
-      const vertical = routineType === "workout" ? "teal" : routineType === "meal" ? "amber" : "indigo";
-      const baseRoutine = {
-        title: editing.title || `${editing.type} Programme`,
-        type: routineType,
-        provider: providerName,
-        vertical,
-        daysCompleted: 0,
-        totalDays: editing.durationWeeks * 7,
-        exercises: exercises.length > 0 ? exercises : [{ name: "Follow provider instructions", sets: "—", done: false }],
-        createdBy: "provider" as const,
-        sharedWith: [],
-        schedule: editing.type === "workout" ? "Mon, Wed, Fri" : "Daily",
-      };
-
-      // 1) Write to Supabase routines table for each assigned client (cross-device sync)
-      try {
-        const inserts = editing.assignedTo.map(clientNameOrId => ({
-          // Try to use clientNameOrId as the user_id; if it's a name, the RLS will reject it
-          // Real production would resolve client name → profile_id first
-          id: `pro_${editing.id}_${clientNameOrId.replace(/\s/g, "_").toLowerCase()}`,
-          user_id: clientNameOrId,
-          ...baseRoutine,
-        }));
-        await supabase.from("routines" as any).upsert(inserts as any, { onConflict: "id" }).then(() => {});
-      } catch (err) {
-        if (import.meta.env.DEV) console.warn("[program assign] Supabase upsert failed:", err);
-      }
-
-      // 2) Always write to localStorage so demo accounts and same-device clients pick it up immediately
-      try {
-        const existing = JSON.parse(localStorage.getItem("bion_routines") ?? "[]");
-        const routineId = `pro_${editing.id}`;
-        if (!existing.find((r: any) => r.id === routineId)) {
-          existing.unshift({ id: routineId, ...baseRoutine });
-          localStorage.setItem("bion_routines", JSON.stringify(existing));
-        }
-      } catch { /* ignore */ }
-    }
-
-    setSavedId(editing.id);
-    setTimeout(() => setSavedId(null), 2000);
-    setEditing(null);
-    setShowForm(false);
-  };
-
-  const handleNew = (type: ProgramType) => {
-    const p = emptyWorkout();
-    p.type = type;
-    if (type === "meal")    { p.days = []; p.meals = [{ id: newId(), label: "Breakfast", items: [] }]; }
-    if (type === "care")    { p.days = []; p.careSteps = [{ id: newId(), name: "", detail: "", durationMins: 10 }]; }
-    setEditing(p);
-    setShowForm(true);
-  };
-
-  if (showForm && editing) {
+  if (editingProgram) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28">
-        <div className="mx-auto max-w-lg px-4 pt-12 space-y-4">
-          <div className="flex items-center gap-3">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => { setShowForm(false); setEditing(null); }}
-              className="w-9 h-9 glass-1 rounded-full flex items-center justify-center"
-            >
-              <ArrowLeft className="w-4 h-4 text-foreground" />
-            </motion.button>
-            <h1 className="text-xl font-bold text-foreground">
-              {programs.find(p => p.id === editing.id) ? "Edit Program" : "New Program"}
-            </h1>
-          </div>
-          <BuilderForm
-            program={editing}
-            onChange={setEditing}
-            onSave={handleSave}
-            onCancel={() => { setShowForm(false); setEditing(null); }}
+        <div className="mx-auto max-w-2xl xl:max-w-3xl px-4 pt-12">
+          <ProgramEditor
+            program={editingProgram}
+            onClose={() => setEditingId(null)}
+            onReload={load}
           />
         </div>
         <BionAssistant />
@@ -822,7 +573,6 @@ export default function ProgramBuilder() {
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28">
       <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-12 space-y-5">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <motion.button
@@ -834,121 +584,101 @@ export default function ProgramBuilder() {
             </motion.button>
             <div>
               <h1 className="text-2xl font-bold text-foreground">Programs</h1>
-              <p className="text-xs text-muted-foreground">{programs.length} programs · {programs.reduce((a, p) => a + p.assignedTo.length, 0)} assignments</p>
+              <p className="text-xs text-muted-foreground">
+                {programs.length} program{programs.length === 1 ? "" : "s"} · 90/10 revenue share
+              </p>
             </div>
           </div>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowNew(s => !s)}
+            className="gradient-indigo rounded-pill px-4 py-2 text-xs font-semibold text-primary-foreground flex items-center gap-1.5"
+          >
+            <Plus className="w-3.5 h-3.5" /> {showNew ? "Close" : "New program"}
+          </motion.button>
         </div>
 
-        {/* New program buttons */}
-        <div className="grid grid-cols-3 gap-2">
-          {([
-            { type: "workout" as const, label: "Workout", icon: Dumbbell, color: "gradient-indigo" },
-            { type: "meal"    as const, label: "Meal Plan", icon: Salad,  color: "gradient-teal"   },
-            { type: "care"    as const, label: "Care Plan", icon: Heart,  color: "gradient-coral"  },
-          ]).map(btn => (
-            <motion.button
-              key={btn.type}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => handleNew(btn.type)}
-              className={`rounded-2xl p-3.5 flex flex-col items-center gap-2 ${btn.color} text-primary-foreground`}
+        {error && (
+          <div className="rounded-xl border border-coral/30 bg-coral/10 px-3 py-2 text-xs text-coral">
+            {error}
+          </div>
+        )}
+
+        <AnimatePresence>
+          {showNew && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
             >
-              <btn.icon className="w-5 h-5" />
-              <span className="text-[11px] font-semibold">{btn.label}</span>
-            </motion.button>
-          ))}
-        </div>
+              <NewProgramForm
+                busy={creatingBusy}
+                onCancel={() => setShowNew(false)}
+                onCreate={createProgram}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Filter */}
-        <div className="flex gap-1.5">
-          {(["all", "workout", "meal", "care"] as const).map(f => (
-            <button
-              key={f}
-              onClick={() => setTypeFilter(f)}
-              className={`rounded-pill px-3 py-1.5 text-[11px] font-medium transition-all capitalize ${
-                typeFilter === f ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
-              }`}
-            >
-              {f === "all" ? "All" : f === "workout" ? "Workouts" : f === "meal" ? "Meal Plans" : "Care Plans"}
-            </button>
-          ))}
-        </div>
-
-        {/* Program list */}
-        <div className="space-y-3">
-          <AnimatePresence initial={false}>
-            {visible.map((prog, i) => (
-              <motion.div
-                key={prog.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ delay: i * 0.04 }}
-              >
-                <GlassCard hover className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <TypeBadge type={prog.type} />
-                        {savedId === prog.id && (
-                          <motion.span
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="text-[10px] text-teal flex items-center gap-1"
-                          >
-                            <Check className="w-3 h-3" /> Saved
-                          </motion.span>
-                        )}
-                      </div>
-                      <p className="text-sm font-semibold text-foreground">{prog.title || "Untitled"}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{prog.description}</p>
-                      <div className="flex items-center gap-3 mt-2">
-                        <span className="text-[10px] text-muted-foreground">{prog.durationWeeks}w</span>
-                        {prog.type === "workout" && (
-                          <span className="text-[10px] text-muted-foreground">
-                            {prog.days.length} days · {prog.days.reduce((a, d) => a + d.exercises.length, 0)} exercises
-                          </span>
-                        )}
-                        {prog.type === "meal" && (
-                          <span className="text-[10px] text-muted-foreground">{prog.meals.length} meals</span>
-                        )}
-                        {prog.type === "care" && (
-                          <span className="text-[10px] text-muted-foreground">{prog.careSteps.length} steps</span>
-                        )}
-                        {prog.assignedTo.length > 0 && (
-                          <span className="text-[10px] glass-accent-indigo rounded-pill px-1.5 py-0.5 text-indigo">
-                            {prog.assignedTo.length} client{prog.assignedTo.length !== 1 ? "s" : ""}
-                          </span>
-                        )}
-                      </div>
+        {loading ? (
+          <GlassCard className="p-8 text-center">
+            <Loader2 className="w-6 h-6 text-muted-foreground animate-spin mx-auto mb-2" />
+            <p className="text-xs text-muted-foreground">Loading your programs…</p>
+          </GlassCard>
+        ) : programs.length === 0 ? (
+          <GlassCard className="p-8 text-center">
+            <Send className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+            <p className="text-sm font-medium text-foreground">No programs yet</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Build your first day-by-day program to sell to clients.
+            </p>
+          </GlassCard>
+        ) : (
+          <div className="space-y-3">
+            {programs.map(p => (
+              <GlassCard key={p.id} hover className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] glass-accent-indigo rounded-pill px-2 py-0.5 text-indigo capitalize">
+                        {p.vertical}
+                      </span>
+                      {p.published_at ? (
+                        <span className="text-[10px] text-teal flex items-center gap-1">
+                          <Check className="w-3 h-3" /> Published
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-muted-foreground">Draft</span>
+                      )}
                     </div>
-                    <div className="flex gap-1.5 shrink-0">
-                      <motion.button
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => {
-                          const clone = { ...prog, id: newId(), title: `${prog.title} (copy)` };
-                          setPrograms(prev => [clone, ...prev]);
-                        }}
-                        className="w-8 h-8 glass-1 rounded-full flex items-center justify-center"
-                      >
-                        <Copy className="w-3.5 h-3.5 text-muted-foreground" />
-                      </motion.button>
-                      <motion.button
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => { setEditing({ ...prog }); setShowForm(true); }}
-                        className="w-8 h-8 glass-1 rounded-full flex items-center justify-center"
-                      >
-                        <Send className="w-3.5 h-3.5 text-muted-foreground" />
-                      </motion.button>
+                    <p className="text-sm font-semibold text-foreground truncate">{p.title || "Untitled"}</p>
+                    {p.description && (
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{p.description}</p>
+                    )}
+                    <div className="flex items-center gap-3 mt-2 text-[11px] text-muted-foreground">
+                      <span>{p.duration_days} days</span>
+                      <span>R{p.price_rand}</span>
+                      <span>{(p.days?.length ?? 0)} day{(p.days?.length ?? 0) === 1 ? "" : "s"} authored</span>
                     </div>
                   </div>
-                </GlassCard>
-              </motion.div>
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setEditingId(p.id)}
+                    className="w-8 h-8 glass-1 rounded-full flex items-center justify-center"
+                    aria-label="Edit program"
+                  >
+                    <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                  </motion.button>
+                </div>
+              </GlassCard>
             ))}
-          </AnimatePresence>
-        </div>
-      </div>
+          </div>
+        )}
 
+        <p className="text-[10px] text-muted-foreground text-center">
+          Revenue share: you keep 90%, BION takes 10% — same as bookings.
+        </p>
+      </div>
       <BionAssistant />
       <ProviderNav />
     </div>

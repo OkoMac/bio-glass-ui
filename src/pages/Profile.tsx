@@ -298,6 +298,7 @@ const Profile = () => {
                 <Tile icon={<CalendarDays className="w-5 h-5" />} label="Calendar" color="text-indigo"    onClick={() => navigate("/calendar")} />
                 <Tile icon={<BarChart3 className="w-5 h-5" />}    label="Insights" color="text-violet"    onClick={() => navigate("/health-insights")} />
                 <Tile icon={<Dumbbell className="w-5 h-5" />}     label="Routines" color="text-teal"      onClick={() => navigate("/routines")} />
+                <Tile icon={<FileText className="w-5 h-5" />}     label="Programs" color="text-indigo"    onClick={() => navigate("/my-programs")} />
                 <Tile icon={<Droplets className="w-5 h-5" />}     label="Water"    color="text-blue-400"  onClick={() => navigate("/water-tracker")} />
                 <Tile icon={<Moon className="w-5 h-5" />}          label="Sleep"    color="text-violet"    onClick={() => navigate("/sleep-tracker")} />
                 <Tile icon={<HeartPulse className="w-5 h-5" />}   label="Med Card" color="text-coral"     onClick={() => navigate("/medical-card")} />

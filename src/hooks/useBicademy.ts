@@ -234,6 +234,124 @@ export function useEnrollmentActions() {
   return { ensureEnrolled, markLessonComplete, submitAssessment };
 }
 
+/**
+ * Is a given course (by course_code / slug) complete for the current user?
+ * Returns `{ loading, completed }` — `completed` is true only when every
+ * lesson has been marked done. Used to gate feature unlocks (e.g. Rangers
+ * must finish RANGER-101 before the provider sign-up flow is enabled,
+ * providers who finish PROVIDER-101 get the "BION Verified Trainer" badge).
+ *
+ * Handles missing tables gracefully — if the bicademy schema hasn't been
+ * migrated yet, `completed` is returned as false rather than throwing.
+ */
+export function useCourseCompletion(courseCode: string | null) {
+  const { user } = useAuth();
+  const [completed, setCompleted] = useState(false);
+  const [loading, setLoading] = useState(!!courseCode);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!courseCode || !user?.profileId) {
+        if (!cancelled) { setCompleted(false); setLoading(false); }
+        return;
+      }
+      try {
+        // Find the course id first
+        const { data: course } = await supabase
+          .from("courses")
+          .select("id")
+          .eq("course_code", courseCode)
+          .maybeSingle();
+
+        if (!course) {
+          if (!cancelled) { setCompleted(false); setLoading(false); }
+          return;
+        }
+        const courseId = (course as { id: string }).id;
+
+        const [{ data: enrollment }, { count: total }] = await Promise.all([
+          supabase
+            .from("enrollments")
+            .select("lessons_completed")
+            .eq("user_id", user.profileId)
+            .eq("course_id", courseId)
+            .maybeSingle(),
+          supabase
+            .from("lessons")
+            .select("*", { head: true, count: "exact" })
+            .eq("course_id", courseId),
+        ]);
+
+        const done = Array.isArray((enrollment as { lessons_completed?: unknown } | null)?.lessons_completed)
+          ? ((enrollment as { lessons_completed: string[] }).lessons_completed.length)
+          : 0;
+
+        if (!cancelled) {
+          setCompleted((total ?? 0) > 0 && done >= (total ?? 0));
+          setLoading(false);
+        }
+      } catch {
+        // Missing tables / RLS / offline — don't crash, just report not-complete.
+        if (!cancelled) { setCompleted(false); setLoading(false); }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [courseCode, user?.profileId]);
+
+  return { loading, completed };
+}
+
+/**
+ * Is a specific provider verified as a BION Trainer? Public-safe lookup —
+ * resolves the provider's profile_id, then checks whether they've completed
+ * PROVIDER-101. Works for any signed-in viewer because the `courses` and
+ * `enrollments` tables are read-accessible via RLS when the caller is the
+ * owning profile. For third-party viewers we fall back gracefully.
+ */
+export function useProviderVerifiedTrainer(profileId: string | null) {
+  const [verified, setVerified] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!profileId) return;
+      try {
+        const { data: course } = await supabase
+          .from("courses")
+          .select("id")
+          .eq("course_code", "PROVIDER-101")
+          .maybeSingle();
+        if (!course) { if (!cancelled) setVerified(false); return; }
+
+        const courseId = (course as { id: string }).id;
+        const [{ data: enrollment }, { count: total }] = await Promise.all([
+          supabase
+            .from("enrollments")
+            .select("lessons_completed, completed_at")
+            .eq("user_id", profileId)
+            .eq("course_id", courseId)
+            .maybeSingle(),
+          supabase
+            .from("lessons")
+            .select("*", { head: true, count: "exact" })
+            .eq("course_id", courseId),
+        ]);
+
+        const done = Array.isArray((enrollment as { lessons_completed?: unknown } | null)?.lessons_completed)
+          ? ((enrollment as { lessons_completed: string[] }).lessons_completed.length)
+          : 0;
+        if (!cancelled) setVerified((total ?? 0) > 0 && done >= (total ?? 0));
+      } catch {
+        if (!cancelled) setVerified(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [profileId]);
+
+  return verified;
+}
+
 /** Current user's ranger accreditation (null if not yet accredited). */
 export function useRangerAccreditation() {
   const { user } = useAuth();

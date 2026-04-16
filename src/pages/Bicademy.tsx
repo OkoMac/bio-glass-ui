@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { GraduationCap, Award, Lock, CheckCircle, Clock, ChevronRight, Loader2, Sparkles, TrendingUp } from "lucide-react";
-import { useCourses, useEnrollments, useRangerAccreditation, type Course } from "@/hooks/useEcademy";
+import { useCourses, useEnrollments, useRangerAccreditation, type Course } from "@/hooks/useBicademy";
 import { useAuth } from "@/contexts/AuthContext";
 import GlassCard from "@/components/GlassCard";
 
@@ -11,7 +11,7 @@ const DIFFICULTY_META = {
   advanced:     { label: "Advanced",     color: "text-coral",  bg: "bg-coral/10" },
 };
 
-export default function Ecademy() {
+export default function Bicademy() {
   const { user } = useAuth();
   const { courses, loading: coursesLoading } = useCourses();
   const { byCourseId, loading: enrollLoading } = useEnrollments();
@@ -33,7 +33,7 @@ export default function Ecademy() {
               <GraduationCap className="w-5 h-5 text-indigo" />
             </div>
             <div>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">BION Ecademy</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">BION Bicademy</p>
               <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                 {user?.role === "sales_rep" ? "Ranger Training" : "Training Courses"}
               </h1>
@@ -118,7 +118,7 @@ function CourseCard({
   const Card = locked ? "div" : Link;
   const cardProps = locked
     ? { className: "block cursor-not-allowed opacity-50" }
-    : { to: `/ecademy/${course.course_code}`, className: "block" };
+    : { to: `/bicademy/${course.course_code}`, className: "block" };
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}>
@@ -176,7 +176,7 @@ function AccreditationBanner({
 }) {
   if (accredited) {
     return (
-      <Link to="/ecademy/accreditation">
+      <Link to="/bicademy/accreditation">
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
           className="relative p-5 rounded-2xl bg-gradient-to-br from-indigo via-indigo/90 to-teal/80 text-white overflow-hidden"

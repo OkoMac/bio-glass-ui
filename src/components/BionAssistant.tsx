@@ -339,7 +339,7 @@ export default function BionAssistant() {
     if (p.startsWith("/life-coach"))   return { text: "Life questions I can help with.",           prompt: "I want to talk through something I'm stuck on." };
     if (p.startsWith("/calendar"))     return { text: "Planning your week?",                       prompt: "Help me plan my wellness week based on my bookings." };
     if (p.startsWith("/favorites"))    return { text: "Curating your shortlist?",                  prompt: "Recommend providers to add to my favourites based on my goals." };
-    if (p.startsWith("/ecademy"))      return { text: "Want a reading plan?",                      prompt: "Pick the top 3 articles I should read this week." };
+    if (p.startsWith("/bicademy"))      return { text: "Want a reading plan?",                      prompt: "Pick the top 3 articles I should read this week." };
     if (p.startsWith("/challenges"))   return { text: "Which challenge fits you?",                 prompt: "Which challenge should I join based on my current habits?" };
     if (p.startsWith("/onboarding"))   return { text: "Need help with onboarding?",                prompt: "Explain what I need for onboarding and why each step matters." };
     if (p.startsWith("/welcome"))      return { text: "Hi! I'm B_. Tap me if you're stuck.",       prompt: "What's the right sign-up flow for me?" };

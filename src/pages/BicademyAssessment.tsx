@@ -5,13 +5,13 @@ import {
   ArrowLeft, Loader2, Sparkles, CheckCircle, XCircle, AlertTriangle,
   ChevronRight, RotateCcw, Award,
 } from "lucide-react";
-import { useCourseDetail, useEnrollmentActions } from "@/hooks/useEcademy";
+import { useCourseDetail, useEnrollmentActions } from "@/hooks/useBicademy";
 import GlassCard from "@/components/GlassCard";
 import { toast } from "sonner";
 
 type Phase = "intro" | "questions" | "result";
 
-export default function EcademyAssessment() {
+export default function BicademyAssessment() {
   const { code } = useParams<{ code: string }>();
   const navigate = useNavigate();
   const { course, questions, loading } = useCourseDetail(code ?? null);
@@ -59,7 +59,7 @@ export default function EcademyAssessment() {
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-2xl mx-auto px-4 md:px-8 pt-8 md:pt-12 space-y-6">
         <button
-          onClick={() => navigate(`/ecademy/${code}`)}
+          onClick={() => navigate(`/bicademy/${code}`)}
           className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="w-4 h-4" /> {course.course_code}
@@ -237,15 +237,15 @@ export default function EcademyAssessment() {
               <div className="flex gap-2">
                 {result.passed ? (
                   <button
-                    onClick={() => navigate("/ecademy")}
+                    onClick={() => navigate("/bicademy")}
                     className="flex-1 py-3 rounded-pill bg-gradient-to-r from-indigo to-teal text-white text-sm font-semibold flex items-center justify-center gap-2"
                   >
-                    <Award className="w-4 h-4" /> Back to Ecademy
+                    <Award className="w-4 h-4" /> Back to Bicademy
                   </button>
                 ) : (
                   <>
                     <button
-                      onClick={() => navigate(`/ecademy/${code}`)}
+                      onClick={() => navigate(`/bicademy/${code}`)}
                       className="flex-1 py-3 rounded-xl bg-white/5 text-foreground text-sm font-semibold"
                     >
                       Review lessons

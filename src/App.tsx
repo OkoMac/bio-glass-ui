@@ -151,6 +151,7 @@ import InstallButton    from "./components/InstallButton";
 import CalendarButton   from "./components/CalendarButton";
 import OfflineBanner    from "./components/OfflineBanner";
 import CommandPalette   from "./components/CommandPalette";
+import CookieConsent    from "./components/CookieConsent";
 
 // ── Lazy-loaded pages (split into separate chunks) ──
 import { lazy, Suspense } from "react";
@@ -171,6 +172,8 @@ const Wallet          = lazy(() => import("./pages/Wallet"));
 const Notifications   = lazy(() => import("./pages/Notifications"));
 const Favorites       = lazy(() => import("./pages/Favorites"));
 const Store           = lazy(() => import("./pages/Store"));
+const ProgramDetail   = lazy(() => import("./pages/ProgramDetail"));
+const MyPrograms      = lazy(() => import("./pages/MyPrograms"));
 
 // Legal pages
 const AcceptableUse     = lazy(() => import("./pages/legal/AcceptableUse"));
@@ -233,11 +236,12 @@ const ProviderCatalogs  = lazy(() => import("./pages/provider/Catalogs"));
 const CatalogEditor     = lazy(() => import("./pages/provider/CatalogEditor"));
 const CatalogViewer     = lazy(() => import("./pages/CatalogViewer"));
 
-// Ecademy (Ranger training)
-const Ecademy           = lazy(() => import("./pages/Ecademy"));
-const EcademyCourse     = lazy(() => import("./pages/EcademyCourse"));
-const EcademyLesson     = lazy(() => import("./pages/EcademyLesson"));
-const EcademyAssessment = lazy(() => import("./pages/EcademyAssessment"));
+// Bicademy (Ranger training)
+const Bicademy           = lazy(() => import("./pages/Bicademy"));
+const BicademyCourse     = lazy(() => import("./pages/BicademyCourse"));
+const BicademyLesson     = lazy(() => import("./pages/BicademyLesson"));
+const BicademyAssessment = lazy(() => import("./pages/BicademyAssessment"));
+const BicademyCertificate = lazy(() => import("./pages/BicademyCertificate"));
 
 // Corporate portal
 const CorporateDashboard = lazy(() => import("./pages/corporate/Dashboard"));
@@ -419,6 +423,10 @@ function AppRoutes() {
       <Route path="/notifications"   element={<RequireAuth><Notifications /></RequireAuth>} />
       <Route path="/favorites"       element={<RequireAuth allowedRoles={["client"]}><Favorites /></RequireAuth>} />
       <Route path="/store"           element={<RequireAuth allowedRoles={["client"]}><Store /></RequireAuth>} />
+      {/* Programs — public detail page + client-side dashboard */}
+      <Route path="/program/:id"                     element={<ProgramDetail />} />
+      <Route path="/my-programs"                     element={<RequireAuth><MyPrograms /></RequireAuth>} />
+      <Route path="/my-programs/:enrollmentId"       element={<RequireAuth><MyPrograms /></RequireAuth>} />
 
       {/* Provider portal */}
       <Route path="/pro/dashboard"    element={<RequireAuth allowedRoles={["provider"]}><ProviderDashboard /></RequireAuth>} />
@@ -440,11 +448,12 @@ function AppRoutes() {
       <Route path="/pro/catalogs/:id"  element={<RequireAuth allowedRoles={["provider"]}><CatalogEditor /></RequireAuth>} />
       <Route path="/catalog/:shortUrl" element={<CatalogViewer />} />
 
-      {/* Ecademy — open to all authenticated users */}
-      <Route path="/ecademy"                           element={<RequireAuth><Ecademy /></RequireAuth>} />
-      <Route path="/ecademy/:code"                     element={<RequireAuth><EcademyCourse /></RequireAuth>} />
-      <Route path="/ecademy/:code/lesson/:n"           element={<RequireAuth><EcademyLesson /></RequireAuth>} />
-      <Route path="/ecademy/:code/assessment"          element={<RequireAuth><EcademyAssessment /></RequireAuth>} />
+      {/* Bicademy — open to all authenticated users */}
+      <Route path="/bicademy"                           element={<RequireAuth><Bicademy /></RequireAuth>} />
+      <Route path="/bicademy/:code"                     element={<RequireAuth><BicademyCourse /></RequireAuth>} />
+      <Route path="/bicademy/:code/lesson/:n"           element={<RequireAuth><BicademyLesson /></RequireAuth>} />
+      <Route path="/bicademy/:code/assessment"          element={<RequireAuth><BicademyAssessment /></RequireAuth>} />
+      <Route path="/bicademy/certificate/:courseSlug"   element={<RequireAuth><BicademyCertificate /></RequireAuth>} />
 
       {/* Admin portal */}
       <Route path="/admin/dashboard" element={<RequireAuth allowedRoles={["admin"]}><AdminDashboard /></RequireAuth>} />
@@ -499,6 +508,10 @@ const App = () => (
                 <HabitTracker />
               </AuthGate>
               <InstallButton />
+              {/* POPIA / GDPR cookie-consent banner. Renders only until the
+                  user has made a first-time decision, then re-openable from
+                  Settings → Privacy. Must load before any analytics / ad pixel. */}
+              <CookieConsent />
               <Suspense fallback={
                 <div className="min-h-screen bg-obsidian flex items-center justify-center">
                   <div className="flex flex-col items-center gap-3">

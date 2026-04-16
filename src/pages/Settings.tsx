@@ -9,8 +9,10 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Bell, CreditCard, Eye, User, ChevronLeft, Save, Check,
   Smartphone, Mail, Shield, Trash2, Plus, Loader2, Download,
-  AlertTriangle, FileText, X,
+  AlertTriangle, FileText, X, Cookie,
 } from "lucide-react";
+import CookieConsent, { openCookieBanner } from "@/components/CookieConsent";
+import { getConsent, onConsentChanged, type ConsentState } from "@/lib/cookieConsent";
 
 type Tab = "notifications" | "payment" | "privacy" | "account";
 
@@ -136,6 +138,60 @@ function ExportDataCard() {
           </button>
         </div>
       )}
+    </GlassCard>
+  );
+}
+
+// ─── Cookie preferences card ─────────────────────────────────────
+function CookiePreferencesCard() {
+  const [state, setState] = useState<ConsentState | null>(() => getConsent());
+
+  useEffect(() => {
+    return onConsentChanged((s) => setState(s));
+  }, []);
+
+  const summary = state
+    ? [
+        `Analytics: ${state.analytics ? "on" : "off"}`,
+        `Marketing: ${state.marketing ? "on" : "off"}`,
+      ].join(" · ")
+    : "No preferences saved yet";
+
+  return (
+    <GlassCard className="p-5 space-y-3">
+      <div className="flex items-center gap-2">
+        <Cookie className="w-4 h-4 text-indigo" />
+        <h2 className="text-sm font-semibold text-foreground">Cookie preferences</h2>
+      </div>
+      <p className="text-[11px] text-muted-foreground leading-relaxed">
+        Essential cookies are always on to keep BION signed in and working. Analytics and marketing cookies are opt-in.
+      </p>
+      <div className="p-2.5 rounded-xl glass-1 border border-white/5">
+        <p className="text-[11px] text-foreground">
+          <span className="text-muted-foreground">Current:</span>{" "}
+          <span className="text-teal">Essential: on</span>
+          {state && (
+            <>
+              {" "}·{" "}
+              <span className={state.analytics ? "text-teal" : "text-muted-foreground"}>
+                Analytics: {state.analytics ? "on" : "off"}
+              </span>
+              {" "}·{" "}
+              <span className={state.marketing ? "text-teal" : "text-muted-foreground"}>
+                Marketing: {state.marketing ? "on" : "off"}
+              </span>
+            </>
+          )}
+          {!state && <> · <span className="text-muted-foreground">not yet decided</span></>}
+        </p>
+        <p className="text-[10px] text-muted-foreground mt-1">{summary}</p>
+      </div>
+      <button
+        onClick={openCookieBanner}
+        className="w-full py-2.5 rounded-xl gradient-indigo text-primary-foreground text-xs font-semibold"
+      >
+        Change preferences
+      </button>
     </GlassCard>
   );
 }
@@ -630,6 +686,8 @@ export default function Settings() {
                 </div>
               ))}
             </GlassCard>
+
+            <CookiePreferencesCard />
 
             <ExportDataCard />
 

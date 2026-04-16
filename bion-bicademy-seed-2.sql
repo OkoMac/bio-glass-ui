@@ -1,7 +1,7 @@
 -- ============================================================
--- BION Ecademy — Seed 2: RANGER-104 through RANGER-110
+-- BION Bicademy — Seed 2: RANGER-104 through RANGER-110
 -- Run in Supabase SQL Editor (idempotent — safe to re-run)
--- Requires the base bion-ecademy-seed.sql to have been run first
+-- Requires the base bion-bicademy-seed.sql to have been run first
 -- ============================================================
 
 DELETE FROM lessons WHERE course_id IN (
