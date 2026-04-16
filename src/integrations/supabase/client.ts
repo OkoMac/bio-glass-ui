@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, processLock } from '@supabase/supabase-js';
 import type { Database } from './types';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -38,6 +38,12 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
+    // Use the in-process lock instead of navigator.locks. The default
+    // navigator-based lock is cross-tab exclusive — if any other tab (or a
+    // killed-but-not-GC'd context) holds it, every query in every other tab
+    // hangs forever with no network activity. processLock is per-tab, which
+    // is all we actually need since each tab has its own auth session.
+    lock: processLock,
   },
   global: {
     // Guard against hung auth requests by capping every fetch at 15s.
