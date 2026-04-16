@@ -25,10 +25,12 @@ export default function AdminSubscriptions() {
     setError(null);
     try {
       const token = (await supabase.auth.getSession()).data.session?.access_token;
-      if (!token) throw new Error("Not authenticated");
-      const res = await fetch(`${API}/api/paystack/admin/subscription-metrics`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const adminToken = localStorage.getItem("bion_admin_token") ?? "";
+      if (!token && !adminToken) throw new Error("Not authenticated — paste your ADMIN_SETUP_TOKEN on /admin/compliance first");
+      const headers: Record<string, string> = {};
+      if (token) headers.Authorization = `Bearer ${token}`;
+      if (adminToken) headers["X-Admin-Token"] = adminToken;
+      const res = await fetch(`${API}/api/paystack/admin/subscription-metrics`, { headers });
       const json = await res.json();
       if (!json?.ok) throw new Error(json?.error ?? "Failed to load metrics");
       setMetrics(json.data);
