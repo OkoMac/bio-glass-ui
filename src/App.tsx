@@ -145,7 +145,6 @@ class ErrorBoundary extends React.Component<
 import Directory       from "./pages/Directory";
 import SplashOnboarding from "./pages/SplashOnboarding";
 import NotFound        from "./pages/NotFound";
-import FloatingLogout  from "./components/FloatingLogout";
 import NotificationBell from "./components/NotificationBell";
 import HabitTracker     from "./components/HabitTracker";
 import InstallButton    from "./components/InstallButton";
@@ -355,9 +354,6 @@ function AppRoutes() {
   const { user } = useAuth();
 
   return (
-    <>
-    {/* Global sign-out escape hatch — visible on every authenticated page */}
-    <FloatingLogout />
     <Routes>
       {/* Public — Directory IS the root landing page */}
       <Route path="/" element={
@@ -482,7 +478,6 @@ function AppRoutes() {
 
       <Route path="*" element={<NotFound />} />
     </Routes>
-    </>
   );
 }
 
