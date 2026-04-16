@@ -230,6 +230,7 @@ const AdminCompliance   = lazy(() => import("./pages/admin/Compliance"));
 const AdminProviderClaims = lazy(() => import("./pages/admin/ProviderClaims"));
 const AdminSubscriptions  = lazy(() => import("./pages/admin/Subscriptions"));
 const Logout              = lazy(() => import("./pages/Logout"));
+const SeoCategoryCity     = lazy(() => import("./pages/seo/SeoCategoryCity"));
 
 // Catalogs (provider + public viewer)
 const ProviderCatalogs  = lazy(() => import("./pages/provider/Catalogs"));
@@ -374,6 +375,9 @@ function AppRoutes() {
       {/* Universal sign-out: go to /logout from anywhere to clear session. */}
       <Route path="/logout" element={<Logout />} />
       <Route path="/signout" element={<Logout />} />
+
+      {/* Programmatic SEO — /s/<citySlug>/<categorySlug> */}
+      <Route path="/s/:citySlug/:categorySlug" element={<SeoCategoryCity />} />
 
       {/* Public marketing landing pages */}
       <Route path="/for-providers"  element={<ForProviders />} />

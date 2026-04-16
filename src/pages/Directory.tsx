@@ -440,6 +440,32 @@ export default function Directory() {
           </div>
         )}
 
+        {/* ── Browse by city (SEO internal links) ───── */}
+        <section>
+          <h3 className="text-sm font-semibold text-foreground mb-3">Popular searches</h3>
+          <div className="flex flex-wrap gap-2">
+            {[
+              ["pretoria", "gp", "GP in Pretoria"],
+              ["sandton", "physio", "Physio in Sandton"],
+              ["centurion", "dentist", "Dentist in Centurion"],
+              ["randburg", "personal-trainer", "PT in Randburg"],
+              ["johannesburg", "dermatologist", "Dermatologist in Joburg"],
+              ["cape-town", "yoga-studio", "Yoga in Cape Town"],
+              ["durban", "beauty-salon", "Beauty Salon in Durban"],
+              ["hatfield", "psychologist", "Psychologist in Hatfield"],
+              ["lynnwood", "dietician", "Dietician in Lynnwood"],
+              ["waverley", "gp", "GP in Waverley"],
+              ["pretoria", "massage", "Massage in Pretoria"],
+              ["sandton", "pilates", "Pilates in Sandton"],
+            ].map(([city, cat, label]) => (
+              <a key={`${city}-${cat}`} href={`/s/${city}/${cat}`}
+                className="glass-1 rounded-pill px-3 py-1.5 text-[11px] text-foreground hover:bg-white/[0.06] transition-colors">
+                {label}
+              </a>
+            ))}
+          </div>
+        </section>
+
         {/* ── CTA for signup ─────────────────────────── */}
         {!user && (
           <motion.div

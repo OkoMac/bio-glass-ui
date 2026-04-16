@@ -1,7 +1,8 @@
 import {
   createContext, useContext, useState, useEffect,
-  ReactNode, useCallback,
+  ReactNode, useCallback, useRef,
 } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -17,6 +18,7 @@ export interface Booking {
   clientId: string;
   clientName: string;
   clientImage: string;
+  providerId?: string;
   providerName?: string;
   service: string;
   date: string;
@@ -32,6 +34,11 @@ export interface Booking {
   paymentStatus?: 'pending' | 'paid' | 'refunded' | 'failed';
   stripePaymentId?: string;
 }
+
+/** Status of the Supabase Realtime channel for bookings. Exposed on the
+ *  context so surfaces like the provider dashboard can show a small
+ *  "Reconnecting…" hint when the connection is flaky. */
+export type RealtimeStatus = "idle" | "connecting" | "connected" | "reconnecting" | "error";
 
 // ── Real data from Pretoria service providers (scraped/replaced mock data) ───
 // Using real data scraped from Pretoria suburbs with at least 10 providers per suburb
@@ -103,11 +110,16 @@ type SupaRow = {
 };
 
 function mapRow(r: SupaRow): Booking {
+  const clientName = r.profiles?.full_name ?? "Client";
   return {
-    id: r.id, clientId: r.client_id,
-    clientName: r.profiles?.full_name ?? "Client", clientImage: getProviderImage(r.client_id, r.profiles?.full_name ?? "Client"),
+    id: r.id,
+    clientId: r.client_id,
+    providerId: r.provider_id,
+    clientName,
+    clientImage: getProviderImage(r.client_id, clientName),
     service: r.services?.title ?? "Session",
-    date: r.booking_date, time: r.booking_time,
+    date: r.booking_date,
+    time: r.booking_time,
     duration: `${r.duration_minutes} min`,
     price: r.total_price ? `R${r.total_price}` : "R0",
     status: r.status as BookingStatus,

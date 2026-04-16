@@ -8,6 +8,9 @@ import {
   getStoredRefCode, setStoredRefCode, clearStoredRefCode,
 } from "@/lib/referral";
 import {
+  getStoredCrefCode, setStoredCrefCode, clearStoredCrefCode,
+} from "@/lib/clientReferral";
+import {
   DEMO_ACCOUNTS, BioUser, UserRole,
   signInWithEmail, signUpWithEmail, signInWithGoogle,
 } from "@/lib/auth";
@@ -95,6 +98,17 @@ export default function SplashOnboarding() {
     return stored ? { code: stored, name: null, resolved: false } : null;
   });
 
+  // Client-to-client referral (the R5.80/mo Premium commission flow) lives
+  // on ?cref=<CODE> and is completely independent of the Ranger ?ref= link.
+  const [clientRef, setClientRef] = useState<{
+    code: string;
+    firstName: string | null;
+    resolved: boolean;
+  } | null>(() => {
+    const stored = getStoredCrefCode();
+    return stored ? { code: stored, firstName: null, resolved: false } : null;
+  });
+
   // Returning visitors skip the splash + onboarding carousel and land directly
   // on the role/auth picker. Flag is set as soon as the splash animation
   // completes for the first time — no user action required.
@@ -167,6 +181,37 @@ export default function SplashOnboarding() {
         }
       })
       .catch(() => setRangerRef({ code, name: null, resolved: true }));
+
+    // ── Client-to-client share-link capture (separate ?cref param) ──
+    const urlCref = (searchParams.get("cref") ?? "").trim().toUpperCase();
+    const crefCode = urlCref || getStoredCrefCode();
+    if (crefCode) {
+      if (urlCref) setStoredCrefCode(urlCref);
+      setClientRef(prev => prev && prev.code === crefCode
+        ? prev
+        : { code: crefCode, firstName: null, resolved: false });
+
+      const crefClickKey = `bion_cref_clicked_${crefCode}`;
+      if (urlCref && typeof window !== "undefined" && !sessionStorage.getItem(crefClickKey)) {
+        sessionStorage.setItem(crefClickKey, "1");
+        fetch(`${API}/api/referrals/client/click`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: crefCode, utm_source: utmSource }),
+        }).catch(() => {/* best-effort */});
+      }
+
+      fetch(`${API}/api/referrals/client/resolve?code=${encodeURIComponent(crefCode)}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data?.ok && data.referrer) {
+            setClientRef({ code: crefCode, firstName: data.referrer.first_name ?? null, resolved: true });
+          } else {
+            setClientRef({ code: crefCode, firstName: null, resolved: true });
+          }
+        })
+        .catch(() => setClientRef({ code: crefCode, firstName: null, resolved: true }));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -306,6 +351,20 @@ export default function SplashOnboarding() {
           .then(r => r.json())
           .then(() => clearStoredRefCode())
           .catch(() => {/* keep the code around; retry next time */});
+      }
+
+      // Client-to-client referral attribution (?cref). Runs alongside the
+      // Ranger attribution — both can fire for the same signup.
+      const storedCref = getStoredCrefCode();
+      if (storedCref && user.profileId) {
+        fetch(`${API}/api/referrals/client/attribute`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: storedCref, profileId: user.profileId }),
+        })
+          .then(r => r.json())
+          .then(() => clearStoredCrefCode())
+          .catch(() => {/* best-effort */});
       }
 
       const { data: { session } } = await supabase.auth.getSession();
@@ -655,6 +714,21 @@ export default function SplashOnboarding() {
                 : rangerRef.resolved
                   ? <>Referral code <span className="font-mono text-emerald-400">{rangerRef.code}</span> applied.</>
                   : <>Checking referral code <span className="font-mono text-emerald-400">{rangerRef.code}</span>…</>
+              }
+            </p>
+          </div>
+        )}
+
+        {/* Client-to-client referral badge — separate from the Ranger one. */}
+        {clientRef && authMode === "signup" && (
+          <div className="glass-1 border border-teal/30 rounded-xl px-3 py-2.5">
+            <p className="text-xs text-foreground leading-relaxed">
+              <span className="text-teal font-semibold">👋 </span>
+              {clientRef.firstName
+                ? <>Invited by <span className="font-semibold text-foreground">{clientRef.firstName}</span> — they'll earn R5.80/month when you go Premium.</>
+                : clientRef.resolved
+                  ? <>Friend code <span className="font-mono text-teal">{clientRef.code}</span> applied.</>
+                  : <>Checking friend code <span className="font-mono text-teal">{clientRef.code}</span>…</>
               }
             </p>
           </div>
