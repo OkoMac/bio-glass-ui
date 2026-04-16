@@ -370,6 +370,9 @@ function TicketDetail({
     { value: "closed",        label: "Closed",        tone: "glass-1 text-muted-foreground" },
   ];
 
+  const [confirmResolve, setConfirmResolve] = useState(false);
+  const isResolved = ticket.status === "resolved" || ticket.status === "closed";
+
   return (
     <div className="max-w-4xl mx-auto pt-8 pb-20 px-4 space-y-5">
       <div className="flex items-center gap-2">
@@ -380,7 +383,55 @@ function TicketDetail({
           <p className="text-[11px] font-data text-muted-foreground">Ticket #{ticket.ticket_number}</p>
           <h1 className="text-lg font-bold text-foreground truncate">{ticket.subject}</h1>
         </div>
+        {!isResolved && (
+          <button
+            onClick={() => setConfirmResolve(true)}
+            disabled={statusBusy === "resolved"}
+            className="rounded-pill px-4 py-2 text-xs font-semibold bg-teal/20 text-teal border border-teal/40 flex items-center gap-1.5 shrink-0 hover:bg-teal/30 transition-colors disabled:opacity-50"
+          >
+            <CheckCircle2 className="w-4 h-4" /> Mark resolved
+          </button>
+        )}
       </div>
+
+      {confirmResolve && !isResolved && (
+        <GlassCard className="p-4 space-y-3 border border-teal/40">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="w-5 h-5 text-teal shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-foreground">Confirm resolve ticket #{ticket.ticket_number}?</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                The submitter ({ticket.submitter_email}) will receive a resolution email. Add an optional note below — it's included in the email and becomes a system reply on the ticket thread.
+              </p>
+            </div>
+          </div>
+          <textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            rows={2}
+            placeholder="Resolution note (optional — e.g. 'Rescheduled to 17 Apr 14:00')"
+            className="w-full glass-1 rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none resize-none"
+            autoFocus
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setConfirmResolve(false); setNote(""); }}
+              disabled={statusBusy === "resolved"}
+              className="flex-1 rounded-pill py-2 text-xs font-medium glass-1 text-muted-foreground"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={async () => { await changeStatus("resolved"); setConfirmResolve(false); }}
+              disabled={statusBusy === "resolved"}
+              className="flex-1 rounded-pill py-2 text-xs font-semibold bg-teal/30 text-teal border border-teal/40 flex items-center justify-center gap-1.5 disabled:opacity-50"
+            >
+              {statusBusy === "resolved" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+              {statusBusy === "resolved" ? "Resolving…" : "Confirm resolve"}
+            </button>
+          </div>
+        </GlassCard>
+      )}
 
       <GlassCard className="p-4 space-y-2">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
