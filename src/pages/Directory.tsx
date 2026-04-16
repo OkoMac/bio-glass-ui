@@ -80,9 +80,10 @@ export default function Directory() {
 
   // Filter categories by search
   const filteredCategories = useMemo(() => {
-    if (!search.trim()) return CATEGORIES_WITH_COUNTS;
+    const withProviders = CATEGORIES_WITH_COUNTS.filter(c => (c.count ?? 0) > 0);
+    if (!search.trim()) return withProviders;
     const q = search.toLowerCase();
-    return CATEGORIES_WITH_COUNTS.filter(c => c.name.toLowerCase().includes(q));
+    return withProviders.filter(c => c.name.toLowerCase().includes(q));
   }, [search]);
 
   // Filter + sort providers based on selected category and filter tab

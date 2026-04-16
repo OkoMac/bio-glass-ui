@@ -133,7 +133,7 @@ export default function SeoCategoryCity() {
             Top {category.label} in {city.label}
           </h1>
           <p className="text-sm md:text-base text-muted-foreground max-w-2xl leading-relaxed">
-            Looking for {category.indefinite} in {city.label}? BION has <strong className="text-foreground">{providers.length} verified {category.label.toLowerCase()} providers</strong> in the area.
+            Looking for {category.indefinite} in {city.label}? BION has <strong className="text-foreground">{providers.length} verified {category.label} providers</strong> in the area.
             See availability, prices and book instantly — no booking fees for clients.
           </p>
           <div className="flex flex-wrap gap-2 pt-2">
@@ -149,12 +149,12 @@ export default function SeoCategoryCity() {
         {/* Provider list */}
         <section className="space-y-3">
           <h2 className="text-lg font-semibold text-foreground">
-            {providers.length} {category.label.toLowerCase()} providers in {city.label}
+            {providers.length} {category.label} providers in {city.label}
           </h2>
           {providers.length === 0 ? (
             <div className="rounded-2xl glass-1 p-6 text-center">
               <p className="text-sm text-muted-foreground">
-                No {category.label.toLowerCase()} providers listed in {city.label} yet. Browse the full directory or message B_ on WhatsApp for recommendations.
+                No {category.label} providers listed in {city.label} yet. Browse the full directory or message B_ on WhatsApp for recommendations.
               </p>
               <Link to="/directory" className="inline-flex items-center gap-1 mt-3 text-xs text-indigo font-medium">
                 Full directory <ArrowRight className="w-3 h-3" />
@@ -226,7 +226,7 @@ export default function SeoCategoryCity() {
             </details>
             <details className="rounded-2xl glass-1 p-4 group">
               <summary className="text-sm font-semibold text-foreground cursor-pointer list-none flex items-center justify-between">
-                Are the {category.label.toLowerCase()} providers on BION verified?
+                Are the {category.label} providers on BION verified?
                 <span className="text-indigo">+</span>
               </summary>
               <p className="text-xs text-muted-foreground mt-3 leading-relaxed">

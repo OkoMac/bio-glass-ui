@@ -57,7 +57,7 @@ export function useProfile() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || user.id.startsWith("demo_")) return;
     setLoading(true);
     supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle()
       .then(({ data, error }) => {
@@ -73,7 +73,7 @@ export function useProfile() {
     lat: number | null; lng: number | null;
     service_radius_km: number;
   }>) => {
-    if (!user?.id) return;
+    if (!user?.id || user.id.startsWith("demo_")) return;
     const { data, error } = await supabase
       .from("profiles")
       .update({ ...updates, updated_at: new Date().toISOString() })

@@ -23,7 +23,7 @@ export function useNotifications() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!profileId) { setLoading(false); return; }
+    if (!profileId || profileId.startsWith("demo_")) { setLoading(false); return; }
 
     const fetchNotifications = async () => {
       const { data, error } = await supabase
@@ -61,7 +61,7 @@ export function useNotifications() {
   };
 
   const markAllAsRead = async () => {
-    if (!profileId) return;
+    if (!profileId || profileId.startsWith("demo_")) return;
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     await supabase.from("notifications").update({ read: true }).eq("user_id", profileId).eq("read", false);
   };
