@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 
 const navItems = [
+  { icon: Sparkles,        label: "B_ Inbox",     path: "/admin/b-inbox"        },
   { icon: LayoutDashboard, label: "Overview",     path: "/admin/dashboard"      },
   { icon: Briefcase,       label: "Providers",    path: "/admin/providers"      },
   { icon: FileCheck,       label: "Verification", path: "/admin/verification"   },
