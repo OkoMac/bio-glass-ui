@@ -44,9 +44,13 @@ export default function AdminSubscriptions() {
     setError(null);
     try {
       const token = (await supabase.auth.getSession()).data.session?.access_token;
+      const adminToken = localStorage.getItem("bion_admin_token") ?? "";
+      const headers: Record<string, string> = {};
+      if (token) headers.Authorization = `Bearer ${token}`;
+      if (adminToken) headers["X-Admin-Token"] = adminToken;
       const res = await fetch(`${API}/api/paystack/subscription/bootstrap-plans`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers,
       });
       const json = await res.json();
       if (!json?.ok) throw new Error(json?.error ?? "Failed to bootstrap plans");
