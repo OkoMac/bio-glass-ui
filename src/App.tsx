@@ -229,6 +229,7 @@ const AdminWhatsApp     = lazy(() => import("./pages/admin/WhatsApp"));
 const AdminCompliance   = lazy(() => import("./pages/admin/Compliance"));
 const AdminProviderClaims = lazy(() => import("./pages/admin/ProviderClaims"));
 const AdminSubscriptions  = lazy(() => import("./pages/admin/Subscriptions"));
+const AdminRefunds        = lazy(() => import("./pages/admin/Refunds"));
 const Logout              = lazy(() => import("./pages/Logout"));
 const SeoCategoryCity     = lazy(() => import("./pages/seo/SeoCategoryCity"));
 
@@ -474,6 +475,7 @@ function AppRoutes() {
       <Route path="/admin/compliance"   element={<RequireAuth allowedRoles={["admin"]}><AdminCompliance /></RequireAuth>} />
       <Route path="/admin/provider-claims" element={<RequireAuth allowedRoles={["admin"]}><AdminProviderClaims /></RequireAuth>} />
       <Route path="/admin/subscriptions"   element={<RequireAuth allowedRoles={["admin"]}><AdminSubscriptions /></RequireAuth>} />
+      <Route path="/admin/refunds"         element={<RequireAuth allowedRoles={["admin"]}><AdminRefunds /></RequireAuth>} />
 
       {/* Corporate portal */}
       <Route path="/corporate/dashboard" element={<RequireAuth allowedRoles={["corporate"]}><CorporateDashboard /></RequireAuth>} />
