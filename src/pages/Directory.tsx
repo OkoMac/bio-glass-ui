@@ -92,7 +92,7 @@ export default function Directory() {
   const geo = useGeolocation();
   const { profile: habitProfile } = useHabitProfile();
   const [search, setSearch] = useState("");
-  const [activeFilter, setActiveFilter] = useState("Top Rated");
+  const [activeFilter, setActiveFilter] = useState("Nearby");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -188,7 +188,7 @@ export default function Directory() {
     list = [...list].sort((a, b) => (b.hasLogo ? 1 : 0) - (a.hasLogo ? 1 : 0));
 
     return list;
-  }, [selectedCategoryId, search, activeFilter, habitProfile]);
+  }, [selectedCategoryId, search, activeFilter, habitProfile, selectedSuburb, selectedCity, geo.latitude, geo.longitude]);
 
   const displayProviders = useMemo(() => filteredProviders.slice(0, visibleCount), [filteredProviders, visibleCount]);
   const hasMore = visibleCount < filteredProviders.length;
