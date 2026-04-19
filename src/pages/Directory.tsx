@@ -203,11 +203,7 @@ export default function Directory() {
   };
 
   const handleProviderClick = (providerId: string) => {
-    if (user) {
-      navigate(`/provider/${providerId}`);
-    } else {
-      navigate("/welcome");
-    }
+    navigate(`/provider/${providerId}`);
   };
 
   // SEO: structured data for local business directory
@@ -507,13 +503,7 @@ export default function Directory() {
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-sm font-bold text-foreground">{provider.price}</p>
-                    {!user ? (
-                      <span className="flex items-center gap-1 text-[10px] text-indigo-light font-medium mt-0.5">
-                        <Lock className="w-3 h-3" /> Sign up to book
-                      </span>
-                    ) : (
-                      <span className="text-[10px] text-teal mt-0.5">View details →</span>
-                    )}
+                    <span className="text-[10px] text-teal mt-0.5">View profile →</span>
                   </div>
                 </motion.div>
               ))}
