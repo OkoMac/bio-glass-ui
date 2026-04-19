@@ -414,7 +414,7 @@ const Index = () => {
               { icon: <Droplets className="w-5 h-5" />,      label: "Water",     path: "/water-tracker",   color: "text-blue-400" },
               { icon: <Moon className="w-5 h-5" />,          label: "Sleep",     path: "/sleep-tracker",   color: "text-violet" },
               { icon: <HeartPulse className="w-5 h-5" />,    label: "Med Card",  path: "/medical-card",    color: "text-coral" },
-              { icon: <Activity className="w-5 h-5" />,      label: "Health",    path: "/health-profile",  color: "text-teal" },
+              { icon: <Activity className="w-5 h-5" />,      label: "BMI",       path: "/tools/bmi-calculator", color: "text-amber" },
             ].map(tool => (
               <motion.button key={tool.path} whileTap={{ scale: 0.93 }}
                 onClick={() => navigate(tool.path)}

@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import AdBanner from "@/components/AdBanner";
+import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, Calculator, ChevronDown, ChevronUp } from "lucide-react";
 
@@ -217,6 +218,7 @@ export default function BmiCalculator() {
 
         <AdBanner slot="tools-bmi-bottom" format="rectangle" />
       </div>
+      {user && <BottomNav />}
     </div>
   );
 }

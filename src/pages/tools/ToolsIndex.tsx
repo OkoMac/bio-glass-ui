@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import AdBanner from "@/components/AdBanner";
+import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Calculator, UtensilsCrossed, Droplets, Moon, CreditCard, Brain, Sparkles,
@@ -63,6 +64,7 @@ export default function ToolsIndex() {
 
         <AdBanner slot="tools-index-bottom" format="rectangle" />
       </div>
+      {user && <BottomNav />}
     </div>
   );
 }
