@@ -279,6 +279,7 @@ const BmiGuide      = lazy(() => import("./pages/blog/BmiGuide"));
 const WaterIntake   = lazy(() => import("./pages/blog/WaterIntake"));
 const SleepGuide    = lazy(() => import("./pages/blog/SleepGuide"));
 const FindProvider  = lazy(() => import("./pages/blog/FindProvider"));
+const BoereworsCalories = lazy(() => import("./pages/blog/BoereworsCalories"));
 
 const queryClient = new QueryClient();
 
@@ -408,6 +409,7 @@ function AppRoutes() {
       <Route path="/blog/how-much-water-should-i-drink" element={<WaterIntake />} />
       <Route path="/blog/how-to-improve-sleep" element={<SleepGuide />} />
       <Route path="/blog/find-health-provider-near-me" element={<FindProvider />} />
+      <Route path="/blog/calories-in-boerewors" element={<BoereworsCalories />} />
 
       {/* Help & support (public ticket creation allowed) */}
       <Route path="/help" element={<Help />} />
