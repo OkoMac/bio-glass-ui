@@ -422,21 +422,21 @@ function AppRoutes() {
       <Route path="/challenges"     element={<RequireAuth allowedRoles={["client"]}><Challenges /></RequireAuth>} />
       <Route path="/health-profile" element={<RequireAuth allowedRoles={["client"]}><HealthProfile /></RequireAuth>} />
       <Route path="/wallet"         element={<RequireAuth allowedRoles={["client"]}><Wallet /></RequireAuth>} />
-      <Route path="/water-tracker"  element={<RequireAuth allowedRoles={["client"]}><WaterTracker /></RequireAuth>} />
+      <Route path="/water-tracker"  element={<WaterTracker />} />
       <Route path="/water"          element={<Navigate to="/water-tracker" replace />} />
-      <Route path="/sleep-tracker"  element={<RequireAuth allowedRoles={["client"]}><SleepTracker /></RequireAuth>} />
+      <Route path="/sleep-tracker"  element={<SleepTracker />} />
       <Route path="/sleep"          element={<Navigate to="/sleep-tracker" replace />} />
-      <Route path="/medical-card"   element={<RequireAuth allowedRoles={["client"]}><MedicalCard /></RequireAuth>} />
-      <Route path="/life-coach"     element={<RequireAuth allowedRoles={["client"]}><LifeCoach /></RequireAuth>} />
+      <Route path="/medical-card"   element={<MedicalCard />} />
+      <Route path="/life-coach"     element={<LifeCoach />} />
       <Route path="/coach"          element={<Navigate to="/life-coach" replace />} />
-      <Route path="/food-tracker"   element={<RequireAuth allowedRoles={["client"]}><FoodTracker /></RequireAuth>} />
+      <Route path="/food-tracker"   element={<FoodTracker />} />
       <Route path="/food"           element={<Navigate to="/food-tracker" replace />} />
       <Route path="/calendar"        element={<RequireAuth allowedRoles={["client"]}><BionCalendar /></RequireAuth>} />
-      <Route path="/health-insights" element={<RequireAuth allowedRoles={["client"]}><HealthInsights /></RequireAuth>} />
+      <Route path="/health-insights" element={<HealthInsights />} />
       <Route path="/billing"          element={<RequireAuth allowedRoles={["client"]}><ClientBilling /></RequireAuth>} />
       <Route path="/notifications"   element={<RequireAuth><Notifications /></RequireAuth>} />
       <Route path="/favorites"       element={<RequireAuth allowedRoles={["client"]}><Favorites /></RequireAuth>} />
-      <Route path="/store"           element={<RequireAuth allowedRoles={["client"]}><Store /></RequireAuth>} />
+      <Route path="/store"           element={<Store />} />
       {/* Programs — public detail page + client-side dashboard */}
       <Route path="/program/:id"                     element={<ProgramDetail />} />
       <Route path="/my-programs"                     element={<RequireAuth><MyPrograms /></RequireAuth>} />

@@ -6,6 +6,7 @@ import BiometricsDashboard from "@/components/BiometricsDashboard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
+import AdBanner from "@/components/AdBanner";
 import { useHealthLogs } from "@/hooks/useHealth";
 import { useHabitProfile } from "@/hooks/useHabits";
 import { deriveInsights } from "@/lib/insights";
@@ -123,6 +124,15 @@ export default function HealthInsights() {
             <p className="text-xs text-muted-foreground">B_ analysis of your health, wellness & beauty</p>
           </div>
         </div>
+
+        {!user && (
+          <div className="mx-4 mb-3 p-3 rounded-2xl glass-1 border border-indigo/20 flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">Sign up free to save your progress and unlock full features</p>
+            <a href="/welcome" className="rounded-pill px-3 py-1.5 text-xs font-semibold gradient-indigo text-primary-foreground shrink-0">Sign up free</a>
+          </div>
+        )}
+
+        <AdBanner slot="utilities-top" format="horizontal" />
 
         {/* Biometrics Dashboard with rings + trend charts */}
         <BiometricsDashboard />
@@ -309,6 +319,10 @@ export default function HealthInsights() {
             </p>
           </div>
         )}
+      </div>
+
+      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl px-4">
+        <AdBanner slot="utilities-bottom" format="rectangle" />
       </div>
 
       <BionAssistant />

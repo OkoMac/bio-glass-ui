@@ -5,6 +5,8 @@ import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import { trackEvent } from "@/lib/habits";
 import BionAssistant from "@/components/BionAssistant";
+import { useAuth } from "@/contexts/AuthContext";
+import AdBanner from "@/components/AdBanner";
 import { ArrowLeft, Moon, Sun, Star, Clock, TrendingUp, Lightbulb } from "lucide-react";
 
 const STORAGE_KEY = "bion_sleep_tracker";
@@ -62,6 +64,7 @@ function StarRating({ value, onChange }: { value: number; onChange: (v: number) 
 
 export default function SleepTracker() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [entries, setEntries] = useState<SleepEntry[]>(getEntries);
   const [bedtime, setBedtime] = useState("23:00");
   const [wakeTime, setWakeTime] = useState("07:00");
@@ -108,6 +111,15 @@ export default function SleepTracker() {
             <p className="text-xs text-muted-foreground">Track your rest, improve your health</p>
           </div>
         </div>
+
+        {!user && (
+          <div className="mx-4 mb-3 p-3 rounded-2xl glass-1 border border-indigo/20 flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">Sign up free to save your progress and unlock full features</p>
+            <a href="/welcome" className="rounded-pill px-3 py-1.5 text-xs font-semibold gradient-indigo text-primary-foreground shrink-0">Sign up free</a>
+          </div>
+        )}
+
+        <AdBanner slot="utilities-top" format="horizontal" />
 
         {/* Log sleep */}
         <GlassCard variant="glass-2" className="p-5 space-y-4">
@@ -225,6 +237,10 @@ export default function SleepTracker() {
             ))}
           </div>
         </GlassCard>
+      </div>
+
+      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl px-4">
+        <AdBanner slot="utilities-bottom" format="rectangle" />
       </div>
 
       <BottomNav />

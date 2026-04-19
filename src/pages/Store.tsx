@@ -6,6 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import { useStreakRewards, StreakTier } from "@/hooks/useStreakRewards";
 import { useActivityPoints, pointsToRand } from "@/hooks/useActivityPoints";
 import { useAuth } from "@/contexts/AuthContext";
+import AdBanner from "@/components/AdBanner";
 import {
   Lock, Trophy, Sparkles, ShoppingBag, ArrowLeft, X, Check, Loader2,
   Package, Truck, Mail, MapPin,
@@ -61,6 +62,15 @@ export default function Store() {
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
 
+          {!user && (
+            <div className="p-3 rounded-2xl glass-1 border border-indigo/20 flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">Sign up free to save your progress and unlock full features</p>
+              <a href="/welcome" className="rounded-pill px-3 py-1.5 text-xs font-semibold gradient-indigo text-primary-foreground shrink-0">Sign up free</a>
+            </div>
+          )}
+
+          <AdBanner slot="utilities-top" format="horizontal" />
+
           <GlassCard className="p-8 text-center">
             <div className="w-16 h-16 rounded-full bg-amber/10 flex items-center justify-center mx-auto mb-4">
               <Lock className="w-7 h-7 text-amber" />
@@ -81,6 +91,8 @@ export default function Store() {
             </button>
           </GlassCard>
         </div>
+        <AdBanner slot="utilities-bottom" format="rectangle" />
+
         <BottomNav />
       </div>
     );
@@ -89,6 +101,15 @@ export default function Store() {
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-32">
       <div className="max-w-3xl xl:max-w-5xl mx-auto px-4 md:px-8 pt-12 space-y-5">
+
+        {!user && (
+          <div className="p-3 rounded-2xl glass-1 border border-indigo/20 flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">Sign up free to save your progress and unlock full features</p>
+            <a href="/welcome" className="rounded-pill px-3 py-1.5 text-xs font-semibold gradient-indigo text-primary-foreground shrink-0">Sign up free</a>
+          </div>
+        )}
+
+        <AdBanner slot="utilities-top" format="horizontal" />
 
         {/* Header */}
         <div className="flex items-start justify-between">
@@ -332,6 +353,10 @@ export default function Store() {
           </>
         )}
       </AnimatePresence>
+
+      <div className="max-w-3xl xl:max-w-5xl mx-auto px-4 md:px-8">
+        <AdBanner slot="utilities-bottom" format="rectangle" />
+      </div>
 
       <BottomNav />
     </div>

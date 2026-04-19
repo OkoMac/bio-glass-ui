@@ -5,6 +5,8 @@ import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { ArrowLeft, Droplets, Plus, Minus, Trophy, Target, Flame } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import AdBanner from "@/components/AdBanner";
 import { useActivityPoints } from "@/hooks/useActivityPoints";
 import { trackEvent } from "@/lib/habits";
 
@@ -114,6 +116,7 @@ function WaterRing({ current, goal }: { current: number; goal: number }) {
 
 export default function WaterTracker() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [dateKey] = useState(todayKey);
   const [data, setData] = useState(() => getStoredData(todayKey()));
   const [streak, setStreak] = useState(getStreak);
@@ -180,6 +183,15 @@ export default function WaterTracker() {
             <p className="text-xs text-muted-foreground">Stay hydrated, stay healthy</p>
           </div>
         </div>
+
+        {!user && (
+          <div className="mx-4 mb-3 p-3 rounded-2xl glass-1 border border-indigo/20 flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">Sign up free to save your progress and unlock full features</p>
+            <a href="/welcome" className="rounded-pill px-3 py-1.5 text-xs font-semibold gradient-indigo text-primary-foreground shrink-0">Sign up free</a>
+          </div>
+        )}
+
+        <AdBanner slot="utilities-top" format="horizontal" />
 
         {/* Streak */}
         {streak > 0 && (
@@ -277,6 +289,10 @@ export default function WaterTracker() {
             </div>
           )}
         </GlassCard>
+      </div>
+
+      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl px-4">
+        <AdBanner slot="utilities-bottom" format="rectangle" />
       </div>
 
       <BottomNav />

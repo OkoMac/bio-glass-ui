@@ -6,6 +6,7 @@ import BookingRequestForm from "@/components/BookingRequestForm";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import ServiceCategoryBlock, { SERVICE_CATEGORIES, type ServiceCategory } from "@/components/ServiceCategoryBlock";
 import { useAuth } from "@/contexts/AuthContext";
+import AdBanner from "@/components/AdBanner";
 import { useHabitProfile } from "@/hooks/useHabits";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 import realData from "@/data/bion_pretoria_data.json";
@@ -238,6 +239,10 @@ export default function Directory() {
             </button>
           </div>
         </div>
+      </div>
+
+      <div className="w-full px-4 md:px-8 xl:px-12">
+        <AdBanner slot="directory-top" format="horizontal" />
       </div>
 
       {/* ── Hero Banner ────────────────────────────── */}

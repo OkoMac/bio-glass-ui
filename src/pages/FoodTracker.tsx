@@ -5,6 +5,7 @@ import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
+import AdBanner from "@/components/AdBanner";
 import { useFoodSync } from "@/hooks/useFoodSync";
 import { useActivityPoints } from "@/hooks/useActivityPoints";
 import { trackEvent } from "@/lib/habits";
@@ -294,6 +295,15 @@ export default function FoodTracker() {
             <Target className="w-4 h-4 text-teal" />
           </motion.button>
         </div>
+
+        {!user && (
+          <div className="mx-4 mb-3 p-3 rounded-2xl glass-1 border border-indigo/20 flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">Sign up free to save your progress and unlock full features</p>
+            <a href="/welcome" className="rounded-pill px-3 py-1.5 text-xs font-semibold gradient-indigo text-primary-foreground shrink-0">Sign up free</a>
+          </div>
+        )}
+
+        <AdBanner slot="utilities-top" format="horizontal" />
 
         {/* Daily summary ring */}
         <GlassCard className="p-5">
@@ -640,6 +650,10 @@ export default function FoodTracker() {
           </>
         )}
       </AnimatePresence>
+
+      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl px-4">
+        <AdBanner slot="utilities-bottom" format="rectangle" />
+      </div>
 
       <BionAssistant />
       <BottomNav />

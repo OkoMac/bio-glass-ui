@@ -5,6 +5,7 @@ import { ArrowRight, MapPin, Star, Check } from "lucide-react";
 import realData from "@/data/bion_pretoria_data.json";
 import { findCity, findCategory, SEO_CITIES, SEO_CATEGORIES } from "@/data/seoCombinations";
 import { getProviderImage } from "@/lib/providerImages";
+import AdBanner from "@/components/AdBanner";
 
 const APP_URL = "https://bionhealth.co.za";
 
@@ -201,6 +202,8 @@ export default function SeoCategoryCity() {
             </div>
           )}
         </section>
+
+        <AdBanner slot="seo-after-list" format="horizontal" />
 
         {/* FAQ */}
         <section className="space-y-3">
