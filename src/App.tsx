@@ -272,6 +272,14 @@ const ForProviders = lazy(() => import("./pages/landing/ForProviders"));
 const ForCorporate = lazy(() => import("./pages/landing/ForCorporate"));
 const ForRangers   = lazy(() => import("./pages/landing/ForRangers"));
 
+// Blog / SEO articles
+const BlogIndex     = lazy(() => import("./pages/blog/BlogIndex"));
+const CalorieGuide  = lazy(() => import("./pages/blog/CalorieGuide"));
+const BmiGuide      = lazy(() => import("./pages/blog/BmiGuide"));
+const WaterIntake   = lazy(() => import("./pages/blog/WaterIntake"));
+const SleepGuide    = lazy(() => import("./pages/blog/SleepGuide"));
+const FindProvider  = lazy(() => import("./pages/blog/FindProvider"));
+
 const queryClient = new QueryClient();
 
 // Install the on-unload cache sweep + background-tab query invalidation.
@@ -392,6 +400,14 @@ function AppRoutes() {
       <Route path="/for-providers"  element={<ForProviders />} />
       <Route path="/for-corporate"  element={<ForCorporate />} />
       <Route path="/for-rangers"    element={<ForRangers />} />
+
+      {/* Blog / SEO articles */}
+      <Route path="/blog" element={<BlogIndex />} />
+      <Route path="/blog/how-many-calories-should-i-eat" element={<CalorieGuide />} />
+      <Route path="/blog/what-is-bmi" element={<BmiGuide />} />
+      <Route path="/blog/how-much-water-should-i-drink" element={<WaterIntake />} />
+      <Route path="/blog/how-to-improve-sleep" element={<SleepGuide />} />
+      <Route path="/blog/find-health-provider-near-me" element={<FindProvider />} />
 
       {/* Help & support (public ticket creation allowed) */}
       <Route path="/help" element={<Help />} />

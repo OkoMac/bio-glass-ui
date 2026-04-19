@@ -15,6 +15,7 @@ const NAV_LINKS = [
   { label: "Corporates", href: "/for-corporate" },
   { label: "Rangers",    href: "/for-rangers"   },
   { label: "Free Tools", href: "/tools"          },
+  { label: "Blog",       href: "/blog"          },
   { label: "Help",       href: "/help"          },
 ];
 
