@@ -73,6 +73,19 @@ const CATEGORIES_WITH_COUNTS = SERVICE_CATEGORIES.map((c) => ({
 
 const FILTER_TABS = ["All", "Top Rated", "Nearby", "Available Now"];
 
+/** Haversine distance in km between two GPS points. */
+function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+/** Get unique suburbs sorted alphabetically. */
+const ALL_SUBURBS = [...new Set(ALL_PROVIDERS.map(p => p.suburb).filter(Boolean))].sort();
+const ALL_CITIES = [...new Set(ALL_PROVIDERS.map(p => p.city).filter(Boolean))].sort();
+
 export default function Directory() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -82,6 +95,9 @@ export default function Directory() {
   const [activeFilter, setActiveFilter] = useState("Top Rated");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [showBookingForm, setShowBookingForm] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedSuburb, setSelectedSuburb] = useState<string | null>(null);
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(12);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -93,17 +109,26 @@ export default function Directory() {
     return withProviders.filter(c => c.name.toLowerCase().includes(q));
   }, [search]);
 
-  // Filter + sort providers based on selected category and filter tab
+  // Filter + sort providers based on selected category, filter tab, suburb, city
   const filteredProviders = useMemo(() => {
     let list = selectedCategoryId
       ? ALL_PROVIDERS.filter((p) => p.category === selectedCategoryId)
       : ALL_PROVIDERS;
 
+    // Suburb filter
+    if (selectedSuburb) {
+      list = list.filter((p) => p.suburb === selectedSuburb);
+    }
+    // City filter
+    if (selectedCity) {
+      list = list.filter((p) => p.city === selectedCity);
+    }
+
     // Search filter
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
-        (p) => p.name.toLowerCase().includes(q) || p.specialty.toLowerCase().includes(q) || p.location.toLowerCase().includes(q),
+        (p) => p.name.toLowerCase().includes(q) || p.specialty.toLowerCase().includes(q) || p.location.toLowerCase().includes(q) || (p.suburb || "").toLowerCase().includes(q),
       );
     }
 
@@ -113,7 +138,31 @@ export default function Directory() {
     } else if (activeFilter === "Available Now") {
       list = list.filter((p) => /weekday|daily|today/i.test(p.availability ?? ""));
     } else if (activeFilter === "Nearby") {
-      list = [...list].sort((a, b) => a.location.localeCompare(b.location));
+      // Sort by GPS distance from user's current location
+      if (geo.latitude && geo.longitude) {
+        const userLat = geo.latitude;
+        const userLng = geo.longitude;
+        list = [...list].sort((a, b) => {
+          const distA = a.lat && a.lng ? distanceKm(userLat, userLng, a.lat, a.lng) : 9999;
+          const distB = b.lat && b.lng ? distanceKm(userLat, userLng, b.lat, b.lng) : 9999;
+          return distA - distB;
+        });
+      } else {
+        // No GPS — sort by location string as fallback
+        list = [...list].sort((a, b) => a.location.localeCompare(b.location));
+      }
+    } else if (activeFilter === "All" && geo.latitude && geo.longitude) {
+      // Default: blend proximity + rating when GPS available
+      const userLat = geo.latitude;
+      const userLng = geo.longitude;
+      list = [...list].sort((a, b) => {
+        const distA = a.lat && a.lng ? distanceKm(userLat, userLng, a.lat, a.lng) : 50;
+        const distB = b.lat && b.lng ? distanceKm(userLat, userLng, b.lat, b.lng) : 50;
+        // Score: closer + higher rated = higher score
+        const scoreA = a.rating - (distA * 0.1);
+        const scoreB = b.rating - (distB * 0.1);
+        return scoreB - scoreA;
+      });
     }
 
     // Personalise by the user's top engaged categories (from habits). When the
@@ -239,11 +288,84 @@ export default function Directory() {
               </button>
             )}
             <div className="w-px h-4 bg-foreground/10" />
-            <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-1.5 text-xs transition-colors ${showFilters || selectedSuburb || selectedCity ? "text-indigo font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+            >
               <SlidersHorizontal className="w-4 h-4" />
               <span className="hidden md:inline">Filters</span>
+              {(selectedSuburb || selectedCity) && <span className="w-1.5 h-1.5 rounded-full bg-indigo" />}
             </button>
           </div>
+
+          {/* Filter panel */}
+          <AnimatePresence>
+            {showFilters && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="glass-1 rounded-2xl p-4 space-y-3 mt-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold text-foreground">Filter by location</p>
+                    {(selectedSuburb || selectedCity) && (
+                      <button onClick={() => { setSelectedSuburb(null); setSelectedCity(null); }} className="text-[10px] text-indigo">
+                        Clear filters
+                      </button>
+                    )}
+                  </div>
+
+                  {/* City filter */}
+                  <div>
+                    <p className="text-[10px] text-muted-foreground mb-1.5 uppercase tracking-wider">City</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {ALL_CITIES.map(city => (
+                        <button
+                          key={city}
+                          onClick={() => { setSelectedCity(selectedCity === city ? null : city); setSelectedSuburb(null); setVisibleCount(12); }}
+                          className={`rounded-pill px-3 py-1 text-[11px] font-medium border transition-colors ${
+                            selectedCity === city ? "border-indigo/40 bg-indigo/20 text-indigo" : "border-white/[0.08] bg-white/[0.02] text-muted-foreground"
+                          }`}
+                        >
+                          {city}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Suburb filter — shows suburbs for selected city, or all */}
+                  <div>
+                    <p className="text-[10px] text-muted-foreground mb-1.5 uppercase tracking-wider">
+                      Suburb {selectedCity ? `in ${selectedCity}` : ""}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto scrollbar-none">
+                      {ALL_SUBURBS
+                        .filter(s => !selectedCity || ALL_PROVIDERS.some(p => p.suburb === s && p.city === selectedCity))
+                        .map(suburb => (
+                          <button
+                            key={suburb}
+                            onClick={() => { setSelectedSuburb(selectedSuburb === suburb ? null : suburb); setVisibleCount(12); }}
+                            className={`rounded-pill px-2.5 py-0.5 text-[10px] font-medium border transition-colors ${
+                              selectedSuburb === suburb ? "border-teal/40 bg-teal/20 text-teal" : "border-white/[0.06] bg-white/[0.02] text-muted-foreground"
+                            }`}
+                          >
+                            {suburb}
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+
+                  {geo.latitude && (
+                    <p className="text-[10px] text-teal flex items-center gap-1">
+                      <Navigation className="w-3 h-3" /> GPS active — "Nearby" tab sorts by distance from you
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
