@@ -154,9 +154,9 @@ export default function AdminVerification() {
 
         // Notify the provider via backend email endpoint
         try {
-          await fetch(`${API}/api/email/verification-status`, {
+          await fetch(`${API_URL}/api/email/verification-status`, {
             method: "POST",
-            headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ profileId: providerId, status: "verified" }),
           });
         } catch { /* email is best-effort */ }
