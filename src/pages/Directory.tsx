@@ -10,6 +10,7 @@ import AdBanner from "@/components/AdBanner";
 import { useHabitProfile } from "@/hooks/useHabits";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 import realData from "@/data/bion_pretoria_data.json";
+import jhbData from "@/data/bion_johannesburg_data.json";
 
 // ── Map scraped providers to categories ─────────────
 function categorize(service: string): string {
@@ -36,22 +37,27 @@ function categorize(service: string): string {
   return "wellness";
 }
 
-// ── Build provider list from real scraped data ──────
-const ALL_PROVIDERS = realData.providers
-  .map((p) => ({
+// ── Build provider list from real scraped data (Pretoria + Johannesburg) ──────
+const mergedProviders = [...realData.providers, ...(jhbData as any).providers];
+const ALL_PROVIDERS = mergedProviders
+  .map((p: any) => ({
     id: p.id,
     name: p.name,
     specialty: p.service,
-    category: categorize(p.service),
+    category: p.enhanced_category || p.category || categorize(p.service),
     rating: typeof p.rating === "string" ? parseFloat(p.rating) || 0 : p.rating,
-    reviews: p.reviewCount,
+    reviews: p.reviewCount || p.review_count || 0,
     location: p.location,
+    suburb: p.suburb || p.enhanced_suburb || "",
+    city: p.city || p.enhanced_city || "",
     price: p.price,
     availability: p.availability,
     avatar: getProviderImage(p.id, p.name),
     hasLogo: hasCustomImage(p.id),
+    lat: p.lat ?? null,
+    lng: p.lng ?? null,
   }))
-  // Providers with logos show first
+  // Providers with logos/images show first
   .sort((a, b) => (b.hasLogo ? 1 : 0) - (a.hasLogo ? 1 : 0));
 
 // ── Add counts to categories ────────────────────────
