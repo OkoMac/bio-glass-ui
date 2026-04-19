@@ -122,12 +122,37 @@ function ListSection({
   );
 }
 
+const MEDICAL_FAQ_DATA = [
+  { q: "What is a digital medical card?", a: "A digital medical card stores your essential health information — blood type, allergies, medications, emergency contacts, and insurance details — on your phone. It can be shown to healthcare providers or emergency personnel instantly, without carrying a physical card." },
+  { q: "Is my data safe?", a: "Your medical information is stored locally on your device and is not transmitted to any server without your explicit consent. BION complies with the Protection of Personal Information Act (POPIA) to safeguard your personal health data." },
+  { q: "Can emergency services access it?", a: "You can share your medical card via the Share button or QR code with any provider or emergency responder. The data is only shared during that session and is not stored on their device unless you explicitly allow it." },
+];
+
 export default function MedicalCard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [data, setData] = useState<MedicalData>(load);
   const [editing, setEditing] = useState(false);
   const [showShare, setShowShare] = useState(false);
+
+  useEffect(() => { document.title = "Free Digital Medical Card | BION"; }, []);
+
+  useEffect(() => {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: MEDICAL_FAQ_DATA.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    };
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify(schema);
+    document.head.appendChild(script);
+    return () => { document.head.removeChild(script); };
+  }, []);
 
   const update = (partial: Partial<MedicalData>) => setData((prev) => ({ ...prev, ...partial }));
 
@@ -147,7 +172,7 @@ export default function MedicalCard() {
               <ArrowLeft className="w-4 h-4 text-foreground" />
             </motion.button>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Medical Card</h1>
+              <h1 className="text-2xl font-bold text-foreground">Free Digital Medical Card</h1>
               <p className="text-xs text-muted-foreground">Your digital health passport</p>
             </div>
           </div>
@@ -317,6 +342,17 @@ export default function MedicalCard() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* FAQ Section */}
+      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl px-4 mt-6 space-y-2">
+        <h2 className="text-lg font-bold text-foreground mb-3">Frequently Asked Questions</h2>
+        {MEDICAL_FAQ_DATA.map((faq, i) => (
+          <GlassCard key={i} className="p-4">
+            <p className="text-sm font-medium text-foreground mb-1">{faq.q}</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">{faq.a}</p>
+          </GlassCard>
+        ))}
+      </div>
 
       <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl px-4">
         <AdBanner slot="utilities-bottom" format="rectangle" />

@@ -125,6 +125,13 @@ function getToday(): string {
   return new Date().toISOString().split("T")[0];
 }
 
+const FOOD_FAQ_DATA = [
+  { q: "How many calories should I eat per day?", a: "The recommended daily calorie intake varies by age, sex, and activity level. For most South African adults, it is roughly 2 000 kcal for women and 2 500 kcal for men. Use this tracker to set a personalised goal and monitor your intake over time." },
+  { q: "How do I count calories in South African food?", a: "Many traditional SA foods like pap, boerewors, and vetkoek have well-known calorie counts. This tracker includes a built-in database of common South African foods so you can log meals quickly without guessing." },
+  { q: "What are macros?", a: "Macros (macronutrients) are protein, carbohydrates, and fat — the three main nutrients your body needs in large amounts. Tracking macros alongside calories helps you maintain a balanced diet and reach specific health goals." },
+  { q: "Need a nutritionist?", a: "If you want personalised meal plans or have specific dietary needs, browse verified dietitians and nutritionists on BION's directory. They can help you create a sustainable eating plan tailored to your lifestyle." },
+];
+
 /* ── Component ──────────────────────────────────────── */
 export default function FoodTracker() {
   const navigate = useNavigate();
@@ -134,6 +141,25 @@ export default function FoodTracker() {
   // Sync with Supabase for authenticated users
   const { entries, todayEntries, goals, addEntry: syncAddEntry, deleteEntry: syncDeleteEntry, saveGoals: syncSaveGoals } = useFoodSync();
   const { awardPoints } = useActivityPoints();
+
+  useEffect(() => { document.title = "Free Calorie Calculator & Meal Tracker | BION"; }, []);
+
+  useEffect(() => {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: FOOD_FAQ_DATA.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    };
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify(schema);
+    document.head.appendChild(script);
+    return () => { document.head.removeChild(script); };
+  }, []);
 
   const [showAdd, setShowAdd] = useState(false);
   const [showGoals, setShowGoals] = useState(false);
@@ -287,7 +313,7 @@ export default function FoodTracker() {
             <ArrowLeft className="w-4 h-4 text-foreground" />
           </motion.button>
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-foreground">Food Tracker</h1>
+            <h1 className="text-2xl font-bold text-foreground">Free Calorie Calculator & Meal Tracker</h1>
             <p className="text-xs text-muted-foreground">Track meals, calories & nutrition</p>
           </div>
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => setShowGoals(true)}
@@ -650,6 +676,20 @@ export default function FoodTracker() {
           </>
         )}
       </AnimatePresence>
+
+      {/* FAQ Section */}
+      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl px-4 mt-6 space-y-2">
+        <h2 className="text-lg font-bold text-foreground mb-3">Frequently Asked Questions</h2>
+        {FOOD_FAQ_DATA.map((faq, i) => (
+          <GlassCard key={i} className="p-4">
+            <p className="text-sm font-medium text-foreground mb-1">{faq.q}</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">{faq.a}</p>
+            {faq.q.includes("nutritionist") && (
+              <a href="/directory" className="inline-block mt-2 rounded-pill px-3 py-1.5 text-xs font-semibold gradient-indigo text-primary-foreground">Browse Directory</a>
+            )}
+          </GlassCard>
+        ))}
+      </div>
 
       <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl px-4">
         <AdBanner slot="utilities-bottom" format="rectangle" />

@@ -14,6 +14,7 @@ const NAV_LINKS = [
   { label: "Providers",  href: "/for-providers" },
   { label: "Corporates", href: "/for-corporate" },
   { label: "Rangers",    href: "/for-rangers"   },
+  { label: "Free Tools", href: "/tools"          },
   { label: "Help",       href: "/help"          },
 ];
 

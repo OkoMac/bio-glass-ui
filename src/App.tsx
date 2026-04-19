@@ -191,6 +191,10 @@ const ClientBilling = lazy(() => import("./pages/client/Billing"));
 const BionCalendar  = lazy(() => import("./pages/BionCalendar"));
 const HealthInsights = lazy(() => import("./pages/HealthInsights"));
 
+// Free tools hub
+const ToolsIndex    = lazy(() => import("./pages/tools/ToolsIndex"));
+const BmiCalculator = lazy(() => import("./pages/tools/BmiCalculator"));
+
 // Role onboarding
 const ClientOnboarding    = lazy(() => import("./pages/onboarding/ClientOnboarding"));
 const ProviderOnboarding  = lazy(() => import("./pages/onboarding/ProviderOnboarding"));
@@ -433,6 +437,9 @@ function AppRoutes() {
       <Route path="/food"           element={<Navigate to="/food-tracker" replace />} />
       <Route path="/calendar"        element={<RequireAuth allowedRoles={["client"]}><BionCalendar /></RequireAuth>} />
       <Route path="/health-insights" element={<HealthInsights />} />
+      <Route path="/tools" element={<ToolsIndex />} />
+      <Route path="/tools/bmi-calculator" element={<BmiCalculator />} />
+      <Route path="/tools/calorie-calculator" element={<Navigate to="/food-tracker" replace />} />
       <Route path="/billing"          element={<RequireAuth allowedRoles={["client"]}><ClientBilling /></RequireAuth>} />
       <Route path="/notifications"   element={<RequireAuth><Notifications /></RequireAuth>} />
       <Route path="/favorites"       element={<RequireAuth allowedRoles={["client"]}><Favorites /></RequireAuth>} />

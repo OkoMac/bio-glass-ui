@@ -114,6 +114,12 @@ function WaterRing({ current, goal }: { current: number; goal: number }) {
   );
 }
 
+const WATER_FAQ_DATA = [
+  { q: "How much water should I drink per day?", a: "Most health authorities recommend about 2 litres (8 glasses of 250 ml) per day for adults. However, your needs may be higher if you exercise, live in a hot climate like many parts of South Africa, or are breastfeeding." },
+  { q: "Does coffee count as water intake?", a: "Coffee and tea do contribute to your daily fluid intake, but caffeine has a mild diuretic effect. It is best to count them partially and still aim to drink plain water for most of your hydration needs." },
+  { q: "Signs of dehydration?", a: "Common signs include dark yellow urine, dry mouth, fatigue, dizziness, and headaches. Severe dehydration can cause rapid heartbeat and confusion. If you experience these symptoms, increase your water intake and seek medical advice if they persist." },
+];
+
 export default function WaterTracker() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -122,6 +128,25 @@ export default function WaterTracker() {
   const [streak, setStreak] = useState(getStreak);
   const [milestone, setMilestone] = useState<string | null>(null);
   const { awardPoints } = useActivityPoints();
+
+  useEffect(() => { document.title = "Free Daily Water Intake Tracker | BION"; }, []);
+
+  useEffect(() => {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: WATER_FAQ_DATA.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    };
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify(schema);
+    document.head.appendChild(script);
+    return () => { document.head.removeChild(script); };
+  }, []);
 
   // Persist on change
   useEffect(() => {
@@ -179,7 +204,7 @@ export default function WaterTracker() {
             <ArrowLeft className="w-4 h-4 text-foreground" />
           </motion.button>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Water Tracker</h1>
+            <h1 className="text-2xl font-bold text-foreground">Free Daily Water Intake Tracker</h1>
             <p className="text-xs text-muted-foreground">Stay hydrated, stay healthy</p>
           </div>
         </div>
@@ -289,6 +314,17 @@ export default function WaterTracker() {
             </div>
           )}
         </GlassCard>
+      </div>
+
+      {/* FAQ Section */}
+      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl px-4 mt-6 space-y-2">
+        <h2 className="text-lg font-bold text-foreground mb-3">Frequently Asked Questions</h2>
+        {WATER_FAQ_DATA.map((faq, i) => (
+          <GlassCard key={i} className="p-4">
+            <p className="text-sm font-medium text-foreground mb-1">{faq.q}</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">{faq.a}</p>
+          </GlassCard>
+        ))}
       </div>
 
       <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl px-4">

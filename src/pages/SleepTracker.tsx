@@ -62,6 +62,12 @@ function StarRating({ value, onChange }: { value: number; onChange: (v: number) 
   );
 }
 
+const SLEEP_FAQ_DATA = [
+  { q: "How many hours of sleep do I need?", a: "Most adults need 7 to 9 hours of quality sleep per night. Teenagers need 8 to 10 hours, and children even more. Consistently getting less than 7 hours is linked to increased risk of obesity, heart disease, and impaired cognitive function." },
+  { q: "How to improve sleep quality?", a: "Stick to a consistent sleep schedule, limit screen time before bed, keep your bedroom cool and dark, and avoid caffeine after midday. Regular exercise also promotes deeper sleep, but try to finish workouts at least 3 hours before bedtime." },
+  { q: "What is sleep hygiene?", a: "Sleep hygiene refers to the habits and environment that promote consistent, uninterrupted, and restorative sleep. Good sleep hygiene includes a regular bedtime routine, a comfortable mattress, and minimising noise and light in your sleeping area." },
+];
+
 export default function SleepTracker() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -70,6 +76,25 @@ export default function SleepTracker() {
   const [wakeTime, setWakeTime] = useState("07:00");
   const [quality, setQuality] = useState(3);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => { document.title = "Free Sleep Quality Tracker | BION"; }, []);
+
+  useEffect(() => {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: SLEEP_FAQ_DATA.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    };
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify(schema);
+    document.head.appendChild(script);
+    return () => { document.head.removeChild(script); };
+  }, []);
 
   const todayLogged = entries.some((e) => e.date === todayKey());
 
@@ -107,7 +132,7 @@ export default function SleepTracker() {
             <ArrowLeft className="w-4 h-4 text-foreground" />
           </motion.button>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Sleep Tracker</h1>
+            <h1 className="text-2xl font-bold text-foreground">Free Sleep Quality Tracker</h1>
             <p className="text-xs text-muted-foreground">Track your rest, improve your health</p>
           </div>
         </div>
@@ -237,6 +262,17 @@ export default function SleepTracker() {
             ))}
           </div>
         </GlassCard>
+      </div>
+
+      {/* FAQ Section */}
+      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl px-4 mt-6 space-y-2">
+        <h2 className="text-lg font-bold text-foreground mb-3">Frequently Asked Questions</h2>
+        {SLEEP_FAQ_DATA.map((faq, i) => (
+          <GlassCard key={i} className="p-4">
+            <p className="text-sm font-medium text-foreground mb-1">{faq.q}</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">{faq.a}</p>
+          </GlassCard>
+        ))}
       </div>
 
       <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl px-4">
