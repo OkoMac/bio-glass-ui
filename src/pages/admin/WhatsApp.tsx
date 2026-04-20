@@ -56,7 +56,7 @@ function relative(ts: string | number | null | undefined) {
 }
 
 export default function AdminWhatsApp() {
-  const [token, setToken] = useState(() => localStorage.getItem("bion_admin_token") ?? "");
+  const { token } = useAdminToken();
   const [threads, setThreads] = useState<Thread[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [detail, setDetail] = useState<ThreadDetail | null>(null);
@@ -70,7 +70,7 @@ export default function AdminWhatsApp() {
     if (!token) return;
     setLoading(true); setErr(null);
     try {
-      const r = await fetch(`${API}/api/whatsapp/admin/conversations`, { headers: { "X-Admin-Token": token } 
+      const r = await fetch(`${API}/api/whatsapp/admin/conversations`, { headers: { "X-Admin-Token": token } });
       const d = await r.json();
       if (!r.ok || !d.ok) throw new Error(d.error ?? `HTTP ${r.status}`);
       setThreads(d.threads);
@@ -81,7 +81,7 @@ export default function AdminWhatsApp() {
   async function fetchDetail(phone: string) {
     if (!token) return;
     try {
-      const r = await fetch(`${API}/api/whatsapp/admin/conversations/${phone}`, { headers: { "X-Admin-Token": token } 
+      const r = await fetch(`${API}/api/whatsapp/admin/conversations/${phone}`, { headers: { "X-Admin-Token": token } });
       const d = await r.json();
       if (!r.ok || !d.ok) throw new Error(d.error ?? `HTTP ${r.status}`);
       setDetail(d);
@@ -91,9 +91,9 @@ export default function AdminWhatsApp() {
   async function fetchStats() {
     if (!token) return;
     try {
-      const r = await fetch(`${API}/api/whatsapp/admin/stats`, { headers: { "X-Admin-Token": token } 
+      const r = await fetch(`${API}/api/whatsapp/admin/stats`, { headers: { "X-Admin-Token": token } });
       const d = await r.json();
-      if (d.ok) setStats({ daily_cap: d.daily_cap, active_conversations: d.active_conversations 
+      if (d.ok) setStats({ daily_cap: d.daily_cap, active_conversations: d.active_conversations });
     } catch {}
   }
 
@@ -105,7 +105,7 @@ export default function AdminWhatsApp() {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Admin-Token": token },
         body: JSON.stringify({ phone: selected, message: replyText.trim() }),
-      
+      });
       const j = await res.json();
       if (j.ok) {
         setReplyText("");
@@ -191,7 +191,7 @@ export default function AdminWhatsApp() {
               <RefreshCw className={`w-4 h-4 text-foreground ${loading ? "animate-spin" : ""}`} />
             </button>
             <button
-              onClick={() => { localStorage.removeItem("bion_admin_token"); setToken(""); }}
+              onClick={() => { localStorage.removeItem("bion_admin_token"); location.reload(); }}
               className="text-xs text-muted-foreground underline"
             >
               Clear token
