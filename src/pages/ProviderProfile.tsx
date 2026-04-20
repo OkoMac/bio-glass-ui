@@ -801,7 +801,7 @@ export default function ProviderProfile() {
           {/* "Is this your business?" — only shown for directory-only listings.
               A verified BION provider already owns their profile so this
               card would be redundant; we hide it once isRegisteredOnBion. */}
-          {!isRegisteredOnBion && (
+          {!isRegisteredOnBion && user?.role === "provider" && (
             <GlassCard className="p-4 mt-3 border border-indigo/20 bg-indigo/[0.03]">
               <div className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-xl bg-indigo/10 flex items-center justify-center shrink-0">
