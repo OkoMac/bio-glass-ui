@@ -292,7 +292,7 @@ export default function Directory() {
                 </div>
               ) : (
                 <div className="flex items-center gap-1.5">
-                  <button onClick={() => navigate("/welcome")} className="px-2.5 py-1 rounded-pill text-[10px] font-medium glass-2 text-foreground hover:bg-white/[0.08] transition-colors">
+                  <button onClick={() => navigate("/welcome?login=true")} className="px-2.5 py-1 rounded-pill text-[10px] font-medium glass-2 text-foreground hover:bg-white/[0.08] transition-colors">
                     Log In
                   </button>
                   <button onClick={() => navigate("/welcome")} className="px-2.5 py-1 rounded-pill text-[10px] font-semibold gradient-indigo text-primary-foreground shadow-cta">

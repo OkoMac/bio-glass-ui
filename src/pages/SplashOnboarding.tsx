@@ -215,7 +215,8 @@ export default function SplashOnboarding() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [phase, setPhase]               = useState<Phase>(hasSeenIntro ? "role" : "splash");
+  const loginDirect = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("login") === "true";
+  const [phase, setPhase]               = useState<Phase>(loginDirect ? "role" : hasSeenIntro ? "role" : "splash");
   const [progress, setProgress]         = useState(0);
   const [currentStep, setCurrentStep]   = useState(0);
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
