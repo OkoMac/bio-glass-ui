@@ -20,19 +20,16 @@ export default defineConfig(() => ({
     rollupOptions: {
       output: {
         manualChunks(id: string) {
-          // ── Vendor splits ──────────────────────────────────────────────
+          // ── Vendor splits (only large, self-contained libs) ────────────
           if (id.includes("node_modules")) {
             if (id.includes("react-dom") || id.includes("/react/") || id.includes("react-router")) {
               return "vendor-react";
             }
             if (id.includes("framer-motion")) return "vendor-motion";
             if (id.includes("@supabase")) return "vendor-supabase";
-            if (id.includes("@tanstack")) return "vendor-tanstack";
-            if (id.includes("@radix-ui")) return "vendor-radix";
-            if (id.includes("@stripe")) return "vendor-stripe";
-            if (id.includes("lucide-react")) return "vendor-icons";
-            // Catch-all for remaining node_modules — prevents them leaking into main chunk
-            return "vendor-misc";
+            // No catch-all — other node_modules stay with their importing chunk
+            // to avoid load-order issues (e.g. libs that call React.createContext
+            // at module init must load after React).
           }
 
           // ── Large data files into their own chunks ─────────────────────
