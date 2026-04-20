@@ -23,7 +23,9 @@ const hour = new Date().getHours();
 const greeting = hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening";
 
 function buildGreeting(role: string, name?: string): string {
-  const first = name?.split(" ")[0] ?? "there";
+  // Use the display name, not the email prefix
+  const rawFirst = name?.split(" ")[0] ?? "there";
+  const first = rawFirst.includes("@") || /^[a-z0-9]+\d{2,}$/i.test(rawFirst) ? "there" : rawFirst;
   if (role === "provider")
     return `Good ${greeting}, ${first}! I'm B_ — your business AI assistant. I can help you manage clients, spot churn risk, grow revenue, and build better programmes. What do you need?`;
   if (role === "corporate")
