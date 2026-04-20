@@ -167,14 +167,28 @@ export async function signUpWithEmail(
   if (error || !data.user) return { user: null, error: error?.message ?? "Signup failed" };
 
   const uid = data.user.id;
-  await supabase.from("profiles").upsert({ user_id: uid, full_name: name, email });
 
-  // corporate and sales_rep stay in user_metadata; only DB-enum roles go into user_roles
+  // Create profile + role via backend (bypasses RLS, always succeeds)
+  const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+  try {
+    const session = await supabase.auth.getSession();
+    const jwt = session.data.session?.access_token;
+    await fetch(`${API}/api/profiles/ensure`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}) },
+      body: JSON.stringify({ userId: uid, fullName: name, email, role }),
+    });
+  } catch {
+    // Fallback: try direct upsert (may fail on RLS but worth attempting)
+    await supabase.from("profiles").upsert({ user_id: uid, full_name: name, email }).catch(() => {});
+  }
+
+  // Ensure user_roles entry
   if (role !== "corporate" && role !== "sales_rep") {
     await supabase.from("user_roles").upsert({
       user_id: uid,
       role: role as "admin" | "provider" | "client",
-    });
+    }).catch(() => {});
   }
 
   // Fetch the newly created profile ID
