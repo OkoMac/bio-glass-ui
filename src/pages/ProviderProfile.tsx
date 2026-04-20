@@ -1122,8 +1122,18 @@ export default function ProviderProfile() {
                       Closed that day — try another date.
                     </div>
                   ) : slotsReason === "no_hours_published" ? (
-                    <div className="glass-1 rounded-xl p-3 text-xs text-muted-foreground">
-                      Provider hasn't set hours yet — we'll message them directly.
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">Select your preferred time — we'll confirm with the provider:</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {["Morning (8-12)", "Afternoon (12-5)", "Evening (5-8)"].map(slot => (
+                          <button key={slot} onClick={() => setBookingTime(slot.split(" ")[0])}
+                            className={`py-2 rounded-pill text-xs font-medium transition-colors ${
+                              bookingTime === slot.split(" ")[0] ? "gradient-indigo text-white" : "glass-1 text-foreground"
+                            }`}>
+                            {slot}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   ) : slotsReason === "fully_booked" ? (
                     <div className="glass-1 rounded-xl p-3 text-xs text-muted-foreground">
@@ -1140,9 +1150,11 @@ export default function ProviderProfile() {
                      when no real BION service is selected. */}
                 {(() => {
                   const selectedChoice = bookingServiceChoices[selectedService];
+                  // Parse price: "R172 - R1618" → use the first number (min price)
+                  const rawPrice = provider.price ?? "0";
+                  const priceMatch = rawPrice.match(/\d+/);
                   const priceNum = selectedChoice?.priceRand
-                    ?? parseInt((provider.price ?? "0").replace(/[^0-9]/g, ""), 10)
-                    ?? 0;
+                    ?? (priceMatch ? parseInt(priceMatch[0], 10) : 0);
                   const clientFee = Math.round(priceNum * 0.05);
                   const total = priceNum + clientFee;
                   const voucherFace = claimedVoucher ? Math.round(Number(claimedVoucher.face_value_rand)) : 0;
