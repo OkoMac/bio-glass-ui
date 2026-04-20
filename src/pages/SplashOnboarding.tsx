@@ -296,7 +296,7 @@ export default function SplashOnboarding() {
       // Gate 2: send OTP to the phone
       const otpRes = await fetch(`${API}/api/kyc/phone/send-otp`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: normPhone, purpose: "signup" }),
+        body: JSON.stringify({ phone: normPhone, email: email.trim(), purpose: "signup" }),
       });
       const otp = await otpRes.json();
       if (!otp.ok) { setError(otp.error ?? "Couldn't send verification code."); setBusy(false); return; }
@@ -781,11 +781,19 @@ export default function SplashOnboarding() {
                 placeholder="6-digit code" inputMode="numeric" maxLength={6}
                 onKeyDown={e => e.key === "Enter" && handleAuth()}
                 className="w-full glass-1 rounded-xl px-4 py-3 text-center text-lg font-data tracking-widest text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
-              <button type="button"
-                onClick={() => { setOtpStep("idle"); setOtpCode(""); setError(""); }}
-                className="w-full text-[11px] text-muted-foreground underline px-1">
-                Use a different number
-              </button>
+              <div className="flex justify-center gap-4">
+                <button type="button"
+                  onClick={() => { setOtpStep("idle"); setOtpCode(""); setError(""); startSignup(); }}
+                  className="text-[11px] text-indigo underline">
+                  Resend code
+                </button>
+                <button type="button"
+                  onClick={() => { setOtpStep("idle"); setOtpCode(""); setError(""); }}
+                  className="text-[11px] text-muted-foreground underline">
+                  Use a different number
+                </button>
+              </div>
+              <p className="text-[10px] text-muted-foreground text-center">Code sent via WhatsApp or email. Check both.</p>
             </>
           )}
           {authMode === "signin" && (
