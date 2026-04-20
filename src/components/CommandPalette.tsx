@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, MapPin, Star, User, Calendar, Settings, Heart, MessageSquare, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import realData from "@/data/bion_pretoria_data.json";
 
 interface SearchResult {
   id: string;
@@ -33,25 +32,34 @@ const PROVIDER_PAGES: SearchResult[] = [
   { id: "pp-billing", label: "Billing", sub: "Bank details & payouts", icon: Settings, path: "/pro/billing", type: "page" },
 ];
 
-// Pre-build provider search index (only top 100 for speed)
-const PROVIDER_RESULTS: SearchResult[] = realData.providers.slice(0, 100).map(p => ({
-  id: p.id,
-  label: p.name,
-  sub: `${p.service} · ${(p as any).suburb ?? p.location}`,
-  icon: MapPin,
-  path: `/provider/${p.id}`,
-  type: "provider" as const,
-}));
-
 export default function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedIdx, setSelectedIdx] = useState(0);
+  const [providerResults, setProviderResults] = useState<SearchResult[]>([]);
   const navigate = useNavigate();
   const { user } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const pages = user?.role === "provider" ? PROVIDER_PAGES : CLIENT_PAGES;
+
+  // Lazy-load provider search index when palette first opens
+  useEffect(() => {
+    if (open && providerResults.length === 0) {
+      import("@/data/bion_pretoria_data.json").then((mod) => {
+        const data = mod.default as any;
+        const results: SearchResult[] = (data.providers ?? []).slice(0, 100).map((p: any) => ({
+          id: p.id,
+          label: p.name,
+          sub: `${p.service} · ${p.suburb ?? p.location}`,
+          icon: MapPin,
+          path: `/provider/${p.id}`,
+          type: "provider" as const,
+        }));
+        setProviderResults(results);
+      });
+    }
+  }, [open, providerResults.length]);
 
   // Cmd+K / Ctrl+K to open
   useEffect(() => {
@@ -88,7 +96,7 @@ export default function CommandPalette() {
     });
 
     // Search providers
-    PROVIDER_RESULTS.forEach(p => {
+    providerResults.forEach(p => {
       if (p.label.toLowerCase().includes(q) || p.sub.toLowerCase().includes(q)) matched.push(p);
     });
 

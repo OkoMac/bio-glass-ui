@@ -141,8 +141,7 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-// ── Eager-loaded essential pages (always visible / first paint) ──
-import Directory       from "./pages/Directory";
+// ── Eager-loaded essential components (shell chrome / first paint) ──
 import SplashOnboarding from "./pages/SplashOnboarding";
 import NotFound        from "./pages/NotFound";
 import NotificationBell from "./components/NotificationBell";
@@ -150,11 +149,14 @@ import HabitTracker     from "./components/HabitTracker";
 import InstallButton    from "./components/InstallButton";
 import CalendarButton   from "./components/CalendarButton";
 import OfflineBanner    from "./components/OfflineBanner";
-import CommandPalette   from "./components/CommandPalette";
 import CookieConsent    from "./components/CookieConsent";
 
 // ── Lazy-loaded pages (split into separate chunks) ──
 import { lazy, Suspense } from "react";
+
+// Directory + CommandPalette — lazy because they pull in ~4MB of provider JSON data
+const Directory       = lazy(() => import("./pages/Directory"));
+const CommandPalette  = lazy(() => import("./components/CommandPalette"));
 
 // Client pages
 const Index           = lazy(() => import("./pages/Index"));
@@ -543,7 +545,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <OfflineBanner />
-              <CommandPalette />
+              <Suspense fallback={null}><CommandPalette /></Suspense>
               <AuthGate>
                 <CalendarButton />
                 <NotificationBell />

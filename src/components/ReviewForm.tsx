@@ -171,6 +171,23 @@ export default function ReviewForm({
                   )}
                 </div>
 
+                {/* Low-rating mediation notice */}
+                {rating >= 1 && rating <= 3 && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="mb-4 rounded-xl border border-amber-500/20 bg-amber-500/5 p-3"
+                  >
+                    <p className="text-xs text-amber-300 leading-relaxed">
+                      <span className="font-semibold">Heads up:</span> For
+                      ratings of 3 stars or below, B_ (our AI mediator) will
+                      review your feedback before it goes public — to ensure
+                      fairness and give the provider a chance to resolve the
+                      issue.
+                    </p>
+                  </motion.div>
+                )}
+
                 {/* Comment textarea */}
                 <div className="mb-6">
                   <textarea

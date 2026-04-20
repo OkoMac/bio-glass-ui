@@ -143,6 +143,62 @@ export function useProviderReviews(providerId?: string): {
   return { reviews, summary, loading, refresh: load };
 }
 
+// ── Pending ratings hook ───────────────────────────────────────────────────
+/**
+ * Fetches the user's pending (unrated) completed bookings.
+ * Uses GET /api/reviews/my-pending.
+ */
+export interface PendingRating {
+  bookingId: string;
+  providerId?: string;
+  clientId?: string;
+  date: string;
+  time: string;
+  service: string;
+  type: "rate_provider" | "rate_client";
+}
+
+export function usePendingRatings(): {
+  pending: PendingRating[];
+  loading: boolean;
+  refresh: () => Promise<void>;
+} {
+  const [pending, setPending] = useState<PendingRating[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) {
+        setPending([]);
+        return;
+      }
+
+      const res = await fetch(`${API}/api/reviews/my-pending`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = await res.json();
+      if (json?.ok && Array.isArray(json.data)) {
+        setPending(json.data as PendingRating[]);
+      } else {
+        setPending([]);
+      }
+    } catch {
+      setPending([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  return { pending, loading, refresh: load };
+}
+
 // ── Submission hook ─────────────────────────────────────────────────────────
 /**
  * Submits a review through the backend endpoint (which uses the service role

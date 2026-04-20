@@ -7,9 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 import { getProviderImage } from "@/lib/providerImages";
-
-// Import real data scraped from Pretoria service providers
-import realData from "@/data/bion_pretoria_data.json";
+import { loadPretoriaData, type RawProvider } from "@/data/useProviderData";
 
 export type BookingStatus = "pending" | "confirmed" | "declined" | "completed" | "no_show" | "cancelled";
 
@@ -40,22 +38,8 @@ export interface Booking {
  *  "Reconnecting…" hint when the connection is flaky. */
 export type RealtimeStatus = "idle" | "connecting" | "connected" | "reconnecting" | "error";
 
-// ── Real data from Pretoria service providers (scraped/replaced mock data) ───
-// Using real data scraped from Pretoria suburbs with at least 10 providers per suburb
-const REAL_BOOKINGS: Booking[] = (realData.bookings ?? []).map((booking: any) => ({
-  id: booking.id,
-  clientId: booking.clientId,
-  clientName: booking.clientName,
-  clientImage: booking.clientImage,
-  providerName: booking.providerName,
-  service: booking.service,
-  date: booking.date,
-  time: booking.time,
-  duration: booking.duration,
-  price: booking.price,
-  status: booking.status as BookingStatus,
-  note: booking.note
-}));
+// ── Real data loading (deferred to avoid bundling 622KB JSON in main chunk) ──
+// Bookings and providers are loaded lazily and merged into state once available.
 
 // Additional real providers data for reference
 export interface ServiceProvider {
@@ -90,15 +74,20 @@ export interface ServiceProvider {
   max_price?: string;
 }
 
-export const REAL_PROVIDERS: ServiceProvider[] = realData.providers.map((p: any) => ({
-  ...p,
-  contact: {
-    email: p.contact?.email ?? "",
-    phone: p.contact?.phone ?? "",
-    website: p.contact?.website ?? "",
-  },
-  rating: typeof p.rating === "string" ? parseFloat(p.rating) || 0 : (p.rating ?? 0),
-}));
+// Exported for external consumers; populated once data loads.
+export let REAL_PROVIDERS: ServiceProvider[] = [];
+
+function mapRawProviders(providers: RawProvider[]): ServiceProvider[] {
+  return providers.map((p: any) => ({
+    ...p,
+    contact: {
+      email: p.contact?.email ?? "",
+      phone: p.contact?.phone ?? "",
+      website: p.contact?.website ?? "",
+    },
+    rating: typeof p.rating === "string" ? parseFloat(p.rating) || 0 : (p.rating ?? 0),
+  }));
+}
 
 type SupaRow = {
   id: string; client_id: string; provider_id: string;
@@ -149,8 +138,33 @@ const BookingsContext = createContext<BookingsContextType | null>(null);
 
 export function BookingsProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const [bookings, setBookings] = useState<Booking[]>(REAL_BOOKINGS);
-  const [providers] = useState<ServiceProvider[]>(REAL_PROVIDERS);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [providers, setProviders] = useState<ServiceProvider[]>(REAL_PROVIDERS);
+
+  // Load scraped data lazily (replaces static import of 622KB JSON)
+  useEffect(() => {
+    import("@/data/bion_pretoria_data.json").then((mod) => {
+      const data = mod.default as any;
+      const mappedBookings: Booking[] = (data.bookings ?? []).map((booking: any) => ({
+        id: booking.id,
+        clientId: booking.clientId,
+        clientName: booking.clientName,
+        clientImage: booking.clientImage,
+        providerName: booking.providerName,
+        service: booking.service,
+        date: booking.date,
+        time: booking.time,
+        duration: booking.duration,
+        price: booking.price,
+        status: booking.status as BookingStatus,
+        note: booking.note,
+      }));
+      setBookings((prev) => prev.length > 0 ? prev : mappedBookings);
+      const mapped = mapRawProviders(data.providers ?? []);
+      REAL_PROVIDERS = mapped;
+      setProviders(mapped);
+    });
+  }, []);
 
   // ── Fetch real bookings + subscribe to Realtime ────────────────
   useEffect(() => {

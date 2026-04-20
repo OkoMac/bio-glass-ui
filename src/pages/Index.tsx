@@ -20,6 +20,7 @@ import { useHabitProfile } from "@/hooks/useHabits";
 import { useVerifiedProviders } from "@/hooks/useVerifiedProviders";
 import { distanceToSuburb } from "@/lib/pretoriaSuburbs";
 import BiometricsDashboard from "@/components/BiometricsDashboard";
+import PendingRatingsBanner from "@/components/PendingRatingsBanner";
 import ExpenditureRewardsStrip from "@/components/ExpenditureRewardsStrip";
 import realData from "@/data/bion_pretoria_data.json";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
@@ -282,6 +283,9 @@ const Index = () => {
           </div>
           <BiometricsDashboard compact />
         </section>
+
+        {/* Pending ratings — prompt user to rate completed bookings */}
+        <PendingRatingsBanner />
 
         {/* Onboarding checklist — nudges clients to fill missing profile signals */}
         {user?.role === "client" && <OnboardingChecklistCard role="client" />}

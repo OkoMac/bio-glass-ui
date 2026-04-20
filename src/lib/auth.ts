@@ -74,6 +74,9 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
       const fallbackAvatar = (authData.user.user_metadata?.avatar_url as string | undefined)
         ?? (authData.user.user_metadata?.picture as string | undefined);
       try {
+        // OAuth users default to client role → immediately verified
+        const oauthRole = (authData.user.user_metadata?.bio_role as string) ?? role;
+        const providerStatus = oauthRole === "provider" ? "pending_verification" : "verified";
         const { data: created } = await supabase
           .from("profiles")
           .upsert({
@@ -81,6 +84,7 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
             full_name: fallbackName,
             email: authData.user.email,
             avatar_url: fallbackAvatar,
+            provider_status: providerStatus,
           }, { onConflict: "user_id" })
           .select("id, full_name, email, avatar_url")
           .single();
