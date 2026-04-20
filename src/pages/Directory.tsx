@@ -52,13 +52,11 @@ const ALL_PROVIDERS = mergedProviders
     city: p.city || p.enhanced_city || "",
     price: p.price,
     availability: p.availability,
-    avatar: getProviderImage(p.id, p.name),
-    hasLogo: hasCustomImage(p.id),
+    avatar: (p as any).imageUrl || getProviderImage(p.id, p.name),
+    hasLogo: !!(p as any).imageUrl || hasCustomImage(p.id),
     lat: p.lat ?? null,
     lng: p.lng ?? null,
-  }))
-  // Providers with logos/images show first
-  .sort((a, b) => (b.hasLogo ? 1 : 0) - (a.hasLogo ? 1 : 0));
+  }));
 
 // ── Add counts to categories ────────────────────────
 const catCounts = ALL_PROVIDERS.reduce<Record<string, number>>((acc, p) => {
@@ -177,29 +175,27 @@ export default function Directory() {
       list = [...list].sort((a, b) => b.rating - a.rating);
     } else if (activeFilter === "Available Now") {
       list = list.filter((p) => /weekday|daily|today/i.test(p.availability ?? ""));
-    } else if (activeFilter === "Nearby") {
-      // Use manual location if set, otherwise GPS
+    } else if (activeFilter === "Nearby" || activeFilter === "All") {
       const uLat = manualLocation?.lat ?? geo.latitude;
       const uLng = manualLocation?.lng ?? geo.longitude;
       if (uLat && uLng) {
+        // Sort by distance, then by hasPhoto within same distance band (5km buckets)
         list = [...list].sort((a, b) => {
           const distA = a.lat && a.lng ? distanceKm(uLat, uLng, a.lat, a.lng) : 9999;
           const distB = b.lat && b.lng ? distanceKm(uLat, uLng, b.lat, b.lng) : 9999;
-          return distA - distB;
+          // Group into 5km bands — within each band, photos first
+          const bandA = Math.floor(distA / 5);
+          const bandB = Math.floor(distB / 5);
+          if (bandA !== bandB) return bandA - bandB;
+          // Same distance band: photos first, then by rating
+          if (a.hasLogo !== b.hasLogo) return b.hasLogo ? 1 : -1;
+          return b.rating - a.rating;
         });
       } else {
-        list = [...list].sort((a, b) => a.location.localeCompare(b.location));
-      }
-    } else if (activeFilter === "All") {
-      const uLat = manualLocation?.lat ?? geo.latitude;
-      const uLng = manualLocation?.lng ?? geo.longitude;
-      if (uLat && uLng) {
+        // No location — photos first, then by rating
         list = [...list].sort((a, b) => {
-          const distA = a.lat && a.lng ? distanceKm(uLat, uLng, a.lat, a.lng) : 50;
-          const distB = b.lat && b.lng ? distanceKm(uLat, uLng, b.lat, b.lng) : 50;
-          const scoreA = a.rating - (distA * 0.1);
-          const scoreB = b.rating - (distB * 0.1);
-          return scoreB - scoreA;
+          if (a.hasLogo !== b.hasLogo) return b.hasLogo ? 1 : -1;
+          return b.rating - a.rating;
         });
       }
     }
