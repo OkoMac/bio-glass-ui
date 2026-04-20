@@ -123,7 +123,7 @@ export default function Directory() {
       return saved ? JSON.parse(saved) : null;
     } catch { return null; }
   });
-  const [showLocationPicker, setShowLocationPicker] = useState(!manualLocation);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [locationSearch, setLocationSearch] = useState("");
   const [visibleCount, setVisibleCount] = useState(12);
   const listRef = useRef<HTMLDivElement>(null);
@@ -271,7 +271,8 @@ export default function Directory() {
                 className="flex items-center gap-1.5 text-xs text-teal hover:text-teal/80 transition-colors"
               >
                 <MapPin className="w-3 h-3" />
-                <span className="font-data">{manualLocation?.name || userSuburb || "Set location"}</span>
+                <span className="font-data">{manualLocation?.name || "Near you"}</span>
+                <span className="text-[9px] text-muted-foreground underline">change</span>
               </button>
               {user ? (
                 <div className="flex items-center gap-2">
@@ -298,11 +299,9 @@ export default function Directory() {
             {showLocationPicker && (
               <motion.div initial={{height:0,opacity:0}} animate={{height:"auto",opacity:1}} exit={{height:0,opacity:0}} className="overflow-hidden">
                 <div className={`rounded-2xl p-4 mt-2 space-y-3 ${!manualLocation ? "border-2 border-teal/40 bg-teal/5" : "glass-1"}`}>
-                  {!manualLocation && (
-                    <p className="text-sm font-semibold text-foreground flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-teal" /> Where are you? Select your suburb to see providers near you
-                    </p>
-                  )}
+                  <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-teal" /> {manualLocation ? "Change your location" : "Set your location for better results"}
+                  </p>
                   <div className="flex items-center gap-2 glass-1 rounded-pill px-3 py-2">
                     <Search className="w-4 h-4 text-muted-foreground shrink-0" />
                     <input

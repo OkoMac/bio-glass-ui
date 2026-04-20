@@ -6,6 +6,7 @@ interface GeoState {
   error: string | null;
   loading: boolean;
   permitted: boolean;
+  accuracy: number | null;
 }
 
 export function useGeolocation() {
@@ -15,6 +16,7 @@ export function useGeolocation() {
     error: null,
     loading: true,
     permitted: false,
+    accuracy: null,
   });
 
   const requestLocation = useCallback(() => {
@@ -31,6 +33,7 @@ export function useGeolocation() {
           error: null,
           loading: false,
           permitted: true,
+          accuracy: pos.coords.accuracy,
         });
       },
       (err) => {
@@ -41,12 +44,30 @@ export function useGeolocation() {
           permitted: false,
         }));
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
   }, []);
 
   useEffect(() => {
     requestLocation();
+
+    // Also watch for updates (mobile GPS refines over time)
+    if (!navigator.geolocation) return;
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        setState({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          error: null,
+          loading: false,
+          permitted: true,
+          accuracy: pos.coords.accuracy,
+        });
+      },
+      () => { /* ignore watch errors — we already have getCurrentPosition fallback */ },
+      { enableHighAccuracy: true, maximumAge: 60000 }
+    );
+    return () => navigator.geolocation.clearWatch(watchId);
   }, [requestLocation]);
 
   return { ...state, requestLocation };
