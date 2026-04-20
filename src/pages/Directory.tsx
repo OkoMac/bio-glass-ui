@@ -86,21 +86,29 @@ function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): num
 const ALL_SUBURBS = [...new Set(ALL_PROVIDERS.map(p => p.suburb).filter(Boolean))].sort();
 const ALL_CITIES = [...new Set(ALL_PROVIDERS.map(p => p.city).filter(Boolean))].sort();
 
-/** Find the nearest suburb name from GPS coordinates. */
-function nearestLocation(lat: number, lng: number): { suburb: string; city: string } {
-  let best = { suburb: "", city: "", dist: Infinity };
-  for (const p of ALL_PROVIDERS) {
-    if (!p.lat || !p.lng) continue;
-    const d = distanceKm(lat, lng, p.lat, p.lng);
-    if (d < best.dist) best = { suburb: p.suburb, city: p.city, dist: d };
-  }
-  return { suburb: best.suburb, city: best.city };
+/** Reverse geocode GPS coordinates via OpenStreetMap Nominatim (free). */
+function useReverseGeo(lat: number | null, lng: number | null) {
+  const [label, setLabel] = useState<string>("");
+  useEffect(() => {
+    if (!lat || !lng) return;
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=16`, {
+      headers: { "User-Agent": "BION Health bionhealth.co.za" },
+    })
+      .then(r => r.json())
+      .then(d => {
+        const addr = d?.address ?? {};
+        setLabel(addr.suburb || addr.city_district || addr.city || addr.town || "Near you");
+      })
+      .catch(() => setLabel("Near you"));
+  }, [lat, lng]);
+  return label;
 }
 
 export default function Directory() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const geo = useGeolocation();
+  const userSuburb = useReverseGeo(geo.latitude, geo.longitude);
   const { profile: habitProfile } = useHabitProfile();
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("Nearby");
@@ -251,10 +259,10 @@ export default function Directory() {
               <img src="/bion-logo-white-sm.png" alt="BION" className="h-14 md:h-20 w-auto" />
             </motion.div>
             <div className="flex items-center gap-2">
-              {geo.permitted && geo.latitude && geo.longitude && (
+              {geo.permitted && geo.latitude && (
                 <div className="hidden sm:flex items-center gap-1.5 text-xs text-teal">
                   <Navigation className="w-3 h-3" />
-                  <span className="font-data">{nearestLocation(geo.latitude, geo.longitude).suburb || nearestLocation(geo.latitude, geo.longitude).city || "Near you"}</span>
+                  <span className="font-data">{userSuburb || "Locating..."}</span>
                 </div>
               )}
               {user ? (
