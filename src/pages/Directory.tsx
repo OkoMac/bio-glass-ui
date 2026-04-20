@@ -110,18 +110,18 @@ export default function Directory() {
   const geo = useGeolocation();
   const userSuburb = useReverseGeo(geo.latitude, geo.longitude);
 
-  // Auto-snap to suburb center when GPS resolves — fixes inaccurate desktop GPS
-  // that places you at suburb borders. Uses the reverse-geocoded suburb name to
-  // find the suburb center from our provider data.
+  // Auto-snap to suburb center when GPS resolves
+  const hasSnapped = useRef(false);
   useEffect(() => {
-    if (manualLocation || !userSuburb || !geo.latitude) return;
+    if (hasSnapped.current || manualLocation || !userSuburb || !geo.latitude) return;
     const match = ALL_PROVIDERS.find(p => p.suburb === userSuburb && p.lat && p.lng);
     if (match) {
+      hasSnapped.current = true;
       const loc = { lat: match.lat!, lng: match.lng!, name: userSuburb };
       setManualLocation(loc);
       try { localStorage.setItem("bion_user_location", JSON.stringify(loc)); } catch {}
     }
-  }, [userSuburb, geo.latitude, manualLocation]);
+  }, [userSuburb, geo.latitude]); // eslint-disable-line react-hooks/exhaustive-deps
   const { profile: habitProfile } = useHabitProfile();
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("Nearby");
