@@ -28,9 +28,7 @@ interface BookingRow {
 }
 
 export default function AdminRefunds() {
-  const { token, loading: tokenLoading } = useAdminToken(); // was useState(() => {
-    
-  
+  const { token, loading: tokenLoading } = useAdminToken();
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<BookingRow[]>([]);
@@ -48,7 +46,7 @@ export default function AdminRefunds() {
     setResults([]);
     try {
       const url = `${API}/api/compliance/admin/booking-lookup?q=${encodeURIComponent(query.trim())}`;
-      const res = await fetch(url, { headers: { "X-Admin-Token": token } 
+      const res = await fetch(url, { headers: { "X-Admin-Token": token } });
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Search failed");
       setResults(j.bookings ?? []);
@@ -74,7 +72,7 @@ export default function AdminRefunds() {
           waiveBionFee,
           note: note.trim() || undefined,
         }),
-      
+      });
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Refund failed");
       setLastBreakdown(j.breakdown);
@@ -117,7 +115,7 @@ export default function AdminRefunds() {
       bion_refund_fee_rand: bionFee,
       paystack_fee_rand: paystackFee,
       bion_absorbed_rand: channel === "wallet" ? Math.round(paystackFee * pct * 100) / 100 : 0,
-    
+    });
   }, [selected, refundPct, channel, waiveBionFee]);
 
   if (!token) {

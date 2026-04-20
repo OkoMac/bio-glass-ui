@@ -78,9 +78,7 @@ const PRIORITY_TONE: Record<Priority, string> = {
 };
 
 export default function AdminTickets() {
-  const { token, loading: tokenLoading } = useAdminToken(); // was useState(() => {
-    
-  
+  const { token, loading: tokenLoading } = useAdminToken();
   const [tab, setTab] = useState<string>("open");
   const [priorityFilter, setPriorityFilter] = useState<(typeof PRIORITY_FILTERS)[number]>("all");
   const [rows, setRows] = useState<QueueRow[]>([]);
@@ -97,6 +95,7 @@ export default function AdminTickets() {
       const res = await fetch(`${API}/api/support/tickets/admin/queue?${params}`, {
         headers: { "X-Admin-Token": token },
       
+      });
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed to load queue");
       setRows(j.data ?? []);
@@ -309,6 +308,7 @@ function TicketDetail({
           ...(await jwtHeader()),
         },
       
+      });
       const j = await res.json();
       if (j?.ok) { setReplies(j.replies ?? []); }
       else { setReplies([]); }
@@ -329,7 +329,7 @@ function TicketDetail({
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Admin-Token": token },
         body: JSON.stringify({ body: replyBody.trim() }),
-      
+      });
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed to send reply");
       toast.success("Reply sent · user notified by email");
@@ -350,7 +350,7 @@ function TicketDetail({
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Admin-Token": token },
         body: JSON.stringify({ status, resolution_note: note.trim() || undefined }),
-      
+      });
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed to change status");
       toast.success(`Status → ${status.replace(/_/g, " ")} · user emailed`);

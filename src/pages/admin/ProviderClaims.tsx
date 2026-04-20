@@ -50,9 +50,7 @@ interface ProviderOption {
 }
 
 export default function AdminProviderClaims() {
-  const { token, loading: tokenLoading } = useAdminToken(); // was useState(() => {
-    
-  
+  const { token, loading: tokenLoading } = useAdminToken();
   const [tokenDraft, setTokenDraft] = useState("");
   const [claims, setClaims] = useState<Claim[]>([]);
   const [loading, setLoading] = useState(false);
@@ -73,7 +71,7 @@ export default function AdminProviderClaims() {
     try {
       const res = await fetch(`${API}/api/providers/claims/admin/pending`, {
         headers: { "X-Admin-Token": token },
-      
+      });
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed to load claims");
       setClaims((j.claims ?? []) as Claim[]);
@@ -109,7 +107,7 @@ export default function AdminProviderClaims() {
       const an = (a.full_name ?? "").toLowerCase();
       const bn = (b.full_name ?? "").toLowerCase();
       return Number(bn.includes(q)) - Number(an.includes(q));
-    
+    });
   }, [providers, approveModal]);
 
   const approve = async () => {
@@ -123,7 +121,7 @@ export default function AdminProviderClaims() {
           link_profile_id: approveProfileId || undefined,
           admin_note: approveNote || undefined,
         }),
-      
+      });
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Approve failed");
       toast.success(approveProfileId ? "Claim approved and linked to provider profile" : "Claim approved");
@@ -149,7 +147,7 @@ export default function AdminProviderClaims() {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Admin-Token": token },
         body: JSON.stringify({ reason: rejectReason.trim() }),
-      
+      });
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Reject failed");
       toast.success("Claim rejected — claimant notified");
