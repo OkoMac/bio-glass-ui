@@ -610,7 +610,13 @@ export default function Directory() {
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-sm font-bold text-foreground">{provider.price}</p>
-                    <span className="text-[10px] text-teal mt-0.5">View profile →</span>
+                    <span className="text-[10px] text-teal mt-0.5 block">View profile →</span>
+                    <span
+                      onClick={(e) => { e.stopPropagation(); handleProviderClick(provider.id); }}
+                      className="text-[9px] text-indigo underline mt-0.5 block cursor-pointer"
+                    >
+                      Own this business?
+                    </span>
                   </div>
                 </motion.div>
               ))}

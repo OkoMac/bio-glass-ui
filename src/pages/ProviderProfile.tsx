@@ -218,11 +218,9 @@ export default function ProviderProfile() {
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [bookingBusy, setBookingBusy] = useState(false);
 
-  // ── "Claim this listing" modal state ─────────────────────────────────
-  // Directory providers (non-bookable) get a small card offering the real
-  // business owner a way to claim the listing. Submits to
-  // POST /api/providers/claim which fires a sales-team email and creates a
-  // provider_claims row for ops to review.
+  // ── "Claim this business" self-service flow ──────────────────────────
+  // Two paths: (1) OTP-verified self-claim, (2) request a meeting with
+  // a BION sales rep. Both submit to dedicated backend endpoints.
   const [showClaim, setShowClaim] = useState(false);
   const [claimBusy, setClaimBusy] = useState(false);
   const [claimSubmitted, setClaimSubmitted] = useState(false);
@@ -231,6 +229,20 @@ export default function ProviderProfile() {
   const [claimEmail, setClaimEmail] = useState("");
   const [claimPhone, setClaimPhone] = useState("");
   const [claimProof, setClaimProof] = useState("");
+  // OTP verification step
+  const [claimId, setClaimId] = useState<string | null>(null);
+  const [claimOtp, setClaimOtp] = useState("");
+  const [claimOtpSent, setClaimOtpSent] = useState(false);
+  const [claimVerified, setClaimVerified] = useState(false);
+  // Meeting request
+  const [showMeeting, setShowMeeting] = useState(false);
+  const [meetingBusy, setMeetingBusy] = useState(false);
+  const [meetingSubmitted, setMeetingSubmitted] = useState(false);
+  const [meetingError, setMeetingError] = useState<string | null>(null);
+  const [meetingEmail, setMeetingEmail] = useState("");
+  const [meetingPhone, setMeetingPhone] = useState("");
+  const [meetingTime, setMeetingTime] = useState("");
+  const [meetingNotes, setMeetingNotes] = useState("");
 
   // Acquisition voucher this user has already claimed for this provider.
   // When present, the user can apply it at checkout to skip Paystack entirely
@@ -363,41 +375,100 @@ export default function ProviderProfile() {
     }
   };
 
-  // Submit a "Claim this listing" request to the backend. Creates a
-  // provider_claims row + notifies the sales team. Slug matches the pattern
-  // used by createProviderLead (dir-<provider.id>) so both funnels feed the
-  // same external_providers row.
+  // Submit a self-service claim — Step 1: send OTP to email
   const submitClaim = async () => {
     if (!provider) return;
     setClaimError(null);
-    if (!claimName.trim() || !claimEmail.trim()) {
-      setClaimError("Please share your full name and email.");
+    if (!claimEmail.trim() || !claimPhone.trim()) {
+      setClaimError("Please enter your email and phone number.");
       return;
     }
     setClaimBusy(true);
     try {
       const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
-      const res = await fetch(`${API}/api/providers/claim`, {
+      const res = await fetch(`${API}/api/providers/${provider.id}/claim`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          external_slug: `dir-${provider.id}`,
-          external_name: provider.name,
-          claimant_name: claimName.trim(),
-          claimant_email: claimEmail.trim(),
-          claimant_phone: claimPhone.trim() || undefined,
-          proof: claimProof.trim() || undefined,
+          email: claimEmail.trim(),
+          phone: claimPhone.trim(),
+          businessName: provider.name,
         }),
       });
       const data = await res.json();
       if (!res.ok || !data.ok) {
-        throw new Error(data.error ?? "Couldn't submit your claim — try again.");
+        throw new Error(data.error ?? "Couldn't start claim — try again.");
       }
-      setClaimSubmitted(true);
+      setClaimId(data.claimId);
+      setClaimOtpSent(true);
     } catch (err: any) {
       setClaimError(err.message ?? "Something went wrong. Please try again.");
     } finally {
       setClaimBusy(false);
+    }
+  };
+
+  // Submit a self-service claim — Step 2: verify OTP
+  const verifyClaim = async () => {
+    if (!claimId) return;
+    setClaimError(null);
+    if (claimOtp.length !== 6) {
+      setClaimError("Please enter the 6-digit code from your email.");
+      return;
+    }
+    setClaimBusy(true);
+    try {
+      const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+      const res = await fetch(`${API}/api/providers/claim/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ claimId, otp: claimOtp }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error ?? "Verification failed — try again.");
+      }
+      setClaimVerified(true);
+      // Redirect to document upload after a short delay
+      setTimeout(() => navigate("/pro/verification"), 2500);
+    } catch (err: any) {
+      setClaimError(err.message ?? "Something went wrong. Please try again.");
+    } finally {
+      setClaimBusy(false);
+    }
+  };
+
+  // Request a meeting with a BION sales rep
+  const submitMeetingRequest = async () => {
+    if (!provider) return;
+    setMeetingError(null);
+    if (!meetingEmail.trim() || !meetingPhone.trim()) {
+      setMeetingError("Please enter your email and phone number.");
+      return;
+    }
+    setMeetingBusy(true);
+    try {
+      const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+      const res = await fetch(`${API}/api/providers/claim/request-meeting`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: meetingEmail.trim(),
+          phone: meetingPhone.trim(),
+          businessName: provider.name,
+          preferredTime: meetingTime || undefined,
+          notes: meetingNotes.trim() || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error ?? "Couldn't submit — try again.");
+      }
+      setMeetingSubmitted(true);
+    } catch (err: any) {
+      setMeetingError(err.message ?? "Something went wrong. Please try again.");
+    } finally {
+      setMeetingBusy(false);
     }
   };
 
@@ -726,31 +797,47 @@ export default function ProviderProfile() {
             )}
           </GlassCard>
 
-          {/* "Are you the owner?" — only shown for directory-only listings.
+          {/* "Is this your business?" — only shown for directory-only listings.
               A verified BION provider already owns their profile so this
               card would be redundant; we hide it once isRegisteredOnBion. */}
           {!isRegisteredOnBion && (
             <GlassCard className="p-4 mt-3 border border-indigo/20 bg-indigo/[0.03]">
               <div className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-xl bg-indigo/10 flex items-center justify-center shrink-0">
-                  <UserCheck className="w-4 h-4 text-indigo" />
+                  <Building className="w-4 h-4 text-indigo" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground">Are you the owner of this listing?</p>
+                  <p className="text-sm font-semibold text-foreground">Is this your business?</p>
                   <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
-                    Claim this page to take bookings directly, upload photos, set hours, and join BION's verified providers.
+                    Take ownership of this listing to manage your profile & services, accept bookings & payments, and access CRM & analytics.
                   </p>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    <button
+                      onClick={() => {
+                        setShowClaim(true);
+                        setClaimOtpSent(false);
+                        setClaimVerified(false);
+                        setClaimSubmitted(false);
+                        setClaimError(null);
+                        setClaimOtp("");
+                        setClaimId(null);
+                      }}
+                      className="px-3 py-1.5 gradient-indigo rounded-pill text-xs font-medium text-white shadow-cta"
+                    >
+                      Claim This Business
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowMeeting(true);
+                        setMeetingSubmitted(false);
+                        setMeetingError(null);
+                      }}
+                      className="px-3 py-1.5 glass-1 rounded-pill text-xs font-medium text-foreground border border-white/[0.08] hover:bg-white/[0.06] transition-colors"
+                    >
+                      Request a Meeting
+                    </button>
+                  </div>
                 </div>
-                <button
-                  onClick={() => {
-                    setShowClaim(true);
-                    setClaimSubmitted(false);
-                    setClaimError(null);
-                  }}
-                  className="shrink-0 px-3 py-1.5 gradient-indigo rounded-pill text-xs font-medium text-white shadow-cta"
-                >
-                  Claim listing
-                </button>
               </div>
             </GlassCard>
           )}
@@ -1164,11 +1251,9 @@ export default function ProviderProfile() {
         </>
       )}
 
-      {/* ── Claim Listing Modal ──
-           Shown to anyone who claims ownership of a directory listing. No
-           auth needed — they just enter contact + proof details. Submits
-           to POST /api/providers/claim; success state shows a confirmation
-           so they know sales will reach out. */}
+      {/* ── Claim This Business Modal (OTP flow) ──
+           Step 1: Enter email + phone → sends 6-digit OTP.
+           Step 2: Enter OTP → verified → redirect to /pro/verification. */}
       {showClaim && (
         <>
           <motion.div
@@ -1182,34 +1267,107 @@ export default function ProviderProfile() {
             className="fixed bottom-0 left-0 right-0 z-[90] max-w-lg mx-auto rounded-t-3xl p-6 space-y-4"
             style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", border: "1px solid rgba(255,255,255,0.08)" }}
           >
-            {claimSubmitted ? (
+            {claimVerified ? (
+              /* Success — verified */
               <div className="py-4 space-y-4 text-center">
                 <div className="w-12 h-12 rounded-full bg-teal/20 flex items-center justify-center mx-auto">
                   <Check className="w-6 h-6 text-teal" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-foreground mb-1">Claim submitted</h3>
+                  <h3 className="text-base font-bold text-foreground mb-1">Business verified!</h3>
                   <p className="text-xs text-muted-foreground leading-relaxed max-w-sm mx-auto">
-                    We'll reach out to verify ownership and help you get set up on BION.
-                    Expect a call from our sales team within 1 business day.
+                    Welcome to BION. You'll be redirected to upload your business documents so we can fully activate your profile.
                   </p>
                 </div>
                 <button
-                  onClick={() => setShowClaim(false)}
+                  onClick={() => navigate("/pro/verification")}
                   className="w-full py-2.5 gradient-indigo rounded-pill text-sm font-semibold text-white shadow-cta"
                 >
-                  Done
+                  Upload Documents
                 </button>
               </div>
-            ) : (
+            ) : claimOtpSent ? (
+              /* Step 2 — Enter OTP */
               <>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-xl bg-indigo/10 flex items-center justify-center">
-                      <UserCheck className="w-4 h-4 text-indigo" />
+                      <Mail className="w-4 h-4 text-indigo" />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-foreground">Claim this listing</h3>
+                      <h3 className="text-base font-bold text-foreground">Check your email</h3>
+                      <p className="text-[10px] text-muted-foreground truncate max-w-[200px]">{claimEmail}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => !claimBusy && setShowClaim(false)}
+                    className="w-8 h-8 glass-1 rounded-full flex items-center justify-center"
+                  >
+                    <X className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  We sent a 6-digit verification code to <strong className="text-foreground">{claimEmail}</strong>. Enter it below to claim <strong className="text-foreground">{provider.name}</strong>.
+                </p>
+
+                <div>
+                  <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1 block">
+                    Verification code <span className="text-coral">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={claimOtp}
+                    onChange={e => setClaimOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    placeholder="000000"
+                    className="w-full px-4 py-3 glass-1 rounded-xl text-lg text-foreground text-center tracking-[0.5em] font-data placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-indigo/40 transition-colors"
+                    autoFocus
+                  />
+                </div>
+
+                {claimError && (
+                  <div className="rounded-xl border border-coral/30 bg-coral/10 px-3 py-2 text-xs text-coral">
+                    {claimError}
+                  </div>
+                )}
+
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={verifyClaim}
+                  disabled={claimBusy || claimOtp.length !== 6}
+                  className={`w-full rounded-pill py-3.5 text-sm font-semibold text-primary-foreground shadow-cta transition-opacity flex items-center justify-center gap-2 ${
+                    claimBusy || claimOtp.length !== 6 ? "gradient-indigo opacity-50 cursor-not-allowed" : "gradient-indigo"
+                  }`}
+                >
+                  {claimBusy ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Verifying…
+                    </>
+                  ) : (
+                    "Verify & Claim"
+                  )}
+                </motion.button>
+
+                <button
+                  onClick={() => { setClaimOtpSent(false); setClaimError(null); setClaimOtp(""); }}
+                  className="w-full text-xs text-muted-foreground text-center hover:text-foreground transition-colors"
+                >
+                  Back to edit details
+                </button>
+              </>
+            ) : (
+              /* Step 1 — Enter email + phone */
+              <>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-indigo/10 flex items-center justify-center">
+                      <Building className="w-4 h-4 text-indigo" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-foreground">Claim this business</h3>
                       <p className="text-[10px] text-muted-foreground truncate max-w-[200px]">{provider.name}</p>
                     </div>
                   </div>
@@ -1224,19 +1382,7 @@ export default function ProviderProfile() {
                 <div className="space-y-3">
                   <div>
                     <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1 block">
-                      Full name <span className="text-coral">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={claimName}
-                      onChange={e => setClaimName(e.target.value)}
-                      placeholder="Your full name"
-                      className="w-full px-4 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-indigo/40 transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1 block">
-                      Email <span className="text-coral">*</span>
+                      Business email <span className="text-coral">*</span>
                     </label>
                     <input
                       type="email"
@@ -1248,7 +1394,7 @@ export default function ProviderProfile() {
                   </div>
                   <div>
                     <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1 block">
-                      Phone <span className="text-muted-foreground/50">(optional)</span>
+                      Phone number <span className="text-coral">*</span>
                     </label>
                     <input
                       type="tel"
@@ -1260,14 +1406,13 @@ export default function ProviderProfile() {
                   </div>
                   <div>
                     <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1 block">
-                      How are you connected to this business?
+                      Business name
                     </label>
-                    <textarea
-                      value={claimProof}
-                      onChange={e => setClaimProof(e.target.value)}
-                      placeholder="e.g. I'm the owner, my HPCSA number is PR123456, or I've worked here for 3 years..."
-                      rows={3}
-                      className="w-full px-4 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-indigo/40 transition-colors resize-none"
+                    <input
+                      type="text"
+                      value={provider.name}
+                      disabled
+                      className="w-full px-4 py-2.5 glass-1 rounded-xl text-sm text-muted-foreground outline-none border border-white/[0.08] opacity-60"
                     />
                   </div>
                 </div>
@@ -1289,15 +1434,155 @@ export default function ProviderProfile() {
                   {claimBusy ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Submitting…
+                      Sending code…
                     </>
                   ) : (
-                    "Submit claim"
+                    "Send Verification Code"
                   )}
                 </motion.button>
 
                 <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
-                  Our sales team will verify your ownership and reach out within 1 business day.
+                  We'll send a 6-digit code to your email to verify ownership.
+                </p>
+              </>
+            )}
+          </motion.div>
+        </>
+      )}
+
+      {/* ── Request a Meeting Modal ── */}
+      {showMeeting && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => !meetingBusy && setShowMeeting(false)}
+            className="fixed inset-0 bg-obsidian/70 z-[80]"
+          />
+          <motion.div
+            initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed bottom-0 left-0 right-0 z-[90] max-w-lg mx-auto rounded-t-3xl p-6 space-y-4"
+            style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            {meetingSubmitted ? (
+              <div className="py-4 space-y-4 text-center">
+                <div className="w-12 h-12 rounded-full bg-teal/20 flex items-center justify-center mx-auto">
+                  <Check className="w-6 h-6 text-teal" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-foreground mb-1">Meeting requested</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed max-w-sm mx-auto">
+                    A BION rep will contact you within 24 hours to schedule a call and help you get started.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowMeeting(false)}
+                  className="w-full py-2.5 gradient-indigo rounded-pill text-sm font-semibold text-white shadow-cta"
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-indigo/10 flex items-center justify-center">
+                      <CalendarDays className="w-4 h-4 text-indigo" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-foreground">Request a meeting</h3>
+                      <p className="text-[10px] text-muted-foreground truncate max-w-[200px]">{provider.name}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => !meetingBusy && setShowMeeting(false)}
+                    className="w-8 h-8 glass-1 rounded-full flex items-center justify-center"
+                  >
+                    <X className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1 block">
+                      Email <span className="text-coral">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={meetingEmail}
+                      onChange={e => setMeetingEmail(e.target.value)}
+                      placeholder="you@business.co.za"
+                      className="w-full px-4 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-indigo/40 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1 block">
+                      Phone <span className="text-coral">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      value={meetingPhone}
+                      onChange={e => setMeetingPhone(e.target.value)}
+                      placeholder="+27 ..."
+                      className="w-full px-4 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-indigo/40 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1 block">
+                      Preferred meeting time
+                    </label>
+                    <select
+                      value={meetingTime}
+                      onChange={e => setMeetingTime(e.target.value)}
+                      className="w-full px-4 py-2.5 glass-1 rounded-xl text-sm text-foreground outline-none border border-white/[0.08] focus:border-indigo/40 transition-colors bg-transparent"
+                    >
+                      <option value="">Any time</option>
+                      <option value="Morning">Morning</option>
+                      <option value="Afternoon">Afternoon</option>
+                      <option value="Evening">Evening</option>
+                      <option value="Weekend">Weekend</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1 block">
+                      Notes <span className="text-muted-foreground/50">(optional)</span>
+                    </label>
+                    <textarea
+                      value={meetingNotes}
+                      onChange={e => setMeetingNotes(e.target.value)}
+                      placeholder="Tell us about your business or any questions you have..."
+                      rows={3}
+                      className="w-full px-4 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-indigo/40 transition-colors resize-none"
+                    />
+                  </div>
+                </div>
+
+                {meetingError && (
+                  <div className="rounded-xl border border-coral/30 bg-coral/10 px-3 py-2 text-xs text-coral">
+                    {meetingError}
+                  </div>
+                )}
+
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={submitMeetingRequest}
+                  disabled={meetingBusy}
+                  className={`w-full rounded-pill py-3.5 text-sm font-semibold text-primary-foreground shadow-cta transition-opacity flex items-center justify-center gap-2 ${
+                    meetingBusy ? "gradient-indigo opacity-60 cursor-not-allowed" : "gradient-indigo"
+                  }`}
+                >
+                  {meetingBusy ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Submitting…
+                    </>
+                  ) : (
+                    "Request Meeting"
+                  )}
+                </motion.button>
+
+                <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
+                  A BION representative will contact you within 24 hours.
                 </p>
               </>
             )}
