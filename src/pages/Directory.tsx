@@ -497,21 +497,37 @@ export default function Directory() {
 
       <div className="w-full px-4 md:px-8 xl:px-12 py-6 space-y-8">
 
-        {/* ── GPS prompt ─────────────────────────────── */}
-        {!geo.permitted && !geo.loading && (
+        {/* ── GPS / location prompt ─────────────────── */}
+        {!geo.permitted && !geo.loading && !manualLocation && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glass-accent-teal rounded-2xl p-4 flex items-center gap-3 cursor-pointer"
-            onClick={geo.requestLocation}
+            className="glass-accent-teal rounded-2xl p-4 space-y-3"
           >
-            <div className="w-10 h-10 rounded-xl gradient-teal flex items-center justify-center shrink-0">
-              <Navigation className="w-5 h-5 text-obsidian" />
+            <div
+              className="flex items-center gap-3 cursor-pointer"
+              onClick={() => {
+                geo.requestLocation();
+                // If permission was blocked, also open manual picker after 2s
+                setTimeout(() => {
+                  if (!geo.permitted) setShowLocationPicker(true);
+                }, 2000);
+              }}
+            >
+              <div className="w-10 h-10 rounded-xl gradient-teal flex items-center justify-center shrink-0">
+                <Navigation className="w-5 h-5 text-obsidian" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">Enable location</p>
+                <p className="text-xs text-muted-foreground">Tap to allow GPS, or select your suburb below</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-medium text-foreground">Enable location</p>
-              <p className="text-xs text-muted-foreground">Allow GPS to find service providers closest to you</p>
-            </div>
+            <button
+              onClick={() => setShowLocationPicker(true)}
+              className="w-full rounded-pill py-2 text-xs font-medium glass-1 text-foreground"
+            >
+              Or select your suburb manually →
+            </button>
           </motion.div>
         )}
 

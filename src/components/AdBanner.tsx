@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface AdBannerProps {
-  slot: string;           // AdSense ad slot ID
+  slot: string;
   format?: "auto" | "horizontal" | "vertical" | "rectangle";
   className?: string;
 }
@@ -10,8 +10,8 @@ interface AdBannerProps {
 export default function AdBanner({ slot, format = "auto", className = "" }: AdBannerProps) {
   const { user } = useAuth();
   const adRef = useRef<HTMLDivElement>(null);
+  const [adLoaded, setAdLoaded] = useState(false);
 
-  // Don't show ads to Premium subscribers or signed-in providers
   const subscription = user?.subscription;
   const isPremium = subscription?.tier && subscription.tier !== "free";
   const isProvider = user?.role === "provider" || user?.role === "admin";
@@ -19,15 +19,30 @@ export default function AdBanner({ slot, format = "auto", className = "" }: AdBa
   useEffect(() => {
     if (isPremium || isProvider) return;
     try {
-      // @ts-ignore — adsbygoogle is injected by the script tag
+      // @ts-ignore
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch {}
+
+    // Check if ad actually rendered (has height) after 2 seconds
+    const timer = setTimeout(() => {
+      const ins = adRef.current?.querySelector("ins");
+      if (ins && ins.offsetHeight > 10) {
+        setAdLoaded(true);
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
   }, [isPremium, isProvider]);
 
   if (isPremium || isProvider) return null;
 
+  // Don't take up space until ad actually loads
+  // This prevents the blank black block on mobile
   return (
-    <div className={`ad-container my-4 ${className}`} ref={adRef}>
+    <div
+      className={`ad-container ${adLoaded ? "my-4" : ""} ${className}`}
+      ref={adRef}
+      style={adLoaded ? undefined : { maxHeight: 0, overflow: "hidden" }}
+    >
       <ins
         className="adsbygoogle"
         style={{ display: "block" }}
@@ -36,9 +51,11 @@ export default function AdBanner({ slot, format = "auto", className = "" }: AdBa
         data-ad-format={format}
         data-full-width-responsive="true"
       />
-      <p className="text-[9px] text-muted-foreground/40 text-center mt-1">
-        <a href="/welcome" className="hover:text-indigo">Go Premium</a> to remove ads
-      </p>
+      {adLoaded && (
+        <p className="text-[9px] text-muted-foreground/40 text-center mt-1">
+          <a href="/welcome" className="hover:text-indigo">Go Premium</a> to remove ads
+        </p>
+      )}
     </div>
   );
 }
