@@ -117,6 +117,9 @@ export default function Directory() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedSuburb, setSelectedSuburb] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const [manualLocation, setManualLocation] = useState<{lat:number;lng:number;name:string}|null>(null);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
+  const [locationSearch, setLocationSearch] = useState("");
   const [visibleCount, setVisibleCount] = useState(12);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -157,31 +160,30 @@ export default function Directory() {
     } else if (activeFilter === "Available Now") {
       list = list.filter((p) => /weekday|daily|today/i.test(p.availability ?? ""));
     } else if (activeFilter === "Nearby") {
-      // Sort by GPS distance from user's current location
-      if (geo.latitude && geo.longitude) {
-        const userLat = geo.latitude;
-        const userLng = geo.longitude;
+      // Use manual location if set, otherwise GPS
+      const uLat = manualLocation?.lat ?? geo.latitude;
+      const uLng = manualLocation?.lng ?? geo.longitude;
+      if (uLat && uLng) {
         list = [...list].sort((a, b) => {
-          const distA = a.lat && a.lng ? distanceKm(userLat, userLng, a.lat, a.lng) : 9999;
-          const distB = b.lat && b.lng ? distanceKm(userLat, userLng, b.lat, b.lng) : 9999;
+          const distA = a.lat && a.lng ? distanceKm(uLat, uLng, a.lat, a.lng) : 9999;
+          const distB = b.lat && b.lng ? distanceKm(uLat, uLng, b.lat, b.lng) : 9999;
           return distA - distB;
         });
       } else {
-        // No GPS — sort by location string as fallback
         list = [...list].sort((a, b) => a.location.localeCompare(b.location));
       }
-    } else if (activeFilter === "All" && geo.latitude && geo.longitude) {
-      // Default: blend proximity + rating when GPS available
-      const userLat = geo.latitude;
-      const userLng = geo.longitude;
-      list = [...list].sort((a, b) => {
-        const distA = a.lat && a.lng ? distanceKm(userLat, userLng, a.lat, a.lng) : 50;
-        const distB = b.lat && b.lng ? distanceKm(userLat, userLng, b.lat, b.lng) : 50;
-        // Score: closer + higher rated = higher score
-        const scoreA = a.rating - (distA * 0.1);
-        const scoreB = b.rating - (distB * 0.1);
-        return scoreB - scoreA;
-      });
+    } else if (activeFilter === "All") {
+      const uLat = manualLocation?.lat ?? geo.latitude;
+      const uLng = manualLocation?.lng ?? geo.longitude;
+      if (uLat && uLng) {
+        list = [...list].sort((a, b) => {
+          const distA = a.lat && a.lng ? distanceKm(uLat, uLng, a.lat, a.lng) : 50;
+          const distB = b.lat && b.lng ? distanceKm(uLat, uLng, b.lat, b.lng) : 50;
+          const scoreA = a.rating - (distA * 0.1);
+          const scoreB = b.rating - (distB * 0.1);
+          return scoreB - scoreA;
+        });
+      }
     }
 
     // Personalise by the user's top engaged categories (from habits). When the
@@ -204,7 +206,7 @@ export default function Directory() {
     }
 
     return list;
-  }, [selectedCategoryId, search, activeFilter, habitProfile, selectedSuburb, selectedCity, geo.latitude, geo.longitude]);
+  }, [selectedCategoryId, search, activeFilter, habitProfile, selectedSuburb, selectedCity, geo.latitude, geo.longitude, manualLocation]);
 
   const displayProviders = useMemo(() => filteredProviders.slice(0, visibleCount), [filteredProviders, visibleCount]);
   const hasMore = visibleCount < filteredProviders.length;
@@ -259,12 +261,13 @@ export default function Directory() {
               <img src="/bion-logo-white-sm.png" alt="BION" className="h-14 md:h-20 w-auto" />
             </motion.div>
             <div className="flex items-center gap-2">
-              {geo.permitted && geo.latitude && (
-                <div className="hidden sm:flex items-center gap-1.5 text-xs text-teal">
-                  <Navigation className="w-3 h-3" />
-                  <span className="font-data">{userSuburb || "Locating..."}</span>
-                </div>
-              )}
+              <button
+                onClick={() => setShowLocationPicker(!showLocationPicker)}
+                className="flex items-center gap-1.5 text-xs text-teal hover:text-teal/80 transition-colors"
+              >
+                <MapPin className="w-3 h-3" />
+                <span className="font-data">{manualLocation?.name || userSuburb || "Set location"}</span>
+              </button>
               {user ? (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground hidden sm:inline">Hi, {user.name?.split(" ")[0]}</span>
@@ -284,6 +287,58 @@ export default function Directory() {
               )}
             </div>
           </div>
+
+          {/* Location picker */}
+          <AnimatePresence>
+            {showLocationPicker && (
+              <motion.div initial={{height:0,opacity:0}} animate={{height:"auto",opacity:1}} exit={{height:0,opacity:0}} className="overflow-hidden">
+                <div className="glass-1 rounded-2xl p-3 mt-2 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-teal shrink-0" />
+                    <input
+                      value={locationSearch}
+                      onChange={(e) => setLocationSearch(e.target.value)}
+                      placeholder="Type your suburb..."
+                      className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                      autoFocus
+                    />
+                    {manualLocation && (
+                      <button onClick={() => { setManualLocation(null); setShowLocationPicker(false); setLocationSearch(""); }} className="text-[10px] text-coral">
+                        Use GPS
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto scrollbar-none">
+                    {ALL_SUBURBS
+                      .filter(s => !locationSearch || s.toLowerCase().includes(locationSearch.toLowerCase()))
+                      .slice(0, 40)
+                      .map(suburb => {
+                        const provider = ALL_PROVIDERS.find(p => p.suburb === suburb && p.lat && p.lng);
+                        return (
+                          <button
+                            key={suburb}
+                            onClick={() => {
+                              if (provider) {
+                                setManualLocation({ lat: provider.lat!, lng: provider.lng!, name: suburb });
+                              }
+                              setShowLocationPicker(false);
+                              setLocationSearch("");
+                              setActiveFilter("Nearby");
+                              setVisibleCount(12);
+                            }}
+                            className={`rounded-pill px-2.5 py-1 text-[11px] font-medium border transition-colors ${
+                              manualLocation?.name === suburb ? "border-teal/40 bg-teal/20 text-teal" : "border-white/[0.06] text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            {suburb}
+                          </button>
+                        );
+                      })}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Search bar */}
           <div className="glass-1 rounded-pill flex items-center gap-3 px-4 py-3">
