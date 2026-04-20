@@ -66,6 +66,7 @@ const verticals = ["teal", "indigo", "coral", "amber"] as const;
       phone: p.contact?.phone,
       website: p.contact?.website,
     },
+    callout: !!p.callout,
   };
 });
 
@@ -620,6 +621,14 @@ export default function ProviderProfile() {
             </div>
           ))}
         </GlassCard>
+
+        {/* Callout badge */}
+        {provider.callout && (
+          <div className="flex items-center gap-2 text-sm">
+            <Phone className="w-4 h-4 text-teal" />
+            <span className="text-teal font-medium">Offers callouts / home visits</span>
+          </div>
+        )}
 
         {/* Availability */}
         {provider.availability && (

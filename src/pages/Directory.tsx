@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Search, MapPin, SlidersHorizontal, Navigation, Star, Clock, ChevronRight, X, Plus, Lock } from "lucide-react";
+import { Search, MapPin, SlidersHorizontal, Navigation, Star, Clock, ChevronRight, X, Plus, Lock, Phone } from "lucide-react";
 import BookingRequestForm from "@/components/BookingRequestForm";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import ServiceCategoryBlock, { SERVICE_CATEGORIES, type ServiceCategory } from "@/components/ServiceCategoryBlock";
@@ -57,6 +57,7 @@ const ALL_PROVIDERS = mergedProviders
     hasLogo: !!(p as any).imageUrl || hasCustomImage(p.id),
     lat: p.lat ?? null,
     lng: p.lng ?? null,
+    callout: !!(p as any).callout,
   }));
 
 // ── Add counts to categories ────────────────────────
@@ -70,7 +71,7 @@ const CATEGORIES_WITH_COUNTS = SERVICE_CATEGORIES.map((c) => ({
   count: catCounts[c.id] ?? 0,
 }));
 
-const FILTER_TABS = ["All", "Top Rated", "Nearby", "Available Now"];
+const FILTER_TABS = ["All", "Top Rated", "Nearby", "Callouts", "Available Now"];
 
 /** Haversine distance in km between two GPS points. */
 function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -175,6 +176,18 @@ export default function Directory() {
     // Tab filter
     if (activeFilter === "Top Rated") {
       list = [...list].sort((a, b) => b.rating - a.rating);
+    } else if (activeFilter === "Callouts") {
+      list = list.filter((p) => p.callout);
+      // Sort callout providers by distance if location available
+      const uLat = manualLocation?.lat ?? geo.latitude;
+      const uLng = manualLocation?.lng ?? geo.longitude;
+      if (uLat && uLng) {
+        list = [...list].sort((a, b) => {
+          const distA = a.lat && a.lng ? distanceKm(uLat, uLng, a.lat, a.lng) : 9999;
+          const distB = b.lat && b.lng ? distanceKm(uLat, uLng, b.lat, b.lng) : 9999;
+          return distA - distB;
+        });
+      }
     } else if (activeFilter === "Available Now") {
       list = list.filter((p) => /weekday|daily|today/i.test(p.availability ?? ""));
     } else if (activeFilter === "Nearby" || activeFilter === "All") {
@@ -596,7 +609,14 @@ export default function Directory() {
                     onError={(e) => { (e.target as HTMLImageElement).src = getProviderImage("fallback_" + provider.id, provider.name); }}
                   />
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-foreground truncate">{provider.name}</h3>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="text-sm font-semibold text-foreground truncate">{provider.name}</h3>
+                      {provider.callout && (
+                        <span className="shrink-0 flex items-center gap-0.5 text-[8px] font-semibold px-1.5 py-0.5 rounded-pill bg-teal/20 text-teal border border-teal/30">
+                          <Phone className="w-2.5 h-2.5" /> Callout
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground truncate">{provider.specialty}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="flex items-center gap-1 text-xs">
@@ -690,6 +710,9 @@ export default function Directory() {
               ["waverley", "gp", "GP in Waverley"],
               ["pretoria", "massage", "Massage in Pretoria"],
               ["sandton", "pilates", "Pilates in Sandton"],
+              ["hartbeespoort", "spa", "Spa in Hartbeespoort"],
+              ["muldersdrift", "beauty", "Beauty in Muldersdrift"],
+              ["lanseria", "vet", "Vet near Lanseria"],
             ].map(([city, cat, label]) => (
               <a key={`${city}-${cat}`} href={`/s/${city}/${cat}`}
                 className="glass-1 rounded-pill px-3 py-1.5 text-[11px] text-foreground hover:bg-white/[0.06] transition-colors">
