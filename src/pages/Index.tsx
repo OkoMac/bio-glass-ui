@@ -53,8 +53,8 @@ function categorizeService(service: string): string {
 const ALL_HOME_PROVIDERS = realData.providers
   .slice()
   .sort((a, b) => {
-    const aLogo = hasCustomImage(a.id) ? 1 : 0;
-    const bLogo = hasCustomImage(b.id) ? 1 : 0;
+    const aLogo = !!(a as any).imageUrl ? 1 : 0;
+    const bLogo = !!(b as any).imageUrl ? 1 : 0;
     if (bLogo !== aLogo) return bLogo - aLogo;
     return (b.rating ?? 0) - (a.rating ?? 0);
   })
@@ -65,7 +65,7 @@ const ALL_HOME_PROVIDERS = realData.providers
     rating: p.rating ?? 0,
     distance: p.suburb ?? p.location ?? "",
     nextSlot: typeof p.availability === "string" ? p.availability : "Available",
-    avatar: getProviderImage(p.id, p.name),
+    avatar: (p as any).imageUrl || getProviderImage(p.id, p.name),
     vertical: categoryToVertical(p.category ?? ""),
     serviceCategory: categorizeService(p.service ?? ""),
     price: p.price ?? "",
