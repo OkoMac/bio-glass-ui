@@ -29,16 +29,17 @@ import { getProviderShareUrl, getBookingShareUrl, openWhatsApp } from "@/lib/wha
 import { trackEvent } from "@/lib/habits";
 import ProviderShopSection from "@/components/ProviderShopSection";
 import realData from "@/data/bion_pretoria_data.json";
+import jhbData from "@/data/bion_johannesburg_data.json";
 import { useProviderSlots, parseDuration } from "@/hooks/useProviderSlots";
 import { useAcquisitionVouchers } from "@/hooks/useAcquisitionVouchers";
 import { useProviderReviews } from "@/hooks/useReviews";
 import { Gift } from "lucide-react";
 
-// ── Build lookup from ALL scraped providers ─────────
+// ── Build lookup from ALL scraped providers (Pretoria + Johannesburg) ─────────
 const PROVIDERS: Record<string, any> = {};
 const verticals = ["teal", "indigo", "coral", "amber"] as const;
 
-realData.providers.forEach((p: any, i: number) => {
+[...realData.providers, ...(jhbData as any).providers].forEach((p: any, i: number) => {
   PROVIDERS[p.id] = {
     id: p.id,
     name: p.name,
