@@ -195,14 +195,7 @@ export default function Directory() {
       list = [...list].sort((a, b) => score(b) - score(a));
     }
 
-    // Within whatever sort was applied, bubble providers with real photos to the top
-    // using a stable sort so the primary ordering (proximity/rating) is preserved
-    const withPhoto: typeof list = [];
-    const withoutPhoto: typeof list = [];
-    for (const p of list) {
-      (p.hasLogo ? withPhoto : withoutPhoto).push(p);
-    }
-    return [...withPhoto, ...withoutPhoto];
+    return list;
   }, [selectedCategoryId, search, activeFilter, habitProfile, selectedSuburb, selectedCity, geo.latitude, geo.longitude]);
 
   const displayProviders = useMemo(() => filteredProviders.slice(0, visibleCount), [filteredProviders, visibleCount]);
