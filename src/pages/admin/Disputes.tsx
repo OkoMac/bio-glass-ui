@@ -1,3 +1,4 @@
+import { useAdminToken } from "@/hooks/useAdminToken";
 /**
  * /admin/disputes — unified admin queue.
  *
@@ -216,7 +217,7 @@ function BookingDetail({
       partial_pct: resolutionType === "partial_refund" ? partialPct : undefined,
       refund_to: refundTo,
       note: note || undefined,
-    });
+    
     setSubmitting(false);
   };
 
@@ -442,7 +443,7 @@ function OrderDisputesAdmin() {
     const { data, error } = await supabase
       .from("disputes_awaiting_admin")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false 
 
     if (error) { setLoading(false); return; }
     if (!data || data.length === 0) { setRows([]); setLoading(false); return; }
@@ -465,9 +466,9 @@ function OrderDisputesAdmin() {
         product_title_snapshot: it.product_title_snapshot,
         quantity: it.quantity,
         unit_price_rand: it.unit_price_rand,
-      });
+      
       itemsByOrder.set(it.order_id, arr);
-    });
+    
 
     setRows(awaiting.map((r) => ({
       ...r,
@@ -688,9 +689,9 @@ type TopView = "bookings" | "orders";
 
 export default function AdminDisputes() {
   const [view, setView] = useState<TopView>("bookings");
-  const [token, setToken] = useState(() => {
-    try { return localStorage.getItem("bion_admin_token") ?? ""; } catch { return ""; }
-  });
+  const { token, loading: tokenLoading } = useAdminToken(); // was useState(() => {
+    
+  
   const [tokenDraft, setTokenDraft] = useState(token);
 
   const saveToken = () => {

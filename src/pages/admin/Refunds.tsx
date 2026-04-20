@@ -1,3 +1,4 @@
+import { useAdminToken } from "@/hooks/useAdminToken";
 import { useEffect, useState } from "react";
 import AdminNav from "@/components/AdminNav";
 import GlassCard from "@/components/GlassCard";
@@ -27,9 +28,9 @@ interface BookingRow {
 }
 
 export default function AdminRefunds() {
-  const [token, setToken] = useState(() => {
-    try { return localStorage.getItem("bion_admin_token") ?? ""; } catch { return ""; }
-  });
+  const { token, loading: tokenLoading } = useAdminToken(); // was useState(() => {
+    
+  
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<BookingRow[]>([]);
@@ -47,7 +48,7 @@ export default function AdminRefunds() {
     setResults([]);
     try {
       const url = `${API}/api/compliance/admin/booking-lookup?q=${encodeURIComponent(query.trim())}`;
-      const res = await fetch(url, { headers: { "X-Admin-Token": token } });
+      const res = await fetch(url, { headers: { "X-Admin-Token": token } 
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Search failed");
       setResults(j.bookings ?? []);
@@ -73,7 +74,7 @@ export default function AdminRefunds() {
           waiveBionFee,
           note: note.trim() || undefined,
         }),
-      });
+      
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Refund failed");
       setLastBreakdown(j.breakdown);
@@ -116,7 +117,7 @@ export default function AdminRefunds() {
       bion_refund_fee_rand: bionFee,
       paystack_fee_rand: paystackFee,
       bion_absorbed_rand: channel === "wallet" ? Math.round(paystackFee * pct * 100) / 100 : 0,
-    });
+    
   }, [selected, refundPct, channel, waiveBionFee]);
 
   if (!token) {
@@ -133,7 +134,7 @@ export default function AdminRefunds() {
               onKeyDown={e => {
                 if (e.key === "Enter") {
                   const v = (e.target as HTMLInputElement).value.trim();
-                  if (v) { localStorage.setItem("bion_admin_token", v); setToken(v); }
+                  if (v) { localStorage.setItem("bion_admin_token", v); location.reload(); }
                 }
               }}
               autoFocus

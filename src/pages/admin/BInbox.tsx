@@ -1,3 +1,4 @@
+import { useAdminToken } from "@/hooks/useAdminToken";
 /**
  * B_ Admin Assistant Inbox — the "what needs my attention right now" surface.
  *
@@ -84,11 +85,11 @@ function ageLabel(hours: number): string {
 
 export default function BInbox() {
   const navigate = useNavigate();
-  const [token, setToken] = useState(() => {
-    try { return localStorage.getItem("bion_admin_token") ?? ""; } catch { return ""; }
-  });
+  const { token, loading: tokenLoading } = useAdminToken(); // was useState(() => {
+    
+  
   const [items, setItems] = useState<InboxItem[]>([]);
-  const [counts, setCounts] = useState<Record<Priority, number>>({ urgent: 0, high: 0, normal: 0, low: 0 });
+  const [counts, setCounts] = useState<Record<Priority, number>>({ urgent: 0, high: 0, normal: 0, low: 0 
   const [loading, setLoading] = useState(false);
   const [generatedAt, setGeneratedAt] = useState<string | null>(null);
   const [filter, setFilter] = useState<Priority | "all">("all");
@@ -99,11 +100,11 @@ export default function BInbox() {
     try {
       const res = await fetch(`${API}/api/admin/assistant/inbox`, {
         headers: { "X-Admin-Token": token },
-      });
+      
       const j: InboxResponse = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed to load inbox");
       setItems(j.items ?? []);
-      setCounts(j.counts_by_priority ?? { urgent: 0, high: 0, normal: 0, low: 0 });
+      setCounts(j.counts_by_priority ?? { urgent: 0, high: 0, normal: 0, low: 0 
       setGeneratedAt(j.generated_at ?? null);
     } catch (err: any) {
       if (!quiet) toast.error(err?.message ?? "Failed to load inbox");
@@ -139,7 +140,7 @@ export default function BInbox() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   const v = (e.target as HTMLInputElement).value.trim();
-                  if (v) { localStorage.setItem("bion_admin_token", v); setToken(v); }
+                  if (v) { localStorage.setItem("bion_admin_token", v); location.reload(); }
                 }
               }}
               autoFocus

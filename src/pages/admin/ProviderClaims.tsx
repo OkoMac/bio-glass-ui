@@ -1,3 +1,4 @@
+import { useAdminToken } from "@/hooks/useAdminToken";
 /**
  * /admin/provider-claims — review queue for "Claim this listing" requests
  * submitted from /provider/:id by directory providers who want to move from
@@ -49,9 +50,9 @@ interface ProviderOption {
 }
 
 export default function AdminProviderClaims() {
-  const [token, setToken] = useState(() => {
-    try { return localStorage.getItem("bion_admin_token") ?? ""; } catch { return ""; }
-  });
+  const { token, loading: tokenLoading } = useAdminToken(); // was useState(() => {
+    
+  
   const [tokenDraft, setTokenDraft] = useState("");
   const [claims, setClaims] = useState<Claim[]>([]);
   const [loading, setLoading] = useState(false);
@@ -72,7 +73,7 @@ export default function AdminProviderClaims() {
     try {
       const res = await fetch(`${API}/api/providers/claims/admin/pending`, {
         headers: { "X-Admin-Token": token },
-      });
+      
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed to load claims");
       setClaims((j.claims ?? []) as Claim[]);
@@ -108,7 +109,7 @@ export default function AdminProviderClaims() {
       const an = (a.full_name ?? "").toLowerCase();
       const bn = (b.full_name ?? "").toLowerCase();
       return Number(bn.includes(q)) - Number(an.includes(q));
-    });
+    
   }, [providers, approveModal]);
 
   const approve = async () => {
@@ -122,7 +123,7 @@ export default function AdminProviderClaims() {
           link_profile_id: approveProfileId || undefined,
           admin_note: approveNote || undefined,
         }),
-      });
+      
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Approve failed");
       toast.success(approveProfileId ? "Claim approved and linked to provider profile" : "Claim approved");
@@ -148,7 +149,7 @@ export default function AdminProviderClaims() {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Admin-Token": token },
         body: JSON.stringify({ reason: rejectReason.trim() }),
-      });
+      
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Reject failed");
       toast.success("Claim rejected — claimant notified");
@@ -192,7 +193,7 @@ export default function AdminProviderClaims() {
                   const v = tokenDraft.trim();
                   if (v) {
                     try { localStorage.setItem("bion_admin_token", v); } catch { /* ignore */ }
-                    setToken(v);
+                    location.reload();
                   }
                 }}
                 className="px-4 py-2 gradient-indigo rounded-xl text-sm font-semibold text-white shadow-cta"

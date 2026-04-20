@@ -1,3 +1,4 @@
+import { useAdminToken } from "@/hooks/useAdminToken";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -77,9 +78,9 @@ const PRIORITY_TONE: Record<Priority, string> = {
 };
 
 export default function AdminTickets() {
-  const [token, setToken] = useState(() => {
-    try { return localStorage.getItem("bion_admin_token") ?? ""; } catch { return ""; }
-  });
+  const { token, loading: tokenLoading } = useAdminToken(); // was useState(() => {
+    
+  
   const [tab, setTab] = useState<string>("open");
   const [priorityFilter, setPriorityFilter] = useState<(typeof PRIORITY_FILTERS)[number]>("all");
   const [rows, setRows] = useState<QueueRow[]>([]);
@@ -95,7 +96,7 @@ export default function AdminTickets() {
       if (priorityFilter !== "all") params.set("priority", priorityFilter);
       const res = await fetch(`${API}/api/support/tickets/admin/queue?${params}`, {
         headers: { "X-Admin-Token": token },
-      });
+      
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed to load queue");
       setRows(j.data ?? []);
@@ -128,7 +129,7 @@ export default function AdminTickets() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   const v = (e.target as HTMLInputElement).value.trim();
-                  if (v) { localStorage.setItem("bion_admin_token", v); setToken(v); }
+                  if (v) { localStorage.setItem("bion_admin_token", v); location.reload(); }
                 }
               }}
               autoFocus
@@ -307,7 +308,7 @@ function TicketDetail({
           "X-Admin-Token": token,
           ...(await jwtHeader()),
         },
-      });
+      
       const j = await res.json();
       if (j?.ok) { setReplies(j.replies ?? []); }
       else { setReplies([]); }
@@ -328,7 +329,7 @@ function TicketDetail({
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Admin-Token": token },
         body: JSON.stringify({ body: replyBody.trim() }),
-      });
+      
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed to send reply");
       toast.success("Reply sent · user notified by email");
@@ -349,7 +350,7 @@ function TicketDetail({
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Admin-Token": token },
         body: JSON.stringify({ status, resolution_note: note.trim() || undefined }),
-      });
+      
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed to change status");
       toast.success(`Status → ${status.replace(/_/g, " ")} · user emailed`);
