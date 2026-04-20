@@ -7,41 +7,59 @@ interface AdBannerProps {
   className?: string;
 }
 
+/**
+ * Only renders the ad when AdSense actually delivers a filled ad.
+ * When AdSense is pending approval or the slot is unfilled, renders NOTHING —
+ * no empty container, no black space, no layout shift.
+ */
 export default function AdBanner({ slot, format = "auto", className = "" }: AdBannerProps) {
   const { user } = useAuth();
-  const adRef = useRef<HTMLDivElement>(null);
-  const [adLoaded, setAdLoaded] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [adFilled, setAdFilled] = useState(false);
+  const pushed = useRef(false);
 
   const subscription = user?.subscription;
   const isPremium = subscription?.tier && subscription.tier !== "free";
   const isProvider = user?.role === "provider" || user?.role === "admin";
 
   useEffect(() => {
-    if (isPremium || isProvider) return;
+    if (isPremium || isProvider || pushed.current) return;
+    pushed.current = true;
+
     try {
       // @ts-ignore
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch {}
 
-    // Check if ad actually rendered (has height) after 2 seconds
-    const timer = setTimeout(() => {
-      const ins = adRef.current?.querySelector("ins");
-      if (ins && ins.offsetHeight > 10) {
-        setAdLoaded(true);
+    // Poll: check if the ad iframe has actual content (height > 0 with real ad)
+    // AdSense sets data-ad-status="filled" when a real ad loads
+    let attempts = 0;
+    const check = setInterval(() => {
+      attempts++;
+      const ins = containerRef.current?.querySelector("ins");
+      if (ins) {
+        const status = ins.getAttribute("data-ad-status");
+        if (status === "filled") {
+          setAdFilled(true);
+          clearInterval(check);
+        } else if (status === "unfilled" || attempts > 15) {
+          // Unfilled or timed out (7.5s) — ad won't show
+          clearInterval(check);
+        }
       }
-    }, 2000);
-    return () => clearTimeout(timer);
+      if (attempts > 15) clearInterval(check);
+    }, 500);
+
+    return () => clearInterval(check);
   }, [isPremium, isProvider]);
 
   if (isPremium || isProvider) return null;
 
-  // Don't take up space until ad actually loads
-  // This prevents the blank black block on mobile
   return (
     <div
-      className={`ad-container ${adLoaded ? "my-4" : ""} ${className}`}
-      ref={adRef}
-      style={adLoaded ? undefined : { maxHeight: 0, overflow: "hidden" }}
+      ref={containerRef}
+      className={adFilled ? `ad-container my-4 ${className}` : ""}
+      style={adFilled ? undefined : { position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0 }}
     >
       <ins
         className="adsbygoogle"
@@ -51,7 +69,7 @@ export default function AdBanner({ slot, format = "auto", className = "" }: AdBa
         data-ad-format={format}
         data-full-width-responsive="true"
       />
-      {adLoaded && (
+      {adFilled && (
         <p className="text-[9px] text-muted-foreground/40 text-center mt-1">
           <a href="/welcome" className="hover:text-indigo">Go Premium</a> to remove ads
         </p>
