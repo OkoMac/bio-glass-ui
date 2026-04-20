@@ -117,8 +117,13 @@ export default function Directory() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedSuburb, setSelectedSuburb] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
-  const [manualLocation, setManualLocation] = useState<{lat:number;lng:number;name:string}|null>(null);
-  const [showLocationPicker, setShowLocationPicker] = useState(false);
+  const [manualLocation, setManualLocation] = useState<{lat:number;lng:number;name:string}|null>(() => {
+    try {
+      const saved = localStorage.getItem("bion_user_location");
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  });
+  const [showLocationPicker, setShowLocationPicker] = useState(!manualLocation);
   const [locationSearch, setLocationSearch] = useState("");
   const [visibleCount, setVisibleCount] = useState(12);
   const listRef = useRef<HTMLDivElement>(null);
@@ -288,27 +293,32 @@ export default function Directory() {
             </div>
           </div>
 
-          {/* Location picker */}
+          {/* Location picker — prominent on first visit */}
           <AnimatePresence>
             {showLocationPicker && (
               <motion.div initial={{height:0,opacity:0}} animate={{height:"auto",opacity:1}} exit={{height:0,opacity:0}} className="overflow-hidden">
-                <div className="glass-1 rounded-2xl p-3 mt-2 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-teal shrink-0" />
+                <div className={`rounded-2xl p-4 mt-2 space-y-3 ${!manualLocation ? "border-2 border-teal/40 bg-teal/5" : "glass-1"}`}>
+                  {!manualLocation && (
+                    <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-teal" /> Where are you? Select your suburb to see providers near you
+                    </p>
+                  )}
+                  <div className="flex items-center gap-2 glass-1 rounded-pill px-3 py-2">
+                    <Search className="w-4 h-4 text-muted-foreground shrink-0" />
                     <input
                       value={locationSearch}
                       onChange={(e) => setLocationSearch(e.target.value)}
-                      placeholder="Type your suburb..."
+                      placeholder="Type your suburb name..."
                       className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
                       autoFocus
                     />
                     {manualLocation && (
-                      <button onClick={() => { setManualLocation(null); setShowLocationPicker(false); setLocationSearch(""); }} className="text-[10px] text-coral">
-                        Use GPS
+                      <button onClick={() => { setManualLocation(null); setShowLocationPicker(false); setLocationSearch(""); try { localStorage.removeItem("bion_user_location"); } catch {} }} className="text-[10px] text-coral">
+                        Reset
                       </button>
                     )}
                   </div>
-                  <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto scrollbar-none">
+                  <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto scrollbar-none">
                     {ALL_SUBURBS
                       .filter(s => !locationSearch || s.toLowerCase().includes(locationSearch.toLowerCase()))
                       .slice(0, 40)
@@ -319,7 +329,9 @@ export default function Directory() {
                             key={suburb}
                             onClick={() => {
                               if (provider) {
-                                setManualLocation({ lat: provider.lat!, lng: provider.lng!, name: suburb });
+                                const loc = { lat: provider.lat!, lng: provider.lng!, name: suburb };
+                                setManualLocation(loc);
+                                try { localStorage.setItem("bion_user_location", JSON.stringify(loc)); } catch {}
                               }
                               setShowLocationPicker(false);
                               setLocationSearch("");
