@@ -389,6 +389,7 @@ function AppRoutes() {
       } />
       <Route path="/directory" element={<Directory />} />
       <Route path="/welcome" element={<SplashOnboarding />} />
+      <Route path="/login" element={<Navigate to="/welcome?login=true" replace />} />
 
       {/* Universal sign-out: go to /logout from anywhere to clear session. */}
       <Route path="/logout" element={<Logout />} />
