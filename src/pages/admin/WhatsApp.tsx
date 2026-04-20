@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
 import { MessageSquare, RefreshCw, Phone, Clock, Bot, User, AlertCircle } from "lucide-react";
@@ -61,6 +62,8 @@ export default function AdminWhatsApp() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [stats, setStats] = useState<{ daily_cap: number; active_conversations: number } | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [sending, setSending] = useState(false);
 
   async function fetchThreads() {
     if (!token) return;
@@ -92,6 +95,27 @@ export default function AdminWhatsApp() {
       if (d.ok) setStats({ daily_cap: d.daily_cap, active_conversations: d.active_conversations });
     } catch {}
   }
+
+  const sendAdminReply = async () => {
+    if (!replyText.trim() || !selected) return;
+    setSending(true);
+    try {
+      const res = await fetch(`${API}/api/whatsapp/admin/reply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+        body: JSON.stringify({ phone: selected, message: replyText.trim() }),
+      });
+      const j = await res.json();
+      if (j.ok) {
+        setReplyText("");
+        fetchDetail(selected);
+        toast.success("Reply sent");
+      } else {
+        toast.error(j.error ?? "Failed to send");
+      }
+    } catch { toast.error("Send failed"); }
+    finally { setSending(false); }
+  };
 
   useEffect(() => {
     if (token) { fetchThreads(); fetchStats(); }
@@ -264,6 +288,20 @@ export default function AdminWhatsApp() {
                       </div>
                     </div>
                   ))}
+                  {/* Admin reply */}
+                  <div className="flex gap-2 mt-3">
+                    <input
+                      value={replyText}
+                      onChange={e => setReplyText(e.target.value)}
+                      placeholder="Type a reply..."
+                      onKeyDown={e => e.key === "Enter" && sendAdminReply()}
+                      className="flex-1 glass-1 rounded-xl px-3 py-2 text-sm text-foreground bg-transparent outline-none"
+                    />
+                    <button onClick={sendAdminReply} disabled={!replyText.trim() || sending}
+                      className="rounded-pill px-4 py-2 text-xs font-semibold gradient-indigo text-primary-foreground disabled:opacity-50">
+                      Send
+                    </button>
+                  </div>
                 </div>
               </>
             )}

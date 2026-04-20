@@ -6,6 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import { trackEvent } from "@/lib/habits";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePageView } from "@/hooks/usePageView";
 import AdBanner from "@/components/AdBanner";
 import { ArrowLeft, Moon, Sun, Star, Clock, TrendingUp, Lightbulb } from "lucide-react";
 
@@ -76,6 +77,7 @@ export default function SleepTracker() {
   const [wakeTime, setWakeTime] = useState("07:00");
   const [quality, setQuality] = useState(3);
   const [saved, setSaved] = useState(false);
+  usePageView();
 
   useEffect(() => { document.title = "Free Sleep Quality Tracker | BION"; }, []);
 

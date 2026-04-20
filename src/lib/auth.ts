@@ -223,3 +223,14 @@ export const DEMO_ACCOUNTS: BioUser[] = [
   { id: "demo_corporate", profileId: "demo_corporate", name: "Capitec HR",    email: "corporate@bion.app", role: "corporate" },
   { id: "demo_sales_rep", profileId: "demo_sales_rep", name: "Thandi Nkosi", email: "rep@bion.app",       role: "sales_rep" },
 ];
+
+/** Return a display-safe name — never show email prefixes like "mandolina1955" */
+export function safeDisplayName(name?: string | null, fallback = "there"): string {
+  if (!name) return fallback;
+  const first = name.split(" ")[0];
+  // Reject names that look like email prefixes (lowercase+digits, contains @)
+  if (first.includes("@")) return fallback;
+  if (/^[a-z0-9._-]+\d{2,}$/i.test(first)) return fallback;
+  if (/^wa_/.test(first)) return fallback;
+  return first;
+}

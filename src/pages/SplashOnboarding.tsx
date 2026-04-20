@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePageView } from "@/hooks/usePageView";
 import { supabase } from "@/integrations/supabase/client";
 import {
   capturePendingReferralCode, recordReferralSignup,
@@ -85,6 +86,7 @@ export default function SplashOnboarding() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { login, user, loading: authLoading } = useAuth();
+  usePageView();
 
   // Ranger share-link state — populated from the ?ref=<CODE> query param
   // and persisted to localStorage so it survives OAuth redirects + tab

@@ -4,6 +4,7 @@ import GlassCard from "@/components/GlassCard";
 import AdBanner from "@/components/AdBanner";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePageView } from "@/hooks/usePageView";
 import {
   Calculator, UtensilsCrossed, Droplets, Moon, CreditCard, Brain, Sparkles,
 } from "lucide-react";
@@ -20,6 +21,7 @@ const TOOLS = [
 
 export default function ToolsIndex() {
   const { user } = useAuth();
+  usePageView();
 
   useEffect(() => {
     document.title = "Free Health & Wellness Tools | BION";

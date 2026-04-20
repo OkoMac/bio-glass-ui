@@ -27,6 +27,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { getProviderShareUrl, getBookingShareUrl, openWhatsApp } from "@/lib/whatsapp";
 import { trackEvent } from "@/lib/habits";
+import { usePageView } from "@/hooks/usePageView";
 import ProviderShopSection from "@/components/ProviderShopSection";
 import realData from "@/data/bion_pretoria_data.json";
 import jhbData from "@/data/bion_johannesburg_data.json";
@@ -80,6 +81,7 @@ export default function ProviderProfile() {
   const isVerifiedTrainer = useProviderVerifiedTrainer(id ?? null);
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
   const { trackView } = useRecentlyViewed();
+  usePageView();
   const [showAllServices, setShowAllServices] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showBooking, setShowBooking] = useState(false);

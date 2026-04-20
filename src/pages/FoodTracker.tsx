@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import AdBanner from "@/components/AdBanner";
 import { useFoodSync } from "@/hooks/useFoodSync";
 import { useActivityPoints } from "@/hooks/useActivityPoints";
+import { usePageView } from "@/hooks/usePageView";
 import { trackEvent } from "@/lib/habits";
 import {
   ArrowLeft, Camera, Plus, X, Flame, TrendingUp, TrendingDown,
@@ -141,6 +142,7 @@ export default function FoodTracker() {
   // Sync with Supabase for authenticated users
   const { entries, todayEntries, goals, addEntry: syncAddEntry, deleteEntry: syncDeleteEntry, saveGoals: syncSaveGoals } = useFoodSync();
   const { awardPoints } = useActivityPoints();
+  usePageView();
 
   useEffect(() => { document.title = "Free Calorie Calculator & Meal Tracker | BION"; }, []);
 

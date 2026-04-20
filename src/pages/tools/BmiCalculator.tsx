@@ -5,6 +5,7 @@ import GlassCard from "@/components/GlassCard";
 import AdBanner from "@/components/AdBanner";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePageView } from "@/hooks/usePageView";
 import { ArrowLeft, Calculator, ChevronDown, ChevronUp } from "lucide-react";
 
 const STORAGE_KEY = "bion_bmi_last";
@@ -45,6 +46,7 @@ const FAQ_DATA = [
 export default function BmiCalculator() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  usePageView();
 
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");

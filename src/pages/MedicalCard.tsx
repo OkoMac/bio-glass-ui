@@ -5,6 +5,7 @@ import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePageView } from "@/hooks/usePageView";
 import AdBanner from "@/components/AdBanner";
 import {
   ArrowLeft, Heart, QrCode, Shield, Phone, User, Pill,
@@ -134,6 +135,7 @@ export default function MedicalCard() {
   const [data, setData] = useState<MedicalData>(load);
   const [editing, setEditing] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  usePageView();
 
   useEffect(() => { document.title = "Free Digital Medical Card | BION"; }, []);
 

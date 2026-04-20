@@ -8,6 +8,7 @@ import ServiceCategoryBlock, { SERVICE_CATEGORIES, type ServiceCategory } from "
 import { useAuth } from "@/contexts/AuthContext";
 import AdBanner from "@/components/AdBanner";
 import { useHabitProfile } from "@/hooks/useHabits";
+import { usePageView } from "@/hooks/usePageView";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 import realData from "@/data/bion_pretoria_data.json";
 import jhbData from "@/data/bion_johannesburg_data.json";
@@ -121,6 +122,7 @@ export default function Directory() {
     }
   }, [userSuburb, geo.latitude]); // eslint-disable-line react-hooks/exhaustive-deps
   const { profile: habitProfile } = useHabitProfile();
+  usePageView();
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("Nearby");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
