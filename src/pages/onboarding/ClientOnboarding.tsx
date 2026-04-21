@@ -131,7 +131,7 @@ const STEPS: OnboardingStep[] = [
       { id: "provider_share", label: "I understand that my booking and session data will be shared with the providers I book with, solely for service delivery.", required: true },
       { id: "data_rights",    label: "I understand I can download or delete all my data at any time from Settings → Privacy.", required: true },
       { id: "fees_ack",       label: "I accept that a 5% service fee is added to every booking I pay for. Premium subscribers (R29/month) pay a reduced 3.5% service fee and earn Expenditure Rewards vouchers on qualifying monthly spend.", required: true },
-      { id: "wallet_ack",     label: "I understand that my BION Wallet is a closed-loop credit system (not a banking product). Top-ups via Paystack are non-refundable as a concept; individual bookings remain refundable via the dispute flow.", required: true },
+      { id: "wallet_ack",     label: "I understand that my BION Wallet is a closed-loop credit system (not a banking product). Top-ups via Paystack are non-refundable as a concept; individual bookings are refundable per the cancellation policy (24h+ before: full refund to wallet; <24h: 50% fee). Wallet cash-out: 10% fee, min R200.", required: true },
       { id: "rewards_ack",    label: "I understand that Activity Points (earned for engagement like water / food / session logging) are hard-capped at 250,000 points per year (R5,000 in-app store value) and expire after 18 months of inactivity.", required: true },
     ],
   },

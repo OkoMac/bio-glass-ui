@@ -20,9 +20,9 @@ type Tab = "profile" | "billing" | "notifications" | "privacy";
 
 const VERTICALS = ["Fitness", "Medical", "Beauty", "Wellness", "Professional", "Vet"];
 const CANCEL_POLICIES = [
-  { id: "flexible", label: "Flexible", desc: "Full refund up to 24h before" },
-  { id: "moderate", label: "Moderate", desc: "Full refund up to 48h before" },
-  { id: "strict",   label: "Strict",   desc: "50% refund up to 72h before" },
+  { id: "flexible", label: "Standard (BION default)", desc: "Client cancels 24h+ before: full refund to wallet. <24h: 50% fee, 50% refund." },
+  { id: "moderate", label: "Moderate", desc: "Client cancels 48h+ before: full refund to wallet. <48h: 50% fee, 50% refund." },
+  { id: "strict",   label: "Strict",   desc: "Client cancels 72h+ before: full refund to wallet. <72h: 50% fee, 50% refund." },
 ];
 
 export default function ProviderSettings() {

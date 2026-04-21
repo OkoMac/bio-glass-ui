@@ -363,9 +363,9 @@ export default function RepDashboard() {
             </div>
             <div className="space-y-3">
               {[
-                { label: "Standard Providers", rate: "2%", desc: "of transactions (first 12 months, then 1%)" },
-                { label: "Elite Providers",    rate: "1%", desc: "of transactions (reduced for Elite tier)" },
-                { label: "Subscription Fee",   rate: "20%", desc: "of provider subscription fees" },
+                { label: "Provider Subscriptions", rate: "20%", desc: "of monthly subscription (perpetual while subscribed)" },
+                { label: "Booking Commission",     rate: "2%",  desc: "of every booking by your providers (from BION's share)" },
+                { label: "Client Referrals",        rate: "20%", desc: "of Premium client subscriptions (R5.80/mo per referral)" },
               ].map((tier, i) => (
                 <div key={i} className="flex items-center justify-between glass-1 rounded-xl p-3">
                   <div>
@@ -377,7 +377,7 @@ export default function RepDashboard() {
               ))}
             </div>
             <p className="text-[10px] text-muted-foreground/60 mt-3 text-center">
-              Commissions accumulate monthly. Payout on the 1st of each month.
+              Commissions accrue on the 3rd business day of each month. Min withdrawal R200, 10% cash-out fee.
             </p>
           </GlassCard>
         </motion.div>

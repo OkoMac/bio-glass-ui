@@ -460,7 +460,7 @@ const Schedule = () => {
                 <div>
                   <h3 className="text-lg font-bold text-foreground">Before you cancel…</h3>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Rescheduling is free and keeps your payment valid. Cancelling won't automatically refund you.
+                    Rescheduling is free (up to 3 times). Cancel 24h+ before: full refund to wallet. Cancel &lt;24h: 50% fee applies.
                   </p>
                 </div>
                 <button onClick={() => !cancelling && setCancelIntent(null)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center shrink-0">
@@ -501,7 +501,7 @@ const Schedule = () => {
               <div className="flex items-start gap-2 pt-2 text-[11px] text-muted-foreground">
                 <Mail className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                 <p>
-                  For a refund, email <strong className="text-foreground">disputes@bionhealth.co.za</strong> with your booking reference. Our team reviews requests within 1 business day.
+                  Cancellation refunds go to your BION Wallet automatically. For disputes, email <strong className="text-foreground">disputes@bionhealth.co.za</strong> with your booking reference.
                 </p>
               </div>
             </motion.div>
@@ -555,7 +555,7 @@ const Schedule = () => {
                 </button>
                 {!cancelSuccess.voucherRestored && (
                   <p className="text-[11px] text-muted-foreground pt-2 border-t border-white/5">
-                    Need a refund? Email <strong className="text-foreground">disputes@bionhealth.co.za</strong>
+                    Your refund has been credited to your BION Wallet. For disputes, email <strong className="text-foreground">disputes@bionhealth.co.za</strong>
                   </p>
                 )}
               </div>

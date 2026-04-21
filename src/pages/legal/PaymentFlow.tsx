@@ -5,7 +5,7 @@ import GlassCard from "@/components/GlassCard";
 
 export default function PaymentFlow() {
   const navigate = useNavigate();
-  const updated = "15 April 2026";
+  const updated = "21 April 2026";
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-20">
@@ -130,14 +130,29 @@ export default function PaymentFlow() {
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-2">9. Refunds, Cancellations & Disputes</h2>
+            <p className="mb-2"><span className="text-foreground font-medium">Client cancellations:</span></p>
             <ul className="list-disc ml-5 space-y-1">
-              <li>Cancellations 24+ hours before appointment: full refund minus Paystack processing fee.</li>
-              <li>Cancellations within 24 hours: refund at provider's published cancellation-policy discretion.</li>
+              <li>Client cancels <span className="text-foreground font-medium">more than 24 hours</span> before the appointment: full refund to BION Wallet, no fee.</li>
+              <li>Client cancels <span className="text-foreground font-medium">less than 24 hours</span> before (client's fault): 50% cancellation fee; 50% refunded to wallet.</li>
+              <li>Voucher-paid bookings: voucher auto-restored to client's wallet, no fee.</li>
+              <li>A cancellation questionnaire is required (7 client reasons, 6 provider reasons).</li>
+            </ul>
+            <p className="mt-2 mb-2"><span className="text-foreground font-medium">Provider cancellations:</span></p>
+            <ul className="list-disc ml-5 space-y-1">
+              <li>Provider cancels: full refund to client's wallet + provider pays a 10% transaction fee (deducted from provider's wallet) + cancellation strike on provider's record.</li>
+            </ul>
+            <p className="mt-2 mb-2"><span className="text-foreground font-medium">Rescheduling:</span></p>
+            <ul className="list-disc ml-5 space-y-1">
+              <li>Free, up to 3 times per booking.</li>
+            </ul>
+            <p className="mt-2 mb-2"><span className="text-foreground font-medium">No-shows & disputes:</span></p>
+            <ul className="list-disc ml-5 space-y-1">
               <li>No-shows: no refund; provider receives full payment.</li>
+              <li>Disputes: email disputes@bionhealth.co.za. Admin processes with a 10% BION refund fee (waivable when provider is at fault).</li>
               <li>Service disputes are mediated in-platform by <span className="text-foreground font-medium">B_ AI</span>. Both buyer and provider submit statements + evidence within a 7-day window, B_ issues a recommendation, and the provider chooses to refund, replace, or escalate to BION admin.</li>
               <li>For product orders: a 7-day dispute window opens on delivery. Beyond that, payout is final unless fraud is suspected.</li>
-              <li>Refunds are processed via Paystack to the original payment method within 5–10 business days.</li>
             </ul>
+            <p className="mt-2">B_ mediates all cancellations via WhatsApp. Refunds default to the client's BION Wallet.</p>
           </section>
 
           <section>

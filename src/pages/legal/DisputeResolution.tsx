@@ -5,7 +5,7 @@ import GlassCard from "@/components/GlassCard";
 
 export default function DisputeResolution() {
   const navigate = useNavigate();
-  const updated = "15 April 2026";
+  const updated = "21 April 2026";
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-20">
@@ -83,7 +83,38 @@ export default function DisputeResolution() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold text-foreground mb-2">5. Refund Outcomes & Settlement</h2>
+            <h2 className="text-base font-semibold text-foreground mb-2">5. Cancellation Policy</h2>
+            <p className="mb-2">Routine cancellations (not disputes) follow these rules. B_ mediates all cancellations via WhatsApp.</p>
+            <div className="space-y-2">
+              <div className="glass-1 rounded-xl p-3">
+                <p className="text-xs text-foreground font-medium">Client cancels 24h+ before appointment:</p>
+                <p className="text-xs text-muted-foreground">Full refund to BION Wallet, no fee.</p>
+              </div>
+              <div className="glass-1 rounded-xl p-3">
+                <p className="text-xs text-foreground font-medium">Client cancels &lt;24h before (client's fault):</p>
+                <p className="text-xs text-muted-foreground">50% cancellation fee; 50% refunded to wallet.</p>
+              </div>
+              <div className="glass-1 rounded-xl p-3">
+                <p className="text-xs text-foreground font-medium">Voucher-paid booking cancelled:</p>
+                <p className="text-xs text-muted-foreground">Voucher auto-restored to client's wallet, no fee.</p>
+              </div>
+              <div className="glass-1 rounded-xl p-3">
+                <p className="text-xs text-foreground font-medium">Provider cancels:</p>
+                <p className="text-xs text-muted-foreground">Full refund to client's wallet. Provider pays a 10% transaction fee (deducted from their wallet) and receives a cancellation strike.</p>
+              </div>
+              <div className="glass-1 rounded-xl p-3">
+                <p className="text-xs text-foreground font-medium">Reschedule:</p>
+                <p className="text-xs text-muted-foreground">Free, up to 3 times per booking.</p>
+              </div>
+              <div className="glass-1 rounded-xl p-3">
+                <p className="text-xs text-foreground font-medium">Cancellation questionnaire:</p>
+                <p className="text-xs text-muted-foreground">Required for all cancellations (7 client reasons, 6 provider reasons).</p>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-base font-semibold text-foreground mb-2">6. Refund Outcomes & Settlement</h2>
             <div className="space-y-2">
               <div className="glass-1 rounded-xl p-3">
                 <p className="text-xs text-foreground font-medium">Provider no-show:</p>
@@ -102,6 +133,10 @@ export default function DisputeResolution() {
                 <p className="text-xs text-muted-foreground">Full refund via Paystack to the original payment method within 5–10 business days.</p>
               </div>
               <div className="glass-1 rounded-xl p-3">
+                <p className="text-xs text-foreground font-medium">Dispute refund fee:</p>
+                <p className="text-xs text-muted-foreground">Admin-processed dispute refunds carry a 10% BION refund fee (waivable when the provider was at fault).</p>
+              </div>
+              <div className="glass-1 rounded-xl p-3">
                 <p className="text-xs text-foreground font-medium">Refund destination:</p>
                 <p className="text-xs text-muted-foreground">Default is the client's BION Wallet (fast, no bank fees). Clients may request bank refund via Paystack — this applies standard 5–10 business day processing.</p>
               </div>
@@ -109,7 +144,7 @@ export default function DisputeResolution() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold text-foreground mb-2">6. Provider Accountability</h2>
+            <h2 className="text-base font-semibold text-foreground mb-2">7. Provider Accountability</h2>
             <p>Providers with repeated valid disputes against them may face:</p>
             <ul className="list-disc ml-5 mt-2 space-y-1">
               <li>Reduced visibility in search results</li>
@@ -121,7 +156,7 @@ export default function DisputeResolution() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold text-foreground mb-2">7. External Remedies</h2>
+            <h2 className="text-base font-semibold text-foreground mb-2">8. External Remedies</h2>
             <p>Nothing in this policy prevents users from pursuing external remedies, including:</p>
             <ul className="list-disc ml-5 mt-2 space-y-1">
               <li>Complaints to the National Consumer Commission under the Consumer Protection Act (CPA)</li>
@@ -133,7 +168,7 @@ export default function DisputeResolution() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold text-foreground mb-2">8. Fraudulent Disputes</h2>
+            <h2 className="text-base font-semibold text-foreground mb-2">9. Fraudulent Disputes</h2>
             <p>Users who file knowingly false or fraudulent disputes may have their accounts suspended or terminated. Repeated fraudulent chargeback requests will be reported to Paystack and may result in the user being blocked from future transactions.</p>
           </section>
 

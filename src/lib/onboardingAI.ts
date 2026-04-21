@@ -107,7 +107,7 @@ const KB: Record<string, string> = {
     "Try resetting your password via the Sign In screen → Forgot Password. If you still can't access your account, contact support at help@bion.app or via the in-app chat.",
 
   "how do i cancel a booking":
-    "Go to Schedule → tap the booking → Cancel. Cancellations made 24+ hours before the appointment are fully refunded to your BIONWallet. Late cancellations (within 24 hours) may incur a fee per the provider's cancellation policy.",
+    "Go to Schedule → tap the booking → Cancel. Cancel 24h+ before: full refund to your BION Wallet, no fee. Cancel <24h before (client's fault): 50% cancellation fee, 50% refunded to wallet. Voucher bookings: voucher auto-restored. Rescheduling is free (up to 3 times). A cancellation questionnaire is required.",
 
   "how do i contact support":
     "You can reach BION support via: in-app chat (tap the ? icon), email at help@bion.app, or WhatsApp on +27 87 123 4567. Support is available Mon–Fri 8am–6pm SAST.",
