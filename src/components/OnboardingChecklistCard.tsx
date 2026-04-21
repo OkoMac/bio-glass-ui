@@ -282,7 +282,7 @@ export default function OnboardingChecklistCard({ role, className }: OnboardingC
   const cacheRef = useRef<{ at: number; role: ChecklistRole; profileId: string; data: ComputedSignals } | null>(null);
 
   useEffect(() => {
-    if (!profileId) { setLoading(false); return; }
+    if (!profileId || profileId.startsWith("demo_")) { setLoading(false); return; }
     let cancelled = false;
 
     const cached = cacheRef.current;

@@ -2,6 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
+/** Demo accounts use non-UUID IDs that Supabase rejects with 400. */
+const isReal = (id?: string | null) => !!id && !id.startsWith("demo_");
+
 export interface HealthLog {
   id: string;
   user_id: string;
@@ -39,7 +42,7 @@ export function useHealthLogs(days = 30) {
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    if (!user?.profileId) { setLoading(false); return; }
+    if (!isReal(user?.profileId)) { setLoading(false); return; }
     setLoading(true);
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
     const { data } = await supabase
@@ -78,7 +81,7 @@ export function useHealthProfile() {
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    if (!user?.profileId) { setLoading(false); return; }
+    if (!isReal(user?.profileId)) { setLoading(false); return; }
     setLoading(true);
     const { data } = await supabase
       .from("health_profiles")

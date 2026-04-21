@@ -44,7 +44,7 @@ export function useAcquisitionVouchers(limit = 10) {
   }, [limit]);
 
   const fetchClaimed = useCallback(async () => {
-    if (!user?.profileId) return;
+    if (!user?.profileId || user.profileId.startsWith("demo_")) return;
     const { data, error } = await supabase
       .from("acquisition_vouchers")
       .select("id, provider_id, face_value_rand, status, claimed_at, redeemed_at, expires_at")
