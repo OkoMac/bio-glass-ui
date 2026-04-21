@@ -166,7 +166,7 @@ export default function InstallButton() {
     // Android: download the native APK directly
     if (device === "android") {
       const a = document.createElement("a");
-      a.href = "/BION-app.apk";
+      a.href = "https://github.com/OkoMac/bio-glass-ui/releases/download/v1.0.0-android/BION-debug.apk";
       a.download = "BION.apk";
       a.click();
       return;
@@ -332,7 +332,7 @@ export default function InstallButton() {
                 <div className="space-y-3">
                   <p className="text-xs text-muted-foreground">Your download should start automatically. If it doesn't:</p>
                   <a
-                    href="/BION-app.apk"
+                    href="https://github.com/OkoMac/bio-glass-ui/releases/download/v1.0.0-android/BION-debug.apk"
                     download="BION.apk"
                     className="block w-full py-3 rounded-xl text-xs font-semibold text-center text-white bg-gradient-to-r from-teal to-emerald"
                   >
