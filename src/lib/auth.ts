@@ -156,50 +156,45 @@ export async function signInWithEmail(
   return { user, error: null };
 }
 
-/** Sign up with email/password, then create profile + role rows */
+/** Sign up with email/password, then create profile + role rows.
+ *  Uses backend admin API to create user with email pre-confirmed
+ *  (phone OTP already verified the user's identity). */
 export async function signUpWithEmail(
   email: string,
   password: string,
   name: string,
   role: UserRole,
+  phone?: string,
 ): Promise<{ user: BioUser | null; error: string | null }> {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { data: { full_name: name, bio_role: role } },
-  });
-  if (error || !data.user) return { user: null, error: error?.message ?? "Signup failed" };
-
-  const uid = data.user.id;
-
-  // Create profile + role via backend (bypasses RLS, always succeeds)
   const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+
+  // Create user via backend (email pre-confirmed, no confirmation email needed)
   try {
-    const session = await supabase.auth.getSession();
-    const jwt = session.data.session?.access_token;
-    await fetch(`${API}/api/profiles/ensure`, {
+    const res = await fetch(`${API}/api/profiles/signup`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}) },
-      body: JSON.stringify({ userId: uid, fullName: name, email, role }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, fullName: name, role, phone }),
     });
-  } catch {
-    // Fallback: try direct upsert (may fail on RLS but worth attempting)
-    await supabase.from("profiles").upsert({ user_id: uid, full_name: name, email }).catch(() => {});
+    const j = await res.json();
+    if (!j.ok) return { user: null, error: j.error ?? "Signup failed" };
+
+    // Sign in immediately with the new credentials
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (signInError) return { user: null, error: signInError.message };
+
+    const uid = signInData.user?.id ?? j.userId;
+
+    // Fetch the profile ID
+    const { data: profileData } = await supabase
+      .from("profiles").select("id").eq("user_id", uid).maybeSingle();
+
+    return { user: { id: uid, profileId: profileData?.id ?? j.profileId, name, email, role }, error: null };
+  } catch (err: any) {
+    return { user: null, error: err?.message ?? "Signup failed" };
   }
-
-  // Ensure user_roles entry
-  if (role !== "corporate" && role !== "sales_rep") {
-    await supabase.from("user_roles").upsert({
-      user_id: uid,
-      role: role as "admin" | "provider" | "client",
-    }).catch(() => {});
-  }
-
-  // Fetch the newly created profile ID
-  const { data: profileData } = await supabase
-    .from("profiles").select("id").eq("user_id", uid).maybeSingle();
-
-  return { user: { id: uid, profileId: profileData?.id, name, email, role }, error: null };
 }
 
 /** Sign in / sign up with Google OAuth — Supabase handles the redirect */

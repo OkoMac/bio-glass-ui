@@ -325,8 +325,8 @@ export default function SplashOnboarding() {
       const v = await vRes.json();
       if (!v.ok) { setError(v.error ?? "Invalid code."); setBusy(false); return; }
 
-      // OTP verified — NOW create the Supabase account
-      const { user, error: err } = await signUpWithEmail(email.trim(), password, name.trim(), selectedRole);
+      // OTP verified — NOW create the Supabase account (email pre-confirmed via backend)
+      const { user, error: err } = await signUpWithEmail(email.trim(), password, name.trim(), selectedRole, phone.trim());
       if (err || !user) { setError(err ?? "Signup failed"); setBusy(false); return; }
 
       // Attach the verified phone to the profile
