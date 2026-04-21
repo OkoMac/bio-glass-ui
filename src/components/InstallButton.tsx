@@ -194,11 +194,11 @@ export default function InstallButton() {
 
               {device === "ios" && (
                 <div className="space-y-3">
-                  <p className="text-xs text-muted-foreground">Add BION to your iPhone home screen for the full app experience:</p>
+                  <p className="text-xs text-muted-foreground">Install BION on your iPhone — it works like a native app with its own icon, splash screen, and full-screen mode:</p>
                   <ol className="space-y-2.5 text-xs text-foreground">
                     <li className="flex gap-2">
                       <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">1</span>
-                      <span>Make sure you're using <strong>Safari</strong> (not Chrome)</span>
+                      <span>Open this page in <strong>Safari</strong> (not Chrome)</span>
                     </li>
                     <li className="flex gap-2">
                       <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">2</span>
@@ -210,30 +210,49 @@ export default function InstallButton() {
                     </li>
                     <li className="flex gap-2">
                       <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">4</span>
-                      <span>Tap <strong>"Add"</strong> in the top right</span>
+                      <span>Tap <strong>"Add"</strong> — BION appears on your home screen</span>
                     </li>
                   </ol>
+                  <p className="text-[10px] text-muted-foreground mt-2">Opens full-screen with push notifications, offline access, and no browser bar.</p>
                 </div>
               )}
 
               {device === "android" && (
                 <div className="space-y-3">
-                  <p className="text-xs text-muted-foreground">Install BION as an app on your Android device:</p>
-                  <ol className="space-y-2.5 text-xs text-foreground">
-                    <li className="flex gap-2">
-                      <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">1</span>
-                      <span>Tap the menu (⋮) in the top right of Chrome</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">2</span>
-                      <span>Tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></span>
-                    </li>
-                    <li className="flex gap-2">
-                      <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">3</span>
-                      <span>Tap <strong>"Install"</strong></span>
-                    </li>
-                  </ol>
-                  <p className="text-[10px] text-muted-foreground italic mt-2">BION will appear in your app drawer like any other app.</p>
+                  <p className="text-xs text-muted-foreground">Choose how to install BION on your Android device:</p>
+
+                  {/* Option 1: Native APK with biometrics */}
+                  <div className="glass-1 rounded-2xl p-3 space-y-2 border border-teal/20">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-teal/20 text-teal">RECOMMENDED</span>
+                    </div>
+                    <p className="text-xs text-foreground font-medium">Native App (with Health Connect)</p>
+                    <p className="text-[10px] text-muted-foreground">Syncs with your wearable and phone health data — steps, heart rate, sleep, weight.</p>
+                    <a
+                      href="/BION-app.apk"
+                      download="BION.apk"
+                      className="block w-full py-2.5 rounded-xl text-xs font-semibold text-center text-white bg-gradient-to-r from-teal to-emerald"
+                    >
+                      <Download className="w-3.5 h-3.5 inline mr-1.5" />
+                      Download BION App (15MB)
+                    </a>
+                  </div>
+
+                  {/* Option 2: Quick PWA install */}
+                  <div className="glass-1 rounded-2xl p-3 space-y-2">
+                    <p className="text-xs text-foreground font-medium">Quick Install (no download)</p>
+                    <p className="text-[10px] text-muted-foreground">Installs instantly from your browser — no biometric sync.</p>
+                    <ol className="space-y-1.5 text-[11px] text-foreground">
+                      <li className="flex gap-2">
+                        <span className="w-4 h-4 rounded-full bg-indigo/20 text-indigo flex items-center justify-center text-[9px] font-bold shrink-0">1</span>
+                        <span>Tap menu (⋮) in Chrome</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <span className="w-4 h-4 rounded-full bg-indigo/20 text-indigo flex items-center justify-center text-[9px] font-bold shrink-0">2</span>
+                        <span>Tap <strong>"Install app"</strong></span>
+                      </li>
+                    </ol>
+                  </div>
                 </div>
               )}
 
