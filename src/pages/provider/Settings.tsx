@@ -262,6 +262,9 @@ export default function ProviderSettings() {
                 </div>
               </GlassCard>
 
+              {/* Calendar Sync */}
+              <CalendarSyncSection />
+
               {/* B_ toggle */}
               <GlassCard className="p-4 flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl glass-accent-indigo flex items-center justify-center shrink-0">
@@ -559,6 +562,88 @@ function AvailabilitySection() {
       {error && (
         <p className="text-[11px] text-coral">{error}</p>
       )}
+    </GlassCard>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────
+// Calendar Sync — shows the provider's iCal URL so they can subscribe
+// in Google Calendar, Apple Calendar, or Outlook.
+// ────────────────────────────────────────────────────────────────────
+
+function CalendarSyncSection() {
+  const { user } = useAuth();
+  const [copied, setCopied] = useState(false);
+
+  // Build iCal URL from provider profile
+  const API = (import.meta.env.VITE_API_URL as string) ?? "https://bion-backend.onrender.com";
+  const profileId = user?.profileId ?? user?.id ?? "";
+
+  // The ical_token is stored alongside the provider profile. For now we
+  // derive a deterministic token from the profile ID — the backend can
+  // validate it. A proper token would come from the profiles table.
+  const icalToken = profileId ? btoa(profileId).replace(/[+/=]/g, "").slice(0, 24) : "";
+  const icalUrl = profileId
+    ? `${API}/api/providers/${profileId}/calendar.ics?token=${icalToken}`
+    : "";
+
+  const copyUrl = () => {
+    if (!icalUrl) return;
+    navigator.clipboard.writeText(icalUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    });
+  };
+
+  if (!profileId) return null;
+
+  return (
+    <GlassCard className="p-4 space-y-3">
+      <div className="flex items-center gap-2">
+        <CalendarClock className="w-4 h-4 text-indigo" />
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Calendar Sync</p>
+      </div>
+
+      <p className="text-[11px] text-muted-foreground leading-relaxed">
+        Subscribe to your BION bookings in any calendar app. New bookings appear
+        automatically — no manual entry needed.
+      </p>
+
+      {/* iCal URL field */}
+      <div className="flex items-center gap-2">
+        <div className="flex-1 bg-white/5 rounded-xl px-3 py-2.5 border border-white/10 overflow-hidden">
+          <p className="text-[10px] text-muted-foreground mb-0.5">iCal Feed URL</p>
+          <p className="text-[11px] font-data text-foreground truncate">{icalUrl}</p>
+        </div>
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={copyUrl}
+          className={`shrink-0 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            copied ? "bg-teal/20 text-teal" : "gradient-indigo text-primary-foreground"
+          }`}
+        >
+          {copied ? <><CheckCircle className="w-3 h-3" /> Copied</> : "Copy Link"}
+        </motion.button>
+      </div>
+
+      {/* Instructions */}
+      <div className="glass-1 rounded-xl p-3 space-y-2">
+        <p className="text-[11px] font-medium text-foreground">How to subscribe:</p>
+        <div className="space-y-1.5 text-[11px] text-muted-foreground leading-relaxed">
+          <p>
+            <span className="text-foreground font-medium">Google Calendar:</span>{" "}
+            Other calendars (+) → From URL → paste the link above
+          </p>
+          <p>
+            <span className="text-foreground font-medium">Apple Calendar:</span>{" "}
+            File → New Calendar Subscription → paste the link above
+          </p>
+          <p>
+            <span className="text-foreground font-medium">Outlook:</span>{" "}
+            Add calendar → From internet → paste the link above
+          </p>
+        </div>
+      </div>
     </GlassCard>
   );
 }

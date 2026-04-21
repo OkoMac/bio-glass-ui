@@ -190,6 +190,7 @@ const MedicalCard   = lazy(() => import("./pages/MedicalCard"));
 const LifeCoach     = lazy(() => import("./pages/LifeCoach"));
 const FoodTracker   = lazy(() => import("./pages/FoodTracker"));
 const ClientBilling = lazy(() => import("./pages/client/Billing"));
+const BookingInvoice = lazy(() => import("./pages/BookingInvoice"));
 const BionCalendar  = lazy(() => import("./pages/BionCalendar"));
 const HealthInsights = lazy(() => import("./pages/HealthInsights"));
 
@@ -438,6 +439,7 @@ function AppRoutes() {
 
       {/* Client routes */}
       <Route path="/provider/:id" element={<ProviderProfile />} />
+      <Route path="/booking/:id/invoice" element={<RequireAuth><BookingInvoice /></RequireAuth>} />
       <Route path="/schedule"    element={<RequireAuth allowedRoles={["client"]}><Schedule /></RequireAuth>} />
       <Route path="/messages"    element={<RequireAuth allowedRoles={["client"]}><Messages /></RequireAuth>} />
       <Route path="/profile"     element={<RequireAuth allowedRoles={["client"]}><Profile /></RequireAuth>} />

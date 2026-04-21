@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
@@ -63,6 +63,50 @@ function StatTile({ value, label, color }: { value: string; label: string; color
       style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
       <p className={`text-xl font-bold font-data ${color}`}>{value}</p>
       <p className="text-[9px] text-muted-foreground uppercase tracking-widest mt-0.5">{label}</p>
+    </div>
+  );
+}
+
+/* ── Referral Stats sub-component ────────────────── */
+function ReferralStats({ referralCode }: { referralCode: string }) {
+  const [stats, setStats] = useState({ referred: 0, rewards: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Try to fetch from backend; fall back to localStorage tracking
+    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+    fetch(`${API}/api/referrals/stats?code=${encodeURIComponent(referralCode)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data?.ok) {
+          setStats({ referred: data.referred ?? 0, rewards: data.rewards ?? 0 });
+        } else {
+          // Fall back to localStorage
+          const stored = JSON.parse(localStorage.getItem("bion_referral_stats") ?? "{}");
+          setStats({ referred: stored.referred ?? 0, rewards: stored.rewards ?? 0 });
+        }
+      })
+      .catch(() => {
+        const stored = JSON.parse(localStorage.getItem("bion_referral_stats") ?? "{}");
+        setStats({ referred: stored.referred ?? 0, rewards: stored.rewards ?? 0 });
+      })
+      .finally(() => setLoading(false));
+  }, [referralCode]);
+
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-3 text-center">
+        <p className="text-lg font-bold font-data text-teal">
+          {loading ? "-" : stats.referred}
+        </p>
+        <p className="text-[9px] text-muted-foreground uppercase tracking-wider">People Referred</p>
+      </div>
+      <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-3 text-center">
+        <p className="text-lg font-bold font-data text-amber">
+          {loading ? "-" : stats.rewards}
+        </p>
+        <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Points Earned</p>
+      </div>
     </div>
   );
 }
@@ -378,13 +422,15 @@ const Profile = () => {
               </div>
             )}
 
-            {/* ── Referral ───────────────────────────── */}
-            <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4"
+            {/* ── Referral Dashboard ───────────────────────────── */}
+            <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 space-y-4"
               style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2">
                 <Gift className="w-4 h-4 text-amber" style={{ filter: "drop-shadow(0 0 6px #F59E0B)" }} />
-                <span className="text-xs text-muted-foreground uppercase tracking-widest">Invite Friends</span>
+                <span className="text-xs text-muted-foreground uppercase tracking-widest">Referral Program</span>
               </div>
+
+              {/* Referral code + actions */}
               <div className="flex items-center gap-3">
                 <div className="flex-1 rounded-xl border border-white/[0.08] bg-white/[0.02] px-3 py-2">
                   <p className="text-[9px] text-muted-foreground">Your code</p>
@@ -405,6 +451,29 @@ const Profile = () => {
                   </motion.button>
                 </div>
               </div>
+
+              {/* Share link CTA */}
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => {
+                  const link = `https://bionhealth.co.za/welcome?ref=${referralCode}`;
+                  navigator.clipboard.writeText(link).then(() => {
+                    setReferralCopied(true);
+                    setTimeout(() => setReferralCopied(false), 2000);
+                  });
+                }}
+                className="w-full py-2.5 rounded-xl border border-indigo/20 bg-indigo/5 text-xs font-medium text-indigo flex items-center justify-center gap-1.5 hover:bg-indigo/10 transition-colors"
+              >
+                <Copy className="w-3 h-3" />
+                {referralCopied ? "Link copied!" : "Copy referral link"}
+              </motion.button>
+
+              {/* Referral stats */}
+              <ReferralStats referralCode={referralCode} />
+
+              <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
+                You and your friend both earn 50 BION points (R1 store credit) for each signup.
+              </p>
             </div>
 
             {/* ── Account ────────────────────────────── */}

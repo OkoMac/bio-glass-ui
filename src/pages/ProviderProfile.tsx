@@ -94,6 +94,11 @@ export default function ProviderProfile() {
   const [selectedService, setSelectedService] = useState(0);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
 
+  // Recurring booking state
+  const [recurringEnabled, setRecurringEnabled] = useState(false);
+  const [recurringFrequency, setRecurringFrequency] = useState<"weekly" | "biweekly" | "monthly">("weekly");
+  const [recurringSessions, setRecurringSessions] = useState<number>(4);
+
   const provider = PROVIDERS[id ?? ""];
   const isSignedIn = !!user;
 
@@ -349,6 +354,37 @@ export default function ProviderProfile() {
         if (!res.ok || !data.ok) {
           throw new Error(data.error ?? "Could not redeem voucher");
         }
+        setBookingConfirmed(true);
+        setTimeout(() => navigate("/schedule"), 1200);
+        return;
+      }
+
+      // Recurring path — create a series of bookings via dedicated endpoint.
+      if (recurringEnabled && recurringSessions >= 2) {
+        const res = await fetch(`${API}/api/bookings/recurring`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            clientProfileId: user.profileId,
+            providerId: provider.id,
+            service: servicePayload,
+            bookingDate,
+            bookingTime,
+            amount: amountRand,
+            frequency: recurringFrequency,
+            sessions: recurringSessions,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || (!data.ok && !data.checkoutUrl)) {
+          throw new Error(data.error ?? "Could not create recurring booking");
+        }
+        // If the backend returns a checkout URL, redirect to Paystack for the bundle
+        if (data.checkoutUrl) {
+          window.location.href = data.checkoutUrl;
+          return;
+        }
+        // Otherwise the series was created directly
         setBookingConfirmed(true);
         setTimeout(() => navigate("/schedule"), 1200);
         return;
@@ -1192,6 +1228,79 @@ export default function ProviderProfile() {
                   )}
                 </div>
 
+                {/* Recurring booking option */}
+                <div>
+                  <div
+                    onClick={() => setRecurringEnabled(v => !v)}
+                    className={`rounded-2xl p-3 flex items-center gap-3 cursor-pointer transition-all border ${
+                      recurringEnabled
+                        ? "bg-indigo/15 border-indigo/40"
+                        : "glass-1 border-white/10"
+                    }`}
+                  >
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                      recurringEnabled ? "bg-indigo/20" : "bg-white/[0.03]"
+                    }`}>
+                      <CalendarDays className={`w-5 h-5 ${recurringEnabled ? "text-indigo" : "text-muted-foreground"}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground">Make this recurring</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {recurringEnabled ? `${recurringFrequency}, ${recurringSessions} sessions` : "Book the same slot on a schedule"}
+                      </p>
+                    </div>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                      recurringEnabled ? "border-indigo bg-indigo" : "border-white/30"
+                    }`}>
+                      {recurringEnabled && <Check className="w-3 h-3 text-obsidian" />}
+                    </div>
+                  </div>
+
+                  {recurringEnabled && (
+                    <div className="mt-3 space-y-3 pl-1">
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">Frequency</p>
+                        <div className="flex gap-2">
+                          {(["weekly", "biweekly", "monthly"] as const).map(freq => (
+                            <button key={freq} onClick={() => setRecurringFrequency(freq)}
+                              className={`px-3 py-1.5 rounded-pill text-xs font-medium transition-colors capitalize ${
+                                recurringFrequency === freq ? "gradient-indigo text-white" : "glass-1 text-foreground"
+                              }`}>
+                              {freq === "biweekly" ? "Bi-weekly" : freq}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">How many sessions?</p>
+                        <div className="flex gap-2">
+                          {[4, 8, 12].map(n => (
+                            <button key={n} onClick={() => setRecurringSessions(n)}
+                              className={`px-3 py-1.5 rounded-pill text-xs font-medium transition-colors ${
+                                recurringSessions === n ? "gradient-indigo text-white" : "glass-1 text-foreground"
+                              }`}>
+                              {n} sessions
+                            </button>
+                          ))}
+                          <input
+                            type="number"
+                            min={2}
+                            max={52}
+                            value={![4,8,12].includes(recurringSessions) ? recurringSessions : ""}
+                            placeholder="Custom"
+                            onChange={e => {
+                              const v = parseInt(e.target.value, 10);
+                              if (v >= 2 && v <= 52) setRecurringSessions(v);
+                            }}
+                            onFocus={() => { if ([4,8,12].includes(recurringSessions)) setRecurringSessions(2); }}
+                            className="w-20 px-3 py-1.5 glass-1 rounded-pill text-xs text-foreground text-center outline-none border border-white/[0.08] focus:border-indigo/40"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 {/* Summary + fee breakdown — falls back to scraped price
                      when no real BION service is selected. */}
                 {(() => {
@@ -1256,6 +1365,14 @@ export default function ProviderProfile() {
                               : provider.duration}
                           </span>
                         </div>
+                        {recurringEnabled && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Schedule</span>
+                            <span className="text-indigo font-medium capitalize">
+                              {recurringFrequency === "biweekly" ? "Bi-weekly" : recurringFrequency} x {recurringSessions}
+                            </span>
+                          </div>
+                        )}
                         <div className="pt-2 border-t border-white/[0.06] space-y-1">
                           {shouldUseVoucher ? (
                             <>
