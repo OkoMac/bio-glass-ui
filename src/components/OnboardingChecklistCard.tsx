@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle, Circle, X, ArrowRight, ClipboardList } from "lucide-react";
+import { CheckCircle, Circle, X, ArrowRight, ClipboardList, Bot } from "lucide-react";
 import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -74,11 +74,11 @@ function buildClientItems(
   push: ReturnType<typeof usePushNotifications>,
 ): ChecklistItem[] {
   const items: ChecklistItem[] = [
-    { id: "phone",        label: "Add your phone number",          done: s.hasPhone,       to: "/settings" },
-    { id: "phoneVerify",  label: "Verify your phone number",       done: s.phoneVerified,  to: "/settings" },
-    { id: "location",     label: "Set your city and suburb",       done: s.hasLocation,    to: "/settings" },
-    { id: "firstBooking", label: "Complete your first booking",    done: s.hasBooking,     to: "/directory" },
-    { id: "firstLog",     label: "Log today's first health metric",done: s.hasHealthLog,   to: "/progress" },
+    { id: "phone",        label: "B_ says: Add your phone so I can send you reminders",                 done: s.hasPhone,       to: "/settings" },
+    { id: "phoneVerify",  label: "B_ says: Verify your number — it keeps your account secure",          done: s.phoneVerified,  to: "/settings" },
+    { id: "location",     label: "B_ says: Set your city so I can find providers near you",             done: s.hasLocation,    to: "/settings" },
+    { id: "firstBooking", label: "B_ says: Book a session — I'll remind you and track your progress",   done: s.hasBooking,     to: "/directory" },
+    { id: "firstLog",     label: "B_ says: Log your first metric — I'll start building your wellness insights", done: s.hasHealthLog,   to: "/progress" },
   ];
   // Push opt-in — only include when the browser can still ask.
   // (If permission is already granted/denied, there's nothing for the user to do.)
@@ -444,7 +444,11 @@ export default function OnboardingChecklistCard({ role, className }: OnboardingC
                         : "hover:bg-white/[0.03] cursor-pointer"
                     }`}
                   >
-                    <Icon className={`w-4 h-4 shrink-0 ${item.done ? "text-teal" : "text-muted-foreground"}`} />
+                    {item.done ? (
+                      <Icon className="w-4 h-4 shrink-0 text-teal" />
+                    ) : (
+                      <Bot className="w-4 h-4 shrink-0 text-teal" style={{ filter: "drop-shadow(0 0 3px rgba(13,148,136,0.4))" }} />
+                    )}
                     <span className={`text-xs flex-1 min-w-0 truncate ${item.done ? "text-muted-foreground line-through" : "text-foreground"}`}>
                       {item.label}
                     </span>

@@ -9,6 +9,7 @@ import AdBanner from "@/components/AdBanner";
 import { useFoodSync } from "@/hooks/useFoodSync";
 import { useActivityPoints } from "@/hooks/useActivityPoints";
 import { usePageView } from "@/hooks/usePageView";
+import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
 import { trackEvent } from "@/lib/habits";
 import {
   ArrowLeft, Camera, Plus, X, Flame, TrendingUp, TrendingDown,
@@ -143,6 +144,11 @@ export default function FoodTracker() {
   const { entries, todayEntries, goals, addEntry: syncAddEntry, deleteEntry: syncDeleteEntry, saveGoals: syncSaveGoals } = useFoodSync();
   const { awardPoints } = useActivityPoints();
   usePageView();
+  const { showTip } = useFeatureDiscovery();
+
+  useEffect(() => {
+    showTip("food-tracker", "Tip: Take a photo of your food and B_ will count the calories.");
+  }, [showTip]);
 
   useEffect(() => { document.title = "Free Calorie Calculator & Meal Tracker | BION"; }, []);
 

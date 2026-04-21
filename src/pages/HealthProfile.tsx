@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useHealthLogs } from "@/hooks/useHealth";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -79,7 +80,12 @@ const VERT_COLOR: Record<string, string> = {
 export default function HealthProfile() {
   const navigate = useNavigate();
   const { logs, logToday } = useHealthLogs(30);
+  const { showTip } = useFeatureDiscovery();
   const [tab, setTab]   = useState<Tab>("metrics");
+
+  useEffect(() => {
+    showTip("health-profile", "Tip: Fill in your medical info so providers can give you better care.");
+  }, [showTip]);
 
   // Derive current metric values from the user's actual health_logs.
   // New users (no logs) see em-dashes and a call-to-action to log their first reading.

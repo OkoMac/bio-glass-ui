@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import SearchBar from "@/components/SearchBar";
@@ -7,13 +7,15 @@ import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import EnablePushCard from "@/components/EnablePushCard";
 import OnboardingChecklistCard from "@/components/OnboardingChecklistCard";
+import BionTips from "@/components/BionTips";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
+import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
 import GlassCard from "@/components/GlassCard";
 import {
   Sparkles, MapPin, Star, Clock, Search as SearchIcon, Flame, Camera,
   Utensils, Calendar as CalendarIcon, BarChart3, Dumbbell,
-  Droplets, Moon, HeartPulse, Activity
+  Droplets, Moon, HeartPulse, Activity, Bot
 } from "lucide-react";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useHabitProfile } from "@/hooks/useHabits";
@@ -85,6 +87,12 @@ const Index = () => {
   const verifiedProviders = useVerifiedProviders();
   const { profile: habitProfile } = useHabitProfile();
   const { bookings } = useBookings();
+  const { showTip } = useFeatureDiscovery();
+
+  // Feature discovery toast — first visit only
+  useEffect(() => {
+    showTip("home", "Welcome to BION! Explore the tools below to start your wellness journey.");
+  }, [showTip]);
 
   // Only invite push opt-in for new clients with no bookings yet, and only if
   // the browser hasn't already locked permission in either direction (granted
@@ -289,6 +297,9 @@ const Index = () => {
 
         {/* Onboarding checklist — nudges clients to fill missing profile signals */}
         {user?.role === "client" && <OnboardingChecklistCard role="client" />}
+
+        {/* B_ contextual tips — proactive nudges based on user state */}
+        <BionTips context="home" />
 
         <div className="flex items-center gap-2 text-sm">
           <MapPin className="w-4 h-4 text-muted-foreground" />

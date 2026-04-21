@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import AdBanner from "@/components/AdBanner";
 import { useActivityPoints } from "@/hooks/useActivityPoints";
 import { usePageView } from "@/hooks/usePageView";
+import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
 import { trackEvent } from "@/lib/habits";
 
 const STORAGE_KEY = "bion_water_tracker";
@@ -130,6 +131,11 @@ export default function WaterTracker() {
   const [milestone, setMilestone] = useState<string | null>(null);
   const { awardPoints } = useActivityPoints();
   usePageView();
+  const { showTip } = useFeatureDiscovery();
+
+  useEffect(() => {
+    showTip("water-tracker", "Tip: Set a daily goal and log each glass throughout the day.");
+  }, [showTip]);
 
   useEffect(() => { document.title = "Free Daily Water Intake Tracker | BION"; }, []);
 

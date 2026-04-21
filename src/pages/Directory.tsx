@@ -7,8 +7,10 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import ServiceCategoryBlock, { SERVICE_CATEGORIES, type ServiceCategory } from "@/components/ServiceCategoryBlock";
 import { useAuth } from "@/contexts/AuthContext";
 import AdBanner from "@/components/AdBanner";
+import BionTips from "@/components/BionTips";
 import { useHabitProfile } from "@/hooks/useHabits";
 import { usePageView } from "@/hooks/usePageView";
+import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 import realData from "@/data/bion_pretoria_data.json";
 import jhbData from "@/data/bion_johannesburg_data.json";
@@ -124,6 +126,12 @@ export default function Directory() {
   }, [userSuburb, geo.latitude]); // eslint-disable-line react-hooks/exhaustive-deps
   const { profile: habitProfile } = useHabitProfile();
   usePageView();
+  const { showTip } = useFeatureDiscovery();
+
+  useEffect(() => {
+    showTip("directory", "Tip: Enable location for the best provider matches near you.");
+  }, [showTip]);
+
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("Nearby");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
@@ -473,6 +481,11 @@ export default function Directory() {
 
       <div className="w-full px-4 md:px-8 xl:px-12">
         <AdBanner slot="directory-top" format="horizontal" />
+      </div>
+
+      {/* B_ contextual tips for directory */}
+      <div className="w-full px-4 md:px-8 xl:px-12 mt-3">
+        <BionTips context="directory" />
       </div>
 
       {/* ── Hero Banner ────────────────────────────── */}
