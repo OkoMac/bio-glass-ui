@@ -266,10 +266,14 @@ const CorporateProviders = lazy(() => import("./pages/corporate/Providers"));
 const CorporateBeneficialOwners = lazy(() => import("./pages/corporate/BeneficialOwners"));
 
 // Sales rep portal
-const RepDashboard  = lazy(() => import("./pages/rep/Dashboard"));
-const RepProviders  = lazy(() => import("./pages/rep/Providers"));
-const RepAgreement  = lazy(() => import("./pages/rep/Agreement"));
-const RepSettings   = lazy(() => import("./pages/rep/Settings"));
+const RepDashboard      = lazy(() => import("./pages/rep/Dashboard"));
+const RepProviders      = lazy(() => import("./pages/rep/Providers"));
+const RepAgreement      = lazy(() => import("./pages/rep/Agreement"));
+const RepSettings       = lazy(() => import("./pages/rep/Settings"));
+const RepCRM            = lazy(() => import("./pages/rep/CRM"));
+const RepLeadDetail     = lazy(() => import("./pages/rep/LeadDetail"));
+const RepAddLead        = lazy(() => import("./pages/rep/AddLead"));
+const RepSuggestedLeads = lazy(() => import("./pages/rep/SuggestedLeads"));
 
 // Public marketing landing pages
 const ForProviders = lazy(() => import("./pages/landing/ForProviders"));
@@ -533,6 +537,10 @@ function AppRoutes() {
       <Route path="/rep/dashboard" element={<RequireAuth allowedRoles={["sales_rep"]}><RepDashboard /></RequireAuth>} />
       <Route path="/rep/providers" element={<RequireAuth allowedRoles={["sales_rep"]}><RepProviders /></RequireAuth>} />
       <Route path="/rep/settings" element={<RequireAuth allowedRoles={["sales_rep"]}><RepSettings /></RequireAuth>} />
+      <Route path="/rep/crm" element={<RequireAuth allowedRoles={["sales_rep"]}><RepCRM /></RequireAuth>} />
+      <Route path="/rep/crm/add" element={<RequireAuth allowedRoles={["sales_rep"]}><RepAddLead /></RequireAuth>} />
+      <Route path="/rep/crm/suggested" element={<RequireAuth allowedRoles={["sales_rep"]}><RepSuggestedLeads /></RequireAuth>} />
+      <Route path="/rep/crm/:id" element={<RequireAuth allowedRoles={["sales_rep"]}><RepLeadDetail /></RequireAuth>} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

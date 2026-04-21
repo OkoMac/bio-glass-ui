@@ -1,11 +1,11 @@
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Users, User, GraduationCap } from "lucide-react";
+import { LayoutDashboard, Users, User, GraduationCap, Target } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const tabs = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/rep/dashboard" },
-  { icon: Users,           label: "Providers",  path: "/rep/providers" },
+  { icon: Target,          label: "CRM",        path: "/rep/crm" },
   { icon: GraduationCap,   label: "Bicademy",   path: "/bicademy" },
   { icon: User,            label: "Profile",    path: "/rep/settings" },
 ];
@@ -23,7 +23,7 @@ const RepNav = () => {
     >
       <div className="flex items-center justify-around">
         {tabs.map((tab) => {
-          const isActive = location.pathname === tab.path;
+          const isActive = location.pathname === tab.path || location.pathname.startsWith(tab.path + "/");
           const Icon = tab.icon;
 
           return (
