@@ -24,6 +24,27 @@ allprojects {
     }
 }
 
+// Force all modules to JVM 17 — JDK 21 target not yet supported by Kotlin
+subprojects {
+    afterEvaluate {
+        if (project.hasProperty("android")) {
+            android {
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+            }
+            project.plugins.withId("org.jetbrains.kotlin.android") {
+                android {
+                    kotlinOptions {
+                        jvmTarget = "17"
+                    }
+                }
+            }
+        }
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
