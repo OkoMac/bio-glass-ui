@@ -36,6 +36,62 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+/** Non-Safari iOS: auto-copy URL + guide to open Safari */
+function NonSafariInstall({ onDone }: { onDone: () => void }) {
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    // Auto-copy on mount so user just needs to open Safari and paste
+    navigator.clipboard.writeText(window.location.origin).then(() => setCopied(true)).catch(() => {});
+  }, []);
+
+  return (
+    <div className="space-y-4 text-center">
+      <img src="/icon-192.png" alt="BION" className="w-16 h-16 rounded-2xl mx-auto" />
+      <div>
+        <p className="text-sm font-bold text-foreground">
+          {copied ? "Link copied!" : "Almost there"}
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {copied
+            ? "Open Safari, tap the address bar, and paste."
+            : "Tap below to copy the link, then open Safari."}
+        </p>
+      </div>
+
+      {!copied && (
+        <button
+          onClick={() => { navigator.clipboard.writeText(window.location.origin).then(() => setCopied(true)); }}
+          className="w-full py-3 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-indigo to-violet"
+        >
+          Copy Link
+        </button>
+      )}
+
+      {copied && (
+        <div className="glass-1 rounded-2xl p-4 space-y-3 text-left">
+          <div className="flex gap-3 items-center">
+            <div className="w-8 h-8 rounded-xl bg-teal/20 flex items-center justify-center shrink-0">
+              <Check className="w-4 h-4 text-teal" />
+            </div>
+            <p className="text-xs text-foreground"><strong>bionhealth.co.za</strong> copied</p>
+          </div>
+          <div className="flex gap-3 items-center">
+            <div className="w-8 h-8 rounded-xl bg-indigo/20 flex items-center justify-center shrink-0">
+              <span className="text-sm">🧭</span>
+            </div>
+            <p className="text-xs text-foreground">Open <strong>Safari</strong> and paste in address bar</p>
+          </div>
+        </div>
+      )}
+
+      <button onClick={onDone} className="text-[10px] text-muted-foreground">
+        I'll do it later
+      </button>
+    </div>
+  );
+}
+
 /**
  * Floating install button + version display
  * - Pre-install: shows "Install BION" with platform-specific instructions
@@ -227,16 +283,7 @@ export default function InstallButton() {
               {device === "ios" && (
                 <div className="space-y-4">
                   {!isSafari() ? (
-                    <>
-                      <p className="text-xs text-foreground font-medium">Open in Safari to install</p>
-                      <p className="text-xs text-muted-foreground">Copy this link and paste it in Safari — iPhone apps can only be installed from Safari:</p>
-                      <button
-                        onClick={() => { navigator.clipboard.writeText(window.location.origin); }}
-                        className="w-full py-3 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-indigo to-violet flex items-center justify-center gap-2"
-                      >
-                        Copy Link to Safari
-                      </button>
-                    </>
+                    <NonSafariInstall onDone={() => setShowInstructions(false)} />
                   ) : (
                     <>
                       <div className="flex items-center gap-3 mb-1">
