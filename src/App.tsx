@@ -239,6 +239,7 @@ const AdminSubscriptions  = lazy(() => import("./pages/admin/Subscriptions"));
 const AdminRefunds        = lazy(() => import("./pages/admin/Refunds"));
 const AdminTickets        = lazy(() => import("./pages/admin/Tickets"));
 const AdminBInbox         = lazy(() => import("./pages/admin/BInbox"));
+const AdminRangers        = lazy(() => import("./pages/admin/Rangers"));
 const Logout              = lazy(() => import("./pages/Logout"));
 const Help                = lazy(() => import("./pages/Help"));
 const MyTickets           = lazy(() => import("./pages/MyTickets"));
@@ -522,6 +523,7 @@ function AppRoutes() {
       <Route path="/admin/refunds"         element={<RequireAuth allowedRoles={["admin"]}><AdminRefunds /></RequireAuth>} />
       <Route path="/admin/tickets"         element={<RequireAuth allowedRoles={["admin"]}><AdminTickets /></RequireAuth>} />
       <Route path="/admin/b-inbox"         element={<RequireAuth allowedRoles={["admin"]}><AdminBInbox /></RequireAuth>} />
+      <Route path="/admin/rangers"         element={<RequireAuth allowedRoles={["admin"]}><AdminRangers /></RequireAuth>} />
 
       {/* Corporate portal */}
       <Route path="/corporate/dashboard" element={<RequireAuth allowedRoles={["corporate"]}><CorporateDashboard /></RequireAuth>} />

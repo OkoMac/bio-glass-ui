@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, Briefcase, BarChart2,
   Settings, ShieldCheck, LogOut, UserCog, FileCheck,
   AlertTriangle, Sparkles, BookOpen, MessageSquare, Shield, UserCheck,
-  DollarSign, RotateCcw, LifeBuoy,
+  DollarSign, RotateCcw, LifeBuoy, Target,
 } from "lucide-react";
 
 const navItems = [
@@ -22,6 +22,7 @@ const navItems = [
   { icon: Sparkles,        label: "B_ Queue",     path: "/admin/b-queue"        },
   { icon: MessageSquare,   label: "WhatsApp",     path: "/admin/whatsapp"       },
   { icon: BookOpen,        label: "Catalogs",     path: "/admin/catalogs"       },
+  { icon: Target,          label: "Rangers CRM",  path: "/admin/rangers"        },
   { icon: BarChart2,       label: "Analytics",    path: "/admin/analytics"      },
   { icon: DollarSign,      label: "Subscriptions", path: "/admin/subscriptions" },
   { icon: Settings,        label: "Settings",     path: "/admin/settings"       },
