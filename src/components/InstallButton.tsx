@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Download, Smartphone, Share, X, Check, RefreshCw } from "lucide-react";
+import { Download, Smartphone, Share, X, Check, RefreshCw, Plus } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import Tooltip from "./Tooltip";
 
@@ -14,6 +14,12 @@ function getDeviceType(): "android" | "ios" | "desktop" | "other" {
   if (/android/.test(ua)) return "android";
   if (/windows|mac|linux/.test(ua)) return "desktop";
   return "other";
+}
+
+function isSafari(): boolean {
+  if (typeof window === "undefined") return false;
+  const ua = window.navigator.userAgent;
+  return /Safari/.test(ua) && !/Chrome|CriOS|FxiOS|EdgiOS/.test(ua);
 }
 
 // Detect if app is already installed (running standalone)
@@ -46,6 +52,23 @@ export default function InstallButton() {
     try { return localStorage.getItem("bion_install_dismissed") === "1"; }
     catch { return false; }
   });
+
+  // Auto-show install guide for iOS Safari on first visit
+  useEffect(() => {
+    if (device !== "ios" || installed || dismissed) return;
+    if (!isSafari()) return; // Only works in Safari
+    try {
+      const seen = localStorage.getItem("bion_ios_install_shown");
+      if (!seen) {
+        // Show after a short delay so the page loads first
+        const t = setTimeout(() => {
+          setShowInstructions(true);
+          localStorage.setItem("bion_ios_install_shown", "1");
+        }, 2000);
+        return () => clearTimeout(t);
+      }
+    } catch { /* */ }
+  }, [device, installed, dismissed]);
 
   // Hide on auth/onboarding/legal pages AND all portal dashboards (admin, provider, corporate)
   const hidden = ["/welcome", "/onboarding", "/legal", "/admin", "/pro", "/corporate", "/rep"].some(p => location.pathname.startsWith(p))
@@ -202,27 +225,59 @@ export default function InstallButton() {
               </div>
 
               {device === "ios" && (
-                <div className="space-y-3">
-                  <p className="text-xs text-muted-foreground">Install BION on your iPhone — it works like a native app with its own icon, splash screen, and full-screen mode:</p>
-                  <ol className="space-y-2.5 text-xs text-foreground">
-                    <li className="flex gap-2">
-                      <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">1</span>
-                      <span>Open this page in <strong>Safari</strong> (not Chrome)</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">2</span>
-                      <span>Tap the Share button <Share className="w-3.5 h-3.5 inline" /> at the bottom</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">3</span>
-                      <span>Scroll down and tap <strong>"Add to Home Screen"</strong></span>
-                    </li>
-                    <li className="flex gap-2">
-                      <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">4</span>
-                      <span>Tap <strong>"Add"</strong> — BION appears on your home screen</span>
-                    </li>
-                  </ol>
-                  <p className="text-[10px] text-muted-foreground mt-2">Opens full-screen with push notifications, offline access, and no browser bar.</p>
+                <div className="space-y-4">
+                  {!isSafari() ? (
+                    <>
+                      <p className="text-xs text-foreground font-medium">Open in Safari to install</p>
+                      <p className="text-xs text-muted-foreground">Copy this link and paste it in Safari — iPhone apps can only be installed from Safari:</p>
+                      <button
+                        onClick={() => { navigator.clipboard.writeText(window.location.origin); }}
+                        className="w-full py-3 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-indigo to-violet flex items-center justify-center gap-2"
+                      >
+                        Copy Link to Safari
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-3 mb-1">
+                        <img src="/icon-192.png" alt="BION" className="w-12 h-12 rounded-2xl" />
+                        <div>
+                          <p className="text-sm font-bold text-foreground">Get the full BION experience</p>
+                          <p className="text-[10px] text-muted-foreground">Full-screen app, push notifications, offline access</p>
+                        </div>
+                      </div>
+                      <div className="glass-1 rounded-2xl p-4 space-y-4">
+                        <div className="flex gap-3 items-start">
+                          <div className="w-8 h-8 rounded-xl bg-teal/20 flex items-center justify-center shrink-0 mt-0.5">
+                            <Share className="w-4 h-4 text-teal" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-foreground">Tap the Share button</p>
+                            <p className="text-[10px] text-muted-foreground">At the bottom of your screen</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-3 items-start">
+                          <div className="w-8 h-8 rounded-xl bg-indigo/20 flex items-center justify-center shrink-0 mt-0.5">
+                            <Plus className="w-4 h-4 text-indigo" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-foreground">Add to Home Screen</p>
+                            <p className="text-[10px] text-muted-foreground">Scroll down in the share menu to find it</p>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Arrow pointing to Safari share button */}
+                      <div className="flex justify-center pt-2">
+                        <motion.div
+                          animate={{ y: [0, 8, 0] }}
+                          transition={{ repeat: Infinity, duration: 1.5 }}
+                          className="text-teal text-lg"
+                        >
+                          ↓ Tap share below ↓
+                        </motion.div>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
 
