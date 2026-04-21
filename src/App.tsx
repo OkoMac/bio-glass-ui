@@ -268,6 +268,7 @@ const CorporateBeneficialOwners = lazy(() => import("./pages/corporate/Beneficia
 const RepDashboard  = lazy(() => import("./pages/rep/Dashboard"));
 const RepProviders  = lazy(() => import("./pages/rep/Providers"));
 const RepAgreement  = lazy(() => import("./pages/rep/Agreement"));
+const RepSettings   = lazy(() => import("./pages/rep/Settings"));
 
 // Public marketing landing pages
 const ForProviders = lazy(() => import("./pages/landing/ForProviders"));
@@ -529,6 +530,7 @@ function AppRoutes() {
       <Route path="/rep/agreement" element={<RequireAuth allowedRoles={["sales_rep"]}><RepAgreement /></RequireAuth>} />
       <Route path="/rep/dashboard" element={<RequireAuth allowedRoles={["sales_rep"]}><RepDashboard /></RequireAuth>} />
       <Route path="/rep/providers" element={<RequireAuth allowedRoles={["sales_rep"]}><RepProviders /></RequireAuth>} />
+      <Route path="/rep/settings" element={<RequireAuth allowedRoles={["sales_rep"]}><RepSettings /></RequireAuth>} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

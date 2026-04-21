@@ -7,7 +7,7 @@ const tabs = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/rep/dashboard" },
   { icon: Users,           label: "Providers",  path: "/rep/providers" },
   { icon: GraduationCap,   label: "Bicademy",   path: "/bicademy" },
-  { icon: User,            label: "Profile",    path: "/profile" },
+  { icon: User,            label: "Profile",    path: "/rep/settings" },
 ];
 
 const RepNav = () => {
