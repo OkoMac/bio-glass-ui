@@ -84,6 +84,15 @@ export default function InstallButton() {
   }, []);
 
   const handleInstall = async () => {
+    // Android: download the native APK directly
+    if (device === "android") {
+      const a = document.createElement("a");
+      a.href = "/BION-app.apk";
+      a.download = "BION.apk";
+      a.click();
+      return;
+    }
+    // Desktop: use browser's native install prompt if available
     if (deferredPrompt) {
       await deferredPrompt.prompt();
       const result = await deferredPrompt.userChoice;
@@ -91,10 +100,10 @@ export default function InstallButton() {
         setInstalled(true);
       }
       setDeferredPrompt(null);
-    } else {
-      // No native prompt — show platform-specific instructions
-      setShowInstructions(true);
+      return;
     }
+    // iOS / fallback: show instructions (Safari Add to Home Screen)
+    setShowInstructions(true);
   };
 
   const handleUpdate = () => {
@@ -219,40 +228,16 @@ export default function InstallButton() {
 
               {device === "android" && (
                 <div className="space-y-3">
-                  <p className="text-xs text-muted-foreground">Choose how to install BION on your Android device:</p>
-
-                  {/* Option 1: Native APK with biometrics */}
-                  <div className="glass-1 rounded-2xl p-3 space-y-2 border border-teal/20">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-teal/20 text-teal">RECOMMENDED</span>
-                    </div>
-                    <p className="text-xs text-foreground font-medium">Native App (with Health Connect)</p>
-                    <p className="text-[10px] text-muted-foreground">Syncs with your wearable and phone health data — steps, heart rate, sleep, weight.</p>
-                    <a
-                      href="/BION-app.apk"
-                      download="BION.apk"
-                      className="block w-full py-2.5 rounded-xl text-xs font-semibold text-center text-white bg-gradient-to-r from-teal to-emerald"
-                    >
-                      <Download className="w-3.5 h-3.5 inline mr-1.5" />
-                      Download BION App (15MB)
-                    </a>
-                  </div>
-
-                  {/* Option 2: Quick PWA install */}
-                  <div className="glass-1 rounded-2xl p-3 space-y-2">
-                    <p className="text-xs text-foreground font-medium">Quick Install (no download)</p>
-                    <p className="text-[10px] text-muted-foreground">Installs instantly from your browser — no biometric sync.</p>
-                    <ol className="space-y-1.5 text-[11px] text-foreground">
-                      <li className="flex gap-2">
-                        <span className="w-4 h-4 rounded-full bg-indigo/20 text-indigo flex items-center justify-center text-[9px] font-bold shrink-0">1</span>
-                        <span>Tap menu (⋮) in Chrome</span>
-                      </li>
-                      <li className="flex gap-2">
-                        <span className="w-4 h-4 rounded-full bg-indigo/20 text-indigo flex items-center justify-center text-[9px] font-bold shrink-0">2</span>
-                        <span>Tap <strong>"Install app"</strong></span>
-                      </li>
-                    </ol>
-                  </div>
+                  <p className="text-xs text-muted-foreground">Your download should start automatically. If it doesn't:</p>
+                  <a
+                    href="/BION-app.apk"
+                    download="BION.apk"
+                    className="block w-full py-3 rounded-xl text-xs font-semibold text-center text-white bg-gradient-to-r from-teal to-emerald"
+                  >
+                    <Download className="w-3.5 h-3.5 inline mr-1.5" />
+                    Download BION App
+                  </a>
+                  <p className="text-[10px] text-muted-foreground">Once downloaded, tap the file to install. You may need to allow "Install from unknown sources" in your settings.</p>
                 </div>
               )}
 
