@@ -31,6 +31,7 @@
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
+		<string>healthkit</string>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
@@ -47,5 +48,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSHealthShareUsageDescription</key>
+	<string>BION reads your health data to provide personalized wellness insights</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>BION saves your logged health data to Apple Health</string>
 </dict>
 </plist>

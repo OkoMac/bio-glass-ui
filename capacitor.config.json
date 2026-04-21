@@ -53,6 +53,30 @@
     },
     "PushNotifications": {
       "presentationOptions": ["badge", "sound", "alert"]
+    },
+    "CapacitorHealthkit": {
+      "read": [
+        "stepCount",
+        "distanceWalkingRunning",
+        "activeEnergyBurned",
+        "heartRate",
+        "restingHeartRate",
+        "sleepAnalysis",
+        "bodyMass",
+        "height",
+        "bodyFatPercentage",
+        "bodyMassIndex",
+        "bloodPressureSystolic",
+        "bloodPressureDiastolic",
+        "oxygenSaturation",
+        "dietaryWater"
+      ],
+      "write": [
+        "bodyMass",
+        "height",
+        "bodyFatPercentage",
+        "dietaryWater"
+      ]
     }
   }
 }

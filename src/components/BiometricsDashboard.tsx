@@ -2,8 +2,11 @@ import { motion } from "framer-motion";
 import {
   Heart, Activity, Droplets, Moon, Flame, Footprints,
   Scale, TrendingUp, TrendingDown, Wind, Brain, Dumbbell, Plus,
+  Smartphone,
 } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
 import { useHealthLogs } from "@/hooks/useHealth";
+import { useNativeHealth } from "@/hooks/useNativeHealth";
 import { useNavigate } from "react-router-dom";
 
 interface Biometric {
@@ -206,6 +209,7 @@ export default function BiometricsDashboard({ compact = false }: { compact?: boo
   // Empty state (new user with no entries) shows a prompt, not fake numbers.
   const navigate = useNavigate();
   const { logs, loading } = useHealthLogs(30);
+  const native = useNativeHealth();
 
   const today = new Date().toISOString().slice(0, 10);
   const todayLog = logs.find(l => l.log_date === today);
@@ -218,7 +222,13 @@ export default function BiometricsDashboard({ compact = false }: { compact?: boo
   let todayWater = 0;
   try { todayWater = parseInt(localStorage.getItem(`bion_water_${today}`) ?? "0") || 0; } catch { /* no-op */ }
 
-  const hasAnyData = logs.length > 0 || todayWater > 0;
+  const hasAnyData = logs.length > 0 || todayWater > 0 || native.steps !== null || native.weight !== null;
+
+  // Prefer native device data over manually-logged data when available
+  const effectiveSteps = native.steps ?? todayLog?.steps ?? 0;
+  const effectiveHR = native.heartRate ?? latestWithHR?.resting_hr ?? 0;
+  const effectiveSleep = native.sleep ?? latestWithSleep?.sleep_hours ?? 0;
+  const effectiveWeight = native.weight ?? latestWithWeight?.weight_kg ?? 0;
 
   // Compute trends (only if we have ≥ 2 data points of that metric)
   const diffSince = <K extends keyof typeof logs[number]>(key: K) => {
@@ -234,7 +244,7 @@ export default function BiometricsDashboard({ compact = false }: { compact?: boo
   const hrDiff = diffSince("resting_hr");
   const sleepDiff = diffSince("sleep_hours");
 
-  const moveData     = { current: todayLog?.steps ?? 0, goal: 10000 };
+  const moveData     = { current: effectiveSteps, goal: 10000 };
   const exerciseData = { current: 0, goal: 60 };  // no exercise minutes logged today — empty
   const standData    = { current: 0, goal: 12 };  // stand-hours not yet logged
 
@@ -243,14 +253,14 @@ export default function BiometricsDashboard({ compact = false }: { compact?: boo
     : 0;
 
   const metrics: Biometric[] = [
-    { id: "weight",   label: "Weight",     value: latestWithWeight?.weight_kg ?? 0, unit: "kg", icon: Scale, color: "text-indigo", ringColor: "#6366F1",
+    { id: "weight",   label: "Weight",     value: effectiveWeight, unit: "kg", icon: Scale, color: "text-indigo", ringColor: "#6366F1",
       trend: weightDiff ? { direction: weightDiff.delta < 0 ? "down" : weightDiff.delta > 0 ? "up" : "stable", value: `${weightDiff.delta > 0 ? "+" : ""}${weightDiff.delta.toFixed(1)} kg over ${logs.length} entries` } : undefined },
     { id: "bodyfat",  label: "Body Fat",   value: latestWithBodyFat?.body_fat_pct ?? 0, unit: "%", icon: Activity, color: "text-teal", ringColor: "#0D9488",
       trend: bodyFatDiff ? { direction: bodyFatDiff.delta < 0 ? "down" : bodyFatDiff.delta > 0 ? "up" : "stable", value: `${bodyFatDiff.delta > 0 ? "+" : ""}${bodyFatDiff.delta.toFixed(1)}%` } : undefined },
-    { id: "hr",       label: "Resting HR", value: latestWithHR?.resting_hr ?? 0, unit: "bpm", icon: Heart, color: "text-coral", ringColor: "#FB7185",
+    { id: "hr",       label: "Resting HR", value: effectiveHR, unit: "bpm", icon: Heart, color: "text-coral", ringColor: "#FB7185",
       trend: hrDiff ? { direction: hrDiff.delta < 0 ? "down" : hrDiff.delta > 0 ? "up" : "stable", value: `${hrDiff.delta > 0 ? "+" : ""}${hrDiff.delta} bpm` } : undefined },
-    { id: "steps",    label: "Steps",      value: todayLog?.steps ?? 0, goal: 10000, unit: "", icon: Footprints, color: "text-amber", ringColor: "#F59E0B" },
-    { id: "sleep",    label: "Sleep",      value: latestWithSleep?.sleep_hours ?? 0, goal: 8, unit: "h", icon: Moon, color: "text-violet", ringColor: "#8B5CF6",
+    { id: "steps",    label: "Steps",      value: effectiveSteps, goal: 10000, unit: "", icon: Footprints, color: "text-amber", ringColor: "#F59E0B" },
+    { id: "sleep",    label: "Sleep",      value: effectiveSleep, goal: 8, unit: "h", icon: Moon, color: "text-violet", ringColor: "#8B5CF6",
       trend: sleepDiff ? { direction: sleepDiff.delta > 0 ? "up" : sleepDiff.delta < 0 ? "down" : "stable", value: `${sleepDiff.delta > 0 ? "+" : ""}${sleepDiff.delta.toFixed(1)}h` } : undefined },
     { id: "water",    label: "Hydration",  value: todayWater, goal: 8, unit: "glasses", icon: Droplets, color: "text-blue-400", ringColor: "#60A5FA" },
   ];
@@ -301,6 +311,40 @@ export default function BiometricsDashboard({ compact = false }: { compact?: boo
 
   return (
     <div className="space-y-5">
+      {/* Native health sync prompt — ask for auth on device, or nudge to install */}
+      {!native.isNative && !compact && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border border-indigo/20 bg-indigo/5 p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-indigo/15 flex items-center justify-center shrink-0">
+            <Smartphone className="w-5 h-5 text-indigo" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-foreground">Install the BION app for biometric sync</p>
+            <p className="text-xs text-muted-foreground">Get automatic step, heart-rate, sleep &amp; weight data from Apple Health or Health Connect.</p>
+          </div>
+        </motion.div>
+      )}
+
+      {native.isNative && !native.authorized && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border border-teal/20 bg-teal/5 p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-teal/15 flex items-center justify-center shrink-0">
+            <Activity className="w-5 h-5 text-teal" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-foreground">Connect your health data</p>
+            <p className="text-xs text-muted-foreground mb-2">Allow BION to read from {Capacitor.getPlatform() === "ios" ? "Apple Health" : "Health Connect"} for automatic tracking.</p>
+            <button
+              onClick={() => native.requestAuth()}
+              disabled={native.loading}
+              className="text-xs font-medium text-teal bg-teal/10 hover:bg-teal/20 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
+            >
+              {native.loading ? "Connecting..." : "Connect Health Data"}
+            </button>
+          </div>
+        </motion.div>
+      )}
+
       {/* Activity rings hero card */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
         className="rounded-3xl border border-white/[0.08] bg-gradient-to-br from-coral/5 via-white/[0.02] to-teal/5 p-5 md:p-6 relative overflow-hidden"
