@@ -6,16 +6,17 @@ import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
+import { useNotifications as useDbNotifications, type DbNotification } from "@/hooks/useNotifications";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Bell, Calendar, MessageSquare, Flame,
-  Gift, Zap, CheckCheck, Trash2, Settings, BellOff, Pill, Loader2,
+  Gift, Zap, CheckCheck, Trash2, Settings, BellOff, DollarSign, Clock, Star, Loader2,
 } from "lucide-react";
 import { getActiveReminders, dismissReminder, type Reminder } from "@/lib/reminders";
 
 // ── Types ────────────────────────────────────────────────────────────
 
-type NotifCategory = "booking" | "message" | "streak" | "reward" | "system" | "provider";
+type NotifCategory = "booking" | "message" | "streak" | "reward" | "system" | "provider" | "payment" | "reminder" | "promotion" | "review";
 
 interface Notification {
   id:         string;
@@ -28,21 +29,29 @@ interface Notification {
   actionUrl?: string;
   providerId?: string;
   location?: string;
+  dbId?:      string;       // if sourced from notifications table
 }
-
-// Notifications loaded from backend
-const INITIAL_NOTIFICATIONS: Notification[] = [];
 
 // ── Category config ────────────────────────────────────────────────
 
 const CATEGORY_CONFIG: Record<NotifCategory, { icon: React.ReactNode; color: string; bg: string }> = {
-  booking:  { icon: <Calendar className="w-4 h-4" />, color: "text-indigo",      bg: "bg-indigo/10" },
-  message:  { icon: <MessageSquare className="w-4 h-4" />, color: "text-teal",       bg: "bg-teal/10" },
-  streak:   { icon: <Flame className="w-4 h-4" />, color: "text-amber",      bg: "bg-amber/10" },
-  reward:   { icon: <Gift className="w-4 h-4" />, color: "text-emerald",    bg: "bg-emerald/10" },
-  system:   { icon: <Zap className="w-4 h-4" />, color: "text-slate",      bg: "bg-slate/10" },
-  provider: { icon: <Bell className="w-4 h-4" />, color: "text-purple",     bg: "bg-purple/10" },
+  booking:    { icon: <Calendar className="w-4 h-4" />,       color: "text-indigo",   bg: "bg-indigo/10" },
+  message:    { icon: <MessageSquare className="w-4 h-4" />,  color: "text-teal",     bg: "bg-teal/10" },
+  streak:     { icon: <Flame className="w-4 h-4" />,          color: "text-amber",    bg: "bg-amber/10" },
+  reward:     { icon: <Gift className="w-4 h-4" />,           color: "text-emerald",  bg: "bg-emerald/10" },
+  system:     { icon: <Zap className="w-4 h-4" />,            color: "text-slate",    bg: "bg-slate/10" },
+  provider:   { icon: <Bell className="w-4 h-4" />,           color: "text-purple",   bg: "bg-purple/10" },
+  payment:    { icon: <DollarSign className="w-4 h-4" />,     color: "text-emerald",  bg: "bg-emerald/10" },
+  reminder:   { icon: <Clock className="w-4 h-4" />,          color: "text-amber",    bg: "bg-amber/10" },
+  promotion:  { icon: <Gift className="w-4 h-4" />,           color: "text-purple",   bg: "bg-purple/10" },
+  review:     { icon: <Star className="w-4 h-4" />,           color: "text-amber",    bg: "bg-amber/10" },
 };
+
+/** Map a DB notification type to a NotifCategory for rendering. */
+function mapDbType(type: string): NotifCategory {
+  if (type in CATEGORY_CONFIG) return type as NotifCategory;
+  return "system";
+}
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -65,6 +74,12 @@ export default function Notifications() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { bookings } = useBookings();
+  const {
+    notifications: dbNotifications,
+    unreadCount: dbUnreadCount,
+    markAsRead: dbMarkAsRead,
+    markAllAsRead: dbMarkAllAsRead,
+  } = useDbNotifications();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<NotifCategory | "all">("all");
@@ -185,37 +200,24 @@ export default function Notifications() {
         }
       }
 
-      // 4) Real-time message notifications (only for authenticated users)
-      const isDemo = user?.id?.startsWith("demo_") ?? false;
-      if (user?.id && !isDemo) {
-        try {
-          const { data: unreadMsgs } = await supabase
-            .from("messages")
-            .select("id, sender_id, content, created_at")
-            .eq("receiver_id", user.id)
-            .eq("is_read", false)
-            .order("created_at", { ascending: false })
-            .limit(10);
-
-          (unreadMsgs as any[] ?? []).forEach(msg => {
-            const id = `message_${msg.id}`;
-            if (dismissedIds.has(id)) return;
-
-            list.push({
-              id,
-              category: "message",
-              title: "New message",
-              body: msg.content?.substring(0, 80) ?? "You have a new message",
-              time: relativeTime(msg.created_at),
-              createdAt: new Date(msg.created_at).getTime(),
-              read: false,
-              actionUrl: "/messages",
-            });
-          });
-        } catch (err) {
-          if (import.meta.env.DEV) console.warn("[notifications] message fetch failed:", err);
-        }
-      }
+      // 4) Merge DB notifications (from the useNotifications realtime hook).
+      // These include messages, payment, booking, and other server-generated
+      // notifications that arrive via Supabase Realtime.
+      dbNotifications.forEach(dbN => {
+        const id = `db_${dbN.id}`;
+        if (dismissedIds.has(id)) return;
+        list.push({
+          id,
+          dbId: dbN.id,
+          category: mapDbType(dbN.type),
+          title: dbN.title,
+          body: dbN.body ?? "",
+          time: relativeTime(dbN.created_at),
+          createdAt: new Date(dbN.created_at).getTime(),
+          read: dbN.read || readIds.has(id),
+          actionUrl: dbN.action_url ?? undefined,
+        });
+      });
 
       // Sort by createdAt (newest first)
       list.sort((a, b) => b.createdAt - a.createdAt);
@@ -225,7 +227,7 @@ export default function Notifications() {
     };
 
     build();
-  }, [user?.id, bookings, dismissedIds, readIds]);
+  }, [user?.id, bookings, dismissedIds, readIds, dbNotifications]);
 
   // Persist read/dismissed state
   useEffect(() => {
@@ -249,11 +251,18 @@ export default function Notifications() {
   const markAsRead = (id: string) => {
     setReadIds(prev => new Set([...prev, id]));
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    // If this is a DB notification, mark it read in Supabase too
+    const notif = notifications.find(n => n.id === id);
+    if (notif?.dbId) {
+      dbMarkAsRead(notif.dbId);
+    }
   };
 
   const markAllAsRead = () => {
     setReadIds(prev => new Set([...prev, ...notifications.map(n => n.id)]));
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    // Mark all DB notifications as read in Supabase
+    dbMarkAllAsRead();
     // Also dismiss the B_ reminder engine items so the floating assistant badge
     // decrements in step with the user's "all caught up" intent.
     getActiveReminders().forEach(r => dismissReminder(r.id));
@@ -343,7 +352,7 @@ export default function Notifications() {
 
         {/* Filter bar */}
         <div className="flex gap-1.5 overflow-x-auto no-scrollbar py-1">
-          {["all", "booking", "message", "provider", "reward", "streak", "system"].map(cat => (
+          {["all", "booking", "message", "payment", "reminder", "review", "promotion", "system"].map(cat => (
             <motion.button
               key={cat}
               whileTap={{ scale: 0.95 }}

@@ -41,13 +41,23 @@ export function useNotifications() {
 
     fetchNotifications();
 
-    // Realtime subscription
+    // Realtime subscription — listen for new notifications AND updates (mark-read
+    // from another tab/device, or backend-driven read status changes).
     const channel = supabase
       .channel(`notifications-${profileId}`)
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${profileId}` },
         (payload) => {
           setNotifications(prev => [payload.new as DbNotification, ...prev]);
+        }
+      )
+      .on("postgres_changes",
+        { event: "UPDATE", schema: "public", table: "notifications", filter: `user_id=eq.${profileId}` },
+        (payload) => {
+          const updated = payload.new as DbNotification;
+          setNotifications(prev =>
+            prev.map(n => n.id === updated.id ? updated : n),
+          );
         }
       )
       .subscribe();
