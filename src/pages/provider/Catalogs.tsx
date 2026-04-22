@@ -6,7 +6,7 @@ import BionAssistant from "@/components/BionAssistant";
 import GlassCard from "@/components/GlassCard";
 import { useMyCatalogs, type CatalogTheme } from "@/hooks/useCatalogs";
 import {
-  BookOpen, Plus, Eye, Share2, Loader2, X, Sparkles, Globe, Lock, Link as LinkIcon,
+  BookOpen, Plus, Eye, Share2, Loader2, X, Sparkles, Globe, Lock, Link as LinkIcon, ArrowLeft,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -46,7 +46,10 @@ export default function ProviderCatalogs() {
   };
 
   return (
-    <div className="min-h-screen bg-background md:pl-56 pb-24 md:pb-8">
+    <div className="min-h-screen bg-background md:pl-56 pb-24 md:pb-8 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <ProviderNav />
       <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-6 pt-20 md:pt-8">
         <header className="flex items-center justify-between">

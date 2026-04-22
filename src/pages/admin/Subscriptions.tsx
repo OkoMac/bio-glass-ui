@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
 import { supabase } from "@/integrations/supabase/client";
-import { DollarSign, Users, TrendingUp, AlertTriangle, Loader2, RefreshCw } from "lucide-react";
+import { DollarSign, Users, TrendingUp, AlertTriangle, Loader2, RefreshCw ArrowLeft, } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -15,6 +16,7 @@ interface Metrics {
 }
 
 export default function AdminSubscriptions() {
+  const navigate = useNavigate();
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -67,7 +69,10 @@ export default function AdminSubscriptions() {
   useEffect(() => { void load(); }, []);
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="mx-auto max-w-5xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
         <div className="flex items-center justify-between">
           <div>

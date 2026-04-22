@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import { FeatureGate } from "@/components/FeatureGate";
 import GlassCard from "@/components/GlassCard";
@@ -6,13 +7,14 @@ import ProviderNav from "@/components/ProviderNav";
 import {
   Calendar, Clock, Users, Video, Home, MapPin,
   Plus, Edit, Trash2, Check, X, ChevronRight,
-  Sparkles, Lock, TrendingUp
+  Sparkles, Lock, TrendingUp, ArrowLeft,
 } from "lucide-react";
 
 // Session Management System for Gym Providers
 // This is a NEW feature that doesn't break existing scheduling
 
 export default function SessionManager() {
+  const navigate = useNavigate();
   const { isEnabled } = useFeatureFlags();
   
   // Empty state - will be populated with real session data from Supabase
@@ -27,7 +29,10 @@ export default function SessionManager() {
   // If the feature flag is disabled, show upgrade prompt
   if (!isEnabled('sessionManagement')) {
     return (
-      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+        <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+        </button>
         <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
           <GlassCard className="p-6 text-center">
             <Sparkles className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
@@ -48,7 +53,10 @@ export default function SessionManager() {
   }
   
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="mx-auto max-w-6xl xl:max-w-7xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
         
         {/* Header */}

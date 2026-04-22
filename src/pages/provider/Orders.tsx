@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
@@ -7,7 +8,7 @@ import ProviderDisputePanel from "@/components/provider/ProviderDisputePanel";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import {
-  Package, Truck, Check, X, Loader2, ShoppingBag, MapPin, Home, Clock, AlertCircle,
+  Package, Truck, Check, X, Loader2, ShoppingBag, MapPin, Home, Clock, AlertCircle, ArrowLeft,
 } from "lucide-react";
 
 interface Order {
@@ -44,6 +45,7 @@ const STATUS_META: Record<string, { label: string; color: string }> = {
 };
 
 export default function ProviderOrders() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -116,7 +118,10 @@ export default function ProviderOrders() {
   const pendingFulfillment = orders.filter(o => ["paid", "preparing"].includes(o.status)).length;
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 pb-32">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 pb-32 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="mx-auto max-w-5xl px-4 md:px-8 pt-12 md:pt-8 space-y-5">
         <div>
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">

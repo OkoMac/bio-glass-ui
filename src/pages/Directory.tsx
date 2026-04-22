@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Search, MapPin, SlidersHorizontal, Navigation, Star, Clock, ChevronRight, X, Plus, Lock, Phone } from "lucide-react";
+import { Search, MapPin, SlidersHorizontal, Navigation, Star, Clock, ChevronRight, X, Plus, Lock, Phone, ArrowLeft } from "lucide-react";
 import BookingRequestForm from "@/components/BookingRequestForm";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import ServiceCategoryBlock, { SERVICE_CATEGORIES, type ServiceCategory } from "@/components/ServiceCategoryBlock";
@@ -294,9 +294,14 @@ export default function Directory() {
       <div className="sticky top-0 z-40 bg-obsidian/80 backdrop-blur-xl border-b border-white/[0.06]">
         <div className="w-full px-4 md:px-8 xl:px-12 py-3">
           <div className="flex items-center justify-between">
-            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-              <img src="/bion-logo-white-sm.png" alt="BION" className="h-14 md:h-20 w-auto" />
-            </motion.div>
+            <div className="flex items-center gap-2">
+              <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+              <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
+                <img src="/bion-logo-white-sm.png" alt="BION" className="h-14 md:h-20 w-auto" />
+              </motion.div>
+            </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowLocationPicker(!showLocationPicker)}

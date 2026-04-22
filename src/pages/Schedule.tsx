@@ -6,7 +6,7 @@ import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import ReviewForm from "@/components/ReviewForm";
-import { Calendar, ChevronLeft, ChevronRight, Clock, Star, X, CalendarDays, RotateCcw, XCircle, FileText, Search, Mail, CheckCircle2 } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Clock, Star, X, CalendarDays, RotateCcw, XCircle, FileText, Search, Mail, CheckCircle2, ArrowLeft } from "lucide-react";
 import { useBookings, type Booking } from "@/contexts/BookingsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -171,7 +171,12 @@ const Schedule = () => {
       <div className="w-full px-4 md:px-8 xl:px-12 pt-12 space-y-5">
 
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-foreground">My Schedule</h1>
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+            <h1 className="text-2xl font-bold text-foreground">My Schedule</h1>
+          </div>
           <Calendar className="w-5 h-5 text-muted-foreground" />
         </div>
 

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
-import { HelpCircle, MessageSquare, Mail, Phone, Send, Loader2, Check, ChevronDown } from "lucide-react";
+import { HelpCircle, MessageSquare, Mail, Phone, Send, Loader2, Check, ChevronDown, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -88,6 +88,9 @@ export default function Help() {
         {/* Hero */}
         <header className="space-y-2">
           <div className="flex items-center gap-2">
+            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+              <ArrowLeft className="w-4 h-4" />
+            </button>
             <HelpCircle className="w-6 h-6 text-indigo" />
             <h1 className="text-3xl font-bold text-foreground">How can we help?</h1>
           </div>

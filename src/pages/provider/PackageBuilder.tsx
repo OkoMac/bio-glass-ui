@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import { FeatureGate } from "@/components/FeatureGate";
 import GlassCard from "@/components/GlassCard";
@@ -6,7 +7,7 @@ import ProviderNav from "@/components/ProviderNav";
 import {
   Package, Tag, Users, Calendar, TrendingUp,
   Plus, Edit, Trash2, Check, X, ChevronRight,
-  Sparkles, CreditCard, Percent, Clock
+  Sparkles, CreditCard, Percent, Clock, ArrowLeft,
 } from "lucide-react";
 
 // Package Builder for Gym Providers
@@ -14,6 +15,7 @@ import {
 // Matches EXACT same design patterns as existing components
 
 export default function PackageBuilder() {
+  const navigate = useNavigate();
   const { isEnabled } = useFeatureFlags();
   
   // Sample packages - will be replaced with real data
@@ -35,7 +37,10 @@ export default function PackageBuilder() {
   // If the feature flag is disabled, show upgrade prompt
   if (!isEnabled('packageBuilder')) {
     return (
-      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+        <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+        </button>
         <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
           <GlassCard className="p-6 text-center">
             <Sparkles className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
@@ -67,7 +72,10 @@ export default function PackageBuilder() {
   };
   
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="mx-auto max-w-6xl xl:max-w-7xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
         
         {/* Header */}

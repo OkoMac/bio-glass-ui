@@ -1,10 +1,11 @@
 import { useAdminToken } from "@/hooks/useAdminToken";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AdminNav from "@/components/AdminNav";
 import GlassCard from "@/components/GlassCard";
 import {
   Search, Loader2, AlertTriangle, CheckCircle2, DollarSign, Mail, Calendar,
-} from "lucide-react";
+ArrowLeft, } from "lucide-react";
 import { toast } from "sonner";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
@@ -28,6 +29,7 @@ interface BookingRow {
 }
 
 export default function AdminRefunds() {
+  const navigate = useNavigate();
   const { token, loading: tokenLoading } = useAdminToken();
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
@@ -120,7 +122,10 @@ export default function AdminRefunds() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
         <AdminNav />
         <div className="max-w-md mx-auto pt-20 px-4">
           <GlassCard className="p-6 space-y-4">
@@ -144,7 +149,10 @@ export default function AdminRefunds() {
   }
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <AdminNav />
       <div className="max-w-5xl mx-auto pt-8 pb-20 px-4 space-y-5">
         <header>

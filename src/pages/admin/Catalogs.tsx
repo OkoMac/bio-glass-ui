@@ -7,7 +7,7 @@ import { useBionCatalogs } from "@/hooks/useBionCatalogs";
 import type { CatalogTheme } from "@/hooks/useCatalogs";
 import {
   BookOpen, Plus, Eye, Share2, Loader2, X, Globe, Lock,
-  Link as LinkIcon, Building2, Sparkles,
+  Link as LinkIcon, Building2, Sparkles, ArrowLeft,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -52,7 +52,10 @@ export default function AdminCatalogs() {
   const liveCount = catalogs.filter((c) => c.published).length;
 
   return (
-    <div className="min-h-screen bg-background md:pl-56 pb-24 md:pb-8">
+    <div className="min-h-screen bg-background md:pl-56 pb-24 md:pb-8 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <AdminNav />
       <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-6 pt-20 md:pt-8">
         <header className="flex items-center justify-between gap-3">

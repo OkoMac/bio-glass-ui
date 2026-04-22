@@ -9,6 +9,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import AdminNav from "@/components/AdminNav";
@@ -16,7 +17,7 @@ import GlassCard from "@/components/GlassCard";
 import {
   AlertTriangle, ShieldCheck, Loader2, CheckCircle, XCircle,
   FileText, Users as UsersIcon, Clock, Shield, ScrollText,
-} from "lucide-react";
+ArrowLeft, } from "lucide-react";
 import { toast } from "sonner";
 import { formatRelativeTime } from "@/lib/relativeTime";
 
@@ -70,6 +71,7 @@ const BO_EVENT_TYPES = [
 const SARS_EVENT_TYPES = ["ranger_sars_declared"];
 
 export default function AdminCompliance() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("fica");
   const [token, setToken] = useState(() => {
     try { return localStorage.getItem("bion_admin_token") ?? ""; } catch { return ""; }
@@ -265,7 +267,10 @@ export default function AdminCompliance() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
         <AdminNav />
         <div className="max-w-md mx-auto pt-20 px-4">
           <GlassCard className="p-6 space-y-4">
@@ -290,7 +295,10 @@ export default function AdminCompliance() {
   }
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <AdminNav />
       <div className="max-w-5xl mx-auto pt-8 pb-20 px-4 space-y-5">
         <header className="flex items-start justify-between">

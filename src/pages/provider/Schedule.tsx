@@ -1,12 +1,13 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useProviderAvailability, AvailabilitySlot, AvailabilityOverride } from "@/hooks/useProviderAvailability";
 import { getProviderImage } from "@/lib/providerImages";
-import { ChevronLeft, ChevronRight, Clock, User, MessageSquare, X, Plus, Calendar } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, User, MessageSquare, X, Plus, Calendar, ArrowLeft } from "lucide-react";
 
 interface Booking {
   id: string;
@@ -109,6 +110,7 @@ function bandRect(start: string, end: string, hourH: number): { top: number; hei
 }
 
 export default function ProviderSchedule() {
+  const navigate = useNavigate();
   const { bookings: allBookings } = useBookings();
   const {
     slots: availabilitySlots,
@@ -190,7 +192,10 @@ export default function ProviderSchedule() {
   const totalH = HOURS.length * HOUR_H;
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="mx-auto max-w-3xl xl:max-w-7xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-4">
 
         {/* Header */}

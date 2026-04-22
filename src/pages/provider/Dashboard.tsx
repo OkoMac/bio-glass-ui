@@ -13,7 +13,7 @@ import { useBookings } from "@/contexts/BookingsContext";
 import { getSastGreeting } from "@/lib/greeting";
 import {
   CheckCircle, XCircle, MessageSquare, TrendingUp,
-  Users, Calendar, AlertTriangle, ChevronRight,
+  Users, Calendar, AlertTriangle, ChevronRight, ArrowLeft,
 } from "lucide-react";
 
 // No longer hardcoded — computed from bookings context below
@@ -81,12 +81,17 @@ export default function ProviderDashboard() {
 
         {/* Header */}
         <div className="flex items-start justify-between">
-          <div>
-            <p className="text-xs text-muted-foreground">{getSastGreeting()} 👋</p>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">{user?.name ?? "Provider"}</h1>
-            <p className="text-xs text-muted-foreground">
-              {pending.length > 0 ? `${pending.length} request${pending.length > 1 ? "s" : ""} waiting` : "All caught up"}
-            </p>
+          <div className="flex items-start gap-3">
+            <button onClick={() => navigate(-1)} className="shrink-0 md:hidden w-9 h-9 mt-0.5 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+            <div>
+              <p className="text-xs text-muted-foreground">{getSastGreeting()} 👋</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">{user?.name ?? "Provider"}</h1>
+              <p className="text-xs text-muted-foreground">
+                {pending.length > 0 ? `${pending.length} request${pending.length > 1 ? "s" : ""} waiting` : "All caught up"}
+              </p>
+            </div>
           </div>
           <button onClick={logout} className="text-[10px] text-muted-foreground glass-1 px-3 py-1.5 rounded-pill">Sign out</button>
         </div>

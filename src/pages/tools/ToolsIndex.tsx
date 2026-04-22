@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import AdBanner from "@/components/AdBanner";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePageView } from "@/hooks/usePageView";
 import {
-  Calculator, UtensilsCrossed, Droplets, Moon, CreditCard, Brain, Sparkles,
+  Calculator, UtensilsCrossed, Droplets, Moon, CreditCard, Brain, Sparkles, ArrowLeft,
 } from "lucide-react";
 
 const TOOLS = [
@@ -20,6 +20,7 @@ const TOOLS = [
 ];
 
 export default function ToolsIndex() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   usePageView();
 
@@ -28,7 +29,10 @@ export default function ToolsIndex() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-24">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-24 relative">
+      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl px-4 pt-12 space-y-6">
         {/* Header */}
         <div>

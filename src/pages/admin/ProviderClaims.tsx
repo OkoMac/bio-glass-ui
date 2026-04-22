@@ -1,4 +1,5 @@
 import { useAdminToken } from "@/hooks/useAdminToken";
+import { useNavigate } from "react-router-dom";
 /**
  * /admin/provider-claims — review queue for "Claim this listing" requests
  * submitted from /provider/:id by directory providers who want to move from
@@ -21,7 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   UserCheck, CheckCircle, XCircle, Loader2, AlertCircle, Clock,
   Phone, Mail, Briefcase, ShieldCheck, Sparkles,
-} from "lucide-react";
+ArrowLeft, } from "lucide-react";
 import { toast } from "sonner";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
@@ -50,6 +51,7 @@ interface ProviderOption {
 }
 
 export default function AdminProviderClaims() {
+  const navigate = useNavigate();
   const { token, loading: tokenLoading } = useAdminToken();
   const [tokenDraft, setTokenDraft] = useState("");
   const [claims, setClaims] = useState<Claim[]>([]);
@@ -164,7 +166,10 @@ export default function AdminProviderClaims() {
   // ─── Token entry screen ────────────────────────────────────────
   if (!token) {
     return (
-      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
         <div className="mx-auto max-w-xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
           <div className="flex items-center gap-2">
             <UserCheck className="w-5 h-5 text-coral" />
@@ -208,7 +213,10 @@ export default function AdminProviderClaims() {
 
   // ─── Main view ─────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="mx-auto max-w-5xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
 
         {/* Header */}

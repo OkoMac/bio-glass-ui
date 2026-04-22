@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAdminToken } from "@/hooks/useAdminToken";
 import AdminNav from "@/components/AdminNav";
 import GlassCard from "@/components/GlassCard";
 import {
   Target, Users, TrendingUp, Search, ChevronDown, ChevronRight,
   Phone, Mail, MapPin, Calendar, Award, AlertTriangle, Loader2,
-} from "lucide-react";
+ArrowLeft, } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -41,6 +42,7 @@ const STAGE_COLORS: Record<string, string> = {
 };
 
 export default function AdminRangers() {
+  const navigate = useNavigate();
   const { token, loading: tokenLoading } = useAdminToken();
   const [rangers, setRangers] = useState<RangerWithStats[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,7 +87,10 @@ export default function AdminRangers() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
         <AdminNav />
         <div className="max-w-md mx-auto pt-20 px-4">
           <GlassCard className="p-6 space-y-4">
@@ -109,7 +114,10 @@ export default function AdminRangers() {
   }
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <AdminNav />
       <div className="max-w-6xl mx-auto pt-8 pb-20 px-4 space-y-5">
         <header>

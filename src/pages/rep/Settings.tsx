@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import GlassCard from "@/components/GlassCard";
 import RepNav from "@/components/RepNav";
-import { User, Mail, Phone, MapPin, LogOut, Shield, Copy, Check } from "lucide-react";
+import { User, Mail, Phone, MapPin, LogOut, Shield, Copy, Check, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { signOutSupabase } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
@@ -29,7 +29,10 @@ export default function RepSettings() {
   };
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28 relative">
+      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="max-w-lg mx-auto pt-8 px-4 space-y-5">
         {/* Header */}
         <div className="text-center space-y-2">

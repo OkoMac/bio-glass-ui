@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import { FeatureGate } from "@/components/FeatureGate";
 import GlassCard from "@/components/GlassCard";
@@ -8,13 +9,14 @@ import {
   Calendar, Clock, TrendingUp, Package, Star,
   Filter, Search, Plus, Edit, Trash2, ChevronRight,
   Sparkles as SparklesIcon, AlertCircle, CheckCircle
-} from "lucide-react";
+ArrowLeft, } from "lucide-react";
 
 // Beauty Vertical Dashboard
 // Tools for beauty service providers (hair stylists, estheticians, nail techs)
 // Matches EXACT same design patterns as existing components
 
 export default function BeautyDashboard() {
+  const navigate = useNavigate();
   const { isEnabled } = useFeatureFlags();
   
   // Beauty clients loaded from backend
@@ -32,7 +34,10 @@ export default function BeautyDashboard() {
   // If the feature flag is disabled, show upgrade prompt
   if (!isEnabled('beautyVertical')) {
     return (
-      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
         <div className="mx-auto max-w-2xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
           <GlassCard className="p-6 text-center">
             <SparklesIcon className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
@@ -60,7 +65,10 @@ export default function BeautyDashboard() {
   };
   
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="mx-auto max-w-6xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
         
         {/* Header */}

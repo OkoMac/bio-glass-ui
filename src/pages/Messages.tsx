@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
@@ -12,7 +13,7 @@ import { useConversations } from "@/hooks/useMessaging";
 import { supabase } from "@/integrations/supabase/client";
 import { getProviderImage } from "@/lib/providerImages";
 import realData from "@/data/bion_pretoria_data.json";
-import { Send, Paperclip, Info, ChevronLeft, Check, CheckCheck, MessageSquare, Loader2 } from "lucide-react";
+import { Send, Paperclip, Info, ChevronLeft, Check, CheckCheck, MessageSquare, Loader2, ArrowLeft } from "lucide-react";
 import { useImageUpload } from "@/hooks/useUpload";
 import { toast } from "sonner";
 
@@ -263,6 +264,7 @@ function ChatView({
 
 // ── Main component ────────────────────────────────────────────────
 export default function Messages() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { bookings } = useBookings();
   const [selected, setSelected] = useState<string | null>(null);
@@ -432,11 +434,16 @@ export default function Messages() {
       <div className="max-w-3xl xl:max-w-7xl mx-auto px-4 md:px-8 pt-20 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Messages</h1>
-            <p className="text-sm text-muted-foreground">
-              Connect with your service providers
-            </p>
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Messages</h1>
+              <p className="text-sm text-muted-foreground">
+                Connect with your service providers
+              </p>
+            </div>
           </div>
         </div>
 

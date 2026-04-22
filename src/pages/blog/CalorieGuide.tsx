@@ -1,11 +1,13 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import GlassCard from "@/components/GlassCard";
 import AdBanner from "@/components/AdBanner";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function CalorieGuide() {
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   useEffect(() => {
@@ -36,7 +38,10 @@ export default function CalorieGuide() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-20">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-20 relative">
+      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="mx-auto max-w-3xl px-4 pt-16 space-y-6">
         <AdBanner slot="blog-top" format="horizontal" />
 

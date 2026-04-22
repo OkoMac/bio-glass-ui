@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
@@ -7,7 +8,7 @@ import { useChallenges } from "@/hooks/useChallenges";
 import { toast } from "sonner";
 import {
   Flame, Trophy, Users, Target, Clock, CheckCircle,
-  Lock, ChevronRight, Medal, Star, Zap, Plus, Loader2
+  Lock, ChevronRight, Medal, Star, Zap, Plus, Loader2, ArrowLeft,
 } from "lucide-react";
 
 /* ── types ───────────────────────────────────────────────────── */
@@ -36,6 +37,7 @@ interface Challenge {
 
 /* ── main component ───────────────────────────────────────────── */
 export default function Challenges() {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState<ChallengeCategory | "all">("all");
   const [selected, setSelected]   = useState<Challenge | null>(null);
   const [view, setView]           = useState<"grid" | "list">("grid");
@@ -101,19 +103,24 @@ export default function Challenges() {
       <div className="max-w-3xl mx-auto px-4 pt-12 space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Challenges</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Earn rewards by completing wellness challenges
-            </p>
-            <div className="flex items-center gap-4 mt-2">
-              <div className="flex items-center gap-1.5">
-                <Flame className="w-4 h-4 text-amber" />
-                <span className="text-xs text-foreground">{activeCount} active</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-indigo" />
-                <span className="text-xs text-foreground">{totalParticipants.toLocaleString()} participants</span>
+          <div className="flex items-start gap-3">
+            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 mt-0.5 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Challenges</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Earn rewards by completing wellness challenges
+              </p>
+              <div className="flex items-center gap-4 mt-2">
+                <div className="flex items-center gap-1.5">
+                  <Flame className="w-4 h-4 text-amber" />
+                  <span className="text-xs text-foreground">{activeCount} active</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-indigo" />
+                  <span className="text-xs text-foreground">{totalParticipants.toLocaleString()} participants</span>
+                </div>
               </div>
             </div>
           </div>

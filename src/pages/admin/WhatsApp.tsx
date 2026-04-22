@@ -1,10 +1,11 @@
 import { useAdminToken } from "@/hooks/useAdminToken";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
-import { MessageSquare, RefreshCw, Phone, Clock, Bot, User, AlertCircle } from "lucide-react";
+import { MessageSquare, RefreshCw, Phone, Clock, Bot, User, AlertCircle ArrowLeft, } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -56,6 +57,7 @@ function relative(ts: string | number | null | undefined) {
 }
 
 export default function AdminWhatsApp() {
+  const navigate = useNavigate();
   const { token } = useAdminToken();
   const [threads, setThreads] = useState<Thread[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -135,7 +137,10 @@ export default function AdminWhatsApp() {
   // ── Token entry gate ──
   if (!token) {
     return (
-      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
         <AdminNav />
         <div className="max-w-md mx-auto pt-20 px-4">
           <GlassCard className="p-6 space-y-4">
@@ -163,7 +168,10 @@ export default function AdminWhatsApp() {
   }
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <AdminNav />
       <div className="px-4 pt-8 pb-16 max-w-7xl mx-auto">
 

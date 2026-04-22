@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import AdminNav from "@/components/AdminNav";
 import {
   Sparkles, X, Loader2, Package, Gift, Building,
   CheckCircle, XCircle, AlertTriangle,
-} from "lucide-react";
+ArrowLeft, } from "lucide-react";
 import { toast } from "sonner";
 
 type EntityType = "sponsor" | "reward" | "product";
@@ -33,6 +34,7 @@ const STATUS_META: Record<string, { tone: string; label: string }> = {
 };
 
 export default function AdminBQueue() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("product");
   const [items, setItems] = useState<QueueItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -124,7 +126,10 @@ export default function AdminBQueue() {
   const pendingCount = items.filter((i) => !i.b_review_status.startsWith("admin_")).length;
 
   return (
-    <div className="min-h-screen bg-background md:pl-56">
+    <div className="min-h-screen bg-background md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <AdminNav />
       <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-6 pt-20 md:pt-8">
         <header className="flex items-center justify-between">

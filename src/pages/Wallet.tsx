@@ -13,7 +13,7 @@ import MyOrdersSection from "@/components/wallet/MyOrdersSection";
 import {
   Plus, ArrowUpRight, ArrowDownLeft, Gift, TrendingUp,
   CreditCard, Wallet as WalletIcon, Award, X, Check, Loader2,
-  Users, Star, Sparkles, Download, Info,
+  Users, Star, Sparkles, Download, Info, ArrowLeft,
 } from "lucide-react";
 
 type Tab = "wallet" | "earnings";
@@ -151,9 +151,14 @@ export default function Wallet() {
       <div className="max-w-3xl xl:max-w-5xl mx-auto px-4 md:px-8 pt-12 space-y-5">
 
         {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Money</h1>
-          <p className="text-xs text-muted-foreground">Spend, receive, withdraw — all in one place</p>
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Money</h1>
+            <p className="text-xs text-muted-foreground">Spend, receive, withdraw — all in one place</p>
+          </div>
         </div>
 
         {/* Tabs */}

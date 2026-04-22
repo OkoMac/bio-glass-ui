@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Users, Wallet, AlertTriangle, CheckCircle, ChevronRight, Plus, Minus, Filter, UserPlus, X, Trash2, Mail, Loader2 } from "lucide-react";
+import { Search, Users, Wallet, AlertTriangle, CheckCircle, ChevronRight, Plus, Minus, Filter, UserPlus, X, Trash2, Mail, Loader2 ArrowLeft, } from "lucide-react";
 
 type EmployeeStatus = "active" | "inactive" | "pending";
 
@@ -33,6 +34,7 @@ const STATUS_META: Record<EmployeeStatus, { label: string; cls: string }> = {
 };
 
 export default function CorporateEmployees() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const isDemo = user?.id?.startsWith("demo_") ?? false;
   const supabaseId = !isDemo && user?.id ? user.id : null;
@@ -153,7 +155,10 @@ export default function CorporateEmployees() {
   };
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="mx-auto max-w-3xl xl:max-w-7xl px-4 pt-16 pb-10 md:pt-8 space-y-5">
 
         {/* Header */}

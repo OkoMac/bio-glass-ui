@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import {
   CreditCard, Heart, Activity, TrendingUp, Check,
   Shield, Zap, Target, BarChart, Smartphone, Bell,
-  Crown, Star, CheckCircle, Loader2
+  Crown, Star, CheckCircle, Loader2, ArrowLeft,
 } from "lucide-react";
 
 export default function ClientBilling() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const {
     subscription, tierDisplayName, CLIENT_TIER_PRICING,
@@ -61,7 +63,10 @@ export default function ClientBilling() {
 
   if (!isClient) {
     return (
-      <div className="min-h-screen bg-obsidian bg-obsidian-glow">
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow relative">
+        <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+        </button>
         <div className="mx-auto max-w-2xl px-4 pt-12 pb-28 space-y-5">
           <GlassCard className="p-6 text-center">
             <h1 className="text-xl font-bold text-foreground mb-2">Client Billing</h1>

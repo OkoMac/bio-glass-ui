@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {
   X, Zap, Search, Plus, Settings, ChevronRight, Sparkles,
   Utensils, Droplets, Moon, HeartPulse, Brain, Activity, Dumbbell,
-  CalendarDays, BarChart3, Trophy, Wallet, Bell, Heart, Pill,
+  CalendarDays, BarChart3, Trophy, Wallet, Bell, Heart, Pill, ArrowLeft,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
@@ -161,14 +161,19 @@ export default function QuickBook() {
 
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo to-violet flex items-center justify-center">
-                <Zap className="w-4 h-4 text-white" />
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo to-violet flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-white" />
+                </div>
+                <h1 className="text-2xl font-bold text-foreground">Quick Book</h1>
               </div>
-              <h1 className="text-2xl font-bold text-foreground">Quick Book</h1>
+              <p className="text-xs text-muted-foreground">Your tools and providers, one tap away</p>
             </div>
-            <p className="text-xs text-muted-foreground">Your tools and providers, one tap away</p>
           </div>
           <button onClick={() => setShowCustomize(true)}
             className="w-10 h-10 rounded-xl border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">

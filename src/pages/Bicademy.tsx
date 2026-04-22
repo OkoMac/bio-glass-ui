@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { GraduationCap, Award, Lock, CheckCircle, Clock, ChevronRight, Loader2, Sparkles, TrendingUp } from "lucide-react";
+import { GraduationCap, Award, Lock, CheckCircle, Clock, ChevronRight, Loader2, Sparkles, TrendingUp, ArrowLeft } from "lucide-react";
 import { useCourses, useEnrollments, useRangerAccreditation, type Course } from "@/hooks/useBicademy";
 import { useAuth } from "@/contexts/AuthContext";
 import GlassCard from "@/components/GlassCard";
@@ -12,6 +12,7 @@ const DIFFICULTY_META = {
 };
 
 export default function Bicademy() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { courses, loading: coursesLoading } = useCourses();
   const { byCourseId, loading: enrollLoading } = useEnrollments();
@@ -29,6 +30,9 @@ export default function Bicademy() {
         {/* Hero */}
         <header className="space-y-2">
           <div className="flex items-center gap-3">
+            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+              <ArrowLeft className="w-4 h-4" />
+            </button>
             <div className="w-10 h-10 rounded-xl bg-indigo/10 flex items-center justify-center">
               <GraduationCap className="w-5 h-5 text-indigo" />
             </div>

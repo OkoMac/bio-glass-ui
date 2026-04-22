@@ -14,7 +14,7 @@ import {
   Copy, Share2, CheckCircle, MessageCircle, Camera,
   Mail, Phone, MapPin, Cake, Plus, Edit3, X, Save,
   Droplets, Moon, HeartPulse, Brain, Utensils, CalendarDays,
-  BarChart3, Dumbbell, FileText, Wallet, LifeBuoy,
+  BarChart3, Dumbbell, FileText, Wallet, LifeBuoy, ArrowLeft,
 } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import { getReferralShareUrl, openWhatsApp } from "@/lib/whatsapp";
@@ -212,7 +212,10 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40 relative">
+      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="w-full max-w-lg md:max-w-3xl xl:max-w-7xl mx-auto px-4 md:px-8 pt-20 space-y-6">
 
         {/* ── Profile Hero with cover + avatar ── */}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
@@ -7,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   Building2, Users, Bell, CreditCard, Save, Check,
   Shield, Zap, ChevronDown,
-} from "lucide-react";
+ArrowLeft, } from "lucide-react";
 
 /* ─── helpers ───────────────────────────────────────────────────────────── */
 type Tab = "company" | "wellness" | "notifications" | "billing";
@@ -33,6 +34,7 @@ const ALL_CATEGORIES = ["Fitness", "Medical", "Beauty", "Mental Health", "Nutrit
 
 /* ─── CorporateSettings ─────────────────────────────────────────────────── */
 export default function CorporateSettings() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [tab, setTab]     = useState<Tab>("company");
   const [saved, setSaved] = useState(false);
@@ -79,7 +81,10 @@ export default function CorporateSettings() {
   };
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="mx-auto max-w-4xl xl:max-w-7xl px-4 pt-16 pb-10 md:pt-8 space-y-5">
 
         {/* Header */}

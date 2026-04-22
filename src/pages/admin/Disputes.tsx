@@ -1,4 +1,5 @@
 import { useAdminToken } from "@/hooks/useAdminToken";
+import { useNavigate } from "react-router-dom";
 /**
  * /admin/disputes — unified admin queue.
  *
@@ -24,7 +25,7 @@ import AdminNav from "@/components/AdminNav";
 import {
   AlertTriangle, Sparkles, X, Loader2, Package, User, Store,
   CheckCircle, XCircle, Clock, CalendarCheck, ShoppingBag,
-} from "lucide-react";
+ArrowLeft, } from "lucide-react";
 import { toast } from "sonner";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -688,6 +689,7 @@ function OrderDisputeDetail({ row, onClose, onResolve }: {
 type TopView = "bookings" | "orders";
 
 export default function AdminDisputes() {
+  const navigate = useNavigate();
   const [view, setView] = useState<TopView>("bookings");
   const { token, loading: tokenLoading } = useAdminToken();
   const [tokenDraft, setTokenDraft] = useState(token);
@@ -699,7 +701,10 @@ export default function AdminDisputes() {
   };
 
   return (
-    <div className="min-h-screen bg-background md:pl-56">
+    <div className="min-h-screen bg-background md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <AdminNav />
       <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-6 pt-20 md:pt-8">
         <header className="flex items-center justify-between">

@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
 import BionAssistant from "@/components/BionAssistant";
-import { Wallet, ArrowUpRight, ArrowDownLeft, TrendingDown, Plus, Building2, CheckCircle } from "lucide-react";
+import { Wallet, ArrowUpRight, ArrowDownLeft, TrendingDown, Plus, Building2, CheckCircle ArrowLeft, } from "lucide-react";
 
 /* ─── types & data ──────────────────────────────────────────────────────── */
 type TxType = "topup" | "allocation" | "session" | "refund";
@@ -38,6 +39,7 @@ const TX_ICONS: Record<TxType, typeof Wallet> = {
 
 /* ─── CorporateWallet ───────────────────────────────────────────────────── */
 export default function CorporateWallet() {
+  const navigate = useNavigate();
   const [topUpAmount, setTopUpAmount]   = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState("");
   const [showSuccess, setShowSuccess]   = useState(false);
@@ -54,7 +56,10 @@ export default function CorporateWallet() {
   };
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="mx-auto max-w-4xl xl:max-w-7xl px-4 pt-16 pb-10 md:pt-8 space-y-5">
 
         {/* Header */}

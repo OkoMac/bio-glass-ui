@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, MapPin, Star, Check } from "lucide-react";
+import { ArrowRight, MapPin, Star, Check, ArrowLeft } from "lucide-react";
 import realData from "@/data/bion_pretoria_data.json";
 import { findCity, findCategory, SEO_CITIES, SEO_CATEGORIES } from "@/data/seoCombinations";
 import { getProviderImage } from "@/lib/providerImages";
@@ -124,7 +124,10 @@ export default function SeoCategoryCity() {
   }, [city, category]);
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow relative">
+      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="mx-auto max-w-4xl px-4 pt-16 pb-24 space-y-8">
 
         {/* Hero */}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
@@ -9,7 +10,7 @@ import {
   CheckCircle, XCircle, Clock, Loader2, FileText, User,
   ExternalLink, Filter, AlertCircle, Award, CreditCard, Shield, Building2,
   Sparkles, Search,
-} from "lucide-react";
+ArrowLeft, } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -45,6 +46,7 @@ const STATUS_CONFIG = {
 };
 
 export default function AdminVerification() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [docs, setDocs] = useState<PendingDoc[]>([]);
   const [loading, setLoading] = useState(true);
@@ -237,7 +239,10 @@ export default function AdminVerification() {
   };
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="mx-auto max-w-3xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
 
         {/* Header */}

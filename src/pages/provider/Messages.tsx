@@ -6,7 +6,7 @@ import ProviderNav from "@/components/ProviderNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useConversations, useConversation } from "@/hooks/useMessaging";
-import { Search, Send, ChevronLeft, Mic, Paperclip, CheckCheck, MessageSquare, Lock, CreditCard, Zap, X } from "lucide-react";
+import { Search, Send, ChevronLeft, Mic, Paperclip, CheckCheck, MessageSquare, Lock, CreditCard, Zap, X, ArrowLeft } from "lucide-react";
 import { QUICK_REPLIES, fillTemplate } from "@/lib/quickReplies";
 
 interface Msg {
@@ -101,7 +101,10 @@ export default function ProviderMessages() {
   // Show upgrade prompt if messaging feature is not available
   if (needsUpgrade) {
     return (
-      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+        <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+        </button>
         <div className="mx-auto max-w-3xl xl:max-w-7xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
           {/* Header */}
           <div>

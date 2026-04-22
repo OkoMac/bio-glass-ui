@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   TrendingUp, Users, DollarSign, CalendarClock, Copy, Share2,
   CreditCard, History, Landmark, ChevronRight, Package, MessageCircle,
-  GraduationCap, Lock,
+  GraduationCap, Lock, ArrowLeft,
 } from "lucide-react";
 import { useCourseCompletion } from "@/hooks/useBicademy";
 
@@ -168,7 +168,10 @@ export default function RepDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow relative">
+      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="mx-auto max-w-3xl px-4 pt-12 pb-28 space-y-5">
 
         {/* Header */}

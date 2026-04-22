@@ -10,7 +10,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import ImageUpload from "@/components/ImageUpload";
 import {
   Store, Package, Plus, X, Loader2, Check, AlertTriangle, Eye, EyeOff,
-  TrendingUp, ShoppingBag, MapPin, Settings as SettingsIcon, Edit3, Trash2,
+  TrendingUp, ShoppingBag, MapPin, Settings as SettingsIcon, Edit3, Trash2, ArrowLeft,
 } from "lucide-react";
 
 export default function ProviderStorefront() {
@@ -80,7 +80,10 @@ export default function ProviderStorefront() {
   // ── Storefront not enabled ──
   if (!sf.loading && !sf.storefront?.enabled) {
     return (
-      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 pb-32">
+      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 pb-32 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
         <div className="mx-auto max-w-3xl px-4 md:px-8 pt-12 md:pt-8 space-y-5">
           <div>
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
@@ -158,7 +161,10 @@ export default function ProviderStorefront() {
   const flaggedProducts = products.filter(p => p.status === "b_flagged" || p.status === "admin_rejected");
 
   return (
-    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 pb-32">
+    <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 pb-32 relative">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <div className="mx-auto max-w-5xl px-4 md:px-8 pt-12 md:pt-8 space-y-5">
         <div className="flex items-start justify-between">
           <div>
