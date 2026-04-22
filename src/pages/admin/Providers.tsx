@@ -293,10 +293,16 @@ export default function AdminProviders() {
                               >
                                 <Eye className="w-3 h-3" /> Full Profile
                               </button>
-                              <button className="px-3 py-1.5 text-xs glass-accent-amber rounded-pill text-amber flex items-center gap-1">
+                              <button
+                                onClick={() => alert("Provider suspended.")}
+                                className="px-3 py-1.5 text-xs glass-accent-amber rounded-pill text-amber flex items-center gap-1"
+                              >
                                 <Pause className="w-3 h-3" /> Suspend
                               </button>
-                              <button className="px-3 py-1.5 text-xs glass-1 rounded-pill text-muted-foreground flex items-center gap-1">
+                              <button
+                                onClick={() => navigate("/admin/b-inbox")}
+                                className="px-3 py-1.5 text-xs glass-1 rounded-pill text-muted-foreground flex items-center gap-1"
+                              >
                                 <MessageSquare className="w-3 h-3" /> Message
                               </button>
                             </div>

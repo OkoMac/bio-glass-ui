@@ -54,6 +54,9 @@ export default function ProviderSettings() {
     user?.name ? `bion.app/${slugify(user.name)}` : "bion.app/",
   );
 
+  // B_ assistant toggle
+  const [bEnabled, setBEnabled] = useState(true);
+
   // Billing — plan / payouts come from the backend once wired up.
   const [plan] = useState("Starter");
   const [nextBilling] = useState("—");
@@ -294,8 +297,8 @@ export default function ProviderSettings() {
                   <p className="text-sm font-medium text-foreground">B_ booking assistant</p>
                   <p className="text-[11px] text-muted-foreground">Let B_ handle client enquiries and bookings</p>
                 </div>
-                <button className="w-9 h-5 rounded-full bg-indigo-500 flex items-center px-0.5">
-                  <motion.div animate={{ x: 16 }} className="w-4 h-4 rounded-full bg-white shadow-sm" />
+                <button onClick={() => setBEnabled(!bEnabled)} className={`w-9 h-5 rounded-full ${bEnabled ? "bg-indigo-500" : "bg-white/20"} flex items-center px-0.5`}>
+                  <motion.div animate={{ x: bEnabled ? 16 : 0 }} className="w-4 h-4 rounded-full bg-white shadow-sm" />
                 </button>
               </GlassCard>
 
@@ -328,7 +331,7 @@ export default function ProviderSettings() {
                     </div>
                   ))}
                 </div>
-                <button className="w-full py-2.5 glass-1 rounded-pill text-sm text-muted-foreground font-medium">
+                <button onClick={() => navigate("/pro/billing")} className="w-full py-2.5 glass-1 rounded-pill text-sm text-muted-foreground font-medium">
                   Upgrade to Pro →
                 </button>
               </GlassCard>
@@ -417,7 +420,7 @@ export default function ProviderSettings() {
                     <p className="text-sm font-medium text-foreground">+27 82 000 0000</p>
                     <p className="text-[11px] text-teal">Connected</p>
                   </div>
-                  <button className="glass-1 rounded-pill px-3 py-1.5 text-xs text-muted-foreground">Disconnect</button>
+                  <button onClick={() => alert("WhatsApp disconnection — contact support@bionhealth.co.za.")} className="glass-1 rounded-pill px-3 py-1.5 text-xs text-muted-foreground">Disconnect</button>
                 </div>
               </GlassCard>
             </motion.div>

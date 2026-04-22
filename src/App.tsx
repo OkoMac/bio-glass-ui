@@ -330,20 +330,44 @@ const ONBOARDING_ROUTES: Record<string, string> = {
 function isOnboardingComplete(userId: string, role: string): boolean {
   // Demo accounts have id prefixed "demo_" — they bypass onboarding entirely
   if (userId.startsWith("demo_")) return true;
-  
+
   // Admin and sales_rep users skip onboarding
   if (role === "admin") return true;
   if (role === "sales_rep") return true;
-  
+
+  // Check localStorage for SCORM-style completion
   try {
     const key = `bion_onboarding_${userId}_${role}`;
     const raw = localStorage.getItem(key);
-    if (!raw) return false;
-    const data = JSON.parse(raw) as { scorm?: { lessonStatus?: string } };
-    return data?.scorm?.lessonStatus === "passed";
-  } catch {
-    return false;
-  }
+    if (raw) {
+      const data = JSON.parse(raw) as { scorm?: { lessonStatus?: string } };
+      if (data?.scorm?.lessonStatus === "passed") return true;
+    }
+  } catch { /* */ }
+
+  // Also check a simple "completed" flag — set after onboarding finishes
+  // This catches users who completed onboarding on another device/browser
+  try {
+    if (localStorage.getItem(`bion_onboarding_done_${userId}`) === "1") return true;
+  } catch { /* */ }
+
+  // For returning users who already have activity, skip onboarding entirely.
+  // If they have bookings, services, or a profile with data, they've already
+  // used the platform — don't force them through onboarding again.
+  try {
+    const profileData = localStorage.getItem("bio_user");
+    if (profileData) {
+      const p = JSON.parse(profileData);
+      // If user has a profileId (real Supabase profile), they've been set up
+      if (p.profileId && !p.profileId.startsWith("demo_")) {
+        // Mark as done so we don't check again
+        localStorage.setItem(`bion_onboarding_done_${userId}`, "1");
+        return true;
+      }
+    }
+  } catch { /* */ }
+
+  return false;
 }
 
 // ─── Auth guard — redirects unauthenticated users to /welcome ─────────────────

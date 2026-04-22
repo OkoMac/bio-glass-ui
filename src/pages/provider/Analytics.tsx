@@ -77,6 +77,7 @@ function ChartTooltip({ active, payload, label }: any) {
 
 // ═══════════════════════════════════════════════════════════════════════════
 export default function ProviderAnalytics() {
+  const navigate = useNavigate();
   const { loading, revenueByMonth, retention, topServices, totals } = useProviderAnalytics();
   const { subscription } = useSubscription();
 

@@ -8,7 +8,7 @@ import { useChallenges } from "@/hooks/useChallenges";
 import { toast } from "sonner";
 import {
   Flame, Trophy, Users, Target, Clock, CheckCircle,
-  Lock, ChevronRight, Medal, Star, Zap, Plus, Loader2, ArrowLeft,
+  Lock, ChevronRight, Medal, Star, Zap, Plus, Loader2, ArrowLeft, X,
 } from "lucide-react";
 
 /* ── types ───────────────────────────────────────────────────── */
@@ -226,7 +226,7 @@ export default function Challenges() {
                       {provider.challengeCount} challenge{provider.challengeCount !== 1 ? 's' : ''} • {provider.totalParticipants} participants
                     </div>
                   </div>
-                  <button className="px-3 py-1 gradient-indigo rounded-full text-xs font-medium">
+                  <button className="px-3 py-1 gradient-indigo rounded-full text-xs font-medium" onClick={() => toast("Provider profile coming soon")}>
                     View Profile
                   </button>
                 </div>
@@ -396,6 +396,7 @@ function ChallengeDetailModal({ challenge, onClose, onJoin, onToggleTask }: {
   onJoin: () => void;
   onToggleTask: (idx: number, done: boolean) => void;
 }) {
+  const navigate = useNavigate();
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -438,7 +439,7 @@ function ChallengeDetailModal({ challenge, onClose, onJoin, onToggleTask }: {
               </div>
             </div>
             <button onClick={onClose} className="p-1.5 rounded-full hover:bg-white/10">
-              <Lock className="w-5 h-5 text-foreground" />
+              <X className="w-5 h-5 text-foreground" />
             </button>
           </div>
 
@@ -474,7 +475,7 @@ function ChallengeDetailModal({ challenge, onClose, onJoin, onToggleTask }: {
                   <div className="text-xs text-muted-foreground mt-1">Certified Pretoria Service Provider</div>
                 )}
               </div>
-              <button className="px-4 py-2 gradient-indigo rounded-full text-sm font-medium">
+              <button className="px-4 py-2 gradient-indigo rounded-full text-sm font-medium" onClick={() => challenge.providerId ? navigate(`/provider/${challenge.providerId}`) : toast("Provider profile coming soon")}>
                 View Profile
               </button>
             </div>

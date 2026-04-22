@@ -586,7 +586,8 @@ const Profile = () => {
                 ].map(item => (
                   <motion.button key={item.name} whileTap={{ scale: 0.95 }}
                     className="rounded-2xl py-4 border border-white/[0.08] bg-white/[0.02] flex flex-col items-center gap-2 hover:border-white/[0.16] transition-colors"
-                    style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+                    style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}
+                    onClick={() => alert("Coming soon! Redemption will be available when your BIO Points balance is sufficient.")}>
                     <span className={item.color} style={{ filter: "drop-shadow(0 0 6px currentColor)" }}>
                       {item.icon}
                     </span>

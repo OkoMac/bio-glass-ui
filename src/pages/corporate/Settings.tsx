@@ -299,7 +299,7 @@ export default function CorporateSettings() {
                 <label className="text-[10px] text-muted-foreground">Payment Method</label>
                 <div className="mt-1 glass-1 rounded-xl px-4 py-2.5 flex items-center justify-between">
                   <p className="text-sm text-foreground">{paymentMethod}</p>
-                  <button className="text-[10px] text-amber font-medium">Change</button>
+                  <button onClick={() => alert("Payment method management coming soon.")} className="text-[10px] text-amber font-medium">Change</button>
                 </div>
               </div>
             </GlassCard>
@@ -336,7 +336,10 @@ export default function CorporateSettings() {
                   <p className="text-sm font-bold text-foreground mt-1">R9,500 / month</p>
                   <p className="text-[10px] text-muted-foreground mt-1">Unlimited employees · Full analytics · Dedicated HR support</p>
                 </div>
-                <button className="text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+                <button
+                  onClick={() => alert("Plan upgrade coming soon. Contact sales@bionhealth.co.za.")}
+                  className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                >
                   Upgrade
                 </button>
               </div>

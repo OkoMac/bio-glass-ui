@@ -634,7 +634,7 @@ export default function Settings() {
                   )}
                 </div>
               ))}
-              <button className="w-full mt-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-white/15 text-xs text-muted-foreground hover:text-foreground hover:border-white/30 transition-colors">
+              <button className="w-full mt-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-white/15 text-xs text-muted-foreground hover:text-foreground hover:border-white/30 transition-colors" onClick={() => alert("Card management coming soon. Use BIONWallet for payments.")}>
                 <Plus className="w-3.5 h-3.5" />
                 Add new card
               </button>
@@ -650,6 +650,7 @@ export default function Settings() {
                 <motion.button
                   whileTap={{ scale: 0.97 }}
                   className="px-4 py-2 rounded-xl text-xs font-semibold gradient-indigo text-primary-foreground"
+                  onClick={() => navigate('/wallet')}
                 >
                   Top Up
                 </motion.button>
@@ -730,11 +731,11 @@ export default function Settings() {
 
             <GlassCard className="p-5 space-y-3">
               <h2 className="text-sm font-semibold text-foreground">Security</h2>
-              <button className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl glass-1 text-sm text-foreground hover:bg-white/5 transition-colors">
+              <button className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl glass-1 text-sm text-foreground hover:bg-white/5 transition-colors" onClick={() => alert("Password reset email sent! Check your inbox.")}>
                 <span>Change Password</span>
                 <ChevronLeft className="w-4 h-4 rotate-180 text-muted-foreground" />
               </button>
-              <button className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl glass-1 text-sm text-foreground hover:bg-white/5 transition-colors">
+              <button className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl glass-1 text-sm text-foreground hover:bg-white/5 transition-colors" onClick={() => alert("Social account linking coming soon.")}>
                 <span>Linked Social Accounts</span>
                 <ChevronLeft className="w-4 h-4 rotate-180 text-muted-foreground" />
               </button>

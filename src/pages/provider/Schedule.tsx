@@ -111,7 +111,7 @@ function bandRect(start: string, end: string, hourH: number): { top: number; hei
 
 export default function ProviderSchedule() {
   const navigate = useNavigate();
-  const { bookings: allBookings } = useBookings();
+  const { bookings: allBookings, confirm } = useBookings();
   const {
     slots: availabilitySlots,
     overrides: availabilityOverrides,
@@ -504,7 +504,7 @@ export default function ProviderSchedule() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            // In a real app, this would open chat
+                            navigate("/pro/messages");
                           }}
                           className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex-shrink-0"
                         >
@@ -523,7 +523,7 @@ export default function ProviderSchedule() {
                 <Calendar className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
                 <div className="text-sm font-medium text-foreground mb-1">No bookings scheduled</div>
                 <div className="text-xs text-muted-foreground mb-3">Your schedule will populate as clients book with you.</div>
-                <button className="px-4 py-2 gradient-indigo rounded-full text-sm font-medium">
+                <button onClick={() => navigate("/pro/availability")} className="px-4 py-2 gradient-indigo rounded-full text-sm font-medium">
                   <Plus className="w-4 h-4 inline mr-1" />
                   Add Availability
                 </button>
@@ -607,10 +607,10 @@ export default function ProviderSchedule() {
                 </div>
 
                 <div className="flex gap-3 mt-6">
-                  <button className="flex-1 py-2.5 glass-1 rounded-xl text-sm font-medium">
+                  <button onClick={() => { setDetail(null); alert("Reschedule functionality coming soon."); }} className="flex-1 py-2.5 glass-1 rounded-xl text-sm font-medium">
                     Reschedule
                   </button>
-                  <button className="flex-1 py-2.5 gradient-indigo rounded-xl text-sm font-medium">
+                  <button onClick={() => { confirm(detail.id); setDetail(null); }} className="flex-1 py-2.5 gradient-indigo rounded-xl text-sm font-medium">
                     Confirm
                   </button>
                 </div>

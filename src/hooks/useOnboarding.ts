@@ -216,7 +216,9 @@ export function useOnboarding(userId: string, role: string, steps: OnboardingSte
     setProgress(updated);
     // Save immediately so isOnboardingComplete sees it before navigation
     saveProgress(updated);
-  }, [steps, progress]);
+    // Also set a simple flag that survives even if the SCORM data is cleared
+    try { localStorage.setItem(`bion_onboarding_done_${userId}`, "1"); } catch { /* */ }
+  }, [steps, progress, userId]);
 
   // ── Reset ────────────────────────────────────────────────────────────────────
 

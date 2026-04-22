@@ -73,6 +73,7 @@ function ChatView({
   conversation: Conversation;
   onClose: () => void;
 }) {
+  const navigate = useNavigate();
   const { user } = useAuth();
   // Real-time hook — only active when supabaseId exists
   const { messages: rtMessages, sendMessage: rtSend, sending } = useMessages(conversation.supabaseId);
@@ -168,7 +169,7 @@ function ChatView({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button className="p-2 rounded-full hover:bg-white/10">
+          <button className="p-2 rounded-full hover:bg-white/10" onClick={() => navigate(`/provider/${conversation.providerId}`)}>
             <Info className="w-5 h-5 text-foreground" />
           </button>
         </div>
@@ -194,7 +195,7 @@ function ChatView({
                 <div className="space-y-2">
                   <div className="font-medium">{msg.title}</div>
                   <div className="text-sm opacity-80">{msg.exercises} exercises</div>
-                  <button className="text-sm font-medium underline">View Routine</button>
+                  <button className="text-sm font-medium underline" onClick={() => navigate('/routines')}>View Routine</button>
                 </div>
               ) : msg.text?.startsWith("📎 ") && /https?:\/\/.+\.(jpg|jpeg|png|webp|gif|avif)/i.test(msg.text) ? (
                 <a href={msg.text.slice(2).trim()} target="_blank" rel="noopener noreferrer">

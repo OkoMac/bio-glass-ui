@@ -156,7 +156,7 @@ export default function ProviderMessages() {
               </button>
               
               <button
-                onClick={() => navigate('/provider/billing')}
+                onClick={() => navigate('/pro/billing')}
                 className="w-full glass-1 rounded-pill py-3 text-sm font-medium text-foreground"
               >
                 View All Plans
@@ -296,7 +296,7 @@ export default function ProviderMessages() {
                   className="p-2.5 glass-1 rounded-full text-indigo">
                   <Zap className="w-4 h-4" />
                 </button>
-                <button className="p-2.5 glass-1 rounded-full text-muted-foreground">
+                <button onClick={() => alert("File attachments coming soon.")} className="p-2.5 glass-1 rounded-full text-muted-foreground">
                   <Paperclip className="w-4 h-4" />
                 </button>
                 <div className="flex-1 flex items-center gap-2 glass-1 rounded-pill px-4 py-2.5">
@@ -308,7 +308,7 @@ export default function ProviderMessages() {
                     className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
                   />
                 </div>
-                <button className="p-2.5 glass-1 rounded-full text-muted-foreground">
+                <button onClick={() => alert("Voice messages coming soon.")} className="p-2.5 glass-1 rounded-full text-muted-foreground">
                   <Mic className="w-4 h-4" />
                 </button>
                 <motion.button
