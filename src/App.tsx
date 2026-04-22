@@ -295,6 +295,11 @@ const AffiliateDashboard = lazy(() => import("./pages/AffiliateDashboard"));
 const GroupBookings = lazy(() => import("./pages/GroupBookings"));
 const GiftVouchers  = lazy(() => import("./pages/GiftVouchers"));
 
+// Host partner (Airbnb / guesthouse QR wellness)
+const GuestLanding   = lazy(() => import("./pages/GuestLanding"));
+const HostRegister   = lazy(() => import("./pages/HostRegister"));
+const HostDashboard  = lazy(() => import("./pages/HostDashboard"));
+
 // Telehealth + Intake Forms + Treatment Plans
 const VideoCall                = lazy(() => import("./pages/VideoCall"));
 const ProviderIntakeForms      = lazy(() => import("./pages/provider/IntakeForms"));
@@ -518,6 +523,11 @@ function AppRoutes() {
       <Route path="/store"           element={<Store />} />
       <Route path="/group-bookings"  element={<GroupBookings />} />
       <Route path="/gift-vouchers"   element={<GiftVouchers />} />
+
+      {/* Host partner (Airbnb / guesthouse QR wellness) — all public, no auth */}
+      <Route path="/stay/:code"       element={<GuestLanding />} />
+      <Route path="/host/register"    element={<HostRegister />} />
+      <Route path="/host/dashboard"   element={<HostDashboard />} />
       <Route path="/affiliate"       element={<RequireAuth><AffiliateDashboard /></RequireAuth>} />
       <Route path="/call/:bookingId" element={<RequireAuth><VideoCall /></RequireAuth>} />
       <Route path="/treatment-plans" element={<RequireAuth allowedRoles={["client"]}><ClientTreatmentPlans /></RequireAuth>} />
