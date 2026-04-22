@@ -1012,12 +1012,36 @@ export default function ProviderProfile() {
                   </a>
                 </div>
               )}
-              {provider.address && (
-                <div className="flex items-center gap-3">
-                  <Building className="w-4 h-4 text-muted-foreground shrink-0" />
-                  <span className="text-sm text-foreground">{provider.address}</span>
-                </div>
-              )}
+              {(provider.address || provider.location) && (() => {
+                const addr = provider.address || provider.location;
+                const mapsQuery = encodeURIComponent(addr);
+                // Use geo coordinates if available for more accurate pin
+                const hasCoords = provider.lat && provider.lng;
+                const mapsUrl = hasCoords
+                  ? `https://www.google.com/maps/search/?api=1&query=${provider.lat},${provider.lng}&query_place_id=${mapsQuery}`
+                  : `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
+                // Universal link that lets user choose their maps app
+                const directionsUrl = hasCoords
+                  ? `https://www.google.com/maps/dir/?api=1&destination=${provider.lat},${provider.lng}`
+                  : `https://www.google.com/maps/dir/?api=1&destination=${mapsQuery}`;
+
+                return (
+                  <>
+                    <a href={mapsUrl} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-3 group">
+                      <Building className="w-4 h-4 text-muted-foreground shrink-0" />
+                      <span className="text-sm text-foreground group-hover:text-indigo transition-colors underline decoration-white/20 group-hover:decoration-indigo">
+                        {addr}
+                      </span>
+                    </a>
+                    <a href={directionsUrl} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-2 mt-2 px-4 py-2.5 rounded-xl glass-1 text-teal text-xs font-semibold hover:bg-white/[0.04] transition-colors w-fit">
+                      <MapPin className="w-3.5 h-3.5" />
+                      Get Directions
+                    </a>
+                  </>
+                );
+              })()}
             </div>
 
             {!isSignedIn && provider.contact.phone && (
