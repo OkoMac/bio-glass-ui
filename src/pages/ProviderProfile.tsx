@@ -18,7 +18,7 @@ type BionService = {
 };
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
-import { ArrowLeft, Share2, Star, MapPin, Clock, Lock, CreditCard, Shield, Mail, Phone, Globe, Building, Check, X, CalendarDays, Heart, UserCheck, Loader2, MessageCircle } from "lucide-react";
+import { ArrowLeft, Share2, Star, MapPin, Clock, Lock, CreditCard, Shield, Mail, Phone, Globe, Building, Check, X, CalendarDays, Heart, UserCheck, Loader2, MessageCircle, Package } from "lucide-react";
 import { getProviderImage, getProviderCover } from "@/lib/providerImages";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useVerifiedProviders } from "@/hooks/useVerifiedProviders";
@@ -1035,6 +1035,9 @@ export default function ProviderProfile() {
           </section>
         )}
 
+        {/* Packages — session bundles from registered providers */}
+        {isRegisteredOnBion && <ProviderPackagesSection providerId={provider.id} />}
+
         {/* Qualifications */}
         {provider.qualifications.length > 0 && (
           <section>
@@ -1837,5 +1840,102 @@ export default function ProviderProfile() {
         </>
       )}
     </div>
+  );
+}
+
+// ── Packages Section (session bundles) ──────────────────────────────────────
+function ProviderPackagesSection({ providerId }: { providerId: string }) {
+  const { user } = useAuth();
+  const [packages, setPackages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [purchasing, setPurchasing] = useState<string | null>(null);
+
+  const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`${API}/api/packages?providerId=${providerId}`)
+      .then(r => r.json())
+      .then(json => {
+        if (cancelled) return;
+        if (json?.ok && Array.isArray(json.data)) setPackages(json.data);
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [providerId]);
+
+  if (loading || packages.length === 0) return null;
+
+  async function handleBuy(pkgId: string) {
+    if (!user) {
+      window.location.href = "/welcome";
+      return;
+    }
+    setPurchasing(pkgId);
+    try {
+      const token = (await (window as any).__supabase?.auth.getSession())?.data?.session?.access_token;
+      const res = await fetch(`${API}/api/packages/${pkgId}/purchase`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({}),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        const { toast } = await import("sonner");
+        toast.success("Package purchased! Sessions added to your account.");
+      } else {
+        const { toast } = await import("sonner");
+        toast.error(json.error ?? "Purchase failed");
+      }
+    } catch {
+      const { toast } = await import("sonner");
+      toast.error("Network error — try again");
+    } finally {
+      setPurchasing(null);
+    }
+  }
+
+  return (
+    <section>
+      <h2 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+        <Package className="w-4 h-4 text-indigo" /> Packages
+      </h2>
+      <div className="space-y-2">
+        {packages.map((pkg: any) => (
+          <GlassCard key={pkg.id} className="p-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">{pkg.title}</p>
+                {pkg.description && (
+                  <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">{pkg.description}</p>
+                )}
+                <div className="flex items-center gap-3 mt-1.5 text-[11px] text-muted-foreground">
+                  <span>{pkg.total_sessions} sessions{pkg.bonus_sessions > 0 ? ` + ${pkg.bonus_sessions} free` : ""}</span>
+                  <span>Valid {pkg.valid_days} days</span>
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="font-data text-sm text-foreground">R{pkg.price_rand}</p>
+                {pkg.bonus_sessions > 0 && (
+                  <p className="text-[10px] text-green-400">+{pkg.bonus_sessions} bonus</p>
+                )}
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  disabled={purchasing === pkg.id}
+                  onClick={() => handleBuy(pkg.id)}
+                  className="mt-1.5 rounded-pill px-3 py-1.5 gradient-indigo text-primary-foreground text-[11px] font-semibold shadow-cta disabled:opacity-50"
+                >
+                  {purchasing === pkg.id ? <Loader2 className="w-3 h-3 animate-spin" /> : "Buy Package"}
+                </motion.button>
+              </div>
+            </div>
+          </GlassCard>
+        ))}
+      </div>
+    </section>
   );
 }

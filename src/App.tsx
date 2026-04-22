@@ -282,6 +282,10 @@ const ForCorporate = lazy(() => import("./pages/landing/ForCorporate"));
 const ForRangers   = lazy(() => import("./pages/landing/ForRangers"));
 
 // Blog / SEO articles
+// Revenue features
+const GroupBookings = lazy(() => import("./pages/GroupBookings"));
+const GiftVouchers  = lazy(() => import("./pages/GiftVouchers"));
+
 const BlogIndex     = lazy(() => import("./pages/blog/BlogIndex"));
 const CalorieGuide  = lazy(() => import("./pages/blog/CalorieGuide"));
 const BmiGuide      = lazy(() => import("./pages/blog/BmiGuide"));
@@ -473,6 +477,8 @@ function AppRoutes() {
       <Route path="/notifications"   element={<RequireAuth><Notifications /></RequireAuth>} />
       <Route path="/favorites"       element={<RequireAuth allowedRoles={["client"]}><Favorites /></RequireAuth>} />
       <Route path="/store"           element={<Store />} />
+      <Route path="/group-bookings"  element={<GroupBookings />} />
+      <Route path="/gift-vouchers"   element={<GiftVouchers />} />
       {/* Programs — public detail page + client-side dashboard */}
       <Route path="/program/:id"                     element={<ProgramDetail />} />
       <Route path="/my-programs"                     element={<RequireAuth><MyPrograms /></RequireAuth>} />

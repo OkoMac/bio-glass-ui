@@ -6,7 +6,7 @@ import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
 import { ServiceCoverPicker } from "@/components/ImagePickerOverlay";
-import { Plus, Pencil, Trash2, Check, X, Clock, Zap, Loader2, ArrowLeft } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, X, Clock, Zap, Loader2, ArrowLeft, Users, CalendarDays } from "lucide-react";
 import { useBookings } from "@/contexts/BookingsContext";
 import {
   useProviderServices,
@@ -80,6 +80,14 @@ export default function ProviderServices() {
   const [addOpen, setAddOpen]   = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm]         = useState<FormState>(emptyForm);
+
+  // Group session state
+  const [groupOpen, setGroupOpen] = useState(false);
+  const [groupSaving, setGroupSaving] = useState(false);
+  const [groupForm, setGroupForm] = useState({
+    title: "", description: "", serviceId: "", date: "",
+    time: "09:00", maxParticipants: 10, pricePerPerson: 0, durationMinutes: 60,
+  });
 
   // Surface hook-level errors as toasts rather than inline text; keeps the
   // table clean when a single toggle fails mid-scroll.
@@ -191,13 +199,22 @@ export default function ProviderServices() {
             <h1 className="text-2xl font-bold text-foreground">Services</h1>
             <p className="text-xs text-muted-foreground">Manage your offerings, pricing and durations</p>
           </div>
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={() => { setAddOpen(true); setEditId(null); setForm(emptyForm); }}
-            className="flex items-center gap-1.5 rounded-pill px-3 py-2 gradient-indigo text-primary-foreground text-xs font-semibold shadow-cta"
-          >
-            <Plus className="w-3.5 h-3.5" /> Add service
-          </motion.button>
+          <div className="flex items-center gap-2">
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setGroupOpen(true)}
+              className="flex items-center gap-1.5 rounded-pill px-3 py-2 glass-1 text-foreground text-xs font-semibold hover:bg-white/[0.06]"
+            >
+              <Users className="w-3.5 h-3.5" /> Group Session
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => { setAddOpen(true); setEditId(null); setForm(emptyForm); }}
+              className="flex items-center gap-1.5 rounded-pill px-3 py-2 gradient-indigo text-primary-foreground text-xs font-semibold shadow-cta"
+            >
+              <Plus className="w-3.5 h-3.5" /> Add service
+            </motion.button>
+          </div>
         </div>
 
         {/* Summary strip */}
@@ -449,6 +466,182 @@ export default function ProviderServices() {
           </div>
         </GlassCard>
       </div>
+
+      {/* Create Group Session Modal */}
+      <AnimatePresence>
+        {groupOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setGroupOpen(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              className="fixed inset-x-4 bottom-4 top-auto z-50 max-w-lg mx-auto glass-2 rounded-2xl border border-white/10 p-5 space-y-4 max-h-[80vh] overflow-y-auto"
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+                  <Users className="w-4 h-4 text-indigo" /> Create Group Session
+                </h3>
+                <button onClick={() => setGroupOpen(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider block mb-1">Title *</label>
+                  <input
+                    placeholder="e.g. Morning Yoga Class"
+                    value={groupForm.title}
+                    onChange={e => setGroupForm(p => ({ ...p, title: e.target.value }))}
+                    className="w-full glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider block mb-1">Service *</label>
+                  <select
+                    value={groupForm.serviceId}
+                    onChange={e => setGroupForm(p => ({ ...p, serviceId: e.target.value }))}
+                    className="w-full glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground bg-transparent outline-none"
+                  >
+                    <option value="">Select a service</option>
+                    {services.map(s => (
+                      <option key={s.id} value={s.id}>{s.title} (R{s.price_rand})</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] text-muted-foreground uppercase tracking-wider block mb-1">Date *</label>
+                    <input
+                      type="date"
+                      value={groupForm.date}
+                      onChange={e => setGroupForm(p => ({ ...p, date: e.target.value }))}
+                      className="w-full glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground bg-transparent outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground uppercase tracking-wider block mb-1">Time *</label>
+                    <input
+                      type="time"
+                      value={groupForm.time}
+                      onChange={e => setGroupForm(p => ({ ...p, time: e.target.value }))}
+                      className="w-full glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground bg-transparent outline-none"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] text-muted-foreground uppercase tracking-wider block mb-1">Max Participants *</label>
+                    <input
+                      type="number"
+                      min={2}
+                      max={200}
+                      value={groupForm.maxParticipants}
+                      onChange={e => setGroupForm(p => ({ ...p, maxParticipants: Number(e.target.value) }))}
+                      className="w-full glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground bg-transparent outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground uppercase tracking-wider block mb-1">Price per Person (R)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={groupForm.pricePerPerson}
+                      onChange={e => setGroupForm(p => ({ ...p, pricePerPerson: Number(e.target.value) }))}
+                      className="w-full glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground bg-transparent outline-none"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider block mb-1">Duration (minutes)</label>
+                  <input
+                    type="number"
+                    min={15}
+                    max={480}
+                    value={groupForm.durationMinutes}
+                    onChange={e => setGroupForm(p => ({ ...p, durationMinutes: Number(e.target.value) }))}
+                    className="w-full glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground bg-transparent outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider block mb-1">Description</label>
+                  <textarea
+                    placeholder="What participants can expect..."
+                    value={groupForm.description}
+                    onChange={e => setGroupForm(p => ({ ...p, description: e.target.value }))}
+                    rows={2}
+                    className="w-full glass-1 rounded-xl p-3 text-xs text-foreground placeholder:text-muted-foreground resize-none outline-none"
+                  />
+                </div>
+              </div>
+
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                disabled={groupSaving || !groupForm.title || !groupForm.serviceId || !groupForm.date}
+                onClick={async () => {
+                  setGroupSaving(true);
+                  try {
+                    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+                    const token = (await (window as any).__supabase?.auth.getSession())?.data?.session?.access_token;
+                    // Get provider profile id
+                    const profileRes = await fetch(`${API}/api/profiles/me`, {
+                      headers: token ? { Authorization: `Bearer ${token}` } : {},
+                    });
+                    const profileJson = await profileRes.json();
+                    const providerId = profileJson?.data?.id;
+                    if (!providerId) { toast.error("Profile not found"); setGroupSaving(false); return; }
+
+                    const res = await fetch(`${API}/api/bookings/group`, {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                      },
+                      body: JSON.stringify({
+                        providerId,
+                        serviceId: groupForm.serviceId,
+                        date: groupForm.date,
+                        time: groupForm.time,
+                        maxParticipants: groupForm.maxParticipants,
+                        title: groupForm.title,
+                        description: groupForm.description || undefined,
+                        pricePerPerson: groupForm.pricePerPerson,
+                        durationMinutes: groupForm.durationMinutes,
+                      }),
+                    });
+                    const json = await res.json();
+                    if (json.ok) {
+                      toast.success("Group session created! Share the link with clients.");
+                      if (json.shareUrl) {
+                        navigator.clipboard.writeText(json.shareUrl).catch(() => {});
+                        toast.success("Share link copied to clipboard!");
+                      }
+                      setGroupOpen(false);
+                      setGroupForm({ title: "", description: "", serviceId: "", date: "", time: "09:00", maxParticipants: 10, pricePerPerson: 0, durationMinutes: 60 });
+                    } else {
+                      toast.error(json.error ?? "Failed to create session");
+                    }
+                  } catch {
+                    toast.error("Network error — try again");
+                  } finally {
+                    setGroupSaving(false);
+                  }
+                }}
+                className="w-full rounded-pill py-3 gradient-indigo text-primary-foreground text-sm font-semibold shadow-cta flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {groupSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CalendarDays className="w-4 h-4" /> Create Group Session</>}
+              </motion.button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <BionAssistant />
       <ProviderNav />
