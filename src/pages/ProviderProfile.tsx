@@ -18,7 +18,7 @@ type BionService = {
 };
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
-import { ArrowLeft, Share2, Star, MapPin, Clock, Lock, CreditCard, Shield, Mail, Phone, Globe, Building, Check, X, CalendarDays, Heart, UserCheck, Loader2 } from "lucide-react";
+import { ArrowLeft, Share2, Star, MapPin, Clock, Lock, CreditCard, Shield, Mail, Phone, Globe, Building, Check, X, CalendarDays, Heart, UserCheck, Loader2, MessageCircle } from "lucide-react";
 import { getProviderImage, getProviderCover } from "@/lib/providerImages";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useVerifiedProviders } from "@/hooks/useVerifiedProviders";
@@ -231,6 +231,7 @@ export default function ProviderProfile() {
   // Two paths: (1) OTP-verified self-claim, (2) request a meeting with
   // a BION sales rep. Both submit to dedicated backend endpoints.
   const [showClaim, setShowClaim] = useState(false);
+  const [showContactPrompt, setShowContactPrompt] = useState(false);
   const [claimBusy, setClaimBusy] = useState(false);
   const [claimSubmitted, setClaimSubmitted] = useState(false);
   const [claimError, setClaimError] = useState<string | null>(null);
@@ -1413,13 +1414,23 @@ export default function ProviderProfile() {
 
                 <motion.button
                   whileTap={{ scale: 0.97 }}
-                  onClick={handleBook}
-                  disabled={!bookingTime || bookingBusy}
-                  className={`w-full rounded-pill py-4 text-base font-semibold text-primary-foreground shadow-cta transition-opacity ${
-                    !bookingTime || bookingBusy ? "gradient-indigo opacity-50 cursor-not-allowed" : "gradient-indigo"
-                  }`}
+                  onClick={() => {
+                    if (!user?.profileId) {
+                      // Not signed in — redirect to signup
+                      navigate("/welcome");
+                      return;
+                    }
+                    if (!isRegisteredOnBion) {
+                      // Provider not on BION — show contact popup
+                      setShowContactPrompt(true);
+                      return;
+                    }
+                    handleBook();
+                  }}
+                  disabled={bookingBusy}
+                  className="w-full rounded-pill py-4 text-base font-semibold text-primary-foreground shadow-cta gradient-indigo"
                 >
-                  {bookingBusy ? "Starting checkout…" : "Confirm Booking"}
+                  {bookingBusy ? "Starting checkout…" : !user?.profileId ? "Sign Up to Book" : !isRegisteredOnBion ? "Request Booking" : "Confirm Booking"}
                 </motion.button>
               </>
             )}
@@ -1430,6 +1441,66 @@ export default function ProviderProfile() {
       {/* ── Claim This Business Modal (OTP flow) ──
            Step 1: Enter email + phone → sends 6-digit OTP.
            Step 2: Enter OTP → verified → redirect to /pro/verification. */}
+      {/* ── Contact Prompt for unregistered providers ── */}
+      {showContactPrompt && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setShowContactPrompt(false)}
+            className="fixed inset-0 bg-obsidian/70 z-[80]"
+          />
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-[90] max-w-sm mx-auto rounded-3xl p-6"
+            style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            <div className="text-center space-y-4">
+              <div className="w-14 h-14 rounded-2xl gradient-teal mx-auto flex items-center justify-center">
+                <Phone className="w-7 h-7 text-obsidian" />
+              </div>
+              <h3 className="text-lg font-bold text-foreground">Contact {provider?.name?.split(" ")[0] ?? "this provider"} directly</h3>
+              <p className="text-xs text-muted-foreground">
+                This provider hasn't joined BION yet. You can reach them directly via WhatsApp — B_ will help connect you.
+              </p>
+
+              <button
+                onClick={() => {
+                  const phone = provider?.contact?.phone;
+                  const msg = encodeURIComponent(`Hi, I found ${provider?.name} on BION and would like to book a session. Can you help me with availability and pricing?`);
+                  if (phone) {
+                    const cleaned = phone.replace(/\D/g, "");
+                    const num = cleaned.startsWith("0") ? "27" + cleaned.slice(1) : cleaned;
+                    window.open(`https://wa.me/${num}?text=${msg}`, "_blank");
+                  } else {
+                    window.open(`https://wa.me/27647432005?text=${encodeURIComponent(`Hi B_, I want to book with ${provider?.name} (${provider?.specialty}) in ${provider?.location}. Can you help me contact them?`)}`, "_blank");
+                  }
+                  setShowContactPrompt(false);
+                }}
+                className="w-full rounded-pill py-3.5 text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald flex items-center justify-center gap-2"
+              >
+                <MessageCircle className="w-4 h-4" /> WhatsApp {provider?.contact?.phone ? provider.name?.split(" ")[0] : "B_ to connect"}
+              </button>
+
+              <button
+                onClick={() => {
+                  navigate("/directory");
+                  setShowContactPrompt(false);
+                }}
+                className="w-full rounded-pill py-3 text-xs font-medium glass-1 text-muted-foreground"
+              >
+                Browse registered providers instead
+              </button>
+
+              <p className="text-[10px] text-muted-foreground">
+                We've notified our team to onboard this provider. You'll be notified when in-app booking is available.
+              </p>
+            </div>
+          </motion.div>
+        </>
+      )}
+
       {showClaim && (
         <>
           <motion.div
