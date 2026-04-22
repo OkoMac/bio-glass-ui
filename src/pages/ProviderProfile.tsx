@@ -1014,7 +1014,8 @@ export default function ProviderProfile() {
                 </div>
               )}
               {(provider.address || provider.location) && (() => {
-                const addr = provider.address || provider.location;
+                try {
+                const addr = String(provider.address || provider.location || "");
                 const mapsQuery = encodeURIComponent(addr);
                 // Use geo coordinates if available for more accurate pin
                 const hasCoords = provider.lat && provider.lng;
@@ -1056,6 +1057,7 @@ export default function ProviderProfile() {
                     </a>
                   </>
                 );
+                } catch { return null; }
               })()}
             </div>
 
