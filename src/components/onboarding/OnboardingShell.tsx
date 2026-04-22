@@ -488,7 +488,7 @@ function OnboardingShellInner({
   };
 
   return (
-    <div className="fixed inset-0 z-[90] flex flex-col bg-obsidian"
+    <div className="fixed inset-0 z-[90] flex flex-col bg-obsidian overflow-hidden"
       style={{ background: "radial-gradient(ellipse at 50% 20%, rgba(99,102,241,0.07) 0%, #0A0A0F 60%)" }}>
 
       {/* ── Top bar ── */}
