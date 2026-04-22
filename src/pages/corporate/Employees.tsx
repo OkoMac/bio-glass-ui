@@ -26,7 +26,25 @@ interface Employee {
 // Employees loaded from backend
 const EMPLOYEES: Employee[] = [];
 
-const DEPARTMENTS = ["All", "Engineering", "Product", "Finance", "HR", "Marketing", "Operations", "Legal"];
+// Industry-aware departments — pull from localStorage if the company has customised them,
+// otherwise show a general set that works across industries (wellness, medical, corporate)
+const DEFAULT_DEPARTMENTS = [
+  "All", "Management", "Therapists", "Beauticians", "Trainers",
+  "Reception", "Clinical", "Admin", "Marketing", "Finance",
+];
+
+function getSavedDepartments(): string[] {
+  try {
+    const saved = localStorage.getItem("bion_corporate_departments");
+    if (saved) {
+      const parsed = JSON.parse(saved) as string[];
+      return ["All", ...parsed.filter(d => d !== "All")];
+    }
+  } catch { /* */ }
+  return DEFAULT_DEPARTMENTS;
+}
+
+const DEPARTMENTS = getSavedDepartments();
 const STATUS_META: Record<EmployeeStatus, { label: string; cls: string }> = {
   active:  { label: "Active",  cls: "glass-accent-teal text-teal"   },
   inactive:{ label: "Inactive",cls: "glass-accent-amber text-amber"  },
@@ -43,6 +61,7 @@ export default function CorporateEmployees() {
   const [loading, setLoading]     = useState(true);
   const [query, setQuery]         = useState("");
   const [dept, setDept]           = useState("All");
+  const [departments, setDepartments] = useState(DEPARTMENTS);
   const [selected, setSelected]   = useState<Employee | null>(null);
   const [topUpAmount, setTopUpAmount] = useState(500);
   const [showInvite, setShowInvite] = useState(false);
@@ -200,8 +219,8 @@ export default function CorporateEmployees() {
             <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search employees…"
               className="w-full h-10 glass-1 rounded-pill pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none" />
           </div>
-          <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
-            {DEPARTMENTS.map(d => (
+          <div className="flex gap-1.5 overflow-x-auto no-scrollbar items-center">
+            {departments.map(d => (
               <button key={d} onClick={() => setDept(d)}
                 className={`px-3 py-1.5 rounded-pill text-xs font-medium whitespace-nowrap transition-all ${
                   dept === d ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
@@ -209,6 +228,24 @@ export default function CorporateEmployees() {
                 {d}
               </button>
             ))}
+            <button
+              onClick={() => {
+                const input = prompt(
+                  "Enter your department names (comma-separated):\n\nExamples:\n• Spa: Therapists, Beauticians, Reception, Management\n• Gym: Trainers, Coaches, Reception, Admin\n• Clinic: Doctors, Nurses, Admin, Reception\n• Office: HR, Finance, Marketing, Operations",
+                  departments.filter(d => d !== "All").join(", ")
+                );
+                if (input) {
+                  const newDepts = input.split(",").map(d => d.trim()).filter(Boolean);
+                  const withAll = ["All", ...newDepts];
+                  setDepartments(withAll);
+                  try { localStorage.setItem("bion_corporate_departments", JSON.stringify(newDepts)); } catch {}
+                }
+              }}
+              className="shrink-0 px-2 py-1.5 rounded-pill text-[10px] text-muted-foreground glass-1 hover:text-foreground transition-colors"
+              title="Customise departments"
+            >
+              Edit ✏️
+            </button>
           </div>
         </div>
 
