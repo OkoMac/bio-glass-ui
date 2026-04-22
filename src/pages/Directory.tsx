@@ -1,7 +1,7 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Search, MapPin, SlidersHorizontal, Navigation, Star, Clock, ChevronRight, X, Plus, Lock, Phone, ArrowLeft } from "lucide-react";
+import { Search, MapPin, SlidersHorizontal, Navigation, Star, Clock, ChevronRight, X, Plus, Lock, Phone, ArrowLeft, Globe, ExternalLink, Send } from "lucide-react";
 import BookingRequestForm from "@/components/BookingRequestForm";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import ServiceCategoryBlock, { SERVICE_CATEGORIES, type ServiceCategory } from "@/components/ServiceCategoryBlock";
@@ -16,6 +16,21 @@ import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 import realData from "@/data/bion_pretoria_data.json";
 import jhbData from "@/data/bion_johannesburg_data.json";
+
+const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+
+interface WebSearchResult {
+  name: string;
+  address: string;
+  rating: number;
+  reviews: number;
+  phone: string | null;
+  lat: number;
+  lng: number;
+  photo_url: string | null;
+  on_bion: false;
+  google_place_id: string;
+}
 
 // ── Map scraped providers to categories ─────────────
 function categorize(service: string): string {
@@ -152,6 +167,16 @@ export default function Directory() {
   const [visibleCount, setVisibleCount] = useState(12);
   const listRef = useRef<HTMLDivElement>(null);
 
+  // Smart search state — Google Places fallback
+  const [webResults, setWebResults] = useState<WebSearchResult[]>([]);
+  const [webSearchLoading, setWebSearchLoading] = useState(false);
+  const [webSearchMessage, setWebSearchMessage] = useState("");
+  const [showRequestForm, setShowRequestForm] = useState(false);
+  const [requestFormData, setRequestFormData] = useState({ providerName: "", service: "", location: "", phone: "", notes: "" });
+  const [requestSubmitting, setRequestSubmitting] = useState(false);
+  const [requestSubmitted, setRequestSubmitted] = useState(false);
+  const smartSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Filter categories by search
   const filteredCategories = useMemo(() => {
     const withProviders = CATEGORIES_WITH_COUNTS.filter(c => (c.count ?? 0) > 0);
@@ -249,6 +274,78 @@ export default function Directory() {
 
   const displayProviders = useMemo(() => filteredProviders.slice(0, visibleCount), [filteredProviders, visibleCount]);
   const hasMore = visibleCount < filteredProviders.length;
+
+  // Trigger smart search when local results are empty and search has text
+  const triggerSmartSearch = useCallback(async (query: string) => {
+    if (!query.trim() || query.trim().length < 3) {
+      setWebResults([]);
+      setWebSearchMessage("");
+      return;
+    }
+    setWebSearchLoading(true);
+    try {
+      const headers: Record<string, string> = {};
+      const token = localStorage.getItem("sb-access-token") || localStorage.getItem("supabase.auth.token");
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await fetch(`${API}/api/search/smart?q=${encodeURIComponent(query)}`, { headers });
+      const data = await res.json();
+      if (data.ok) {
+        setWebResults(data.web_results ?? []);
+        setWebSearchMessage(data.web_results?.length ? data.message : "");
+      }
+    } catch (err) {
+      console.warn("[directory] smart search failed:", err);
+    } finally {
+      setWebSearchLoading(false);
+    }
+  }, []);
+
+  // Debounced smart search — triggers when local results are few
+  useEffect(() => {
+    if (smartSearchTimerRef.current) clearTimeout(smartSearchTimerRef.current);
+
+    if (search.trim().length >= 3 && filteredProviders.length < 3) {
+      smartSearchTimerRef.current = setTimeout(() => {
+        triggerSmartSearch(search);
+      }, 600);
+    } else {
+      setWebResults([]);
+      setWebSearchMessage("");
+    }
+
+    return () => { if (smartSearchTimerRef.current) clearTimeout(smartSearchTimerRef.current); };
+  }, [search, filteredProviders.length, triggerSmartSearch]);
+
+  // Request provider submission
+  const handleRequestProvider = async (prefill?: { name: string }) => {
+    if (prefill) {
+      setRequestFormData((prev) => ({ ...prev, providerName: prefill.name, location: search }));
+    }
+    setShowRequestForm(true);
+    setRequestSubmitted(false);
+  };
+
+  const submitProviderRequest = async () => {
+    if (!requestFormData.providerName.trim()) return;
+    setRequestSubmitting(true);
+    try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      const token = localStorage.getItem("sb-access-token") || localStorage.getItem("supabase.auth.token");
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      await fetch(`${API}/api/search/request-provider`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(requestFormData),
+      });
+      setRequestSubmitted(true);
+    } catch (err) {
+      console.warn("[directory] request-provider failed:", err);
+    } finally {
+      setRequestSubmitting(false);
+    }
+  };
 
   const selectedCat = CATEGORIES_WITH_COUNTS.find((c) => c.id === selectedCategoryId);
 
@@ -661,15 +758,212 @@ export default function Directory() {
                 </motion.div>
               ))}
 
-              {displayProviders.length === 0 && (
+              {displayProviders.length === 0 && !webSearchLoading && webResults.length === 0 && (
                 <div className="col-span-full text-center py-12">
-                  <p className="text-muted-foreground text-sm">No providers found.</p>
-                  <button onClick={() => { setSelectedCategoryId(null); setSearch(""); setVisibleCount(12); }} className="text-indigo text-sm mt-2">
-                    Clear filters →
-                  </button>
+                  <p className="text-muted-foreground text-sm">
+                    {search.trim() ? `No providers found for "${search}". Try a different search or let us know who you're looking for.` : "No providers found."}
+                  </p>
+                  <div className="flex items-center justify-center gap-3 mt-3">
+                    <button onClick={() => { setSelectedCategoryId(null); setSearch(""); setVisibleCount(12); }} className="text-indigo text-sm">
+                      Clear filters →
+                    </button>
+                    {search.trim() && (
+                      <button
+                        onClick={() => handleRequestProvider()}
+                        className="px-4 py-2 rounded-pill text-sm font-medium gradient-indigo text-primary-foreground shadow-cta"
+                      >
+                        Request a provider
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Smart search loading indicator */}
+              {webSearchLoading && displayProviders.length < 3 && (
+                <div className="col-span-full text-center py-6">
+                  <div className="inline-flex items-center gap-2 glass-1 rounded-pill px-4 py-2">
+                    <div className="w-4 h-4 border-2 border-teal/40 border-t-teal rounded-full animate-spin" />
+                    <span className="text-sm text-muted-foreground">Searching the web for more results...</span>
+                  </div>
                 </div>
               )}
             </motion.div>
+          </AnimatePresence>
+
+          {/* ── Web Results (Google Places fallback) ── */}
+          <AnimatePresence>
+            {webResults.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mt-6"
+              >
+                {/* Section header */}
+                <div className="flex items-center gap-2 mb-3">
+                  <Globe className="w-4 h-4 text-amber" />
+                  <h3 className="text-base font-semibold text-foreground">Not on BION yet</h3>
+                  <span className="text-[10px] text-amber bg-amber/10 border border-amber/20 rounded-pill px-2 py-0.5 font-medium">
+                    Web results
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mb-4">
+                  {webSearchMessage || "These providers aren't on BION yet. We're reaching out to add them!"}
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                  {webResults.map((result, i) => (
+                    <motion.div
+                      key={result.google_place_id || i}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className="rounded-2xl p-3 flex items-start gap-3 border border-amber/20 bg-amber/[0.03] hover:border-amber/30 transition-all"
+                    >
+                      {result.photo_url ? (
+                        <img
+                          src={result.photo_url}
+                          alt={result.name}
+                          className="w-12 h-12 rounded-xl object-cover ring-2 ring-amber/20 shrink-0 bg-white/5"
+                          loading="lazy"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-xl bg-amber/10 flex items-center justify-center shrink-0 ring-2 ring-amber/20">
+                          <Globe className="w-5 h-5 text-amber/60" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-semibold text-foreground truncate">{result.name}</h4>
+                        <p className="text-xs text-muted-foreground truncate flex items-center gap-1">
+                          <MapPin className="w-3 h-3 shrink-0" /> {result.address}
+                        </p>
+                        <div className="flex items-center gap-3 mt-1">
+                          {result.rating > 0 && (
+                            <span className="flex items-center gap-1 text-xs">
+                              <Star className="w-3 h-3 text-amber fill-amber" />
+                              <span className="font-data text-foreground">{result.rating}</span>
+                              {result.reviews > 0 && <span className="text-muted-foreground">({result.reviews})</span>}
+                            </span>
+                          )}
+                          {result.phone && (
+                            <a
+                              href={`tel:${result.phone}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="flex items-center gap-1 text-xs text-teal hover:text-teal/80"
+                            >
+                              <Phone className="w-3 h-3" /> {result.phone}
+                            </a>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 mt-2">
+                          <a
+                            href={`https://www.google.com/maps/place/?q=place_id:${result.google_place_id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-[10px] text-amber hover:text-amber/80 font-medium"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <ExternalLink className="w-3 h-3" /> Google Maps
+                          </a>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleRequestProvider({ name: result.name }); }}
+                            className="flex items-center gap-1 text-[10px] text-coral hover:text-coral/80 font-medium"
+                          >
+                            <Send className="w-3 h-3" /> Request on BION
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* ── Request Provider Form Modal ── */}
+          <AnimatePresence>
+            {showRequestForm && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 flex items-center justify-center bg-obsidian/80 backdrop-blur-sm p-4"
+                onClick={() => setShowRequestForm(false)}
+              >
+                <motion.div
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.95, opacity: 0 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-full max-w-md glass-2 rounded-2xl p-6 space-y-4 border border-white/[0.08]"
+                >
+                  {requestSubmitted ? (
+                    <div className="text-center py-6 space-y-3">
+                      <div className="w-14 h-14 rounded-full bg-teal/20 flex items-center justify-center mx-auto">
+                        <Star className="w-7 h-7 text-teal" />
+                      </div>
+                      <h3 className="text-lg font-bold text-foreground">Request logged!</h3>
+                      <p className="text-sm text-muted-foreground">We're reaching out to add this provider. We'll notify you when they're on BION.</p>
+                      <button onClick={() => setShowRequestForm(false)} className="px-6 py-2 rounded-pill text-sm font-medium gradient-indigo text-primary-foreground shadow-cta">
+                        Done
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-bold text-foreground">Request a Provider</h3>
+                        <button onClick={() => setShowRequestForm(false)} className="w-8 h-8 rounded-full glass-1 flex items-center justify-center">
+                          <X className="w-4 h-4 text-muted-foreground" />
+                        </button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">Tell us who you're looking for and we'll work on adding them to BION.</p>
+                      <div className="space-y-3">
+                        <input
+                          value={requestFormData.providerName}
+                          onChange={(e) => setRequestFormData((p) => ({ ...p, providerName: e.target.value }))}
+                          placeholder="Provider / business name *"
+                          className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                        />
+                        <input
+                          value={requestFormData.service}
+                          onChange={(e) => setRequestFormData((p) => ({ ...p, service: e.target.value }))}
+                          placeholder="Service type (e.g. Thai massage, dentist)"
+                          className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                        />
+                        <input
+                          value={requestFormData.location}
+                          onChange={(e) => setRequestFormData((p) => ({ ...p, location: e.target.value }))}
+                          placeholder="Location / suburb"
+                          className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                        />
+                        <input
+                          value={requestFormData.phone}
+                          onChange={(e) => setRequestFormData((p) => ({ ...p, phone: e.target.value }))}
+                          placeholder="Their phone number (optional)"
+                          className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                        />
+                        <textarea
+                          value={requestFormData.notes}
+                          onChange={(e) => setRequestFormData((p) => ({ ...p, notes: e.target.value }))}
+                          placeholder="Any other details..."
+                          rows={2}
+                          className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none resize-none"
+                        />
+                      </div>
+                      <button
+                        onClick={submitProviderRequest}
+                        disabled={requestSubmitting || !requestFormData.providerName.trim()}
+                        className="w-full py-3 rounded-pill text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta disabled:opacity-50"
+                      >
+                        {requestSubmitting ? "Submitting..." : "Submit Request"}
+                      </button>
+                    </>
+                  )}
+                </motion.div>
+              </motion.div>
+            )}
           </AnimatePresence>
 
           {/* Load More */}
