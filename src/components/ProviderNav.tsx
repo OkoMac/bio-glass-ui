@@ -49,6 +49,8 @@ export default function ProviderNav() {
     <>
       {/* ── Desktop Sidebar ─────────────────────────────── */}
       <aside className="hidden md:flex fixed top-0 left-0 h-screen w-56 flex-col py-8 px-3 border-r border-white/5 z-50"
+        role="navigation"
+        aria-label="Provider navigation"
         style={{ background: "rgba(10,10,15,0.95)", backdropFilter: "blur(40px)" }}>
         {/* Logo */}
         <div className="px-3 mb-8">
@@ -60,6 +62,7 @@ export default function ProviderNav() {
         <nav className="flex flex-col gap-0.5 flex-1">
           {navItems.map(({ to, label, icon: Icon, badge }) => (
             <NavLink key={to} to={to}
+              aria-label={label}
               className={({ isActive }) =>
                 `relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   isActive
@@ -70,7 +73,7 @@ export default function ProviderNav() {
             >
               {({ isActive }) => (
                 <>
-                  <Icon className="w-4 h-4 shrink-0" />
+                  <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />
                   <span className="flex-1">{label}</span>
                   {to === "/pro/bookings" && pendingCount > 0 && !isActive && (
                     <span className="w-5 h-5 rounded-full gradient-indigo flex items-center justify-center text-[10px] font-bold text-primary-foreground">
@@ -112,9 +115,11 @@ export default function ProviderNav() {
       </aside>
 
       {/* ── Mobile Bottom Nav ────────────────────────────── */}
-      <nav className="md:hidden fixed bottom-4 left-4 right-4 z-50 glass-2 rounded-[28px] px-2 py-2 flex items-center justify-around">
+      <nav className="md:hidden fixed bottom-4 left-4 right-4 z-50 glass-2 rounded-[28px] px-2 py-2 flex items-center justify-around"
+        role="navigation"
+        aria-label="Provider mobile navigation">
         {mobileNav.map(({ to, label, icon: Icon, badge }) => (
-          <NavLink key={to} to={to} className="flex-1">
+          <NavLink key={to} to={to} className="flex-1" aria-label={label}>
             {({ isActive }) => (
               <motion.div
                 whileTap={{ scale: 0.9 }}

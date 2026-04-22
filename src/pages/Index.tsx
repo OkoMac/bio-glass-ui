@@ -368,9 +368,13 @@ const Index = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 + i * 0.05 }}
                   onClick={() => navigate(`/provider/${p.id}`)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate(`/provider/${p.id}`); } }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View ${p.name} — ${p.specialty}`}
                   className="glass-1 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:border-white/[0.16] hover:shadow-hover transition-all border border-white/[0.08]"
                 >
-                  <img src={p.avatar} alt={p.name} className="w-14 h-14 rounded-xl object-cover ring-2 ring-white/10" />
+                  <img src={p.avatar} alt={`${p.name} — ${p.specialty}`} className="w-14 h-14 rounded-xl object-cover ring-2 ring-white/10" />
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-semibold text-foreground truncate flex items-center gap-1">
                       {p.name}

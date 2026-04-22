@@ -409,8 +409,8 @@ export default function Directory() {
         <div className="w-full px-4 md:px-8 xl:px-12 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
-                <ArrowLeft className="w-4 h-4" />
+              <button onClick={() => navigate(-1)} aria-label="Go back" className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+                <ArrowLeft className="w-4 h-4" aria-hidden="true" />
               </button>
               <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
                 <img src="/bion-logo-white-sm.png" alt="BION" className="h-14 md:h-20 w-auto" />
@@ -419,6 +419,8 @@ export default function Directory() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowLocationPicker(!showLocationPicker)}
+                aria-label={showLocationPicker ? "Close location picker" : "Change location"}
+                aria-expanded={showLocationPicker}
                 className="flex items-center gap-1.5 text-xs text-teal hover:text-teal/80 transition-colors"
               >
                 <MapPin className="w-3 h-3" />
@@ -503,27 +505,30 @@ export default function Directory() {
           </AnimatePresence>
 
           {/* Search bar */}
-          <div className="glass-1 rounded-pill flex items-center gap-3 px-4 py-3">
-            <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+          <div className="glass-1 rounded-pill flex items-center gap-3 px-4 py-3" role="search" aria-label="Search providers">
+            <Search className="w-4 h-4 text-muted-foreground shrink-0" aria-hidden="true" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search services, providers, or specialties..."
+              aria-label="Search services, providers, or specialties"
               className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
             />
             {search && (
-              <button onClick={() => setSearch("")}>
+              <button onClick={() => setSearch("")} aria-label="Clear search">
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
             )}
-            <div className="w-px h-4 bg-foreground/10" />
+            <div className="w-px h-4 bg-foreground/10" aria-hidden="true" />
             <button
               onClick={() => setShowFilters(!showFilters)}
+              aria-label={showFilters ? "Close filters" : "Open filters"}
+              aria-expanded={showFilters}
               className={`flex items-center gap-1.5 text-xs transition-colors ${showFilters || selectedSuburb || selectedCity ? "text-indigo font-semibold" : "text-muted-foreground hover:text-foreground"}`}
             >
-              <SlidersHorizontal className="w-4 h-4" />
+              <SlidersHorizontal className="w-4 h-4" aria-hidden="true" />
               <span className="hidden md:inline">Filters</span>
-              {(selectedSuburb || selectedCity) && <span className="w-1.5 h-1.5 rounded-full bg-indigo" />}
+              {(selectedSuburb || selectedCity) && <span className="w-1.5 h-1.5 rounded-full bg-indigo" aria-hidden="true" />}
             </button>
           </div>
 
@@ -653,12 +658,24 @@ export default function Directory() {
           >
             <div
               className="flex items-center gap-3 cursor-pointer"
+              role="button"
+              tabIndex={0}
+              aria-label="Enable GPS location"
               onClick={() => {
                 geo.requestLocation();
                 // If permission was blocked, also open manual picker after 2s
                 setTimeout(() => {
                   if (!geo.permitted) setShowLocationPicker(true);
                 }, 2000);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  geo.requestLocation();
+                  setTimeout(() => {
+                    if (!geo.permitted) setShowLocationPicker(true);
+                  }, 2000);
+                }
               }}
             >
               <div className="w-10 h-10 rounded-xl gradient-teal flex items-center justify-center shrink-0">
@@ -699,7 +716,7 @@ export default function Directory() {
                 </button>
               )}
             </div>
-            <span className="text-xs text-muted-foreground">{displayProviders.length} providers</span>
+            <span className="text-xs text-muted-foreground" aria-live="polite">{displayProviders.length} providers</span>
           </div>
 
           {/* Filter tabs */}
@@ -735,11 +752,15 @@ export default function Directory() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.03 }}
                   onClick={() => handleProviderClick(provider.id)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleProviderClick(provider.id); } }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View ${provider.name} — ${provider.specialty}`}
                   className="glass-1 rounded-2xl p-3 flex items-center gap-3 cursor-pointer hover:border-white/[0.16] hover:shadow-hover transition-all border border-white/[0.08]"
                 >
                   <img
                     src={provider.avatar}
-                    alt={provider.name}
+                    alt={`${provider.name} — ${provider.specialty}`}
                     className="w-12 h-12 rounded-xl object-cover ring-2 ring-white/10 shrink-0 bg-white/5"
                     loading="lazy"
                     onError={(e) => { (e.target as HTMLImageElement).src = getProviderImage("fallback_" + provider.id, provider.name); }}
@@ -905,7 +926,11 @@ export default function Directory() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 z-50 flex items-center justify-center bg-obsidian/80 backdrop-blur-sm p-4"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Request a provider"
                 onClick={() => setShowRequestForm(false)}
+                onKeyDown={(e) => { if (e.key === "Escape") setShowRequestForm(false); }}
               >
                 <motion.div
                   initial={{ scale: 0.95, opacity: 0 }}

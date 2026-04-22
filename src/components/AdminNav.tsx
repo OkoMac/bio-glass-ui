@@ -37,6 +37,8 @@ export default function AdminNav() {
     <>
       {/* Desktop sidebar */}
       <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-56 flex-col z-40"
+        role="navigation"
+        aria-label="Admin navigation"
         style={{ background: "rgba(10,10,18,0.95)", backdropFilter: "blur(40px)", borderRight: "1px solid rgba(255,255,255,0.05)" }}>
         {/* Logo */}
         <div className="px-5 py-6 border-b border-white/5">
@@ -51,12 +53,12 @@ export default function AdminNav() {
         {/* Nav items */}
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
           {navItems.map(item => (
-            <NavLink key={item.path} to={item.path}>
+            <NavLink key={item.path} to={item.path} aria-label={item.label}>
               {({ isActive }) => (
                 <div className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
                   isActive ? "bg-orange-500/15 text-coral" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                }`}>
-                  <item.icon className="w-4 h-4 shrink-0" />
+                }`} aria-current={isActive ? "page" : undefined}>
+                  <item.icon className="w-4 h-4 shrink-0" aria-hidden="true" />
                   <span className="text-sm font-medium">{item.label}</span>
                 </div>
               )}
@@ -77,14 +79,17 @@ export default function AdminNav() {
             </div>
           </div>
           <button onClick={logout}
+            aria-label="Sign out"
             className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground hover:text-coral hover:bg-white/5 transition-all text-sm">
-            <LogOut className="w-4 h-4" /> Sign out
+            <LogOut className="w-4 h-4" aria-hidden="true" /> Sign out
           </button>
         </div>
       </aside>
 
       {/* Mobile top bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 px-4 py-3 flex items-center justify-between"
+        role="navigation"
+        aria-label="Admin mobile navigation"
         style={{ background: "rgba(10,10,18,0.95)", backdropFilter: "blur(40px)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-coral" />
@@ -92,10 +97,10 @@ export default function AdminNav() {
         </div>
         <div className="flex gap-1">
           {navItems.slice(0,4).map(item => (
-            <NavLink key={item.path} to={item.path}>
+            <NavLink key={item.path} to={item.path} aria-label={item.label}>
               {({ isActive }) => (
-                <div className={`p-2 rounded-lg ${isActive ? "text-coral" : "text-muted-foreground"}`}>
-                  <item.icon className="w-4 h-4" />
+                <div className={`p-2 rounded-lg ${isActive ? "text-coral" : "text-muted-foreground"}`} aria-current={isActive ? "page" : undefined}>
+                  <item.icon className="w-4 h-4" aria-hidden="true" />
                 </div>
               )}
             </NavLink>

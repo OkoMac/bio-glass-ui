@@ -19,6 +19,8 @@ const RepNav = () => {
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 120, damping: 16 }}
+      role="navigation"
+      aria-label="Sales rep navigation"
       className="fixed bottom-3 left-4 right-4 lg:left-8 lg:right-8 xl:left-12 xl:right-12 z-50 glass-2 rounded-pill px-2 py-2 shadow-card"
     >
       <div className="flex items-center justify-around">
@@ -31,6 +33,8 @@ const RepNav = () => {
               key={tab.path}
               onClick={() => navigate(tab.path)}
               whileTap={{ scale: 0.9 }}
+              aria-label={tab.label}
+              aria-current={isActive ? "page" : undefined}
               className="flex flex-col items-center gap-1 py-1 px-3"
             >
               <motion.div

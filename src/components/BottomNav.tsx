@@ -22,6 +22,8 @@ const BottomNav = () => {
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 120, damping: 16 }}
+      role="navigation"
+      aria-label="Main navigation"
       className="fixed bottom-3 left-4 right-4 lg:left-8 lg:right-8 xl:left-12 xl:right-12 z-50 glass-2 rounded-pill px-2 py-2 shadow-card"
     >
       <div className="flex items-center justify-around">
@@ -35,6 +37,8 @@ const BottomNav = () => {
                 key="fab"
                 onClick={() => navigate(tab.path)}
                 whileTap={{ scale: 0.92 }}
+                aria-label="My profile"
+                aria-current={isActive ? "page" : undefined}
                 className="flex flex-col items-center gap-1 py-1 px-3"
               >
                 <div className="flex items-center justify-center w-9 h-9 rounded-full gradient-indigo shadow-cta">
@@ -54,6 +58,8 @@ const BottomNav = () => {
               key={tab.path}
               onClick={() => navigate(tab.path)}
               whileTap={{ scale: 0.9 }}
+              aria-label={tab.label}
+              aria-current={isActive ? "page" : undefined}
               className="flex flex-col items-center gap-1 py-1 px-3"
             >
               <motion.div

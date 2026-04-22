@@ -150,6 +150,7 @@ import InstallButton    from "./components/InstallButton";
 import CalendarButton   from "./components/CalendarButton";
 import OfflineBanner    from "./components/OfflineBanner";
 import CookieConsent    from "./components/CookieConsent";
+import TermsGate        from "./components/TermsGate";
 
 // ── Lazy-loaded pages (split into separate chunks) ──
 import { lazy, Suspense } from "react";
@@ -182,6 +183,7 @@ const AcceptableUse     = lazy(() => import("./pages/legal/AcceptableUse"));
 const PaymentFlow       = lazy(() => import("./pages/legal/PaymentFlow"));
 const DisputeResolution = lazy(() => import("./pages/legal/DisputeResolution"));
 const Privacy           = lazy(() => import("./pages/legal/Privacy"));
+const Terms             = lazy(() => import("./pages/legal/Terms"));
 
 // Client free tools
 const WaterTracker  = lazy(() => import("./pages/WaterTracker"));
@@ -482,6 +484,7 @@ function AppRoutes() {
       <Route path="/legal/payment-flow"       element={<PaymentFlow />} />
       <Route path="/legal/dispute-resolution" element={<DisputeResolution />} />
       <Route path="/legal/privacy"            element={<Privacy />} />
+      <Route path="/legal/terms"              element={<Terms />} />
       <Route path="/privacy"                  element={<Navigate to="/legal/privacy" replace />} />
 
       {/* Client home (authenticated) */}
@@ -641,16 +644,18 @@ const App = () => (
                   user has made a first-time decision, then re-openable from
                   Settings → Privacy. Must load before any analytics / ad pixel. */}
               <CookieConsent />
-              <Suspense fallback={
-                <div className="min-h-screen bg-obsidian flex items-center justify-center">
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-10 h-10 border-2 border-violet/30 border-t-violet rounded-full animate-spin" />
-                    <p className="text-xs text-muted-foreground">Loading...</p>
+              <TermsGate>
+                <Suspense fallback={
+                  <div className="min-h-screen bg-obsidian flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-10 h-10 border-2 border-violet/30 border-t-violet rounded-full animate-spin" />
+                      <p className="text-xs text-muted-foreground">Loading...</p>
+                    </div>
                   </div>
-                </div>
-              }>
-                <AppRoutes />
-              </Suspense>
+                }>
+                  <AppRoutes />
+                </Suspense>
+              </TermsGate>
             </BrowserRouter>
           </TooltipProvider>
         </BookingsProvider>
