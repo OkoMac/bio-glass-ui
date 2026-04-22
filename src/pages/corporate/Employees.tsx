@@ -6,7 +6,7 @@ import CorporateNav from "@/components/CorporateNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Users, Wallet, AlertTriangle, CheckCircle, ChevronRight, Plus, Minus, Filter, UserPlus, X, Trash2, Mail, Loader2 ArrowLeft, } from "lucide-react";
+import { Search, Users, Wallet, AlertTriangle, CheckCircle, ChevronRight, Plus, Minus, Filter, UserPlus, X, Trash2, Mail, Loader2, ArrowLeft, } from "lucide-react";
 
 type EmployeeStatus = "active" | "inactive" | "pending";
 

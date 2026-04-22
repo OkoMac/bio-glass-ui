@@ -6,7 +6,7 @@ import AdminNav from "@/components/AdminNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { withTimeout } from "@/lib/safeQuery";
-import { Save, Check, Shield, Bell, Globe, CreditCard, Database, Zap, Loader2 ArrowLeft, } from "lucide-react";
+import { Save, Check, Shield, Bell, Globe, CreditCard, Database, Zap, Loader2, ArrowLeft, } from "lucide-react";
 
 type Tab = "platform" | "security" | "notifications" | "billing";
 

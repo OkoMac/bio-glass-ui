@@ -7,8 +7,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { withTimeout } from "@/lib/safeQuery";
 import {
   Search, Shield, ShieldCheck, ShieldOff, ChevronRight,
-  Plus, X, CheckCircle, AlertTriangle, User, Users, Loader2
-ArrowLeft, } from "lucide-react";
+  Plus, X, CheckCircle, AlertTriangle, User, Users, Loader2,
+  ArrowLeft,
+} from "lucide-react";
 
 type UserRole = "client" | "provider" | "admin" | "corporate";
 type UserStatus = "active" | "suspended" | "pending_verification";

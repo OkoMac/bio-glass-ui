@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
 import BionAssistant from "@/components/BionAssistant";
-import { Wallet, ArrowUpRight, ArrowDownLeft, TrendingDown, Plus, Building2, CheckCircle ArrowLeft, } from "lucide-react";
+import { Wallet, ArrowUpRight, ArrowDownLeft, TrendingDown, Plus, Building2, CheckCircle, ArrowLeft, } from "lucide-react";
 
 /* ─── types & data ──────────────────────────────────────────────────────── */
 type TxType = "topup" | "allocation" | "session" | "refund";

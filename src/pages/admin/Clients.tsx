@@ -5,7 +5,7 @@ import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
 import { supabase } from "@/integrations/supabase/client";
 import { withTimeout } from "@/lib/safeQuery";
-import { Search, Users, AlertTriangle, CheckCircle, XCircle, ChevronRight, Loader2 ArrowLeft, } from "lucide-react";
+import { Search, Users, AlertTriangle, CheckCircle, XCircle, ChevronRight, Loader2, ArrowLeft, } from "lucide-react";
 
 interface AdminClient {
   id: string;

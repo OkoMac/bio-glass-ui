@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
 import { supabase } from "@/integrations/supabase/client";
-import { DollarSign, Users, TrendingUp, AlertTriangle, Loader2, RefreshCw ArrowLeft, } from "lucide-react";
+import { DollarSign, Users, TrendingUp, AlertTriangle, Loader2, RefreshCw, ArrowLeft, } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 

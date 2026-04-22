@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
-import { MessageSquare, RefreshCw, Phone, Clock, Bot, User, AlertCircle ArrowLeft, } from "lucide-react";
+import { MessageSquare, RefreshCw, Phone, Clock, Bot, User, AlertCircle, ArrowLeft } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
