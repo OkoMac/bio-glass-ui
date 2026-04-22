@@ -295,6 +295,9 @@ const AffiliateDashboard = lazy(() => import("./pages/AffiliateDashboard"));
 const GroupBookings = lazy(() => import("./pages/GroupBookings"));
 const GiftVouchers  = lazy(() => import("./pages/GiftVouchers"));
 
+// Invite / referral landing
+const InvitePage     = lazy(() => import("./pages/Invite"));
+
 // Host partner (Airbnb / guesthouse QR wellness)
 const GuestLanding   = lazy(() => import("./pages/GuestLanding"));
 const HostRegister   = lazy(() => import("./pages/HostRegister"));
@@ -525,6 +528,7 @@ function AppRoutes() {
       <Route path="/gift-vouchers"   element={<GiftVouchers />} />
 
       {/* Host partner (Airbnb / guesthouse QR wellness) — all public, no auth */}
+      <Route path="/invite/:code"      element={<InvitePage />} />
       <Route path="/stay/:code"       element={<GuestLanding />} />
       <Route path="/host/register"    element={<HostRegister />} />
       <Route path="/host/dashboard"   element={<HostDashboard />} />
