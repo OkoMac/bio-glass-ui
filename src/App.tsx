@@ -220,6 +220,9 @@ const ProviderProgramBuilder = lazy(() => import("./pages/provider/ProgramBuilde
 const ProviderStorefront     = lazy(() => import("./pages/provider/Storefront"));
 const ProviderOrders         = lazy(() => import("./pages/provider/Orders"));
 const ProviderVerification   = lazy(() => import("./pages/provider/Verification"));
+const ProviderQueue          = lazy(() => import("./pages/provider/Queue"));
+const ProviderReferrals      = lazy(() => import("./pages/provider/Referrals"));
+const ProviderLocations      = lazy(() => import("./pages/provider/Locations"));
 
 // Admin portal
 const AdminDashboard    = lazy(() => import("./pages/admin/Dashboard"));
@@ -285,6 +288,12 @@ const ForRangers   = lazy(() => import("./pages/landing/ForRangers"));
 // Revenue features
 const GroupBookings = lazy(() => import("./pages/GroupBookings"));
 const GiftVouchers  = lazy(() => import("./pages/GiftVouchers"));
+
+// Telehealth + Intake Forms + Treatment Plans
+const VideoCall                = lazy(() => import("./pages/VideoCall"));
+const ProviderIntakeForms      = lazy(() => import("./pages/provider/IntakeForms"));
+const ProviderTreatmentPlan    = lazy(() => import("./pages/provider/TreatmentPlan"));
+const ClientTreatmentPlans     = lazy(() => import("./pages/client/TreatmentPlans"));
 
 const BlogIndex     = lazy(() => import("./pages/blog/BlogIndex"));
 const CalorieGuide  = lazy(() => import("./pages/blog/CalorieGuide"));
@@ -479,6 +488,8 @@ function AppRoutes() {
       <Route path="/store"           element={<Store />} />
       <Route path="/group-bookings"  element={<GroupBookings />} />
       <Route path="/gift-vouchers"   element={<GiftVouchers />} />
+      <Route path="/call/:bookingId" element={<RequireAuth><VideoCall /></RequireAuth>} />
+      <Route path="/treatment-plans" element={<RequireAuth allowedRoles={["client"]}><ClientTreatmentPlans /></RequireAuth>} />
       {/* Programs — public detail page + client-side dashboard */}
       <Route path="/program/:id"                     element={<ProgramDetail />} />
       <Route path="/my-programs"                     element={<RequireAuth><MyPrograms /></RequireAuth>} />
@@ -503,6 +514,11 @@ function AppRoutes() {
       <Route path="/pro/catalogs"      element={<RequireAuth allowedRoles={["provider"]}><ProviderCatalogs /></RequireAuth>} />
       <Route path="/pro/catalogs/:id"  element={<RequireAuth allowedRoles={["provider"]}><CatalogEditor /></RequireAuth>} />
       <Route path="/catalog/:shortUrl" element={<CatalogViewer />} />
+      <Route path="/pro/intake-forms"       element={<RequireAuth allowedRoles={["provider"]}><ProviderIntakeForms /></RequireAuth>} />
+      <Route path="/pro/treatment-plans"    element={<RequireAuth allowedRoles={["provider"]}><ProviderTreatmentPlan /></RequireAuth>} />
+      <Route path="/pro/queue"         element={<RequireAuth allowedRoles={["provider"]}><ProviderQueue /></RequireAuth>} />
+      <Route path="/pro/referrals"     element={<RequireAuth allowedRoles={["provider"]}><ProviderReferrals /></RequireAuth>} />
+      <Route path="/pro/locations"     element={<RequireAuth allowedRoles={["provider"]}><ProviderLocations /></RequireAuth>} />
 
       {/* Bicademy — open to all authenticated users */}
       <Route path="/bicademy"                           element={<RequireAuth><Bicademy /></RequireAuth>} />

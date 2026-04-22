@@ -31,6 +31,9 @@ export interface Booking {
   providerEarns?: string;
   paymentStatus?: 'pending' | 'paid' | 'refunded' | 'failed';
   stripePaymentId?: string;
+  // Telehealth fields
+  telehealthUrl?: string;
+  deliveryMode?: 'in_person' | 'telehealth' | 'both';
 }
 
 /** Status of the Supabase Realtime channel for bookings. Exposed on the
@@ -94,6 +97,8 @@ type SupaRow = {
   booking_date: string; booking_time: string;
   duration_minutes: number; total_price: number | null;
   status: string; notes: string | null;
+  telehealth_url?: string | null;
+  delivery_mode?: string | null;
   profiles?: { full_name?: string } | null;
   services?: { title?: string } | null;
 };
@@ -113,6 +118,8 @@ function mapRow(r: SupaRow): Booking {
     price: r.total_price ? `R${r.total_price}` : "R0",
     status: r.status as BookingStatus,
     note: r.notes ?? undefined,
+    telehealthUrl: r.telehealth_url ?? undefined,
+    deliveryMode: (r.delivery_mode as Booking["deliveryMode"]) ?? undefined,
   };
 }
 

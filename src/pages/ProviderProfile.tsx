@@ -15,10 +15,11 @@ type BionService = {
   duration_minutes: number;
   category: string;
   active: boolean;
+  delivery_mode?: "in_person" | "telehealth" | "both";
 };
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
-import { ArrowLeft, Share2, Star, MapPin, Clock, Lock, CreditCard, Shield, Mail, Phone, Globe, Building, Check, X, CalendarDays, Heart, UserCheck, Loader2, MessageCircle, Package } from "lucide-react";
+import { ArrowLeft, Share2, Star, MapPin, Clock, Lock, CreditCard, Shield, Mail, Phone, Globe, Building, Check, X, CalendarDays, Heart, UserCheck, Loader2, MessageCircle, Package, Users } from "lucide-react";
 import { getProviderImage, getProviderCover } from "@/lib/providerImages";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useVerifiedProviders } from "@/hooks/useVerifiedProviders";
@@ -93,6 +94,9 @@ export default function ProviderProfile() {
   const [bookingTime, setBookingTime] = useState<string>("");
   const [selectedService, setSelectedService] = useState(0);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
+
+  // Telehealth delivery mode toggle
+  const [deliveryMode, setDeliveryMode] = useState<"in_person" | "telehealth">("in_person");
 
   // Recurring booking state
   const [recurringEnabled, setRecurringEnabled] = useState(false);
@@ -199,6 +203,7 @@ export default function ProviderProfile() {
         label: s.title,
         priceRand: s.price_rand,
         durationMinutes: s.duration_minutes,
+        deliveryMode: s.delivery_mode ?? "in_person" as "in_person" | "telehealth" | "both",
       }));
     }
     return ((provider?.servicesOffered ?? []) as string[]).map((label: string) => ({
@@ -206,8 +211,13 @@ export default function ProviderProfile() {
       label,
       priceRand: Number(String(provider?.price ?? "0").replace(/[^0-9.]/g, "")) || 0,
       durationMinutes: Math.max(15, parseInt(String(provider?.duration ?? "60"), 10) || 60),
+      deliveryMode: "in_person" as "in_person" | "telehealth" | "both",
     }));
   }, [hasRealServices, bionServices, provider]);
+
+  // Determine if the currently selected service supports telehealth
+  const selectedServiceDelivery = bookingServiceChoices[selectedService]?.deliveryMode ?? "in_person";
+  const canTelehealth = selectedServiceDelivery === "telehealth" || selectedServiceDelivery === "both";
 
   // For registered providers we replace the hardcoded directory rating with the
   // real Supabase aggregate. Directory-only listings keep their seed rating so
@@ -253,6 +263,79 @@ export default function ProviderProfile() {
   const [meetingPhone, setMeetingPhone] = useState("");
   const [meetingTime, setMeetingTime] = useState("");
   const [meetingNotes, setMeetingNotes] = useState("");
+
+  // ── Multi-location support ──────────────────────────────────────────
+  type ProviderLocation = {
+    id: string; name: string; address: string | null; suburb: string | null;
+    city: string | null; lat: number | null; lng: number | null; is_primary: boolean;
+    operating_hours: Record<string, any>;
+  };
+  const [providerLocations, setProviderLocations] = useState<ProviderLocation[]>([]);
+  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+    fetch(`${API}/api/providers/locations/by-provider/${id}`)
+      .then(r => r.json())
+      .then(json => {
+        if (json.ok && Array.isArray(json.data) && json.data.length > 0) {
+          setProviderLocations(json.data);
+          const primary = json.data.find((l: any) => l.is_primary);
+          setSelectedLocationId(primary?.id ?? json.data[0].id);
+        }
+      })
+      .catch(() => {});
+  }, [id]);
+
+  // ── Queue / Walk-in ───────────────────────────────────────────────
+  const [joiningQueue, setJoiningQueue] = useState(false);
+  const [queuePosition, setQueuePosition] = useState<{ position: number; wait: number } | null>(null);
+
+  const joinQueue = async () => {
+    if (!user?.profileId || !id) return;
+    setJoiningQueue(true);
+    try {
+      const { data: { session } } = await (await import("@/integrations/supabase/client")).supabase.auth.getSession();
+      const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+      const res = await fetch(`${API}/api/queue/join`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
+        body: JSON.stringify({
+          providerId: id,
+          locationId: selectedLocationId ?? undefined,
+        }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        setQueuePosition({ position: json.data.position, wait: json.data.estimatedWaitMinutes });
+      }
+    } catch (err) {
+      console.error("Failed to join queue:", err);
+    } finally {
+      setJoiningQueue(false);
+    }
+  };
+
+  // ── Medical Aid info for booking display ──────────────────────────
+  const [clientMedicalAid, setClientMedicalAid] = useState<{ scheme: string; plan_name: string } | null>(null);
+  useEffect(() => {
+    if (!user?.profileId) return;
+    (async () => {
+      try {
+        const { data: { session } } = await (await import("@/integrations/supabase/client")).supabase.auth.getSession();
+        if (!session) return;
+        const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+        const res = await fetch(`${API}/api/profiles/medical-aid`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        const json = await res.json();
+        if (json.ok && json.data) {
+          setClientMedicalAid({ scheme: json.data.scheme, plan_name: json.data.plan_name ?? "" });
+        }
+      } catch {}
+    })();
+  }, [user?.profileId]);
 
   // Acquisition voucher this user has already claimed for this provider.
   // When present, the user can apply it at checkout to skip Paystack entirely
@@ -402,6 +485,7 @@ export default function ProviderProfile() {
           bookingDate,
           bookingTime,
           amount: amountRand,
+          deliveryMode: canTelehealth ? deliveryMode : "in_person",
         }),
       });
       const data = await res.json();
@@ -675,15 +759,86 @@ export default function ProviderProfile() {
           </div>
         )}
 
+        {/* ── Location Picker (multi-location providers) ── */}
+        {providerLocations.length > 1 && (
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5" /> Select location
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {providerLocations.map(loc => (
+                <button
+                  key={loc.id}
+                  onClick={() => setSelectedLocationId(loc.id)}
+                  className={`text-xs px-3 py-1.5 rounded-pill transition-all ${
+                    selectedLocationId === loc.id
+                      ? "gradient-indigo text-primary-foreground"
+                      : "glass-1 text-muted-foreground"
+                  }`}
+                >
+                  {loc.name}
+                  {loc.is_primary && " (Main)"}
+                </button>
+              ))}
+            </div>
+            {(() => {
+              const sel = providerLocations.find(l => l.id === selectedLocationId);
+              if (!sel) return null;
+              return (
+                <p className="text-[11px] text-muted-foreground">
+                  {[sel.address, sel.suburb, sel.city].filter(Boolean).join(", ")}
+                </p>
+              );
+            })()}
+          </div>
+        )}
+
+        {/* Medical Aid badge */}
+        {clientMedicalAid && (
+          <div className="glass-1 rounded-xl px-3 py-2 flex items-center gap-2">
+            <Shield className="w-4 h-4 text-teal" />
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] text-muted-foreground">Medical aid on file</p>
+              <p className="text-xs font-medium text-foreground truncate">
+                {clientMedicalAid.scheme}{clientMedicalAid.plan_name ? ` — ${clientMedicalAid.plan_name}` : ""}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* CTA — sign up or book */}
         {isSignedIn ? (
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={() => setShowBooking(true)}
-            className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta"
-          >
-            Book a Session — {provider.price}
-          </motion.button>
+          <div className="space-y-2">
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setShowBooking(true)}
+              className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta"
+            >
+              Book a Session — {provider.price}
+            </motion.button>
+
+            {/* Queue / Walk-in button */}
+            {queuePosition ? (
+              <div className="glass-1 rounded-xl px-4 py-3 text-center">
+                <p className="text-sm font-semibold text-teal">You're #{queuePosition.position} in line</p>
+                <p className="text-[11px] text-muted-foreground">Estimated wait: ~{queuePosition.wait} min</p>
+              </div>
+            ) : (
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={joinQueue}
+                disabled={joiningQueue}
+                className="w-full rounded-pill py-3 text-sm font-semibold glass-1 text-foreground border border-white/10 flex items-center justify-center gap-2"
+              >
+                {joiningQueue ? (
+                  <div className="w-4 h-4 border-2 border-indigo border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Users className="w-4 h-4" />
+                )}
+                Join Walk-in Queue
+              </motion.button>
+            )}
+          </div>
         ) : (
           <motion.button
             whileTap={{ scale: 0.97 }}
@@ -1171,6 +1326,27 @@ export default function ProviderProfile() {
                   </div>
                 </div>
 
+                {/* Telehealth toggle — shown when the selected service supports video calls */}
+                {canTelehealth && (
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">Session Type</p>
+                    <div className="flex gap-2">
+                      {(selectedServiceDelivery === "both" ? ["in_person", "telehealth"] as const : ["telehealth"] as const).map(mode => (
+                        <button key={mode} onClick={() => setDeliveryMode(mode)}
+                          className={`flex-1 py-2.5 rounded-pill text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                            deliveryMode === mode ? "gradient-indigo text-white" : "glass-1 text-foreground"
+                          }`}>
+                          {mode === "in_person" ? (
+                            <><MapPin className="w-3.5 h-3.5" /> In-Person</>
+                          ) : (
+                            <><span className="text-sm">📹</span> Video Call</>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Date */}
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">Date</p>
@@ -1414,6 +1590,16 @@ export default function ProviderProfile() {
                     </>
                   );
                 })()}
+
+                {/* Medical aid on file — shown to provider at booking */}
+                {clientMedicalAid && (
+                  <div className="glass-1 rounded-xl px-3 py-2 flex items-center gap-2">
+                    <Shield className="w-3.5 h-3.5 text-teal shrink-0" />
+                    <p className="text-[11px] text-muted-foreground">
+                      Medical aid: <span className="text-foreground font-medium">{clientMedicalAid.scheme}{clientMedicalAid.plan_name ? ` — ${clientMedicalAid.plan_name}` : ""}</span>
+                    </p>
+                  </div>
+                )}
 
                 <motion.button
                   whileTap={{ scale: 0.97 }}

@@ -13,6 +13,7 @@ import {
   type Service,
   type ServiceInput,
   type BionVertical,
+  type DeliveryMode,
 } from "@/hooks/useProviderServices";
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -28,6 +29,12 @@ const CATEGORIES: { key: BionVertical; label: string; accent: string }[] = [
   { key: "professional", label: "Professional", accent: "text-indigo" },
 ];
 
+const DELIVERY_MODES: { key: DeliveryMode; label: string }[] = [
+  { key: "in_person", label: "In-Person" },
+  { key: "telehealth", label: "Video Call" },
+  { key: "both", label: "Both" },
+];
+
 type FormState = {
   title: string;
   description: string;
@@ -36,6 +43,7 @@ type FormState = {
   category: BionVertical;
   active: boolean;
   coverImage?: string;
+  delivery_mode: DeliveryMode;
 };
 
 const emptyForm: FormState = {
@@ -46,6 +54,7 @@ const emptyForm: FormState = {
   category: "wellness",
   active: true,
   coverImage: "",
+  delivery_mode: "in_person",
 };
 
 // ── Validation (mirrors the backend zod schema) ─────────────────────────────
@@ -135,6 +144,7 @@ export default function ProviderServices() {
       category: (CATEGORIES.find(c => c.key === svc.category)?.key ?? "wellness") as BionVertical,
       active: svc.active,
       coverImage: "",
+      delivery_mode: svc.delivery_mode ?? "in_person",
     });
     setEditId(svc.id);
     setAddOpen(false);
@@ -147,6 +157,7 @@ export default function ProviderServices() {
     duration_minutes: f.duration_minutes,
     category: f.category,
     active: f.active,
+    delivery_mode: f.delivery_mode,
   });
 
   const saveEdit = async () => {
@@ -383,6 +394,9 @@ export default function ProviderServices() {
                               {svc.price_rand === 0 ? "Free" : `R${svc.price_rand}`}
                             </span>
                             {stats && stats.bookings > 0 && <span>{stats.bookings} bookings</span>}
+                            {svc.delivery_mode && svc.delivery_mode !== "in_person" && (
+                              <span className="text-indigo">{svc.delivery_mode === "telehealth" ? "Video" : "In-Person + Video"}</span>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
@@ -692,6 +706,28 @@ function ServiceForm({
               }`}
             >
               {c.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Delivery Mode — In-Person / Video Call / Both */}
+      <div>
+        <label className="text-[10px] text-muted-foreground uppercase tracking-wider block mb-1.5">
+          Session Type
+        </label>
+        <div className="flex flex-wrap gap-1.5">
+          {DELIVERY_MODES.map(dm => (
+            <button
+              key={dm.key}
+              onClick={() => setForm(p => ({ ...p, delivery_mode: dm.key }))}
+              className={`px-2.5 py-1 rounded-lg text-xs transition-all ${
+                form.delivery_mode === dm.key
+                  ? "gradient-indigo text-primary-foreground"
+                  : "glass-1 text-muted-foreground"
+              }`}
+            >
+              {dm.label}
             </button>
           ))}
         </div>

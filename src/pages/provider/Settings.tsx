@@ -209,6 +209,22 @@ export default function ProviderSettings() {
                 </div>
               </GlassCard>
 
+              {/* Locations — multi-branch management */}
+              <GlassCard className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Locations & Branches</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">Manage your practice locations and operating hours</p>
+                  </div>
+                  <button
+                    onClick={() => navigate("/pro/locations")}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-pill text-xs font-medium gradient-indigo text-primary-foreground"
+                  >
+                    Manage <ChevronRight className="w-3 h-3" />
+                  </button>
+                </div>
+              </GlassCard>
+
               {/* Service area — drives acquisition voucher visibility */}
               <ServiceAreaCard />
 

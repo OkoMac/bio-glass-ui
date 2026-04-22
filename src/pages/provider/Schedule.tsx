@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
@@ -173,6 +173,7 @@ export default function ProviderSchedule() {
 
         grouped[dayIdx].push({
           id: b.id,
+          clientId: b.clientId ?? null,
           client: b.clientName ?? "Client",
           image: getProviderImage(b.clientId ?? b.id, b.clientName ?? "Client"),
           service: b.service,
@@ -600,6 +601,9 @@ export default function ProviderSchedule() {
                       {Math.round(durationToHeight(detail.start, detail.end, 60))} minutes
                     </div>
                   </div>
+
+                  {/* Medical Aid — fetched per client */}
+                  <BookingMedicalAid clientId={detail.clientId} />
                 </div>
 
                 <div className="flex gap-3 mt-6">
@@ -633,6 +637,57 @@ export default function ProviderSchedule() {
           "Tips for managing multiple clients efficiently"
         ]}
       />
+    </div>
+  );
+}
+
+// ── Medical Aid sub-component for booking detail modal ──
+const MEDICAL_AID_API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+
+function BookingMedicalAid({ clientId }: { clientId: string | null }) {
+  const [medAid, setMedAid] = useState<{ scheme: string; plan_name: string; member_number: string } | null>(null);
+  const [claimRef, setClaimRef] = useState("");
+
+  useEffect(() => {
+    if (!clientId) return;
+    (async () => {
+      try {
+        const { data: { session } } = await (await import("@/integrations/supabase/client")).supabase.auth.getSession();
+        if (!session) return;
+        const res = await fetch(`${MEDICAL_AID_API}/api/profiles/medical-aid/for-booking/${clientId}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        const json = await res.json();
+        if (json.ok && json.data) setMedAid(json.data);
+      } catch {}
+    })();
+  }, [clientId]);
+
+  if (!medAid) return null;
+
+  return (
+    <div className="border-t border-white/5 pt-3 space-y-2">
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground">Medical Aid</div>
+        <div className="text-xs font-medium text-foreground">
+          {medAid.scheme}{medAid.plan_name ? ` — ${medAid.plan_name}` : ""}
+        </div>
+      </div>
+      {medAid.member_number && (
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-muted-foreground">Member #</div>
+          <div className="text-xs font-mono text-foreground">{medAid.member_number}</div>
+        </div>
+      )}
+      <div>
+        <div className="text-[11px] text-muted-foreground mb-1">Claim reference (optional)</div>
+        <input
+          value={claimRef}
+          onChange={e => setClaimRef(e.target.value)}
+          placeholder="Enter after session..."
+          className="w-full bg-white/5 text-foreground text-xs rounded-lg px-2.5 py-1.5 outline-none border border-white/10 focus:border-indigo/50 transition-colors"
+        />
+      </div>
     </div>
   );
 }

@@ -26,6 +26,8 @@ export type BionVertical =
   | "wellness"
   | "professional";
 
+export type DeliveryMode = "in_person" | "telehealth" | "both";
+
 export interface Service {
   id: string;
   provider_id: string;
@@ -35,6 +37,7 @@ export interface Service {
   duration_minutes: number;
   category: BionVertical | string;
   active: boolean;
+  delivery_mode?: DeliveryMode;
   created_at?: string;
   updated_at?: string;
 }
@@ -46,6 +49,7 @@ export interface ServiceInput {
   duration_minutes: number;
   category: BionVertical;
   active?: boolean;
+  delivery_mode?: DeliveryMode;
 }
 
 export interface UseProviderServices {

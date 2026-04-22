@@ -265,19 +265,8 @@ export default function MedicalCard() {
             editing={editing} icon={Heart} placeholder="e.g. Spouse, Parent" />
         </GlassCard>
 
-        {/* Insurance */}
-        <GlassCard variant="glass-1" className="p-4 space-y-3">
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-teal-400" />
-            <span className="text-sm font-semibold text-foreground">Medical Aid / Insurance</span>
-          </div>
-          <Field label="Provider" value={data.insurance.provider}
-            onChange={(v) => update({ insurance: { ...data.insurance, provider: v } })}
-            editing={editing} icon={Shield} placeholder="Medical aid name" />
-          <Field label="Member Number" value={data.insurance.number}
-            onChange={(v) => update({ insurance: { ...data.insurance, number: v } })}
-            editing={editing} icon={Shield} placeholder="Member number" />
-        </GlassCard>
+        {/* Medical Aid / Insurance — syncs with backend */}
+        <MedicalAidSection editing={editing} localData={data} onLocalUpdate={update} />
 
         {/* Share button */}
         <motion.button
@@ -363,5 +352,206 @@ export default function MedicalCard() {
       <BottomNav />
       <BionAssistant />
     </div>
+  );
+}
+
+// ── Medical Aid Section — syncs with /api/profiles/medical-aid ──────────
+const SA_SCHEMES = [
+  "Discovery Health", "Bonitas", "Momentum Health", "GEMS",
+  "Medihelp", "Bestmed", "Fedhealth", "Other",
+];
+
+const MEDICAL_AID_API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+
+function MedicalAidSection({
+  editing, localData, onLocalUpdate,
+}: {
+  editing: boolean;
+  localData: MedicalData;
+  onLocalUpdate: (partial: Partial<MedicalData>) => void;
+}) {
+  const { user } = useAuth();
+  const [scheme, setScheme] = useState(localData.insurance.provider || "");
+  const [planName, setPlanName] = useState("");
+  const [memberNumber, setMemberNumber] = useState(localData.insurance.number || "");
+  const [dependantCode, setDependantCode] = useState("");
+  const [showToProvider, setShowToProvider] = useState(true);
+  const [synced, setSynced] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Load from backend on mount if logged in
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      try {
+        const { data: { session } } = await (await import("@/integrations/supabase/client")).supabase.auth.getSession();
+        if (!session) return;
+        const res = await fetch(`${MEDICAL_AID_API}/api/profiles/medical-aid`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        const json = await res.json();
+        if (json.ok && json.data) {
+          setScheme(json.data.scheme || "");
+          setPlanName(json.data.plan_name || "");
+          setMemberNumber(json.data.member_number || "");
+          setDependantCode(json.data.dependant_code || "");
+          setShowToProvider(json.data.show_to_provider ?? true);
+          setSynced(true);
+          // Also update local storage
+          onLocalUpdate({
+            insurance: { provider: json.data.scheme, number: json.data.member_number || "" },
+          });
+        }
+      } catch {}
+    })();
+  }, [user]);
+
+  // Save to backend
+  const saveToBackend = async () => {
+    if (!user || !scheme) return;
+    setSaving(true);
+    try {
+      const { data: { session } } = await (await import("@/integrations/supabase/client")).supabase.auth.getSession();
+      if (!session) return;
+      await fetch(`${MEDICAL_AID_API}/api/profiles/medical-aid`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ scheme, planName, memberNumber, dependantCode, showToProvider }),
+      });
+      setSynced(true);
+      onLocalUpdate({ insurance: { provider: scheme, number: memberNumber } });
+    } catch (err) {
+      console.error("Failed to save medical aid:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Auto-save when editing is toggled off
+  useEffect(() => {
+    if (!editing && scheme) saveToBackend();
+  }, [editing]);
+
+  return (
+    <GlassCard variant="glass-1" className="p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Shield className="w-4 h-4 text-teal-400" />
+          <span className="text-sm font-semibold text-foreground">Medical Aid / Insurance</span>
+        </div>
+        {synced && (
+          <span className="text-[9px] px-2 py-0.5 bg-teal/10 text-teal rounded-pill">Synced</span>
+        )}
+      </div>
+
+      {/* Scheme selector */}
+      <div className="flex items-start gap-3">
+        <div className="w-8 h-8 glass-2 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+          <Shield className="w-4 h-4 text-indigo-400" />
+        </div>
+        <div className="flex-1">
+          <p className="text-xs text-muted-foreground mb-0.5">Medical Aid Scheme</p>
+          {editing ? (
+            <select
+              value={scheme}
+              onChange={e => setScheme(e.target.value)}
+              className="w-full bg-white/5 text-foreground text-sm rounded-xl px-3 py-2 outline-none border border-white/10 focus:border-indigo/50"
+            >
+              <option value="" className="bg-obsidian">Select scheme...</option>
+              {SA_SCHEMES.map(s => (
+                <option key={s} value={s} className="bg-obsidian">{s}</option>
+              ))}
+            </select>
+          ) : (
+            <p className="text-sm text-foreground">{scheme || "Not set"}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Plan name */}
+      <div className="flex items-start gap-3">
+        <div className="w-8 h-8 glass-2 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+          <Shield className="w-4 h-4 text-indigo-400" />
+        </div>
+        <div className="flex-1">
+          <p className="text-xs text-muted-foreground mb-0.5">Plan Name</p>
+          {editing ? (
+            <input
+              value={planName}
+              onChange={e => setPlanName(e.target.value)}
+              placeholder="e.g. KeyCare Plus"
+              className="w-full bg-transparent border-b border-white/10 text-sm text-foreground outline-none py-1 placeholder:text-white/20"
+            />
+          ) : (
+            <p className="text-sm text-foreground">{planName || "Not set"}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Member number */}
+      <div className="flex items-start gap-3">
+        <div className="w-8 h-8 glass-2 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+          <Shield className="w-4 h-4 text-indigo-400" />
+        </div>
+        <div className="flex-1">
+          <p className="text-xs text-muted-foreground mb-0.5">Member Number</p>
+          {editing ? (
+            <input
+              value={memberNumber}
+              onChange={e => setMemberNumber(e.target.value)}
+              placeholder="Your member number"
+              className="w-full bg-transparent border-b border-white/10 text-sm text-foreground outline-none py-1 placeholder:text-white/20"
+            />
+          ) : (
+            <p className="text-sm text-foreground">{memberNumber || "Not set"}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Dependant code */}
+      <div className="flex items-start gap-3">
+        <div className="w-8 h-8 glass-2 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+          <Shield className="w-4 h-4 text-indigo-400" />
+        </div>
+        <div className="flex-1">
+          <p className="text-xs text-muted-foreground mb-0.5">Dependant Code</p>
+          {editing ? (
+            <input
+              value={dependantCode}
+              onChange={e => setDependantCode(e.target.value)}
+              placeholder="e.g. 00, 01"
+              className="w-full bg-transparent border-b border-white/10 text-sm text-foreground outline-none py-1 placeholder:text-white/20"
+            />
+          ) : (
+            <p className="text-sm text-foreground">{dependantCode || "Not set"}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Show to provider toggle */}
+      {user && (
+        <div className="flex items-center justify-between pt-2 border-t border-white/5">
+          <div>
+            <p className="text-xs font-medium text-foreground">Show to provider</p>
+            <p className="text-[10px] text-muted-foreground">Visible on your bookings</p>
+          </div>
+          <button
+            onClick={() => editing && setShowToProvider(!showToProvider)}
+            className={`w-9 h-5 rounded-full transition-all flex items-center px-0.5 ${
+              showToProvider ? "bg-teal" : "bg-white/10"
+            } ${!editing ? "opacity-50" : ""}`}
+          >
+            <motion.div
+              animate={{ x: showToProvider ? 16 : 0 }}
+              className="w-4 h-4 rounded-full bg-white shadow-sm"
+            />
+          </button>
+        </div>
+      )}
+
+      {saving && (
+        <p className="text-[10px] text-indigo text-center animate-pulse">Saving to your profile...</p>
+      )}
+    </GlassCard>
   );
 }

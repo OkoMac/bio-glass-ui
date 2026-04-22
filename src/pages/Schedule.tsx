@@ -6,7 +6,7 @@ import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import ReviewForm from "@/components/ReviewForm";
-import { Calendar, ChevronLeft, ChevronRight, Clock, Star, X, CalendarDays, RotateCcw, XCircle, FileText, Search, Mail, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Clock, Star, X, CalendarDays, RotateCcw, XCircle, FileText, Search, Mail, CheckCircle2, ArrowLeft, Video } from "lucide-react";
 import { useBookings, type Booking } from "@/contexts/BookingsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -243,7 +243,15 @@ const Schedule = () => {
                           </span>
                         </div>
                       </div>
-                      <div className="flex gap-2 mt-3 pt-3 border-t border-white/[0.06]">
+                      {b.deliveryMode === "telehealth" && (b.status === "confirmed" || b.status === "pending") && (
+                        <div className="mt-3 pt-3 border-t border-white/[0.06]">
+                          <button onClick={() => navigate(`/call/${b.id}`)}
+                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-pill text-xs font-semibold gradient-indigo text-primary-foreground">
+                            <Video className="w-3.5 h-3.5" /> Join Video Call
+                          </button>
+                        </div>
+                      )}
+                      <div className={`flex gap-2 ${b.deliveryMode === "telehealth" && (b.status === "confirmed" || b.status === "pending") ? "mt-2" : "mt-3 pt-3 border-t border-white/[0.06]"}`}>
                         <button onClick={() => openReschedule(b)}
                           className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-indigo">
                           <RotateCcw className="w-3 h-3" /> Reschedule
@@ -295,7 +303,15 @@ const Schedule = () => {
                           </span>
                         </div>
                       </div>
-                      <div className="flex gap-2 mt-3 pt-3 border-t border-white/[0.06]">
+                      {b.deliveryMode === "telehealth" && (b.status === "confirmed" || b.status === "pending") && (
+                        <div className="mt-3 pt-3 border-t border-white/[0.06]">
+                          <button onClick={() => navigate(`/call/${b.id}`)}
+                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-pill text-xs font-semibold gradient-indigo text-primary-foreground">
+                            <Video className="w-3.5 h-3.5" /> Join Video Call
+                          </button>
+                        </div>
+                      )}
+                      <div className={`flex gap-2 ${b.deliveryMode === "telehealth" && (b.status === "confirmed" || b.status === "pending") ? "mt-2" : "mt-3 pt-3 border-t border-white/[0.06]"}`}>
                         <button onClick={() => openReschedule(b)}
                           className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-indigo">
                           <RotateCcw className="w-3 h-3" /> Reschedule
