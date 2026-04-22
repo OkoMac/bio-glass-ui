@@ -200,12 +200,27 @@ export default function Directory() {
       list = list.filter((p) => p.city === selectedCity);
     }
 
-    // Search filter
+    // Search filter — split query into words, match ANY word against ANY field
     if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter(
-        (p) => p.name.toLowerCase().includes(q) || p.specialty.toLowerCase().includes(q) || p.location.toLowerCase().includes(q) || (p.suburb || "").toLowerCase().includes(q),
-      );
+      const words = search.toLowerCase().split(/\s+/).filter(w => w.length > 1);
+      if (words.length > 0) {
+        // Score each provider by how many search words match
+        const scored = list.map(p => {
+          const haystack = `${p.name} ${p.specialty} ${p.location} ${p.suburb || ""} ${p.city || ""} ${(p as any).address || ""} ${p.category || ""}`.toLowerCase();
+          let score = 0;
+          for (const word of words) {
+            if (haystack.includes(word)) score++;
+            // Boost exact name matches
+            if (p.name.toLowerCase().includes(word)) score += 2;
+          }
+          return { provider: p, score };
+        });
+        // Keep providers matching at least 1 word, sort by score descending
+        list = scored
+          .filter(s => s.score > 0)
+          .sort((a, b) => b.score - a.score)
+          .map(s => s.provider);
+      }
     }
 
     // Tab filter

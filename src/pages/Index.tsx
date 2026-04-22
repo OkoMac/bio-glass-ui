@@ -124,12 +124,21 @@ const Index = () => {
     let filters: any = {};
     try { filters = JSON.parse(localStorage.getItem("bion_search_filters") ?? "{}"); } catch {}
 
-    // Search query (matches name OR specialty)
+    // Search query — split into words, match ANY word against ANY field
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      list = list.filter(p =>
-        p.name.toLowerCase().includes(q) || p.specialty.toLowerCase().includes(q)
-      );
+      const words = searchQuery.toLowerCase().split(/\s+/).filter(w => w.length > 1);
+      if (words.length > 0) {
+        const scored = list.map(p => {
+          const haystack = `${p.name} ${p.specialty} ${p.distance} ${p.serviceCategory}`.toLowerCase();
+          let score = 0;
+          for (const w of words) {
+            if (haystack.includes(w)) score++;
+            if (p.name.toLowerCase().includes(w)) score += 2;
+          }
+          return { p, score };
+        });
+        list = scored.filter(s => s.score > 0).sort((a, b) => b.score - a.score).map(s => s.p);
+      }
     }
 
     // Category from chips OR from filter sheet
