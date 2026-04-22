@@ -243,6 +243,8 @@ const AdminRefunds        = lazy(() => import("./pages/admin/Refunds"));
 const AdminTickets        = lazy(() => import("./pages/admin/Tickets"));
 const AdminBInbox         = lazy(() => import("./pages/admin/BInbox"));
 const AdminRangers        = lazy(() => import("./pages/admin/Rangers"));
+const AdminCampaigns      = lazy(() => import("./pages/admin/Campaigns"));
+const AdminBroadcasts     = lazy(() => import("./pages/admin/Broadcasts"));
 const Logout              = lazy(() => import("./pages/Logout"));
 const Help                = lazy(() => import("./pages/Help"));
 const MyTickets           = lazy(() => import("./pages/MyTickets"));
@@ -268,6 +270,7 @@ const CorporateWallet    = lazy(() => import("./pages/corporate/Wallet"));
 const CorporateSettings  = lazy(() => import("./pages/corporate/Settings"));
 const CorporateProviders = lazy(() => import("./pages/corporate/Providers"));
 const CorporateBeneficialOwners = lazy(() => import("./pages/corporate/BeneficialOwners"));
+const CorporateWellnessReports  = lazy(() => import("./pages/corporate/WellnessReports"));
 
 // Sales rep portal
 const RepDashboard      = lazy(() => import("./pages/rep/Dashboard"));
@@ -285,6 +288,9 @@ const ForCorporate = lazy(() => import("./pages/landing/ForCorporate"));
 const ForRangers   = lazy(() => import("./pages/landing/ForRangers"));
 
 // Blog / SEO articles
+// Affiliate
+const AffiliateDashboard = lazy(() => import("./pages/AffiliateDashboard"));
+
 // Revenue features
 const GroupBookings = lazy(() => import("./pages/GroupBookings"));
 const GiftVouchers  = lazy(() => import("./pages/GiftVouchers"));
@@ -488,6 +494,7 @@ function AppRoutes() {
       <Route path="/store"           element={<Store />} />
       <Route path="/group-bookings"  element={<GroupBookings />} />
       <Route path="/gift-vouchers"   element={<GiftVouchers />} />
+      <Route path="/affiliate"       element={<RequireAuth><AffiliateDashboard /></RequireAuth>} />
       <Route path="/call/:bookingId" element={<RequireAuth><VideoCall /></RequireAuth>} />
       <Route path="/treatment-plans" element={<RequireAuth allowedRoles={["client"]}><ClientTreatmentPlans /></RequireAuth>} />
       {/* Programs — public detail page + client-side dashboard */}
@@ -546,6 +553,8 @@ function AppRoutes() {
       <Route path="/admin/tickets"         element={<RequireAuth allowedRoles={["admin"]}><AdminTickets /></RequireAuth>} />
       <Route path="/admin/b-inbox"         element={<RequireAuth allowedRoles={["admin"]}><AdminBInbox /></RequireAuth>} />
       <Route path="/admin/rangers"         element={<RequireAuth allowedRoles={["admin"]}><AdminRangers /></RequireAuth>} />
+      <Route path="/admin/campaigns"       element={<RequireAuth allowedRoles={["admin"]}><AdminCampaigns /></RequireAuth>} />
+      <Route path="/admin/broadcasts"      element={<RequireAuth allowedRoles={["admin"]}><AdminBroadcasts /></RequireAuth>} />
 
       {/* Corporate portal */}
       <Route path="/corporate/dashboard" element={<RequireAuth allowedRoles={["corporate"]}><CorporateDashboard /></RequireAuth>} />
@@ -555,6 +564,7 @@ function AppRoutes() {
       <Route path="/corporate/wallet"    element={<RequireAuth allowedRoles={["corporate"]}><CorporateWallet /></RequireAuth>} />
       <Route path="/corporate/settings"  element={<RequireAuth allowedRoles={["corporate"]}><CorporateSettings /></RequireAuth>} />
       <Route path="/corporate/beneficial-owners" element={<RequireAuth allowedRoles={["corporate"]}><CorporateBeneficialOwners /></RequireAuth>} />
+      <Route path="/corporate/wellness-reports" element={<RequireAuth allowedRoles={["corporate"]}><CorporateWellnessReports /></RequireAuth>} />
 
       {/* Sales rep portal */}
       <Route path="/rep/agreement" element={<RequireAuth allowedRoles={["sales_rep"]}><RepAgreement /></RequireAuth>} />

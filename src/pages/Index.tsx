@@ -27,6 +27,7 @@ import ExpenditureRewardsStrip from "@/components/ExpenditureRewardsStrip";
 import realData from "@/data/bion_pretoria_data.json";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 import { getSastGreeting } from "@/lib/greeting";
+import CampaignBanner from "@/components/CampaignBanner";
 
 const categories = ["All", "Fitness", "Medical", "Beauty", "Professional", "Free Sessions", "Available Now"];
 
@@ -218,6 +219,9 @@ const Index = () => {
           onChange={setSearchQuery}
           onFiltersChange={() => setFilterVersion(v => v + 1)}
         />
+
+        {/* ── Active Campaign Banner ── */}
+        <CampaignBanner />
 
         {/* ── Cover banner — full height with avatar on top ── */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}

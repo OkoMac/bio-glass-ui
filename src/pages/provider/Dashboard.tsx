@@ -5,6 +5,7 @@ import BioAvatar from "@/components/BioAvatar";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
 import MarketingLevyCard from "@/components/provider/MarketingLevyCard";
+import BoostListingCard from "@/components/provider/BoostListingCard";
 import VerificationStatusBanner from "@/components/provider/VerificationStatusBanner";
 import EnablePushCard from "@/components/EnablePushCard";
 import OnboardingChecklistCard from "@/components/OnboardingChecklistCard";
@@ -276,6 +277,9 @@ export default function ProviderDashboard() {
 
         {/* Acquisition marketing (5% levy + voucher pool) */}
         <MarketingLevyCard />
+
+        {/* Boost listing — spotlight purchase */}
+        <BoostListingCard />
 
         {/* Quick links */}
         <div className="grid grid-cols-2 gap-3">

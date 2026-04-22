@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, Users, BarChart2, Wallet, Settings, Building2, LogOut, Briefcase, Shield } from "lucide-react";
+import { LayoutDashboard, Users, BarChart2, Wallet, Settings, Building2, LogOut, Briefcase, Shield, ClipboardList } from "lucide-react";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Overview",   path: "/corporate/dashboard"          },
@@ -8,6 +8,7 @@ const navItems = [
   { icon: Briefcase,       label: "Providers",  path: "/corporate/providers"          },
   { icon: BarChart2,       label: "Analytics",  path: "/corporate/analytics"          },
   { icon: Wallet,          label: "Wallet",     path: "/corporate/wallet"             },
+  { icon: ClipboardList,   label: "Reports",    path: "/corporate/wellness-reports"   },
   { icon: Shield,          label: "Compliance", path: "/corporate/beneficial-owners"  },
   { icon: Settings,        label: "Settings",   path: "/corporate/settings"           },
 ];

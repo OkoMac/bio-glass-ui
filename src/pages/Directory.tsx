@@ -7,6 +7,8 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import ServiceCategoryBlock, { SERVICE_CATEGORIES, type ServiceCategory } from "@/components/ServiceCategoryBlock";
 import { useAuth } from "@/contexts/AuthContext";
 import AdBanner from "@/components/AdBanner";
+import CampaignBanner from "@/components/CampaignBanner";
+import SpotlightSection from "@/components/SpotlightSection";
 import BionTips from "@/components/BionTips";
 import { useHabitProfile } from "@/hooks/useHabits";
 import { usePageView } from "@/hooks/usePageView";
@@ -563,6 +565,10 @@ export default function Directory() {
             </button>
           </motion.div>
         )}
+
+        {/* ── Campaign Banner + Spotlights ── */}
+        <CampaignBanner />
+        <SpotlightSection />
 
         {/* ── Provider List (top — filters by category click) ── */}
         <section ref={listRef}>
