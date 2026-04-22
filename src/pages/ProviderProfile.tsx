@@ -1025,8 +1025,22 @@ export default function ProviderProfile() {
                   ? `https://www.google.com/maps/dir/?api=1&destination=${provider.lat},${provider.lng}`
                   : `https://www.google.com/maps/dir/?api=1&destination=${mapsQuery}`;
 
+                const mapImgUrl = hasCoords
+                  ? `https://maps.googleapis.com/maps/api/staticmap?center=${provider.lat},${provider.lng}&zoom=15&size=600x200&scale=2&maptype=roadmap&style=feature:all|element:geometry|color:0x1a1a2e&style=feature:all|element:labels.text.fill|color:0xcccccc&style=feature:all|element:labels.text.stroke|color:0x0a0a0f&style=feature:water|color:0x0d1117&style=feature:road|element:geometry|color:0x2a2a4a&markers=color:0x6366F1|${provider.lat},${provider.lng}&key=AIzaSyDH4okH3pluutebv0_WcQ7on3jnn3-2OMY`
+                  : null;
+
                 return (
                   <>
+                    {mapImgUrl && (
+                      <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="block rounded-xl overflow-hidden mb-3">
+                        <img
+                          src={mapImgUrl}
+                          alt={`Map showing ${provider.name}`}
+                          className="w-full h-[140px] object-cover rounded-xl"
+                          loading="lazy"
+                        />
+                      </a>
+                    )}
                     <a href={mapsUrl} target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-3 group">
                       <Building className="w-4 h-4 text-muted-foreground shrink-0" />
