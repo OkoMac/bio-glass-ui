@@ -669,10 +669,10 @@ export default function SplashOnboarding() {
 
   // ── Auth form (sign in / sign up) ─────────────────────────────────
   return (
-    <div className="fixed inset-0 z-[100] bg-obsidian flex flex-col items-end justify-end"
+    <div className="fixed inset-0 z-[100] bg-obsidian flex flex-col items-end justify-end overflow-y-auto"
       style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(99,102,241,0.08) 0%, #0A0A0F 65%)" }}>
       <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} transition={{ type: "spring", stiffness: 120, damping: 16 }}
-        className="w-full glass-2 rounded-t-[2rem] p-6 space-y-4">
+        className="w-full glass-2 rounded-t-[2rem] p-6 space-y-4 max-h-[95vh] overflow-y-auto">
         <div className="flex justify-center"><div className="w-8 h-1 rounded-full bg-foreground/20" /></div>
 
         {/* Header + mode toggle */}
