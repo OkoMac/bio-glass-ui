@@ -58,19 +58,7 @@ function categorize(service: string): string {
 }
 
 // ── Build provider list from real scraped data (all cities) ──────
-// Interleave cities so no single city dominates when no location is set
-const mergedProviders = (() => {
-  const pta = realData.providers;
-  const jhb = (jhbData as any).providers;
-  // Shuffle: alternate between sources so the top results are mixed
-  const result: any[] = [];
-  const maxLen = Math.max(pta.length, jhb.length);
-  for (let i = 0; i < maxLen; i++) {
-    if (i < jhb.length) result.push(jhb[i]); // JHB (includes CT, DBN) first — more providers
-    if (i < pta.length) result.push(pta[i]);
-  }
-  return result;
-})();
+const mergedProviders = [...realData.providers, ...(jhbData as any).providers];
 const ALL_PROVIDERS = mergedProviders
   .map((p: any) => ({
     id: p.id,
@@ -287,11 +275,10 @@ export default function Directory() {
           return b.rating - a.rating;
         });
       } else {
-        // No location — by rating, photos break ties
+        // No GPS — photos first, then by rating
         list = [...list].sort((a, b) => {
-          if (b.rating !== a.rating) return b.rating - a.rating;
           if (a.hasLogo !== b.hasLogo) return b.hasLogo ? 1 : -1;
-          return 0;
+          return b.rating - a.rating;
         });
       }
     }
