@@ -7,6 +7,10 @@ import React, { ReactNode } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { BookingsProvider } from "@/contexts/BookingsContext";
 import { useBookingReminders } from "@/hooks/useBookingReminders";
+import { reportCrash, installGlobalErrorHandlers } from "@/lib/errorReporter";
+
+// Install global error/timeout/rejection handlers once at startup
+installGlobalErrorHandlers();
 
 // ─── Error Boundary ──────────────────────────────────
 //
@@ -76,6 +80,9 @@ class ErrorBoundary extends React.Component<
         this.setState({ showError: true });
       }
     }, 800);
+
+    // Auto-report crashes to support (creates ticket + emails ops team)
+    reportCrash(error);
 
     if (import.meta.env.DEV) {
       // eslint-disable-next-line no-console

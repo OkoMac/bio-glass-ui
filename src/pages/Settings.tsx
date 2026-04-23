@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import CookieConsent, { openCookieBanner } from "@/components/CookieConsent";
 import { getConsent, onConsentChanged, type ConsentState } from "@/lib/cookieConsent";
+import { trackedFetch } from "@/lib/errorReporter";
 
 type Tab = "notifications" | "payment" | "privacy" | "account";
 
@@ -501,11 +502,46 @@ export default function Settings() {
   const [emailMarketing, setEmailMarketing]      = useState(false);
 
   /* ── Payment ── */
-  const savedCards = [
-    { id: "c1", last4: "4521", brand: "Visa",       expiry: "09/27" },
-    { id: "c2", last4: "9012", brand: "Mastercard", expiry: "03/26" },
-  ];
-  const [defaultCard, setDefaultCard] = useState("c1");
+  type SavedCard = { id: string; last4: string; brand: string; expiry: string };
+  const [savedCards, setSavedCards] = useState<SavedCard[]>(() => {
+    try {
+      const raw = localStorage.getItem("bion_saved_cards");
+      return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
+  });
+  const [defaultCard, setDefaultCard] = useState(() => localStorage.getItem("bion_default_card") ?? "");
+  const [showAddCard, setShowAddCard] = useState(false);
+  const [newCardNumber, setNewCardNumber] = useState("");
+  const [newCardExpiry, setNewCardExpiry] = useState("");
+  const [newCardName, setNewCardName] = useState("");
+
+  const persistCards = (cards: SavedCard[], def?: string) => {
+    localStorage.setItem("bion_saved_cards", JSON.stringify(cards));
+    if (def !== undefined) localStorage.setItem("bion_default_card", def);
+  };
+  const addCard = () => {
+    const digits = newCardNumber.replace(/\s/g, "");
+    if (digits.length < 13 || !newCardExpiry.includes("/")) return;
+    const last4 = digits.slice(-4);
+    const brand = digits.startsWith("4") ? "Visa" : digits.startsWith("5") ? "Mastercard" : digits.startsWith("3") ? "Amex" : "Card";
+    const id = `c_${Date.now()}`;
+    const updated = [...savedCards, { id, last4, brand, expiry: newCardExpiry }];
+    setSavedCards(updated);
+    if (!defaultCard) { setDefaultCard(id); persistCards(updated, id); }
+    else persistCards(updated);
+    setNewCardNumber(""); setNewCardExpiry(""); setNewCardName(""); setShowAddCard(false);
+  };
+  const removeCard = (id: string) => {
+    const updated = savedCards.filter(c => c.id !== id);
+    setSavedCards(updated);
+    const newDefault = defaultCard === id ? (updated[0]?.id ?? "") : defaultCard;
+    setDefaultCard(newDefault);
+    persistCards(updated, newDefault);
+  };
+  const setDefault = (id: string) => {
+    setDefaultCard(id);
+    localStorage.setItem("bion_default_card", id);
+  };
 
   /* ── Privacy ── */
   const [shareProgressWithProviders, setShareProgress] = useState(true);
@@ -560,17 +596,12 @@ export default function Settings() {
       const token = await authToken();
       if (!token) {
         setVerifyError("You need a real account to verify email. Demo accounts can't verify.");
-        setVerifyBusy(false);
         return;
       }
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 15000);
-      const res = await fetch(`${API}/api/account/verify-email`, {
+      const res = await trackedFetch(`${API}/api/account/verify-email`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        signal: controller.signal,
-      });
-      clearTimeout(timeout);
+      }, { action: "send verification email", timeoutMs: 15000 });
       const json = await res.json();
       if (json.ok) {
         setVerifyStep("sent");
@@ -578,11 +609,9 @@ export default function Settings() {
         setVerifyError(json.error ?? "Could not send verification email.");
       }
     } catch (err: any) {
-      if (err?.name === "AbortError") {
-        setVerifyError("Request timed out. Check your connection and try again.");
-      } else {
-        setVerifyError("Network error. Please try again.");
-      }
+      setVerifyError(err?.message?.includes("timed out")
+        ? "Request timed out. Check your connection and try again."
+        : "Network error. Please try again.");
     } finally {
       setVerifyBusy(false);
     }
@@ -599,18 +628,13 @@ export default function Settings() {
       const token = await authToken();
       if (!token) {
         setVerifyError("You need a real account to verify email. Demo accounts can't verify.");
-        setVerifyBusy(false);
         return;
       }
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
-      const res = await fetch(`${API}/api/account/verify-email/confirm`, {
+      const res = await trackedFetch(`${API}/api/account/verify-email/confirm`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ code: verifyCode.trim() }),
-        signal: controller.signal,
-      });
-      clearTimeout(timeout);
+      }, { action: "confirm verification code", timeoutMs: 15000 });
       const json = await res.json();
       if (json.ok) {
         setVerifyStep("verified");
@@ -619,11 +643,9 @@ export default function Settings() {
         setVerifyError(json.error ?? "Invalid code. Please try again.");
       }
     } catch (err: any) {
-      if (err?.name === "AbortError") {
-        setVerifyError("Request timed out. Check your connection and try again.");
-      } else {
-        setVerifyError("Network error. Please try again.");
-      }
+      setVerifyError(err?.message?.includes("timed out")
+        ? "Request timed out. Check your connection and try again."
+        : "Network error. Please try again.");
     } finally {
       setVerifyBusy(false);
     }
@@ -738,10 +760,13 @@ export default function Settings() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
             <GlassCard className="p-5 space-y-3">
               <h2 className="text-sm font-semibold text-foreground mb-1">Saved Cards</h2>
+              {savedCards.length === 0 && !showAddCard && (
+                <p className="text-[11px] text-muted-foreground py-2">No saved cards. Add one to speed up payments.</p>
+              )}
               {savedCards.map(card => (
                 <div
                   key={card.id}
-                  onClick={() => setDefaultCard(card.id)}
+                  onClick={() => setDefault(card.id)}
                   className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
                     defaultCard === card.id ? "border-indigo/40 bg-indigo/5" : "border-white/5 glass-1"
                   }`}
@@ -753,15 +778,57 @@ export default function Settings() {
                     <p className="text-sm text-foreground">{card.brand} •••• {card.last4}</p>
                     <p className="text-[10px] text-muted-foreground">Expires {card.expiry}</p>
                   </div>
-                  {defaultCard === card.id && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-pill glass-accent-teal text-teal font-medium">Default</span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {defaultCard === card.id && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-pill glass-accent-teal text-teal font-medium">Default</span>
+                    )}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); removeCard(card.id); }}
+                      className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-coral/10 transition-colors"
+                    >
+                      <X className="w-3 h-3 text-muted-foreground hover:text-coral" />
+                    </button>
+                  </div>
                 </div>
               ))}
-              <button className="w-full mt-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-white/15 text-xs text-muted-foreground hover:text-foreground hover:border-white/30 transition-colors" onClick={() => alert("Card management coming soon. Use BIONWallet for payments.")}>
-                <Plus className="w-3.5 h-3.5" />
-                Add new card
-              </button>
+
+              {showAddCard ? (
+                <div className="space-y-2 p-3 rounded-xl border border-white/10 glass-1">
+                  <input
+                    value={newCardName}
+                    onChange={e => setNewCardName(e.target.value)}
+                    placeholder="Name on card"
+                    className="w-full glass-1 rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5 bg-transparent"
+                  />
+                  <input
+                    value={newCardNumber}
+                    onChange={e => setNewCardNumber(e.target.value.replace(/[^\d\s]/g, "").slice(0, 19))}
+                    placeholder="Card number"
+                    inputMode="numeric"
+                    className="w-full glass-1 rounded-xl px-3 py-2 text-sm font-data text-foreground placeholder:text-muted-foreground outline-none border border-white/5 bg-transparent"
+                  />
+                  <input
+                    value={newCardExpiry}
+                    onChange={e => {
+                      let v = e.target.value.replace(/[^\d/]/g, "");
+                      if (v.length === 2 && !v.includes("/") && newCardExpiry.length < 2) v += "/";
+                      setNewCardExpiry(v.slice(0, 5));
+                    }}
+                    placeholder="MM/YY"
+                    inputMode="numeric"
+                    className="w-full glass-1 rounded-xl px-3 py-2 text-sm font-data text-foreground placeholder:text-muted-foreground outline-none border border-white/5 bg-transparent"
+                  />
+                  <div className="flex gap-2 pt-1">
+                    <button onClick={addCard} className="flex-1 py-2 rounded-xl gradient-indigo text-primary-foreground text-xs font-semibold">Save Card</button>
+                    <button onClick={() => { setShowAddCard(false); setNewCardNumber(""); setNewCardExpiry(""); setNewCardName(""); }} className="py-2 px-3 rounded-xl glass-1 text-xs text-muted-foreground">Cancel</button>
+                  </div>
+                </div>
+              ) : (
+                <button className="w-full mt-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-white/15 text-xs text-muted-foreground hover:text-foreground hover:border-white/30 transition-colors" onClick={() => setShowAddCard(true)}>
+                  <Plus className="w-3.5 h-3.5" />
+                  Add new card
+                </button>
+              )}
             </GlassCard>
 
             <GlassCard className="p-5 space-y-3">
