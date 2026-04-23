@@ -547,21 +547,34 @@ export default function Settings() {
     setVerifyBusy(true);
     try {
       const token = await authToken();
-      if (!token) { setVerifyError("Please sign in first."); setVerifyBusy(false); return; }
+      if (!token) {
+        setVerifyError("You need a real account to verify email. Demo accounts can't verify.");
+        setVerifyBusy(false);
+        return;
+      }
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
       const res = await fetch(`${API}/api/account/verify-email`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
       const json = await res.json();
       if (json.ok) {
         setVerifyStep("sent");
       } else {
         setVerifyError(json.error ?? "Could not send verification email.");
       }
-    } catch {
-      setVerifyError("Network error.");
+    } catch (err: any) {
+      if (err?.name === "AbortError") {
+        setVerifyError("Request timed out. Check your connection and try again.");
+      } else {
+        setVerifyError("Network error. Please try again.");
+      }
+    } finally {
+      setVerifyBusy(false);
     }
-    setVerifyBusy(false);
   };
 
   const confirmVerificationCode = async () => {
@@ -573,23 +586,36 @@ export default function Settings() {
     setVerifyBusy(true);
     try {
       const token = await authToken();
-      if (!token) { setVerifyError("Please sign in first."); setVerifyBusy(false); return; }
+      if (!token) {
+        setVerifyError("You need a real account to verify email. Demo accounts can't verify.");
+        setVerifyBusy(false);
+        return;
+      }
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
       const res = await fetch(`${API}/api/account/verify-email/confirm`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ code: verifyCode.trim() }),
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
       const json = await res.json();
       if (json.ok) {
         setVerifyStep("verified");
         setEmailVerified(true);
       } else {
-        setVerifyError(json.error ?? "Invalid code.");
+        setVerifyError(json.error ?? "Invalid code. Please try again.");
       }
-    } catch {
-      setVerifyError("Network error.");
+    } catch (err: any) {
+      if (err?.name === "AbortError") {
+        setVerifyError("Request timed out. Check your connection and try again.");
+      } else {
+        setVerifyError("Network error. Please try again.");
+      }
+    } finally {
+      setVerifyBusy(false);
     }
-    setVerifyBusy(false);
   };
 
   /* ── Role switching ── */
