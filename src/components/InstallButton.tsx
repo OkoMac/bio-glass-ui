@@ -136,12 +136,16 @@ export default function InstallButton() {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
-    window.addEventListener("beforeinstallprompt", handler);
-    window.addEventListener("appinstalled", () => {
+    const installedHandler = () => {
       setInstalled(true);
       setDeferredPrompt(null);
-    });
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", installedHandler);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("appinstalled", installedHandler);
+    };
   }, []);
 
   // Listen for service worker updates

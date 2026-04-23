@@ -121,6 +121,14 @@ self.addEventListener("fetch", (e) => {
   // HTML pages: network-first, fall back to cached shell, then offline page
   e.respondWith(
     fetch(e.request)
+      .then(res => {
+        // Cache successful HTML responses for offline access
+        if (res.ok) {
+          const clone = res.clone();
+          caches.open("bion-pages-v1").then(c => c.put(e.request, clone));
+        }
+        return res;
+      })
       .catch(() => caches.match(e.request))
       .then(res => res || caches.match("/") || caches.match("/offline.html"))
   );

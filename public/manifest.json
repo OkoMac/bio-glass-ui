@@ -3,6 +3,7 @@
   "short_name": "BION",
   "description": "Commit to your health, your wellness and your beauty. Commit to yourself. Browse 5,000+ verified providers.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0A0A0F",
   "theme_color": "#6366F1",
