@@ -88,7 +88,7 @@ function ChatView({
   const [draft, setDraft] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const isRealtime = !!conversation.supabaseId && !!user?.id;
+  const isRealtime = !!conversation.supabaseId && !!user?.profileId;
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -128,7 +128,7 @@ function ChatView({
   const renderMessages = isRealtime
     ? rtMessages.map(m => ({
         id: Number(m.id.replace(/-/g, "").slice(0, 9)),
-        from: m.senderId === user?.id ? "client" : "provider",
+        from: m.senderId === user?.profileId ? "client" : "provider",
         text: m.content,
         time: new Date(m.createdAt).toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit", hour12: false }),
         status: "read" as const,
@@ -353,12 +353,12 @@ export default function Messages() {
               .limit(100);
 
             (recentMsgs as any[] ?? []).forEach(msg => {
-              const partnerId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
+              const partnerId = msg.sender_id === user.profileId ? msg.receiver_id : msg.sender_id;
               const conv = list.find(c => c.supabaseId === partnerId);
               if (conv && !conv.lastMessage?.startsWith(msg.content)) {
                 conv.lastMessage = msg.content;
                 conv.time = new Date(msg.created_at).toLocaleString("en-ZA", { hour: "2-digit", minute: "2-digit" });
-                if (msg.receiver_id === user.id && !msg.is_read) {
+                if (msg.receiver_id === user.profileId && !msg.is_read) {
                   conv.unread = (conv.unread ?? 0) + 1;
                 }
               }

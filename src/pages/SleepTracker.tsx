@@ -8,6 +8,7 @@ import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePageView } from "@/hooks/usePageView";
 import AdBanner from "@/components/AdBanner";
+import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Moon, Sun, Star, Clock, TrendingUp, Lightbulb } from "lucide-react";
 
 const STORAGE_KEY = "bion_sleep_tracker";
@@ -118,6 +119,18 @@ export default function SleepTracker() {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
     trackEvent("tool_use", { category: "wellness_tracking", metadata: { tool: "sleep", duration_hours: duration, quality } });
+
+    // Persist to Supabase health_logs so wellness score + HealthProfile can see it
+    if (user?.profileId && !user.id?.startsWith("demo_")) {
+      supabase.from("health_logs").upsert({
+        user_id: user.profileId,
+        date: todayKey(),
+        sleep_hours: duration,
+        notes: `Quality: ${quality}/5, Bed: ${bedtime}, Wake: ${wakeTime}`,
+      }, { onConflict: "user_id,date" }).then(({ error }) => {
+        if (error && import.meta.env.DEV) console.warn("[sleep] DB sync failed:", error.message);
+      });
+    }
   };
 
   const maxDuration = Math.max(...weekData.map((e) => e.duration), 10);

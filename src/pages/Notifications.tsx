@@ -143,7 +143,7 @@ export default function Notifications() {
         const partnerName = b.providerName ?? b.clientName ?? "Provider";
         const isUpcoming = b.status === "confirmed" || b.status === "pending";
         const isCompleted = b.status === "completed";
-        const id = `booking_${b.id ?? i}_${b.status}`;
+        const id = `booking_${b.id ?? i}`;
         if (dismissedIds.has(id)) return;
 
         if (isUpcoming) {
@@ -240,7 +240,7 @@ export default function Notifications() {
     localStorage.setItem("bion_notifs_muted", muteAll ? "1" : "0");
   }, [muteAll]);
 
-  const filtered = filter === "all"
+  const filtered = muteAll ? [] : filter === "all"
     ? notifications
     : notifications.filter(n => n.category === filter);
 
@@ -250,12 +250,12 @@ export default function Notifications() {
 
   const markAsRead = (id: string) => {
     setReadIds(prev => new Set([...prev, id]));
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-    // If this is a DB notification, mark it read in Supabase too
-    const notif = notifications.find(n => n.id === id);
-    if (notif?.dbId) {
-      dbMarkAsRead(notif.dbId);
-    }
+    setNotifications(prev => {
+      // Find the notification in the current state (avoids stale closure)
+      const notif = prev.find(n => n.id === id);
+      if (notif?.dbId) dbMarkAsRead(notif.dbId);
+      return prev.map(n => n.id === id ? { ...n, read: true } : n);
+    });
   };
 
   const markAllAsRead = () => {
@@ -513,7 +513,6 @@ export default function Notifications() {
                   </button>
                   <button
                     onClick={() => {
-                      setMuteAll(false);
                       setShowSettings(false);
                     }}
                     className="flex-1 py-2.5 gradient-indigo rounded-xl text-sm font-medium"

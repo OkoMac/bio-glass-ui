@@ -11,6 +11,7 @@ import { useActivityPoints } from "@/hooks/useActivityPoints";
 import { usePageView } from "@/hooks/usePageView";
 import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
 import { trackEvent } from "@/lib/habits";
+import { supabase } from "@/integrations/supabase/client";
 
 const STORAGE_KEY = "bion_water_tracker";
 const STREAK_KEY = "bion_water_streak";
@@ -156,7 +157,7 @@ export default function WaterTracker() {
     return () => { document.head.removeChild(script); };
   }, []);
 
-  // Persist on change
+  // Persist on change (localStorage + Supabase)
   useEffect(() => {
     saveData(dateKey, data);
     const pct = (data.glasses / data.goal) * 100;
@@ -165,6 +166,17 @@ export default function WaterTracker() {
     if (pct >= 100) {
       updateStreak(true);
       setStreak(getStreak());
+    }
+    // Sync to Supabase health_logs so wellness score can see it
+    if (user?.profileId && !user.id?.startsWith("demo_") && data.glasses > 0) {
+      supabase.from("health_logs").upsert({
+        user_id: user.profileId,
+        date: dateKey,
+        water_glasses: data.glasses,
+        notes: `Goal: ${data.goal} glasses`,
+      }, { onConflict: "user_id,date" }).then(({ error }) => {
+        if (error && import.meta.env.DEV) console.warn("[water] DB sync failed:", error.message);
+      });
     }
   }, [data, dateKey]);
 
