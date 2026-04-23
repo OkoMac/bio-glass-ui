@@ -28,6 +28,7 @@ import realData from "@/data/bion_pretoria_data.json";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 import { getSastGreeting } from "@/lib/greeting";
 import CampaignBanner from "@/components/CampaignBanner";
+import { supabase } from "@/integrations/supabase/client";
 
 const categories = ["All", "Fitness", "Medical", "Beauty", "Professional", "Free Sessions", "Available Now"];
 
@@ -51,6 +52,56 @@ function categorizeService(service: string): string {
   if (/pharmacy|apteek|health shop|optom|optic|eye|vision/i.test(s)) return "Medical";
   if (/vet|animal/i.test(s)) return "Professional";
   return "Professional";
+}
+
+/** Slim banner that nudges unverified users to verify their email. */
+function EmailVerifyBanner() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [verified, setVerified] = useState<boolean | null>(null);
+  const [dismissed, setDismissed] = useState(() => {
+    try { return sessionStorage.getItem("bion_email_verify_dismissed") === "1"; } catch { return false; }
+  });
+
+  useEffect(() => {
+    if (!user || user.id?.startsWith("demo_") || dismissed) return;
+    supabase.from("profiles")
+      .select("email_verified")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }: any) => setVerified(data?.email_verified ?? false))
+      .catch(() => {});
+  }, [user?.id, dismissed]);
+
+  if (verified !== false || dismissed) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-3 flex items-center gap-3"
+    >
+      <div className="w-8 h-8 rounded-full bg-amber-400/10 flex items-center justify-center shrink-0">
+        <Activity className="w-4 h-4 text-amber-400" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold text-foreground">Verify your email</p>
+        <p className="text-[10px] text-muted-foreground">Secure your account and enable password recovery</p>
+      </div>
+      <button
+        onClick={() => navigate("/settings?tab=account")}
+        className="shrink-0 px-3 py-1.5 rounded-pill text-[10px] font-semibold gradient-indigo text-primary-foreground"
+      >
+        Verify
+      </button>
+      <button
+        onClick={() => { setDismissed(true); try { sessionStorage.setItem("bion_email_verify_dismissed", "1"); } catch {} }}
+        className="shrink-0 text-muted-foreground hover:text-foreground"
+      >
+        <span className="sr-only">Dismiss</span>
+        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </motion.div>
+  );
 }
 
 const ALL_HOME_PROVIDERS = realData.providers
@@ -231,6 +282,9 @@ const Index = () => {
 
         {/* ── Active Campaign Banner ── */}
         <CampaignBanner />
+
+        {/* ── Email verification banner ── */}
+        <EmailVerifyBanner />
 
         {/* ── Cover banner — full height with avatar on top ── */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}

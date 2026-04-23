@@ -484,7 +484,7 @@ const TABS: { id: Tab; label: string; icon: typeof Bell }[] = [
 export default function Settings() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, switchRole, availableRoles } = useAuth();
   const { balance: walletBalance } = useWallet();
 
   const initialTab = (params.get("tab") as Tab | null) ?? "notifications";
@@ -517,6 +517,93 @@ export default function Settings() {
   const [name,  setName]  = useState(user?.name  ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
   const [phone, setPhone] = useState("");
+
+  /* ── Email verification ── */
+  const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
+  const [verifyStep, setVerifyStep] = useState<"idle" | "sent" | "verified">("idle");
+  const [verifyCode, setVerifyCode] = useState("");
+  const [verifyBusy, setVerifyBusy] = useState(false);
+  const [verifyError, setVerifyError] = useState("");
+
+  // Check if email is verified on mount
+  useEffect(() => {
+    if (!user || user.id?.startsWith("demo_")) return;
+    const checkVerified = async () => {
+      try {
+        const token = await authToken();
+        if (!token) return;
+        const { data: profile } = await supabase.from("profiles")
+          .select("email_verified")
+          .eq("user_id", user.id!)
+          .maybeSingle();
+        setEmailVerified(profile?.email_verified ?? false);
+      } catch { setEmailVerified(false); }
+    };
+    checkVerified();
+  }, [user?.id]);
+
+  const sendVerificationEmail = async () => {
+    setVerifyError("");
+    setVerifyBusy(true);
+    try {
+      const token = await authToken();
+      if (!token) { setVerifyError("Please sign in first."); setVerifyBusy(false); return; }
+      const res = await fetch(`${API}/api/account/verify-email`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      });
+      const json = await res.json();
+      if (json.ok) {
+        setVerifyStep("sent");
+      } else {
+        setVerifyError(json.error ?? "Could not send verification email.");
+      }
+    } catch {
+      setVerifyError("Network error.");
+    }
+    setVerifyBusy(false);
+  };
+
+  const confirmVerificationCode = async () => {
+    setVerifyError("");
+    if (!verifyCode.trim() || verifyCode.length !== 6) {
+      setVerifyError("Enter the 6-digit code.");
+      return;
+    }
+    setVerifyBusy(true);
+    try {
+      const token = await authToken();
+      if (!token) { setVerifyError("Please sign in first."); setVerifyBusy(false); return; }
+      const res = await fetch(`${API}/api/account/verify-email/confirm`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ code: verifyCode.trim() }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        setVerifyStep("verified");
+        setEmailVerified(true);
+      } else {
+        setVerifyError(json.error ?? "Invalid code.");
+      }
+    } catch {
+      setVerifyError("Network error.");
+    }
+    setVerifyBusy(false);
+  };
+
+  /* ── Role switching ── */
+  const handleSwitchRole = (role: string) => {
+    switchRole(role as any);
+    const homes: Record<string, string> = {
+      client: "/home",
+      provider: "/pro/dashboard",
+      admin: "/admin/dashboard",
+      corporate: "/corporate/dashboard",
+      sales_rep: "/rep/dashboard",
+    };
+    navigate(homes[role] ?? "/home");
+  };
 
   const save = () => {
     setSaved(true);
@@ -707,6 +794,77 @@ export default function Settings() {
         {/* ── Account ── */}
         {tab === "account" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+
+            {/* Email verification banner */}
+            {emailVerified === false && verifyStep !== "verified" && (
+              <GlassCard className="p-4 border border-amber-400/30 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-amber-400" />
+                  <h2 className="text-sm font-semibold text-amber-400">Verify your email</h2>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Email: <span className="text-foreground font-medium">{user?.email}</span>{" "}
+                  <span className="text-amber-400">(not verified)</span>
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  Verify your email to secure your account and enable password recovery.
+                </p>
+                {verifyError && <p className="text-[10px] text-coral">{verifyError}</p>}
+
+                {verifyStep === "idle" && (
+                  <button
+                    onClick={sendVerificationEmail}
+                    disabled={verifyBusy}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl gradient-indigo text-primary-foreground text-xs font-semibold disabled:opacity-50"
+                  >
+                    {verifyBusy ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Sending...</> : "Send verification code"}
+                  </button>
+                )}
+
+                {verifyStep === "sent" && (
+                  <div className="space-y-2">
+                    <p className="text-[11px] text-teal">Code sent! Check your inbox.</p>
+                    <input
+                      value={verifyCode}
+                      onChange={e => setVerifyCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      placeholder="6-digit code"
+                      inputMode="numeric"
+                      maxLength={6}
+                      className="w-full glass-1 rounded-xl px-4 py-2.5 text-center text-lg font-data tracking-widest text-foreground placeholder:text-muted-foreground outline-none border border-white/5 bg-transparent"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={confirmVerificationCode}
+                        disabled={verifyBusy}
+                        className="flex-1 py-2 rounded-xl gradient-indigo text-primary-foreground text-xs font-semibold disabled:opacity-50"
+                      >
+                        {verifyBusy ? "Verifying..." : "Verify"}
+                      </button>
+                      <button
+                        onClick={sendVerificationEmail}
+                        disabled={verifyBusy}
+                        className="py-2 px-3 rounded-xl glass-1 text-xs text-muted-foreground disabled:opacity-50"
+                      >
+                        Resend
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </GlassCard>
+            )}
+
+            {emailVerified === true && (
+              <GlassCard className="p-3 border border-teal/20">
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-teal" />
+                  <p className="text-[11px] text-foreground">
+                    Email: <span className="font-medium">{user?.email}</span>{" "}
+                    <span className="text-teal font-medium">(verified)</span>
+                  </p>
+                </div>
+              </GlassCard>
+            )}
+
             <GlassCard className="p-5 space-y-4">
               <div className="flex items-center gap-2 mb-1">
                 <User className="w-4 h-4 text-indigo" />
@@ -731,7 +889,23 @@ export default function Settings() {
 
             <GlassCard className="p-5 space-y-3">
               <h2 className="text-sm font-semibold text-foreground">Security</h2>
-              <button className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl glass-1 text-sm text-foreground hover:bg-white/5 transition-colors" onClick={() => alert("Password reset email sent! Check your inbox.")}>
+              <button
+                className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl glass-1 text-sm text-foreground hover:bg-white/5 transition-colors"
+                onClick={async () => {
+                  try {
+                    const token = await authToken();
+                    if (!token) { alert("Please sign in first."); return; }
+                    const res = await fetch(`${API}/api/account/forgot-password`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ email: user?.email }),
+                    });
+                    const json = await res.json();
+                    if (json.ok) alert("Password reset email sent! Check your inbox.");
+                    else alert(json.error ?? "Could not send reset email.");
+                  } catch { alert("Network error. Try again."); }
+                }}
+              >
                 <span>Change Password</span>
                 <ChevronLeft className="w-4 h-4 rotate-180 text-muted-foreground" />
               </button>
@@ -741,10 +915,45 @@ export default function Settings() {
               </button>
             </GlassCard>
 
+            {/* Role switcher — shown only when user has multiple roles */}
+            {availableRoles.length > 1 && (
+              <GlassCard className="p-5 space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <Shield className="w-4 h-4 text-indigo" />
+                  <h2 className="text-sm font-semibold text-foreground">Switch Role</h2>
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  You have access to multiple roles. Switch without signing out.
+                </p>
+                <div className="space-y-2">
+                  {availableRoles.map(role => (
+                    <button
+                      key={role}
+                      onClick={() => role !== user?.role && handleSwitchRole(role)}
+                      disabled={role === user?.role}
+                      className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm transition-all ${
+                        role === user?.role
+                          ? "border border-indigo/40 bg-indigo/8 text-foreground"
+                          : "glass-1 text-muted-foreground hover:text-foreground hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="capitalize">{role.replace(/_/g, " ")}</span>
+                      {role === user?.role && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-pill glass-accent-teal text-teal font-medium">Active</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </GlassCard>
+            )}
+
             <GlassCard className="p-4">
               <p className="text-[10px] text-muted-foreground">
                 Member since <span className="text-foreground font-medium">January 2026</span> ·
                 Role: <span className="text-indigo font-medium capitalize">{(user?.role ?? "client").replace(/_/g, " ")}</span>
+                {availableRoles.length > 1 && (
+                  <> · <span className="text-muted-foreground">{availableRoles.length} roles</span></>
+                )}
               </p>
             </GlassCard>
           </motion.div>

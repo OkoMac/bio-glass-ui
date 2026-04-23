@@ -41,7 +41,7 @@ const mobileNav = [
 
 export default function ProviderNav() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, switchRole } = useAuth();
   const { pendingCount } = useBookings();
   const { tierDisplayName, isActive } = useSubscription();
 
@@ -98,7 +98,10 @@ export default function ProviderNav() {
             </div>
           </div>
           <button
-            onClick={() => navigate("/")}
+            onClick={() => {
+              switchRole("client");
+              navigate("/home");
+            }}
             className="w-full flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1 mb-1"
           >
             <Users className="w-3.5 h-3.5" />

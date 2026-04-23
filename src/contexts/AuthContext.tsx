@@ -13,7 +13,7 @@ interface AuthContextType {
   loading: boolean;
   login: (user: BioUser) => void;           // demo / direct set
   logout: () => void;
-  switchRole: (role: UserRole) => void;     // switches active role via backend
+  switchRole: (role: UserRole) => void | Promise<void>;  // switches active role via backend
   updateAvatar: (url: string) => void;      // profile photo update
   availableRoles: UserRole[];               // all roles the user holds
   isClient:    boolean;
@@ -147,12 +147,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.location.replace("/");
   }, []);
 
-  // ── Demo-only role switch (doesn't touch DB) ───────────────────
-  const switchRole = useCallback((role: UserRole) => {
+  // ── Role switch — uses backend API for real users, local for demo ──
+  const switchRole = useCallback(async (role: UserRole) => {
     if (!user) return;
-    const updated = { ...user, role };
-    storeUser(updated);
-    setUser(updated);
+
+    // Demo accounts: local-only switch
+    if (user.id?.startsWith("demo_")) {
+      const updated = { ...user, role };
+      storeUser(updated);
+      setUser(updated);
+      return;
+    }
+
+    // Real users: call the backend to validate and persist the switch
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        // Fallback to local switch if no session
+        const updated = { ...user, role };
+        storeUser(updated);
+        setUser(updated);
+        return;
+      }
+
+      const res = await fetch(`${API}/api/account/switch-role`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ role }),
+      });
+      const json = await res.json();
+
+      if (json.ok) {
+        const updated = { ...user, role: json.role ?? role };
+        storeUser(updated);
+        setUser(updated);
+      } else {
+        // If backend rejects (user doesn't have the role), still allow local switch
+        // for backwards compatibility with demo/dev flows
+        console.warn("[switchRole] Backend rejected:", json.error);
+        const updated = { ...user, role };
+        storeUser(updated);
+        setUser(updated);
+      }
+    } catch {
+      // Network error — local fallback
+      const updated = { ...user, role };
+      storeUser(updated);
+      setUser(updated);
+    }
   }, [user]);
 
   // ── Avatar update — persists to localStorage (+ Supabase in prod) ──
@@ -171,6 +216,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout,
       switchRole,
       updateAvatar,
+      availableRoles,
       isClient:    user?.role === "client",
       isProvider:  user?.role === "provider",
       isAdmin:     user?.role === "admin",

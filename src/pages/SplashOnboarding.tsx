@@ -235,6 +235,7 @@ export default function SplashOnboarding() {
   const [phone, setPhone] = useState("");
   const [otpStep, setOtpStep] = useState<"idle" | "sent" | "verified">("idle");
   const [otpCode, setOtpCode] = useState("");
+  const [ageVerified, setAgeVerified] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotBusy, setForgotBusy] = useState(false);
   const [forgotError, setForgotError] = useState("");
@@ -279,6 +280,7 @@ export default function SplashOnboarding() {
     if (!email.trim())    { setError("Please enter your email."); return; }
     if (!password.trim()) { setError("Please choose a password (min 8 chars)."); return; }
     if (!phone.trim())    { setError("Please enter your mobile number — we'll send a verification code."); return; }
+    if (!ageVerified)     { setError("Please confirm you are 18 years or older to continue."); return; }
     const normPhone = normalizePhone(phone.trim());
     if (!/^\+27[0-9]{9}$/.test(normPhone)) { setError("Enter a valid SA mobile number (e.g. 072 688 4826)."); return; }
 
@@ -329,7 +331,7 @@ export default function SplashOnboarding() {
       if (!v.ok) { setError(v.error ?? "Invalid code."); setBusy(false); return; }
 
       // OTP verified — NOW create the Supabase account (email pre-confirmed via backend)
-      const { user, error: err } = await signUpWithEmail(email.trim(), password, name.trim(), selectedRole, phone.trim());
+      const { user, error: err } = await signUpWithEmail(email.trim(), password, name.trim(), selectedRole, phone.trim(), ageVerified);
       if (err || !user) { setError(err ?? "Signup failed"); setBusy(false); return; }
 
       // Attach the verified phone to the profile
@@ -853,6 +855,17 @@ export default function SplashOnboarding() {
               <p className="text-[10px] text-muted-foreground px-1 leading-relaxed">
                 We'll send a 6-digit verification code via WhatsApp. Used for account recovery and booking confirmations.
               </p>
+              <label className="flex items-start gap-2.5 cursor-pointer px-1">
+                <input
+                  type="checkbox"
+                  checked={ageVerified}
+                  onChange={(e) => setAgeVerified(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded accent-indigo"
+                />
+                <span className="text-[11px] text-muted-foreground leading-relaxed">
+                  I confirm I am <strong className="text-foreground">18 years or older</strong>. Users under 18 require parental consent.
+                </span>
+              </label>
               {selectedRole === "client" && (
                 <div>
                   <input value={referralCode} onChange={e => setReferralCode(e.target.value.toUpperCase())}
@@ -939,7 +952,7 @@ export default function SplashOnboarding() {
           </label>
         )}
 
-        <motion.button whileTap={{ scale: 0.97 }} onClick={handleAuth} disabled={busy || (authMode === "signup" && !acceptedTerms)}
+        <motion.button whileTap={{ scale: 0.97 }} onClick={handleAuth} disabled={busy || (authMode === "signup" && (!acceptedTerms || (!ageVerified && otpStep === "idle")))}
           className="w-full rounded-pill py-4 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta flex items-center justify-center gap-2 disabled:opacity-60">
           {busy
             ? <><Loader2 className="w-4 h-4 animate-spin" /> {

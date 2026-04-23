@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { hasConsent } from "@/lib/cookieConsent";
 
 interface AdBannerProps {
   slot: string;
@@ -53,7 +54,8 @@ export default function AdBanner({ slot, format = "auto", className = "" }: AdBa
     return () => clearInterval(check);
   }, [isPremium, isProvider]);
 
-  if (isPremium || isProvider) return null;
+  // POPIA: don't render ads if user hasn't consented to marketing cookies
+  if (isPremium || isProvider || !hasConsent("marketing")) return null;
 
   return (
     <div

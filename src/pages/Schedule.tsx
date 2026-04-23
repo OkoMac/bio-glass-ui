@@ -6,7 +6,7 @@ import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import ReviewForm from "@/components/ReviewForm";
-import { Calendar, ChevronLeft, ChevronRight, Clock, Star, X, CalendarDays, RotateCcw, XCircle, FileText, Search, Mail, CheckCircle2, ArrowLeft, Video } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Clock, Star, X, CalendarDays, RotateCcw, XCircle, FileText, Search, Mail, CheckCircle2, ArrowLeft, Video, CreditCard } from "lucide-react";
 import { useBookings, type Booking } from "@/contexts/BookingsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -85,6 +85,28 @@ const Schedule = () => {
     voucherRestored: boolean;
   } | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [retryingPayment, setRetryingPayment] = useState<string | null>(null);
+
+  const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+
+  const handleRetryPayment = async (bookingId: string) => {
+    setRetryingPayment(bookingId);
+    try {
+      const res = await fetch(`${API}/api/bookings/${bookingId}/retry-payment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (data.ok && data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        toast.error(data.error ?? "Could not generate payment link");
+      }
+    } catch {
+      toast.error("Network error — please try again");
+    }
+    setRetryingPayment(null);
+  };
 
   // Load which of the signed-in user's bookings already have a review. This
   // avoids showing the "Leave a review" CTA on bookings the user has already
@@ -243,6 +265,19 @@ const Schedule = () => {
                           </span>
                         </div>
                       </div>
+                      {/* Complete Payment button for unpaid bookings */}
+                      {(b.paymentStatus === "pending" || b.paymentStatus === "failed") && b.status === "pending" && (
+                        <div className="mt-3 pt-3 border-t border-white/[0.06]">
+                          <button
+                            onClick={() => handleRetryPayment(b.id)}
+                            disabled={retryingPayment === b.id}
+                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-pill text-xs font-semibold glass-accent-amber text-amber disabled:opacity-50"
+                          >
+                            <CreditCard className="w-3.5 h-3.5" />
+                            {retryingPayment === b.id ? "Loading..." : "Complete Payment"}
+                          </button>
+                        </div>
+                      )}
                       {b.deliveryMode === "telehealth" && (b.status === "confirmed" || b.status === "pending") && (
                         <div className="mt-3 pt-3 border-t border-white/[0.06]">
                           <button onClick={() => navigate(`/call/${b.id}`)}
@@ -303,6 +338,19 @@ const Schedule = () => {
                           </span>
                         </div>
                       </div>
+                      {/* Complete Payment button for unpaid bookings */}
+                      {(b.paymentStatus === "pending" || b.paymentStatus === "failed") && b.status === "pending" && (
+                        <div className="mt-3 pt-3 border-t border-white/[0.06]">
+                          <button
+                            onClick={() => handleRetryPayment(b.id)}
+                            disabled={retryingPayment === b.id}
+                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-pill text-xs font-semibold glass-accent-amber text-amber disabled:opacity-50"
+                          >
+                            <CreditCard className="w-3.5 h-3.5" />
+                            {retryingPayment === b.id ? "Loading..." : "Complete Payment"}
+                          </button>
+                        </div>
+                      )}
                       {b.deliveryMode === "telehealth" && (b.status === "confirmed" || b.status === "pending") && (
                         <div className="mt-3 pt-3 border-t border-white/[0.06]">
                           <button onClick={() => navigate(`/call/${b.id}`)}

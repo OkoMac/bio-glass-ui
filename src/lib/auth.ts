@@ -165,6 +165,7 @@ export async function signUpWithEmail(
   name: string,
   role: UserRole,
   phone?: string,
+  ageVerified?: boolean,
 ): Promise<{ user: BioUser | null; error: string | null }> {
   const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -173,7 +174,7 @@ export async function signUpWithEmail(
     const res = await fetch(`${API}/api/profiles/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, fullName: name, role, phone }),
+      body: JSON.stringify({ email, password, fullName: name, role, phone, ageVerified: ageVerified ?? true }),
     });
     const j = await res.json();
     if (!j.ok) return { user: null, error: j.error ?? "Signup failed" };
