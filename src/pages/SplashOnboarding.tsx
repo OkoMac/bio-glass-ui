@@ -278,7 +278,7 @@ export default function SplashOnboarding() {
     if (!selectedRole) return;
     if (!name.trim())     { setError("Please enter your full name."); return; }
     if (!email.trim())    { setError("Please enter your email."); return; }
-    if (!password.trim()) { setError("Please choose a password (min 8 chars)."); return; }
+    if (!password.trim() || password.length < 8) { setError("Password must be at least 8 characters."); return; }
     if (!phone.trim())    { setError("Please enter your mobile number — we'll send a verification code."); return; }
     if (!ageVerified)     { setError("Please confirm you are 18 years or older to continue."); return; }
     const normPhone = normalizePhone(phone.trim());
@@ -952,7 +952,7 @@ export default function SplashOnboarding() {
           </label>
         )}
 
-        <motion.button whileTap={{ scale: 0.97 }} onClick={handleAuth} disabled={busy || (authMode === "signup" && (!acceptedTerms || (!ageVerified && otpStep === "idle")))}
+        <motion.button whileTap={{ scale: 0.97 }} onClick={handleAuth} disabled={busy || (authMode === "signup" && (!acceptedTerms || !ageVerified || !name.trim() || !email.trim() || password.length < 8 || !phone.trim())) || (authMode === "login" && (!email.trim() || !password.trim()))}
           className="w-full rounded-pill py-4 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta flex items-center justify-center gap-2 disabled:opacity-60">
           {busy
             ? <><Loader2 className="w-4 h-4 animate-spin" /> {
