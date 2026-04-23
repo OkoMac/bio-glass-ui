@@ -6,13 +6,16 @@ import {
   fetchUserProfile, signOutSupabase,
 } from "@/lib/auth";
 
+const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+
 interface AuthContextType {
   user: BioUser | null;
   loading: boolean;
   login: (user: BioUser) => void;           // demo / direct set
   logout: () => void;
-  switchRole: (role: UserRole) => void;     // dev/demo only
+  switchRole: (role: UserRole) => void;     // switches active role via backend
   updateAvatar: (url: string) => void;      // profile photo update
+  availableRoles: UserRole[];               // all roles the user holds
   isClient:    boolean;
   isProvider:  boolean;
   isAdmin:     boolean;
@@ -26,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Supabase SDK already has a session cached in localStorage (indicating a
   // real sign-in). This prevents the "stale demo flash" where demo role
   // briefly decides route guards before the real session resolves.
+  const [availableRoles, setAvailableRoles] = useState<UserRole[]>([]);
   const [user, setUser] = useState<BioUser | null>(() => {
     const stored = getStoredUser();
     if (!stored) return null;
@@ -101,6 +105,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => { mounted = false; clearTimeout(timeout); subscription.unsubscribe(); };
   }, []);
+
+  // ── Fetch available roles when user is set ──────────────────────
+  useEffect(() => {
+    if (!user || user.id?.startsWith("demo_")) {
+      setAvailableRoles(user ? [user.role] : []);
+      return;
+    }
+    const fetchRoles = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) return;
+        const res = await fetch(`${API}/api/account/roles`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        const json = await res.json();
+        if (json.ok && Array.isArray(json.roles)) {
+          setAvailableRoles(json.roles as UserRole[]);
+        } else {
+          setAvailableRoles([user.role]);
+        }
+      } catch {
+        setAvailableRoles([user.role]);
+      }
+    };
+    fetchRoles();
+  }, [user?.id]);
 
   // ── Demo / direct-set login (no Supabase session) ──────────────
   const login = useCallback((userData: BioUser) => {

@@ -60,7 +60,7 @@ const onboardingSteps: OnboardingStep[] = [
   },
 ];
 
-type Phase = "splash" | "onboarding" | "role" | "auth" | "terms" | "email-sent";
+type Phase = "splash" | "onboarding" | "role" | "auth" | "terms" | "email-sent" | "forgot-password" | "forgot-password-sent";
 type AuthMode = "signin" | "signup";
 
 const ROLE_OPTIONS = [
@@ -235,6 +235,9 @@ export default function SplashOnboarding() {
   const [phone, setPhone] = useState("");
   const [otpStep, setOtpStep] = useState<"idle" | "sent" | "verified">("idle");
   const [otpCode, setOtpCode] = useState("");
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotBusy, setForgotBusy] = useState(false);
+  const [forgotError, setForgotError] = useState("");
 
   const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -411,6 +414,28 @@ export default function SplashOnboarding() {
   const handleDemoOnboarding = (account: BioUser) => {
     login(account);
     navigate(ONBOARDING_ROUTES[account.role], { replace: true });
+  };
+
+  const handleForgotPassword = async () => {
+    setForgotError("");
+    if (!forgotEmail.trim()) { setForgotError("Please enter your email address."); return; }
+    setForgotBusy(true);
+    try {
+      const res = await fetch(`${API}/api/account/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail.trim().toLowerCase() }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        setPhase("forgot-password-sent");
+      } else {
+        setForgotError(json.error ?? "Could not send reset link.");
+      }
+    } catch {
+      setForgotError("Network error. Please try again.");
+    }
+    setForgotBusy(false);
   };
 
   // ── Splash screen ────────────────────────────────────────────────
@@ -667,6 +692,72 @@ export default function SplashOnboarding() {
     );
   }
 
+  // ── Forgot password form ──────────────────────────────────────────
+  if (phase === "forgot-password") {
+    return (
+      <div className="fixed inset-0 z-[100] bg-obsidian flex items-center justify-center px-6"
+        style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(99,102,241,0.08) 0%, #0A0A0F 65%)" }}>
+        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+          className="glass-2 rounded-3xl p-8 max-w-sm w-full space-y-4">
+          <h2 className="text-xl font-bold text-foreground">Reset your password</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Enter the email address you signed up with and we'll send you a link to reset your password.
+          </p>
+          {forgotError && <p className="text-xs text-coral">{forgotError}</p>}
+          <input
+            value={forgotEmail}
+            onChange={e => setForgotEmail(e.target.value)}
+            placeholder="Email address"
+            type="email"
+            onKeyDown={e => e.key === "Enter" && handleForgotPassword()}
+            className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5"
+          />
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={handleForgotPassword}
+            disabled={forgotBusy}
+            className="w-full rounded-pill py-4 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta flex items-center justify-center gap-2 disabled:opacity-60"
+          >
+            {forgotBusy
+              ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</>
+              : "Send reset link"
+            }
+          </motion.button>
+          <button
+            onClick={() => { setForgotError(""); setPhase("auth"); }}
+            className="w-full text-center text-xs text-muted-foreground underline"
+          >
+            Back to sign in
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // ── Forgot password confirmation ────────────────────────────────
+  if (phase === "forgot-password-sent") {
+    return (
+      <div className="fixed inset-0 z-[100] bg-obsidian flex items-center justify-center px-6"
+        style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(99,102,241,0.08) 0%, #0A0A0F 65%)" }}>
+        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+          className="glass-2 rounded-3xl p-8 max-w-sm w-full text-center space-y-4">
+          <div className="text-5xl">✉️</div>
+          <h2 className="text-xl font-bold text-foreground">Check your email</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            If an account exists for <strong className="text-foreground">{forgotEmail}</strong>,
+            we've sent a password reset link. Click the link in the email to set a new password.
+          </p>
+          <button
+            onClick={() => { setAuthMode("signin"); setPhase("auth"); }}
+            className="w-full rounded-pill py-3 text-sm font-semibold gradient-indigo text-primary-foreground"
+          >
+            Back to sign in
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
   // ── Auth form (sign in / sign up) ─────────────────────────────────
   return (
     <div className="fixed inset-0 z-[100] bg-obsidian flex flex-col items-end justify-end overflow-y-auto"
@@ -810,6 +901,15 @@ export default function SplashOnboarding() {
                 <button type="button" onClick={() => setShowPw(v => !v)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => { setForgotEmail(email); setForgotError(""); setPhase("forgot-password"); }}
+                  className="text-xs text-indigo hover:text-indigo/80 transition-colors"
+                >
+                  Forgot password?
                 </button>
               </div>
             </>

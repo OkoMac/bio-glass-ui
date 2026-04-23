@@ -311,6 +311,7 @@ const ProviderIntakeForms      = lazy(() => import("./pages/provider/IntakeForms
 const ProviderTreatmentPlan    = lazy(() => import("./pages/provider/TreatmentPlan"));
 const ClientTreatmentPlans     = lazy(() => import("./pages/client/TreatmentPlans"));
 
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const BlogIndex     = lazy(() => import("./pages/blog/BlogIndex"));
 const CalorieGuide  = lazy(() => import("./pages/blog/CalorieGuide"));
 const BmiGuide      = lazy(() => import("./pages/blog/BmiGuide"));
@@ -452,6 +453,7 @@ function AppRoutes() {
       <Route path="/directory" element={<Directory />} />
       <Route path="/welcome" element={<SplashOnboarding />} />
       <Route path="/login" element={<Navigate to="/welcome?login=true" replace />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Universal sign-out: go to /logout from anywhere to clear session. */}
       <Route path="/logout" element={<Logout />} />
