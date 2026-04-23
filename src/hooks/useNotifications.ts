@@ -67,13 +67,15 @@ export function useNotifications() {
 
   const markAsRead = async (id: string) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-    await supabase.from("notifications").update({ read: true }).eq("id", id);
+    const { error } = await supabase.from("notifications").update({ read: true }).eq("id", id);
+    if (error && import.meta.env.DEV) console.warn("[notifications] markAsRead failed:", error.message);
   };
 
   const markAllAsRead = async () => {
     if (!profileId || profileId.startsWith("demo_")) return;
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    await supabase.from("notifications").update({ read: true }).eq("user_id", profileId).eq("read", false);
+    const { error } = await supabase.from("notifications").update({ read: true }).eq("user_id", profileId).eq("read", false);
+    if (error && import.meta.env.DEV) console.warn("[notifications] markAllAsRead failed:", error.message);
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;

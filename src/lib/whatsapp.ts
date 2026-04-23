@@ -34,7 +34,8 @@ export function getBookingConfirmationUrl(booking: BookingDetails): string {
     `— ${booking.clientName ?? "BION Client"}`,
   ].filter(Boolean).join("\n");
 
-  const phone = booking.providerPhone?.replace(/[^0-9]/g, "") ?? "";
+  let phone = booking.providerPhone?.replace(/[^0-9]/g, "") ?? "";
+  if (phone.startsWith("0")) phone = "27" + phone.slice(1); // Convert 0XX to 27XX
   const encoded = encodeURIComponent(msg);
 
   return phone
@@ -81,7 +82,8 @@ export function getReferralShareUrl(referralCode: string, userName?: string): st
  * Generate a WhatsApp URL for provider to contact client
  */
 export function getProviderToClientUrl(clientName: string, clientPhone: string, message: string): string {
-  const phone = clientPhone.replace(/[^0-9]/g, "");
+  let phone = clientPhone.replace(/[^0-9]/g, "");
+  if (phone.startsWith("0")) phone = "27" + phone.slice(1);
   return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 }
 

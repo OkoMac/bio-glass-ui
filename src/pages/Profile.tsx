@@ -553,14 +553,28 @@ const Profile = () => {
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Badges</p>
               <div className="grid grid-cols-3 gap-2.5">
-                {[
-                  { name: "First Session", icon: <Award className="w-5 h-5" />, earned: true, color: "text-teal" },
-                  { name: "5-Day Streak", icon: <Flame className="w-5 h-5" />, earned: true, color: "text-amber" },
-                  { name: "Multi-Vertical", icon: <Star className="w-5 h-5" />, earned: true, color: "text-violet" },
-                  { name: "Early Bird", icon: <Moon className="w-5 h-5" />, earned: false, color: "text-muted-foreground" },
-                  { name: "Social", icon: <MessageCircle className="w-5 h-5" />, earned: false, color: "text-muted-foreground" },
-                  { name: "Fitness Pro", icon: <Dumbbell className="w-5 h-5" />, earned: false, color: "text-muted-foreground" },
-                ].map(badge => (
+                {(() => {
+                  const completed = bookings.filter(b => b.status === "completed");
+                  const categories = new Set(completed.map(b => b.service).filter(Boolean));
+                  const hasFirstSession = completed.length >= 1;
+                  const has5DayStreak = streak.currentStreak >= 5;
+                  const hasMultiVertical = categories.size >= 3;
+                  const hasEarlyBird = completed.some(b => {
+                    const t = b.time?.split(":").map(Number);
+                    return t && t[0] < 8;
+                  });
+                  const hasFitnessPro = completed.filter(b =>
+                    (b.service ?? "").toLowerCase().includes("fitness") || (b.service ?? "").toLowerCase().includes("gym")
+                  ).length >= 10;
+                  return [
+                    { name: "First Session", icon: <Award className="w-5 h-5" />, earned: hasFirstSession, color: "text-teal" },
+                    { name: "5-Day Streak", icon: <Flame className="w-5 h-5" />, earned: has5DayStreak, color: "text-amber" },
+                    { name: "Multi-Vertical", icon: <Star className="w-5 h-5" />, earned: hasMultiVertical, color: "text-violet" },
+                    { name: "Early Bird", icon: <Moon className="w-5 h-5" />, earned: hasEarlyBird, color: "text-muted-foreground" },
+                    { name: "Social", icon: <MessageCircle className="w-5 h-5" />, earned: false, color: "text-muted-foreground" },
+                    { name: "Fitness Pro", icon: <Dumbbell className="w-5 h-5" />, earned: hasFitnessPro, color: "text-muted-foreground" },
+                  ];
+                })().map(badge => (
                   <div key={badge.name}
                     className={`rounded-2xl py-4 flex flex-col items-center gap-2 border bg-white/[0.02] ${
                       badge.earned ? "border-white/[0.12]" : "border-white/[0.06] opacity-40"

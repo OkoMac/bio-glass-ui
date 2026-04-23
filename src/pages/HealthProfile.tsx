@@ -9,20 +9,14 @@ import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { getProviderImage } from "@/lib/providerImages";
-import realData from "@/data/bion_pretoria_data.json";
+// Connected providers loaded dynamically from user's bookings
 import {
   ArrowLeft, Heart, Activity, Shield, Pill, AlertTriangle,
   Target, TrendingUp, Edit3, ChevronRight, CheckCircle,
   Scale, Dna, Eye, Lock, X, Plus, EyeOff, AlertCircle
 } from "lucide-react";
 
-// Connected providers for privacy selection
-const CONNECTED_PROVIDERS = realData.providers.slice(0, 8).map(p => ({
-  id: p.id,
-  name: p.name,
-  image: getProviderImage(p.id, p.name),
-  category: p.category ?? "",
-}));
+// Connected providers populated from actual bookings (see useEffect below)
 
 type PrivacyLevel = "private" | "provider";
 
@@ -123,6 +117,9 @@ export default function HealthProfile() {
   const [medicalAccess, setMedicalAccess] = useState<ProviderAccess>({});
   const [documentAccess, setDocumentAccess] = useState<ProviderAccess>({});
   const [showProviderPicker, setShowProviderPicker] = useState<"medical" | "documents" | null>(null);
+
+  // Connected providers from actual bookings (not hardcoded)
+  const [connectedProviders, setConnectedProviders] = useState<{ id: string; name: string; image: string; category: string }[]>([]);
   const [confirmToggle, setConfirmToggle] = useState<{ section: "medical" | "documents"; providerId: string; providerName: string; granting: boolean } | null>(null);
   const [goals, setGoals] = useState<HealthGoal[]>(INITIAL_GOALS);
   const [showLogMetrics, setShowLogMetrics] = useState(false);
@@ -130,8 +127,36 @@ export default function HealthProfile() {
   const [showAddGoal, setShowAddGoal] = useState(false);
   const [newGoal, setNewGoal] = useState({ label: "", target: "", deadline: "", vertical: "fitness" });
 
-  // ── Medical data (localStorage-persisted) ──
+  // ── Load connected providers from actual bookings ──
   const { user } = useAuth();
+  useEffect(() => {
+    if (!user?.profileId || user.id?.startsWith("demo_")) return;
+    import("@/integrations/supabase/client").then(({ supabase }) => {
+      supabase.from("bookings")
+        .select("provider_id, providers:provider_id(id, full_name, avatar_url, category)")
+        .eq("client_id", user.profileId!)
+        .eq("status", "completed")
+        .limit(20)
+        .then(({ data }) => {
+          if (!data) return;
+          const seen = new Set<string>();
+          const providers = (data as any[]).filter(b => {
+            const pid = b.provider_id;
+            if (!pid || seen.has(pid)) return false;
+            seen.add(pid);
+            return true;
+          }).map(b => ({
+            id: b.provider_id,
+            name: (b.providers as any)?.full_name ?? "Provider",
+            image: getProviderImage(b.provider_id, (b.providers as any)?.full_name ?? ""),
+            category: (b.providers as any)?.category ?? "",
+          }));
+          setConnectedProviders(providers);
+        });
+    });
+  }, [user?.profileId]);
+
+  // ── Medical data (localStorage-persisted) ──
   const uid = user?.id ?? "guest";
   const lsKey = useCallback((k: string) => `bion_medical_${uid}_${k}`, [uid]);
 
@@ -820,7 +845,7 @@ export default function HealthProfile() {
             {/* Medical & Documents — provider-specific access */}
             {(["medical", "documents"] as const).map(section => {
               const access = section === "medical" ? medicalAccess : documentAccess;
-              const grantedProviders = CONNECTED_PROVIDERS.filter(p => access[p.id]);
+              const grantedProviders = connectedProviders.filter(p => access[p.id]);
               return (
                 <GlassCard key={section} className="p-4">
                   <div className="flex items-center justify-between mb-3">
@@ -878,7 +903,7 @@ export default function HealthProfile() {
                     </div>
 
                     <div className="space-y-1.5">
-                      {CONNECTED_PROVIDERS.map(prov => {
+                      {connectedProviders.map(prov => {
                         const access = showProviderPicker === "medical" ? medicalAccess : documentAccess;
                         const hasAccess = !!access[prov.id];
                         return (
