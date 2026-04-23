@@ -57,8 +57,20 @@ function categorize(service: string): string {
   return "wellness";
 }
 
-// ── Build provider list from real scraped data (Pretoria + Johannesburg) ──────
-const mergedProviders = [...realData.providers, ...(jhbData as any).providers];
+// ── Build provider list from real scraped data (all cities) ──────
+// Interleave cities so no single city dominates when no location is set
+const mergedProviders = (() => {
+  const pta = realData.providers;
+  const jhb = (jhbData as any).providers;
+  // Shuffle: alternate between sources so the top results are mixed
+  const result: any[] = [];
+  const maxLen = Math.max(pta.length, jhb.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (i < jhb.length) result.push(jhb[i]); // JHB (includes CT, DBN) first — more providers
+    if (i < pta.length) result.push(pta[i]);
+  }
+  return result;
+})();
 const ALL_PROVIDERS = mergedProviders
   .map((p: any) => ({
     id: p.id,
