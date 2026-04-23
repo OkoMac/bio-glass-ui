@@ -5,6 +5,7 @@ import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Plus, Trash2, ChevronDown, ChevronUp, Check,
@@ -452,6 +453,8 @@ function ProgramEditor({
 // ── Main page ───────────────────────────────────────────────────────────
 export default function ProgramBuilder() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isDemo = user?.id?.startsWith("demo_") ?? false;
   const { requiresUpgrade, getUpgradeUrl, tierDisplayName } = useSubscription();
   const needsUpgrade = requiresUpgrade("basicAnalytics");
 
@@ -476,7 +479,7 @@ export default function ProgramBuilder() {
       if (!res.ok || !json.ok) throw new Error(json.error ?? "Could not load programs");
       setPrograms(((json.data ?? []) as Program[]));
     } catch (err: any) {
-      setError(err.message ?? "Could not load programs");
+      if (!isDemo) setError(err.message ?? "Could not load programs");
     } finally {
       setLoading(false);
     }
