@@ -274,7 +274,7 @@ export default function ProviderAnalytics() {
           </div>
         )}
 
-        {!loading && isProOrAbove && detailed && (
+        {!loading && isProOrAbove && detailed && detailed.profile_views && (
           <>
             {/* ── KPI Cards Row ───────────────────────────────────── */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">

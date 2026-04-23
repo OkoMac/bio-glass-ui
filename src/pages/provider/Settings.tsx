@@ -499,6 +499,8 @@ function AvailabilitySection() {
     if (ok) {
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
+    } else {
+      import("sonner").then(({ toast }) => toast.error("Failed to save availability. Try again."));
     }
   };
 

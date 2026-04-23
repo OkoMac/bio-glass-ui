@@ -84,32 +84,40 @@ function getSmartResponse(input: string, role: string, userName?: string): strin
   const first = userName?.split(" ")[0] ?? "there";
   const data = getUserData();
 
-  // Provider-specific responses
+  // Provider-specific responses — use real booking data when available
   if (role === "provider") {
+    const providerBookings = JSON.parse(localStorage.getItem("bion_calendar_events") ?? "[]");
+    const todayEvents = providerBookings.filter((e: any) => e.date === new Date().toISOString().split("T")[0]);
+
     if (/churn|risk|at.risk|losing|inactive/i.test(key))
-      return `**Churn Risk Report:**\n\n🔴 **High risk (2):**\n  • Kobus P. — 11 days since last session (usually 2×/week)\n  • Amir K. — went quiet after session 5\n\n🟡 **Medium risk (1):**\n  • Thandi M. — frequency dropped from 3×/week to 1×\n\n💡 **B_ suggestion:** I can draft personalised check-in messages for each. Want that?`;
-    if (/schedule|today|session|appointment/i.test(key))
-      return `**Today's Schedule:**\n\n• 09:00 — Mpho Sithole (PT session)\n• 11:00 — Thandi Maseko (Fitness assessment)\n• 15:00 — Naledi Dube (Yoga)\n\n📊 Kobus cancelled Saturday — that slot is still open.\nTotal expected revenue today: R1,200.\n\nWant me to fill the gap with a waitlist client?`;
+      return `I'd need to analyse your client booking patterns to identify churn risk. Head to your **Dashboard** to see the churn risk section, or ask me about specific clients.\n\n💡 **Tip:** Clients who haven't booked in 14+ days are flagged automatically on your dashboard.`;
+    if (/schedule|today|session|appointment/i.test(key)) {
+      if (todayEvents.length > 0) {
+        const list = todayEvents.map((e: any) => `• ${e.time ?? "—"} — ${e.title ?? "Session"} (${e.provider ?? "Client"})`).join("\n");
+        return `**Today's Schedule:**\n\n${list}\n\nTotal: ${todayEvents.length} session(s). Check your **Schedule** page for full details.`;
+      }
+      return `You don't have any sessions scheduled for today. Check your **Schedule** page for upcoming bookings, or open your availability in **Settings** to get more bookings.`;
+    }
     if (/revenue|income|money|earn|grow/i.test(key))
-      return `**Revenue Growth Tips:**\n\nYour occupancy rate is 78%. Three strategies:\n\n1. **Add a 6am slot** — 40% of your clients prefer early sessions\n2. **Bundle package** — 5 sessions = 10% off (increases commitment)\n3. **Follow up with Amir K.** — high value client who went quiet (R800/session)\n\nProjected impact: +R3,200/month if all three are implemented.`;
+      return `**Revenue Growth Tips:**\n\n1. **Fill empty slots** — check your availability gaps and enable waitlist\n2. **Bundle packages** — 5 sessions = 10% off increases commitment\n3. **Follow up** — check your Dashboard churn report for clients who went quiet\n\nHead to your **Dashboard** for real revenue numbers.`;
     if (/client|insight|top|best/i.test(key))
-      return `**Client Insights:**\n\n🥇 **Mpho Sithole** — 18 sessions, R8,100 LTV, refers others, never a no-show. Consider a loyalty reward.\n🥈 **Thandi Maseko** — consistent, growing fast. May be ready for a premium programme.\n🥉 **Naledi Dube** — new but engaged (4 sessions in 2 weeks).\n\nOverall: 87% client retention rate (industry avg: 72%). Well done!`;
+      return `Check your **Dashboard** for real client insights — it shows your top clients by sessions, churn risk, and booking patterns. I can help with specific client questions if you give me a name.`;
     if (/booking|pending|request/i.test(key))
-      return `**Pending Bookings:**\n\n📩 2 new requests:\n  • Lerato M. — PT session, Thursday 10am\n  • James O. — Fitness assessment, Friday 3pm\n\n✅ 3 confirmed for this week\n❌ 1 cancelled (Kobus, Saturday)\n\nWant me to auto-confirm or shall I hold for your review?`;
-    return `I'm analysing your business data. Based on your bookings, clients, and revenue — your practice is performing well. Want me to look at churn risk, revenue opportunities, or client insights?`;
+      return `Check your **Bookings** page for pending requests. You can accept or decline each one, and I'll notify the client automatically via WhatsApp and email.`;
+    return `I can help with your schedule, revenue tips, client insights, or booking management. What would you like to know?`;
   }
 
   // Corporate-specific responses
   if (role === "corporate") {
     if (/employee|team|staff|usage/i.test(key))
-      return `**Team Wellness Report:**\n\n👥 42 employees enrolled\n✅ 28 active this month (67% engagement)\n📊 Average 2.3 sessions/employee/month\n\nTop departments: Sales (89% active), Engineering (72%), Marketing (58%)\nBottom: Finance (34%) — consider targeted wellness campaigns.\n\nWant me to generate a detailed engagement report?`;
+      return `Check your **Dashboard** for real-time employee wellness stats — engagement rates, session usage, and department breakdowns. I can help with specific questions about your programme.`;
     return `I can help with employee wellness stats, provider management, programme configuration, or voucher distribution. What would you like to know?`;
   }
 
   // Admin-specific responses
   if (role === "admin") {
     if (/metric|stat|kpi|platform/i.test(key))
-      return `**Platform KPIs:**\n\n👥 858 providers, 1,240 clients\n📊 GMV this month: R482,000\n📈 Growth: +18% MoM\n🔥 Active sessions: 3,420\n\nTop vertical: Fitness (42%), Medical (28%), Beauty (22%)\n\nAny anomalies to flag?`;
+      return `Head to the **Admin Dashboard** for live platform KPIs — provider counts, GMV, growth, active sessions, and vertical breakdowns. I can help with specific queries.`;
     return `B_ admin mode. I can pull platform metrics, review provider applications, flag compliance issues, or help draft communications. What do you need?`;
   }
 
