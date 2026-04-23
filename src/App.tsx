@@ -46,6 +46,8 @@ class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error) {
+    // DEBUG: log full error to console so we can see it
+    console.error("[ErrorBoundary CAUGHT]", error.message, error.stack);
     if (this.state.isChunkError) {
       // Chunk-loading failure → silently auto-reload. Limit retries to avoid loop.
       const key = "bion_chunk_reload_count";
