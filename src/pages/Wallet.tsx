@@ -52,7 +52,7 @@ export default function Wallet() {
     setTimeout(() => setMessage(null), 4000);
   };
 
-  // ── Top-up handler ──
+  // ── Top-up handler (redirects to Paystack checkout) ──
   const handleTopUp = async () => {
     const amount = topUpAmount ?? parseFloat(customAmount);
     if (!amount || amount < TOPUP_MIN_RAND) {
@@ -60,15 +60,31 @@ export default function Wallet() {
       return;
     }
     setProcessing(true);
-    // TODO: Real Paystack integration — this will charge calculateTopUpCharge(amount) but credit amount
-    // For now: show success and refresh. Backend integration needed for actual payment.
-    showMessage("success", `R${amount.toFixed(2)} top-up initiated. You'll be redirected to Paystack.`);
-    setTimeout(() => {
-      setShowTopUp(false);
-      setTopUpAmount(null);
-      setCustomAmount("");
+    try {
+      const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+      const { data: { session } } = await import("@/integrations/supabase/client").then(m => m.supabase.auth.getSession());
+      const token = session?.access_token;
+      if (!token) {
+        showMessage("error", "Please sign in to top up.");
+        setProcessing(false);
+        return;
+      }
+      const res = await fetch(`${API}/api/wallet/topup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ amount }),
+      });
+      const json = await res.json();
+      if (json.ok && json.paymentUrl) {
+        window.location.href = json.paymentUrl;
+      } else {
+        showMessage("error", json.error ?? "Could not initiate top-up. Try again.");
+        setProcessing(false);
+      }
+    } catch {
+      showMessage("error", "Network error. Please try again.");
       setProcessing(false);
-    }, 2000);
+    }
   };
 
   // ── Earnings → Wallet transfer ──

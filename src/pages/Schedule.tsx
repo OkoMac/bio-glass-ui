@@ -248,7 +248,7 @@ const Schedule = () => {
                   <motion.div key={b.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
                     <GlassCard hover className={`p-4 border-l-2 ${borderByVertical[v]}`}>
                       <div className="flex items-center gap-3">
-                        <img src={b.clientImage} alt={b.providerName ?? b.service}
+                        <img src={b.providerImage ?? b.clientImage} alt={b.providerName ?? b.service}
                           className="w-10 h-10 rounded-xl object-cover shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-foreground">{b.service}</p>
@@ -321,7 +321,7 @@ const Schedule = () => {
                   <motion.div key={b.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
                     <GlassCard hover className={`p-4 border-l-2 ${borderByVertical[v]}`}>
                       <div className="flex items-center gap-3">
-                        <img src={b.clientImage} alt={b.providerName ?? b.service}
+                        <img src={b.providerImage ?? b.clientImage} alt={b.providerName ?? b.service}
                           className="w-10 h-10 rounded-xl object-cover shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-foreground">{b.service}</p>
@@ -391,7 +391,7 @@ const Schedule = () => {
                 return (
                   <GlassCard key={b.id} className={`p-3 border-l-2 ${borderByVertical[v]} opacity-60`}>
                     <div className="flex items-center gap-3">
-                      <img src={b.clientImage} alt={b.service}
+                      <img src={b.providerImage ?? b.clientImage} alt={b.service}
                         className="w-8 h-8 rounded-lg object-cover shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium text-foreground">{b.service}</p>

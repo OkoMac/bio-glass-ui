@@ -18,6 +18,7 @@ export interface Booking {
   clientImage: string;
   providerId?: string;
   providerName?: string;
+  providerImage?: string;
   service: string;
   date: string;
   time: string;
@@ -97,26 +98,32 @@ type SupaRow = {
   booking_date: string; booking_time: string;
   duration_minutes: number; total_price: number | null;
   status: string; notes: string | null;
+  payment_status?: string | null;
   telehealth_url?: string | null;
   delivery_mode?: string | null;
   profiles?: { full_name?: string } | null;
+  provider_profile?: { full_name?: string; avatar_url?: string } | null;
   services?: { title?: string } | null;
 };
 
 function mapRow(r: SupaRow): Booking {
   const clientName = r.profiles?.full_name ?? "Client";
+  const providerName = (r.provider_profile as any)?.full_name ?? undefined;
   return {
     id: r.id,
     clientId: r.client_id,
     providerId: r.provider_id,
     clientName,
     clientImage: getProviderImage(r.client_id, clientName),
+    providerName,
+    providerImage: getProviderImage(r.provider_id, providerName ?? "Provider"),
     service: r.services?.title ?? "Session",
     date: r.booking_date,
     time: r.booking_time,
     duration: `${r.duration_minutes} min`,
     price: r.total_price ? `R${r.total_price}` : "R0",
     status: r.status as BookingStatus,
+    paymentStatus: (r.payment_status as Booking["paymentStatus"]) ?? undefined,
     note: r.notes ?? undefined,
     telehealthUrl: r.telehealth_url ?? undefined,
     deliveryMode: (r.delivery_mode as Booking["deliveryMode"]) ?? undefined,
@@ -182,7 +189,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
       // to those where the auth user's profiles.id matches client_id or provider_id
       const { data, error } = await supabase
         .from("bookings")
-        .select("*, profiles!bookings_client_id_fkey(full_name), services(title)")
+        .select("*, profiles!bookings_client_id_fkey(full_name), provider_profile:profiles!bookings_provider_id_fkey(full_name, avatar_url), services(title)")
         .order("booking_date", { ascending: true });
       if (!error && data && data.length > 0) {
         setBookings((data as unknown as SupaRow[]).map(mapRow));
