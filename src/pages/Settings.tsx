@@ -525,23 +525,29 @@ export default function Settings() {
   const [verifyBusy, setVerifyBusy] = useState(false);
   const [verifyError, setVerifyError] = useState("");
 
-  // Check if email is verified on mount (check both user_metadata and profiles)
+  // Check if email is verified on mount
+  // Sources (any true = verified): Google OAuth email_verified, bion_email_verified, profiles column
   useEffect(() => {
     if (!user || user.id?.startsWith("demo_")) return;
     const checkVerified = async () => {
       try {
-        // Primary: check Supabase Auth user_metadata (always available)
         const { data: { user: authUser } } = await supabase.auth.getUser();
-        if (authUser?.user_metadata?.bion_email_verified) {
+        const meta = authUser?.user_metadata ?? {};
+        // Google OAuth sets email_verified, our flow sets bion_email_verified
+        if (meta.email_verified || meta.bion_email_verified) {
           setEmailVerified(true);
           return;
         }
         // Fallback: check profiles table
-        const { data: profile } = await supabase.from("profiles")
-          .select("email_verified")
-          .eq("user_id", user.id!)
-          .maybeSingle();
-        setEmailVerified(profile?.email_verified ?? false);
+        try {
+          const { data: profile } = await supabase.from("profiles")
+            .select("email_verified")
+            .eq("user_id", user.id!)
+            .maybeSingle();
+          setEmailVerified(profile?.email_verified ?? false);
+        } catch {
+          setEmailVerified(false);
+        }
       } catch { setEmailVerified(false); }
     };
     checkVerified();
