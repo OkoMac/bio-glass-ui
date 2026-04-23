@@ -57,17 +57,24 @@ export default function Terms() {
           <section>
             <h2 className="text-base font-semibold text-foreground mb-2">4. Services</h2>
             <p>
-              BION is a marketplace platform that connects clients with health, wellness, and beauty service providers.
-              We do not provide medical advice, diagnoses, or treatments. Providers listed on the Platform are
-              independent professionals, not employees or agents of BION.
+              BION is a marketplace platform that connects clients with health, wellness, and beauty service providers
+              across Johannesburg, Pretoria, Cape Town, Durban and beyond. Services include 1-on-1 bookings, group
+              classes & workshops, recurring sessions, package deals, gift vouchers, telehealth video consultations
+              (Jitsi Meet), walk-in queue management and provider-to-provider referrals. We do not provide medical
+              advice, diagnoses, or treatments. Providers listed on the Platform are independent professionals, not
+              employees or agents of BION.
             </p>
           </section>
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-2">5. Payments & Fees</h2>
             <p>
-              All payments are processed through our authorized payment partners (Paystack / Stripe). BION charges a
-              platform fee on transactions, as detailed in our fee schedule. Refunds are governed by our
+              All payments are processed through our authorized payment partner Paystack (PCI DSS Level 1). A 5%
+              booking fee is charged to clients on each transaction (3.5% for Premium subscribers at R29/month).
+              Providers receive 90% of the service price after a 5% platform fee and 5% acquisition-marketing
+              contribution. Wallet cash-out to bank: 10% fee, minimum R200. Cancellation policy: client cancels
+              24h+ before = full refund; client cancels &lt;24h = 50% fee; provider cancels = full refund + 10%
+              fee to provider + strike. Refunds are governed by our
               <a href="/legal/dispute-resolution" className="text-indigo hover:underline ml-1">Dispute Resolution Policy</a>.
             </p>
           </section>

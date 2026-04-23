@@ -8,13 +8,13 @@ const STEPS: OnboardingStep[] = [
     id: "welcome",
     type: "welcome",
     title: "Welcome to BION",
-    subtitle: "Commit to your health, your wellness and your beauty. Commit to yourself.",
+    subtitle: "Commit to your health, your wellness and your beauty. 5,724+ verified providers across Johannesburg, Pretoria, Cape Town & Durban.",
     icon: "🌟",
     highlights: [
-      { icon: "🩺", title: "Medical & Health", desc: "GP consults, physiotherapy, nutrition and specialist care" },
-      { icon: "💪", title: "Fitness & Movement", desc: "Personal training, yoga, pilates, boxing and more" },
-      { icon: "✂️", title: "Beauty & Spa", desc: "Hair, nails, lashes, massage and wellness treatments" },
-      { icon: "🧠", title: "Mental Wellness", desc: "Therapy, counselling, life coaching and mindfulness" },
+      { icon: "🩺", title: "Medical & Health", desc: "GP consults, physiotherapy, nutrition, telehealth video sessions and specialist care" },
+      { icon: "💪", title: "Fitness & Movement", desc: "Personal training, group classes, yoga, pilates, boxing — book packages (buy 10 get 2 free)" },
+      { icon: "✂️", title: "Beauty & Spa", desc: "Hair, nails, lashes, massage and wellness treatments — gift vouchers from R250" },
+      { icon: "🧠", title: "Mental Wellness", desc: "Therapy, counselling, life coaching and mindfulness — in-person or telehealth" },
     ],
   },
   {
@@ -105,9 +105,9 @@ const STEPS: OnboardingStep[] = [
     title: "How BION Works",
     subtitle: "Three simple steps to commit to yourself.",
     highlights: [
-      { icon: "🔍", title: "1. Discover", desc: "Browse hundreds of verified providers by category, location, rating and price. Use B_ to get personalised recommendations in plain English." },
-      { icon: "📅", title: "2. Book", desc: "Pick a service, choose a time slot, pay with BIONWallet or card. Get a WhatsApp confirmation and a calendar reminder — all in under 60 seconds." },
-      { icon: "📊", title: "3. Track", desc: "Log your progress, follow your prescriptions, earn BIONPoints for every session and watch your wellness journey unfold." },
+      { icon: "🔍", title: "1. Discover", desc: "Browse 5,724+ verified providers with smart search, Google Places fallback, real photos, callout filter for home visits and Google Maps directions." },
+      { icon: "📅", title: "2. Book", desc: "1-on-1, group classes, recurring sessions, telehealth video, walk-in queues or gift vouchers. Pay with BIONWallet or card — WhatsApp confirmation in under 60 seconds." },
+      { icon: "📊", title: "3. Track", desc: "Log calories with photo analysis, water, sleep, BMI. View your medical card, follow treatment plans with daily check-ins, and earn BioPoints for every action." },
     ],
   },
   {
@@ -117,8 +117,9 @@ const STEPS: OnboardingStep[] = [
     subtitle: "Your money and your rewards — all in one place.",
     highlights: [
       { icon: "💳", title: "BIONWallet", desc: "Top up by card or EFT. If your employer runs a wellness programme, they fund your wallet automatically each month." },
-      { icon: "⭐", title: "BIONPoints", desc: "Earn points for every booking, completed routine, streak day and referral. Redeem for discounts or exclusive perks." },
+      { icon: "⭐", title: "BioPoints & Loyalty", desc: "Earn points for bookings, routines, streaks and referrals. Redeem for discounts or exclusive perks. 50 pts = R1 store value." },
       { icon: "🏆", title: "Streaks & Badges", desc: "Keep your wellness streak alive and unlock achievement badges. Compete on the leaderboard with friends and colleagues." },
+      { icon: "🤝", title: "Affiliate Programme", desc: "Refer friends and earn R5.80/month for every Premium referral. Climb from Bronze to Silver to Gold tier for bonus rewards." },
     ],
   },
   {
@@ -127,10 +128,10 @@ const STEPS: OnboardingStep[] = [
     title: "Health Data & Privacy",
     subtitle: "Your health data is protected under POPIA as special personal information.",
     consentItems: [
-      { id: "health_data",    label: "I consent to BION storing my health and wellness data (session history, vitals, routines) as special personal information under POPIA Section 26.", required: true },
-      { id: "provider_share", label: "I understand that my booking and session data will be shared with the providers I book with, solely for service delivery.", required: true },
-      { id: "data_rights",    label: "I understand I can download or delete all my data at any time from Settings → Privacy.", required: true },
-      { id: "fees_ack",       label: "I accept that a 5% service fee is added to every booking I pay for. Premium subscribers (R29/month) pay a reduced 3.5% service fee and earn Expenditure Rewards vouchers on qualifying monthly spend.", required: true },
+      { id: "health_data",    label: "I consent to BION storing my health and wellness data (session history, vitals, routines, calorie logs, sleep, biometrics from Health Connect / HealthKit) as special personal information under POPIA Section 26. All health data is AES-256 encrypted at rest.", required: true },
+      { id: "provider_share", label: "I understand that my booking and session data (including telehealth video consultations) will be shared with the providers I book with, solely for service delivery.", required: true },
+      { id: "data_rights",    label: "I understand I can download (POPIA data export) or delete all my data at any time from Settings → Privacy.", required: true },
+      { id: "fees_ack",       label: "I accept that a 5% service fee is added to every booking I pay for (including group bookings, packages and gift vouchers). Premium subscribers (R29/month) pay a reduced 3.5% service fee and earn Expenditure Rewards vouchers on qualifying monthly spend.", required: true },
       { id: "wallet_ack",     label: "I understand that my BION Wallet is a closed-loop credit system (not a banking product). Top-ups via Paystack are non-refundable as a concept; individual bookings are refundable per the cancellation policy (24h+ before: full refund to wallet; <24h: 50% fee). Wallet cash-out: 10% fee, min R200.", required: true },
       { id: "rewards_ack",    label: "I understand that Activity Points (earned for engagement like water / food / session logging) are hard-capped at 250,000 points per year (R5,000 in-app store value) and expire after 18 months of inactivity.", required: true },
     ],
@@ -192,7 +193,7 @@ const STEPS: OnboardingStep[] = [
     type: "complete",
     title: "You're All Set! 🎉",
     subtitle: "Your BION account is ready.",
-    description: "Start by exploring providers near you, or book a free intro session to get started. Your wellness journey begins today.",
+    description: "Start by exploring 5,724+ providers near you — book a 1-on-1, join a group class, try a telehealth consult, or send a gift voucher to someone you love. Your wellness journey begins today.",
   },
 ];
 

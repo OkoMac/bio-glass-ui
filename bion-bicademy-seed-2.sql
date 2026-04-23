@@ -27,8 +27,10 @@ FROM courses,
 
 ## Free
 Every BION client starts here. They can:
-- Discover + book verified providers
-- Chat with providers via WhatsApp-native bot
+- Discover + book 5,724+ verified providers (1-on-1, group classes, telehealth video, walk-in queue)
+- Buy package deals (e.g. 10 sessions get 2 free) and gift vouchers (R250-R1,000+)
+- Chat with providers via WhatsApp-native bot + B_ AI assistant (13 menu options)
+- Track health: calorie photo analysis, water, sleep, BMI, medical card, Health Connect/HealthKit
 - Earn Activity Points for app engagement (logging, check-ins, streaks)
 - Use BION Wallet for cashless bookings
 
@@ -508,8 +510,14 @@ Anything a user logs about their body, symptoms, medications, conditions, or tre
 - **Audit trail** — every access is logged, including internal BION access
 - **Right to erasure** within 30 days honoured, even against business interest
 
+## Security measures
+- All health data is **AES-256 encrypted** at rest
+- OTP brute-force protection and rate limiting on all endpoints
+- Admin 2FA mandatory, admin audit trail on every action
+- POPIA data export and deletion from Settings > Privacy
+
 ## What to tell clients asking about health data
-*"Your health data is kept separate from your contact info. Only providers you specifically book see it, and only for that booking. You can download or delete it any time from Settings > Privacy."*
+*"Your health data is AES-256 encrypted and kept separate from your contact info. Only providers you specifically book see it, and only for that booking. You can download or delete it any time from Settings > Privacy."*
 
 ## What to tell providers
 *"Your client''s health info is only visible to you because they booked you. If they delete their account, you lose that access. Log your notes well."*',

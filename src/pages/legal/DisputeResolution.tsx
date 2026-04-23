@@ -31,12 +31,13 @@ export default function DisputeResolution() {
           <section>
             <h2 className="text-base font-semibold text-foreground mb-2">2. Types of Disputes</h2>
             <ul className="list-disc ml-5 space-y-1">
-              <li><span className="text-foreground font-medium">Service quality:</span> Service did not meet reasonable expectations or was not as described</li>
-              <li><span className="text-foreground font-medium">No-show (provider):</span> Provider did not attend the scheduled appointment</li>
+              <li><span className="text-foreground font-medium">Service quality:</span> Service did not meet reasonable expectations or was not as described (in-person or telehealth)</li>
+              <li><span className="text-foreground font-medium">No-show (provider):</span> Provider did not attend the scheduled appointment or failed to join a telehealth session</li>
               <li><span className="text-foreground font-medium">No-show (client):</span> Client did not attend without prior cancellation</li>
-              <li><span className="text-foreground font-medium">Billing dispute:</span> Incorrect charge, double charge, or unauthorised transaction</li>
+              <li><span className="text-foreground font-medium">Billing dispute:</span> Incorrect charge, double charge, or unauthorised transaction (including group bookings, packages and gift vouchers)</li>
               <li><span className="text-foreground font-medium">Safety concern:</span> Unsafe conditions, professional misconduct, or code of conduct violation</li>
               <li><span className="text-foreground font-medium">Cancellation dispute:</span> Disagreement about cancellation terms or refund amount</li>
+              <li><span className="text-foreground font-medium">Telehealth issue:</span> Technical failure, provider unreachable during video consultation, or session quality problems</li>
             </ul>
           </section>
 

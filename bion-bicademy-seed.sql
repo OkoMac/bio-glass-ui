@@ -22,7 +22,7 @@ FROM courses,
   (1, 'What is BION?', 5,
     '# What is BION?
 
-BION is Africa''s first unified health, wellness and beauty industry operating system — think Shopify, but for service businesses. We serve fitness trainers, medical practitioners, beauty salons, veterinarians, and wellness consultants across South Africa, with plans to expand pan-African.
+BION is Africa''s first unified health, wellness and beauty industry operating system — think Shopify, but for service businesses. We serve 5,724+ fitness trainers, medical practitioners, beauty salons, veterinarians, and wellness consultants across Johannesburg, Pretoria, Cape Town and Durban, with plans to expand pan-African.
 
 ## The problem we solve
 
@@ -38,13 +38,15 @@ Providers lose track of clients. Clients forget about providers. Nobody earns re
 ## What BION does
 
 One platform for:
-- **Discovery** — find verified providers near you
-- **Booking** — real-time availability, instant confirmation
+- **Discovery** — smart search with Google Places fallback, real photos, callout filter (home visits), Google Maps directions
+- **Booking** — 1-on-1, group classes, recurring sessions, package deals, gift vouchers (R250-R1,000+), telehealth video (Jitsi Meet), walk-in queue
 - **Payment** — BION Wallet (closed-loop credits) + Paystack cards
-- **Rewards** — Activity Points (engagement) + Expenditure Rewards (cashback)
-- **Messaging** — WhatsApp-native chat with providers
-- **Storefronts** — providers sell products with courier delivery',
-    '["BION unifies booking, payment, and rewards for SA wellness","We serve fitness, medical, beauty, vet, wellness verticals","WhatsApp-first for 97% smartphone penetration","South Africa first, then pan-African expansion"]'
+- **Rewards** — BioPoints (engagement) + Expenditure Rewards (cashback) + affiliate programme (Bronze/Silver/Gold)
+- **Messaging** — WhatsApp-native chat with providers + B_ AI assistant (13 menu options, 107+ knowledge base entries)
+- **Health Tracking** — calorie photo analysis, water, sleep, BMI, medical card, Health Connect/HealthKit biometrics
+- **Storefronts** — providers sell products with courier delivery
+- **Provider Tools** — 15 dashboard pages incl. queue management, intake forms, treatment plans, referrals, multi-location, calendar sync, analytics',
+    '["5,724+ providers across JHB, PTA, CPT, DBN","Group bookings, packages, telehealth, queue management","WhatsApp-first for 97% smartphone penetration","15 provider dashboard tools incl. intake forms + treatment plans"]'
   ),
   (2, 'Who we serve (the 4 roles)', 6,
     '# The 4 BION Roles
@@ -58,7 +60,7 @@ Service businesses — individual trainers, clinics, salons, vets, physios. Two 
 - **Elite** — R999/month. Reduced transaction fees, priority support, featured placements.
 
 ## 3. Corporate Wellness (B2B buyers)
-Companies offering employee wellness stipends. Manage budgets, track engagement, gift wellness credits.
+Companies offering employee wellness budgets. Customisable departments, wellness ROI reports, provider linking. Manage budgets, track engagement, gift wellness credits.
 
 ## 4. Rangers (you, the sales rep)
 You sign up providers and clients. Earn:
@@ -344,7 +346,7 @@ Wait for answer. Most say 10–15 hours.
 *"BION replaces all of that. One link clients use to book. Automatic reminders. Payments processed to your wallet. Every client''s history, preferences, and last 10 sessions at your fingertips."*
 
 ## Minute 3 — The money
-*"Pro plan is R499/month. Elite is R999/month. You''ll save 10+ hours a week and see 20–30% more sessions because fewer no-shows. Want to see it?"*
+*"Pro plan is R499/month. Elite is R999/month. You get 15 dashboard tools — analytics, CRM, queue management, intake forms, treatment plans, multi-location, telehealth, group bookings. Plus Featured Listing from R199 to boost visibility. You''ll save 10+ hours a week and see 20–30% more sessions because fewer no-shows. Want to see it?"*
 
 ## What NOT to lead with
 - Fee percentages (they sound like a cost)

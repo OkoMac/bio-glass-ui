@@ -33,7 +33,7 @@ export default function PaymentFlow() {
             <h2 className="text-base font-semibold text-foreground mb-2">2. Payment Flow — Step by Step</h2>
             <div className="space-y-3 mt-3">
               {[
-                { step: "1", title: "Client books a service", desc: "Client selects a service, provider, date and time through the BION app or WhatsApp bot." },
+                { step: "1", title: "Client books a service", desc: "Client selects a service (1-on-1, group class, recurring, telehealth, walk-in queue, package or gift voucher), provider, date and time through the BION app or WhatsApp bot." },
                 { step: "2", title: "Payment initiated", desc: "Client is directed to Paystack's PCI DSS Level 1 hosted checkout. BION never sees or stores card numbers." },
                 { step: "3", title: "Paystack charges the client", desc: "Total charged = service price + 5% client fee. Example: R100 service → R105 charged." },
                 { step: "4", title: "Split settlement", desc: "Paystack routes funds: 5% platform fee to BION, 5% ring-fenced to the provider's acquisition-marketing pool, the remainder (90% of the service price) to the provider's BION Wallet." },
@@ -156,11 +156,20 @@ export default function PaymentFlow() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold text-foreground mb-2">10. Security & Compliance</h2>
+            <h2 className="text-base font-semibold text-foreground mb-2">10. Featured Listings & Spotlight</h2>
+            <p>Providers can purchase enhanced visibility via Featured Listing / Spotlight (R199-R599). These are one-time or recurring promotional placements in the Discovery feed and do not affect the booking fee structure.</p>
+          </section>
+
+          <section>
+            <h2 className="text-base font-semibold text-foreground mb-2">11. Security & Compliance</h2>
             <ul className="list-disc ml-5 space-y-1">
               <li>All payments processed by Paystack (PCI DSS Level 1 certified)</li>
               <li>BION never stores card numbers, CVVs, or banking PINs</li>
               <li>3D Secure authentication supported for card payments</li>
+              <li>AES-256 encryption for health data at rest</li>
+              <li>OTP brute-force protection and rate limiting on all API endpoints</li>
+              <li>Admin 2FA mandatory; admin audit trail on all actions</li>
+              <li>Terms versioning with re-acceptance prompts on material changes</li>
               <li>Compliant with POPIA (data protection), ECTA (electronic transactions), and CPA (consumer protection)</li>
               <li>Provider bank details verified via Paystack account validation API</li>
             </ul>

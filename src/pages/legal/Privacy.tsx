@@ -65,15 +65,19 @@ export default function Privacy() {
               </li>
               <li>
                 <strong className="text-foreground">Health data</strong> — weight,
-                body fat, sleep, steps, heart rate, food logs, nutrition,
-                conditions, allergies, medications. This is{" "}
+                body fat, sleep, steps, heart rate, food logs (including photo-based
+                calorie analysis), nutrition, BMI, conditions, allergies, medications,
+                biometrics synced from Health Connect / Apple HealthKit, telehealth
+                session metadata and treatment plan check-ins. This is{" "}
                 <em>special personal information</em> under POPIA and receives
-                enhanced protection.
+                enhanced protection (AES-256 encryption at rest).
               </li>
               <li>
                 <strong className="text-foreground">Service data</strong> —
-                bookings, messages with providers, reviews, photos uploaded for
-                disputes.
+                bookings (1-on-1, group, recurring, telehealth, walk-in queue),
+                messages with providers, reviews, gift voucher transactions,
+                package purchases, photos uploaded for disputes, and intake
+                form responses.
               </li>
               <li>
                 <strong className="text-foreground">Financial data</strong> —
@@ -149,6 +153,17 @@ export default function Privacy() {
                 never send special personal information without your consent.
                 OpenAI processes data under its Enterprise DPA; we do not allow
                 your data to be used for model training.
+              </li>
+              <li>
+                <strong className="text-foreground">Jitsi Meet (8x8)</strong> —
+                telehealth video consultations. End-to-end encrypted; no
+                recordings stored by BION. Session metadata (date, duration,
+                participants) logged for booking records.
+              </li>
+              <li>
+                <strong className="text-foreground">Google Places API</strong> —
+                provider search, photos and directions. No personal data
+                shared; only query terms.
               </li>
               <li>
                 <strong className="text-foreground">Render + Vercel</strong> —
@@ -234,10 +249,15 @@ export default function Privacy() {
             <h2 className="text-base font-semibold text-foreground mb-2">8. Security</h2>
             <ul className="list-disc ml-5 space-y-1">
               <li>All traffic is encrypted in transit (TLS 1.3).</li>
-              <li>Data at rest is encrypted at the database + storage layer.</li>
-              <li>Row-level security isolates each user's data by default.</li>
-              <li>Two-factor authentication available (Settings → Privacy).</li>
+              <li>Health data encrypted at rest with AES-256. Database + storage layer encryption enabled.</li>
+              <li>Row-level security (RLS) isolates each user's data by default.</li>
+              <li>OTP brute-force protection and rate limiting on all API endpoints.</li>
+              <li>Two-factor authentication available for all users; mandatory for admin accounts.</li>
+              <li>Admin actions are logged in an immutable audit trail.</li>
+              <li>Terms versioning — you are prompted to re-accept when material changes are made.</li>
               <li>Payment details are tokenised by Paystack — we never see full card numbers.</li>
+              <li>Telehealth video sessions use end-to-end encrypted Jitsi Meet — BION does not record or store video/audio.</li>
+              <li>POPIA data export and deletion available from Settings → Privacy at any time.</li>
               <li>Security incidents are reported to the Information Regulator within 72 hours where required.</li>
             </ul>
           </section>
