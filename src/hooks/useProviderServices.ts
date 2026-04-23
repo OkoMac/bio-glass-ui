@@ -136,6 +136,7 @@ export function useProviderServices(): UseProviderServices {
           duration_minutes: input.duration_minutes,
           category: input.category,
           active: input.active ?? true,
+          delivery_mode: input.delivery_mode ?? "in_person",
         }),
       });
       const json = await res.json();

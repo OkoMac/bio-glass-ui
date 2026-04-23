@@ -39,12 +39,7 @@ const initialSchedule: WeekSchedule = {
   Sun: { enabled: false, blocks: [] },
 };
 
-// Upcoming exceptions / blocked dates
-const exceptions = [
-  { date: "2026-03-10", label: "Public Holiday (Ramadan)" },
-  { date: "2026-03-22", label: "Personal leave" },
-  { date: "2026-04-05", label: "Training workshop" },
-];
+// No hardcoded exceptions — loaded from Supabase
 
 const bufferOptions = ["0 min", "5 min", "10 min", "15 min", "20 min", "30 min"];
 const advanceOptions = ["Same day", "1 day", "2 days", "3 days", "7 days", "14 days"];
@@ -55,7 +50,7 @@ export default function ProviderAvailability() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isDemo = user?.id?.startsWith("demo_") ?? false;
-  const supabaseId = !isDemo && user?.id ? user.id : null;
+  const supabaseId = !isDemo && user?.profileId ? user.profileId : null;
 
   const [schedule, setSchedule] = useState<WeekSchedule>(() => {
     try {
@@ -72,7 +67,7 @@ export default function ProviderAvailability() {
   const [addingException, setAddingException] = useState(false);
   const [newExDate, setNewExDate] = useState("");
   const [newExLabel, setNewExLabel] = useState("");
-  const [localExceptions, setLocalExceptions] = useState(exceptions);
+  const [localExceptions, setLocalExceptions] = useState<{ date: string; label: string }[]>([]);
 
   // Load from Supabase on mount
   useEffect(() => {
@@ -107,6 +102,18 @@ export default function ProviderAvailability() {
       }
     };
     load();
+
+    // Load blocked dates / exceptions
+    supabase.from("provider_availability_override" as any)
+      .select("date, label")
+      .eq("provider_id", supabaseId)
+      .gte("date", new Date().toISOString().split("T")[0])
+      .order("date", { ascending: true })
+      .then(({ data: overrides }) => {
+        if (overrides && (overrides as any[]).length > 0) {
+          setLocalExceptions((overrides as any[]).map((o: any) => ({ date: o.date, label: o.label ?? "Blocked" })));
+        }
+      });
   }, [supabaseId]);
 
   const toggleDay = (day: Day) => {
@@ -184,14 +191,33 @@ export default function ProviderAvailability() {
 
   const addException = () => {
     if (!newExDate) return;
-    setLocalExceptions(e => [...e, { date: newExDate, label: newExLabel || "Blocked" }]);
+    const label = newExLabel || "Blocked";
+    setLocalExceptions(e => [...e, { date: newExDate, label }]);
+    // Persist to Supabase
+    if (supabaseId) {
+      supabase.from("provider_availability_override" as any).upsert({
+        provider_id: supabaseId,
+        date: newExDate,
+        label,
+        is_available: false,
+      }, { onConflict: "provider_id,date" }).then(() => {});
+    }
     setNewExDate("");
     setNewExLabel("");
     setAddingException(false);
   };
 
   const removeException = (idx: number) => {
+    const ex = localExceptions[idx];
     setLocalExceptions(e => e.filter((_, i) => i !== idx));
+    // Remove from Supabase
+    if (supabaseId && ex) {
+      supabase.from("provider_availability_override" as any)
+        .delete()
+        .eq("provider_id", supabaseId)
+        .eq("date", ex.date)
+        .then(() => {});
+    }
   };
 
   return (
