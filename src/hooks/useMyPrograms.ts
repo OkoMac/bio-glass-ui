@@ -76,7 +76,7 @@ export function useMyPrograms() {
 
       setPrograms(rows.map((r): AssignedProgram => {
         const p = r.program;
-        const prov = p?.provider_id ? providerMap.get(p.program?.provider_id as string ?? p.provider_id) : null;
+        const prov = p?.provider_id ? providerMap.get(p.provider_id as string) : null;
         const t = (p?.type ?? "workout") as AssignedProgram["type"];
         return {
           id: r.id,

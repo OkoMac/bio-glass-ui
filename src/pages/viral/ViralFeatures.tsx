@@ -7,7 +7,7 @@ import {
   Share2, Trophy, Users, TrendingUp, Star,
   Target, Award, Zap, Heart, Sparkles,
   Filter, Search, Plus, Edit, Trash2, ChevronRight,
-  Sparkles as SparklesIcon, Gift, Bell, Calendar
+  Sparkles as SparklesIcon, Gift, Bell, Calendar, CheckCircle
 } from "lucide-react";
 
 // Viral Features Dashboard
