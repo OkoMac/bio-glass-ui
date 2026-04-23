@@ -68,10 +68,12 @@ export default function ProviderDashboard() {
     const now = Date.now();
     return Array.from(clientLastBooking.entries())
       .map(([name, date]) => {
-        const days = Math.floor((now - new Date(date).getTime()) / 86_400_000);
+        const ts = new Date(date).getTime();
+      if (isNaN(ts)) return null;
+      const days = Math.floor((now - ts) / 86_400_000);
         return { name, days, risk: days > 30 ? "high" as const : "medium" as const };
       })
-      .filter(c => c.days > 14)
+      .filter((c): c is NonNullable<typeof c> => c !== null && c.days > 14)
       .sort((a, b) => b.days - a.days)
       .slice(0, 5);
   })();

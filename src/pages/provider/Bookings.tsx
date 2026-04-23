@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
@@ -108,11 +109,15 @@ export default function ProviderBookings() {
                       <p className="text-[11px] text-muted-foreground italic glass-1 rounded-xl px-3 py-2 mb-3">"{b.note}"</p>
                     )}
                     <div className="flex gap-2">
-                      <motion.button whileTap={{ scale: 0.95 }} onClick={() => confirm(b.id)}
+                      <motion.button whileTap={{ scale: 0.95 }} onClick={() => {
+                        try { confirm(b.id); toast.success("Booking accepted"); } catch { toast.error("Failed to accept booking"); }
+                      }}
                         className="flex-1 py-2.5 glass-accent-teal rounded-pill text-xs font-semibold text-teal flex items-center justify-center gap-1.5">
                         <CheckCircle className="w-3.5 h-3.5" /> Accept
                       </motion.button>
-                      <motion.button whileTap={{ scale: 0.95 }} onClick={() => decline(b.id)}
+                      <motion.button whileTap={{ scale: 0.95 }} onClick={() => {
+                        try { decline(b.id); toast.success("Booking declined"); } catch { toast.error("Failed to decline booking"); }
+                      }}
                         className="flex-1 py-2.5 glass-accent-coral rounded-pill text-xs font-medium text-coral flex items-center justify-center gap-1.5">
                         <XCircle className="w-3.5 h-3.5" /> Decline
                       </motion.button>

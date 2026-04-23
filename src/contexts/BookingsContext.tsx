@@ -323,8 +323,8 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
     if (user?.profileId) {
       await supabase.from("bookings").insert({
         // profiles.id is the FK — use profileId, not the auth user id
-        client_id:        booking.clientId || user.profileId,
-        provider_id:      user.role === "provider" ? user.profileId : "00000000-0000-0000-0000-000000000000",
+        client_id:        user.role === "client" ? user.profileId : (booking.clientId || user.profileId),
+        provider_id:      booking.providerId ?? (user.role === "provider" ? user.profileId : null),
         booking_date:     booking.date,
         booking_time:     booking.time,
         duration_minutes: parseInt(booking.duration) || 60,
@@ -354,9 +354,10 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
       supabase.from("notifications").insert(clientNotif).then(() => {});
 
       // Notify provider too (if known)
-      if (booking.clientId && booking.clientId !== user.profileId) {
+      const providerId = booking.providerId;
+      if (providerId && providerId !== user.profileId) {
         const providerNotif = {
-          user_id: booking.clientId, // this is actually the provider's profile ID in addBooking's mapping
+          user_id: providerId,
           type: "booking_request",
           title: "New booking request",
           body: `${user.name ?? "A client"} requested ${booking.service} on ${booking.date} at ${booking.time}`,

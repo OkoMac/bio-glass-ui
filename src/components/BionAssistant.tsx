@@ -297,7 +297,7 @@ export default function BionAssistant() {
           message: text.trim(),
           userName: user?.name,
           role,
-          userId: user?.id,
+          userId: user?.profileId ?? user?.id,
           userData: {
             calories: data.totalCal,
             calGoal: data.calGoal,
