@@ -525,13 +525,18 @@ export default function Settings() {
   const [verifyBusy, setVerifyBusy] = useState(false);
   const [verifyError, setVerifyError] = useState("");
 
-  // Check if email is verified on mount
+  // Check if email is verified on mount (check both user_metadata and profiles)
   useEffect(() => {
     if (!user || user.id?.startsWith("demo_")) return;
     const checkVerified = async () => {
       try {
-        const token = await authToken();
-        if (!token) return;
+        // Primary: check Supabase Auth user_metadata (always available)
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (authUser?.user_metadata?.bion_email_verified) {
+          setEmailVerified(true);
+          return;
+        }
+        // Fallback: check profiles table
         const { data: profile } = await supabase.from("profiles")
           .select("email_verified")
           .eq("user_id", user.id!)
