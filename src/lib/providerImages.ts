@@ -49,11 +49,19 @@ function hashString(str: string): number {
 }
 
 function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/);
+  // Strip emoji and non-ASCII symbols to avoid lone surrogates that break encodeURIComponent
+  const clean = name.replace(/[\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}]|[\u{FE00}-\u{FEFF}]|[\u200D\uFE0F]/gu, "").trim();
+  const parts = (clean || name).trim().split(/\s+/).filter(p => p.length > 0);
   if (parts.length >= 2) {
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    const first = parts[0][0] ?? "?";
+    const last = parts[parts.length - 1][0] ?? "?";
+    // Guard against lone surrogates
+    if (first.charCodeAt(0) > 0xD7FF || last.charCodeAt(0) > 0xD7FF) return "??";
+    return (first + last).toUpperCase();
   }
-  return (name[0] || "?").toUpperCase();
+  const ch = parts[0]?.[0] ?? "?";
+  if (ch.charCodeAt(0) > 0xD7FF) return "?";
+  return ch.toUpperCase();
 }
 
 function generateInitialsAvatar(name: string, id: string): string {
@@ -66,7 +74,12 @@ function generateInitialsAvatar(name: string, id: string): string {
     <text x="60" y="60" text-anchor="middle" dominant-baseline="central" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-weight="600" font-size="42" fill="${fg}">${initials}</text>
   </svg>`;
 
-  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+  try {
+    return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+  } catch {
+    // Fallback for any remaining encoding issues
+    return `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" rx="24" fill="${bg}"/><text x="60" y="60" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-weight="600" font-size="42" fill="${fg}">?</text></svg>')}`;
+  }
 }
 
 // ── Public API ───────────────────────────────────────────────────────────────
@@ -92,7 +105,11 @@ export function getProviderCover(providerId: string): string {
     <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${bg}" stop-opacity="0.6"/><stop offset="100%" stop-color="#0A0A0F"/></linearGradient></defs>
     <rect width="800" height="400" fill="url(#g)"/>
   </svg>`;
-  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+  try {
+    return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+  } catch {
+    return `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400"><rect width="800" height="400" fill="#0A0A0F"/></svg>')}`;
+  }
 }
 
 export function setProviderImage(providerId: string, imageUrl: string): void {
