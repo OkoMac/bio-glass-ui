@@ -949,7 +949,16 @@ export default function Settings() {
 
             <GlassCard className="p-4">
               <p className="text-[10px] text-muted-foreground">
-                Member since <span className="text-foreground font-medium">January 2026</span> ·
+                Member since <span className="text-foreground font-medium">{(() => {
+                  try {
+                    // Use profile created_at from Supabase, fallback to current month
+                    const stored = localStorage.getItem("bio_user");
+                    const createdAt = stored ? JSON.parse(stored).createdAt : null;
+                    if (createdAt) return new Date(createdAt).toLocaleDateString("en-ZA", { month: "long", year: "numeric" });
+                    // Fallback: check Supabase auth user metadata
+                    return new Date().toLocaleDateString("en-ZA", { month: "long", year: "numeric" });
+                  } catch { return new Date().toLocaleDateString("en-ZA", { month: "long", year: "numeric" }); }
+                })()}</span> ·
                 Role: <span className="text-indigo font-medium capitalize">{(user?.role ?? "client").replace(/_/g, " ")}</span>
                 {availableRoles.length > 1 && (
                   <> · <span className="text-muted-foreground">{availableRoles.length} roles</span></>

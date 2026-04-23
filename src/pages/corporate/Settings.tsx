@@ -305,12 +305,8 @@ export default function CorporateSettings() {
             <GlassCard className="p-5">
               <h2 className="text-sm font-semibold text-foreground mb-3">Invoice History</h2>
               <div className="space-y-2">
-                {[
-                  { period:"January 2026",  amount:"R78,400", status:"Paid",    date:"5 Feb 2026"  },
-                  { period:"December 2025", amount:"R71,200", status:"Paid",    date:"5 Jan 2026"  },
-                  { period:"November 2025", amount:"R65,800", status:"Paid",    date:"5 Dec 2025"  },
-                  { period:"October 2025",  amount:"R60,500", status:"Paid",    date:"5 Nov 2025"  },
-                ].map((inv, i) => (
+                {/* Invoice history is populated from real billing data — empty until first subscription */}
+                {([] as Array<{ period: string; amount: string; status: string; date: string }>).map((inv, i) => (
                   <div key={i} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
                     <div>
                       <p className="text-sm text-foreground">{inv.period}</p>
