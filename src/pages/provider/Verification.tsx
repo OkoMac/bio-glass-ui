@@ -45,7 +45,7 @@ export default function ProviderVerification() {
   const [regNumber, setRegNumber] = useState("");
 
   const isDemo = user?.id?.startsWith("demo_") ?? false;
-  const supabaseId = !isDemo && user?.id ? user.id : null;
+  const supabaseId = !isDemo && user?.profileId ? user.profileId : null;
 
   // Load existing documents on mount
   useEffect(() => {

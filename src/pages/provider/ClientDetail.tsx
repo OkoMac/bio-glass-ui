@@ -73,7 +73,7 @@ export default function ClientDetail() {
             .from("client_notes")
             .select("*")
             .eq("client_id", clientId)
-            .eq("provider_id", user.id)
+            .eq("provider_id", user.profileId ?? user.id)
             .order("created_at", { ascending: false });
           notesData = notesResult ?? [];
         }
@@ -210,7 +210,7 @@ export default function ClientDetail() {
       try {
         await supabase.from("client_notes").insert({
           client_id: client.id,
-          provider_id: user.id,
+          provider_id: user.profileId ?? user.id,
           note: text,
           pinned,
         });
