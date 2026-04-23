@@ -185,6 +185,37 @@ export default function Directory() {
     return withProviders.filter(c => c.name.toLowerCase().includes(q));
   }, [search]);
 
+  // Auto-detect user's city from their location to filter results
+  const userCity = useMemo(() => {
+    if (selectedCity) return selectedCity; // explicit city filter takes priority
+    if (manualLocation?.name) {
+      // Match location name to a city in our data
+      const locLower = manualLocation.name.toLowerCase();
+      const cityMatch = ALL_CITIES.find(c => locLower.includes(c.toLowerCase()));
+      if (cityMatch) return cityMatch;
+      // Check if any suburb matches and get its city
+      const suburbMatch = ALL_PROVIDERS.find(p =>
+        p.suburb?.toLowerCase() === locLower || p.location?.toLowerCase().includes(locLower)
+      );
+      if (suburbMatch?.city) return suburbMatch.city;
+    }
+    // If we have GPS, find the nearest provider and use their city
+    const uLat = manualLocation?.lat ?? geo.latitude;
+    const uLng = manualLocation?.lng ?? geo.longitude;
+    if (uLat && uLng) {
+      let nearest = ALL_PROVIDERS[0];
+      let minDist = 9999;
+      for (const p of ALL_PROVIDERS.slice(0, 200)) { // check first 200 for speed
+        if (p.lat && p.lng) {
+          const d = distanceKm(uLat, uLng, p.lat, p.lng);
+          if (d < minDist) { minDist = d; nearest = p; }
+        }
+      }
+      if (nearest?.city && minDist < 100) return nearest.city;
+    }
+    return null;
+  }, [selectedCity, manualLocation, geo.latitude, geo.longitude]);
+
   // Filter + sort providers based on selected category, filter tab, suburb, city
   const filteredProviders = useMemo(() => {
     let list = selectedCategoryId
@@ -195,9 +226,12 @@ export default function Directory() {
     if (selectedSuburb) {
       list = list.filter((p) => p.suburb === selectedSuburb);
     }
-    // City filter
+    // City filter — auto-apply user's detected city unless searching
     if (selectedCity) {
       list = list.filter((p) => p.city === selectedCity);
+    } else if (userCity && !search.trim()) {
+      // Auto-filter to user's city when not searching
+      list = list.filter((p) => p.city === userCity);
     }
 
     // Search filter — split query into words, match ANY word against ANY field
@@ -244,18 +278,18 @@ export default function Directory() {
       const uLat = manualLocation?.lat ?? geo.latitude;
       const uLng = manualLocation?.lng ?? geo.longitude;
       if (uLat && uLng) {
-        // Sort by distance, then by hasPhoto within same distance band (5km buckets)
-        list = [...list].sort((a, b) => {
+        // Sort: photos first, then by distance within photo/no-photo groups
+        const withPhotos = list.filter(p => p.hasLogo);
+        const noPhotos = list.filter(p => !p.hasLogo);
+
+        const sortByDist = (arr: typeof list) => [...arr].sort((a, b) => {
           const distA = a.lat && a.lng ? distanceKm(uLat, uLng, a.lat, a.lng) : 9999;
           const distB = b.lat && b.lng ? distanceKm(uLat, uLng, b.lat, b.lng) : 9999;
-          // Group into 5km bands — within each band, photos first
-          const bandA = Math.floor(distA / 5);
-          const bandB = Math.floor(distB / 5);
-          if (bandA !== bandB) return bandA - bandB;
-          // Same distance band: photos first, then by rating
-          if (a.hasLogo !== b.hasLogo) return b.hasLogo ? 1 : -1;
-          return b.rating - a.rating;
+          if (Math.abs(distA - distB) > 2) return distA - distB; // 2km tolerance
+          return b.rating - a.rating; // same area: by rating
         });
+
+        list = [...sortByDist(withPhotos), ...sortByDist(noPhotos)];
       } else {
         // No location — photos first, then by rating
         list = [...list].sort((a, b) => {
@@ -642,7 +676,7 @@ export default function Directory() {
             className="text-sm md:text-base text-white/80 mt-4 max-w-md"
             style={{ textShadow: "0 2px 10px rgba(0,0,0,0.4)" }}
           >
-            {ALL_PROVIDERS.length} verified professionals near you
+            {filteredProviders.length > 0 ? filteredProviders.length : ALL_PROVIDERS.length} verified professionals{userCity ? ` in ${userCity}` : " near you"}
           </motion.p>
         </div>
       </motion.div>
