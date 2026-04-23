@@ -498,6 +498,7 @@ function AppRoutes() {
       <Route path="/legal/privacy"            element={<Privacy />} />
       <Route path="/legal/terms"              element={<Terms />} />
       <Route path="/privacy"                  element={<Navigate to="/legal/privacy" replace />} />
+      <Route path="/legal/payments"            element={<Navigate to="/legal/payment-flow" replace />} />
 
       {/* Client home (authenticated) */}
       <Route path="/home" element={<RequireAuth allowedRoles={["client"]}><Index /></RequireAuth>} />
