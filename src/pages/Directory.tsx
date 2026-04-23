@@ -278,23 +278,21 @@ export default function Directory() {
       const uLat = manualLocation?.lat ?? geo.latitude;
       const uLng = manualLocation?.lng ?? geo.longitude;
       if (uLat && uLng) {
-        // Sort: photos first, then by distance within photo/no-photo groups
-        const withPhotos = list.filter(p => p.hasLogo);
-        const noPhotos = list.filter(p => !p.hasLogo);
-
-        const sortByDist = (arr: typeof list) => [...arr].sort((a, b) => {
+        // Sort by distance first — nearest providers always on top
+        list = [...list].sort((a, b) => {
           const distA = a.lat && a.lng ? distanceKm(uLat, uLng, a.lat, a.lng) : 9999;
           const distB = b.lat && b.lng ? distanceKm(uLat, uLng, b.lat, b.lng) : 9999;
-          if (Math.abs(distA - distB) > 2) return distA - distB; // 2km tolerance
-          return b.rating - a.rating; // same area: by rating
-        });
-
-        list = [...sortByDist(withPhotos), ...sortByDist(noPhotos)];
-      } else {
-        // No location — photos first, then by rating
-        list = [...list].sort((a, b) => {
+          if (Math.abs(distA - distB) > 1) return distA - distB;
+          // Same distance (~1km): prefer photos, then rating
           if (a.hasLogo !== b.hasLogo) return b.hasLogo ? 1 : -1;
           return b.rating - a.rating;
+        });
+      } else {
+        // No location — by rating, photos break ties
+        list = [...list].sort((a, b) => {
+          if (b.rating !== a.rating) return b.rating - a.rating;
+          if (a.hasLogo !== b.hasLogo) return b.hasLogo ? 1 : -1;
+          return 0;
         });
       }
     }
