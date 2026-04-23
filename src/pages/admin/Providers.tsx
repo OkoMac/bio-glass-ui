@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
+import { supabase } from "@/integrations/supabase/client";
 import ServiceCategoryBlock, { SERVICE_CATEGORIES, type ServiceCategory } from "@/components/ServiceCategoryBlock";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 import {
@@ -294,7 +295,11 @@ export default function AdminProviders() {
                                 <Eye className="w-3 h-3" /> Full Profile
                               </button>
                               <button
-                                onClick={() => alert("Provider suspended.")}
+                                onClick={async () => {
+                                  const { error } = await supabase.from("profiles").update({ provider_status: "suspended" } as any).eq("id", p.id);
+                                  if (error) { import("sonner").then(({ toast }) => toast.error("Failed to suspend")); }
+                                  else { import("sonner").then(({ toast }) => toast.success("Provider suspended")); }
+                                }}
                                 className="px-3 py-1.5 text-xs glass-accent-amber rounded-pill text-amber flex items-center gap-1"
                               >
                                 <Pause className="w-3 h-3" /> Suspend
