@@ -398,7 +398,7 @@ export default function RepDashboard() {
               <p className="text-[11px] text-muted-foreground/60 mt-1 mb-4">Add your bank details via Paystack to receive payouts</p>
               <motion.button
                 whileTap={{ scale: 0.97 }}
-                onClick={() => alert("Bank account linking coming soon. Contact accounts@bionhealth.co.za for setup.")}
+                onClick={() => window.open("mailto:accounts@bionhealth.co.za?subject=Bank%20Account%20Setup%20-%20Ranger%20Payout&body=Hi%20BION%20Accounts%2C%0A%0APlease%20set%20up%20my%20bank%20account%20for%20Ranger%20payouts.%0A%0AName%3A%20%0ABank%3A%20%0AAccount%20Number%3A%20%0ABranch%20Code%3A%20%0A%0AThank%20you.", "_blank")}
                 className="px-6 py-2.5 rounded-pill text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta"
               >
                 Link Bank Account

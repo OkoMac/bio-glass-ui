@@ -61,7 +61,9 @@ export default function WellnessReports() {
 
       if (summaryData.ok) setSummary(summaryData.data);
       if (employeeData.ok) setEmployees(employeeData.data ?? []);
-    } catch {}
+    } catch {
+      import("sonner").then(({ toast }) => toast.error("Could not load report. Check your connection."));
+    }
     setLoading(false);
   }
 
@@ -79,7 +81,9 @@ export default function WellnessReports() {
         a.click();
         URL.revokeObjectURL(url);
       }
-    } catch {}
+    } catch {
+      import("sonner").then(({ toast }) => toast.error("Export failed. Try again."));
+    }
     setExporting(false);
   }
 

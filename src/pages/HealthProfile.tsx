@@ -156,8 +156,10 @@ export default function HealthProfile() {
     });
   }, [user?.profileId]);
 
-  // ── Medical data (localStorage-persisted) ──
+  // ── Medical data (localStorage + Supabase health_profiles) ──
   const uid = user?.id ?? "guest";
+  const profileId = user?.profileId;
+  const isReal = !!profileId && !uid.startsWith("demo_");
   const lsKey = useCallback((k: string) => `bion_medical_${uid}_${k}`, [uid]);
 
   const loadLS = <T,>(key: string, fallback: T): T => {
@@ -169,9 +171,36 @@ export default function HealthProfile() {
   const [allergies, setAllergies]     = useState<string[]>(() => loadLS(lsKey("allergies"), []));
   const [medications, setMedications] = useState<MedMedication[]>(() => loadLS(lsKey("medications"), []));
 
-  useEffect(() => { localStorage.setItem(lsKey("conditions"), JSON.stringify(conditions)); },  [conditions, lsKey]);
-  useEffect(() => { localStorage.setItem(lsKey("allergies"), JSON.stringify(allergies)); },    [allergies, lsKey]);
-  useEffect(() => { localStorage.setItem(lsKey("medications"), JSON.stringify(medications)); }, [medications, lsKey]);
+  // Load from Supabase on mount
+  useEffect(() => {
+    if (!isReal || !profileId) return;
+    import("@/integrations/supabase/client").then(({ supabase }) => {
+      supabase.from("health_profiles").select("conditions, allergies, medications, goals")
+        .eq("user_id", profileId).maybeSingle().then(({ data }) => {
+          if (!data) return;
+          if (data.conditions && Array.isArray(data.conditions) && data.conditions.length > 0) setConditions(data.conditions);
+          if (data.allergies && Array.isArray(data.allergies) && data.allergies.length > 0) setAllergies(data.allergies);
+          if (data.medications && Array.isArray(data.medications) && data.medications.length > 0) setMedications(data.medications);
+          if (data.goals && Array.isArray(data.goals) && data.goals.length > 0) setGoals(data.goals);
+        });
+    });
+  }, [isReal, profileId]);
+
+  // Persist to localStorage + Supabase
+  const syncToDb = useCallback((field: string, value: unknown) => {
+    if (!isReal || !profileId) return;
+    import("@/integrations/supabase/client").then(({ supabase }) => {
+      supabase.from("health_profiles").upsert(
+        { user_id: profileId, [field]: value, updated_at: new Date().toISOString() },
+        { onConflict: "user_id" },
+      ).then(() => {});
+    });
+  }, [isReal, profileId]);
+
+  useEffect(() => { localStorage.setItem(lsKey("conditions"), JSON.stringify(conditions)); syncToDb("conditions", conditions); },  [conditions, lsKey, syncToDb]);
+  useEffect(() => { localStorage.setItem(lsKey("allergies"), JSON.stringify(allergies)); syncToDb("allergies", allergies); },    [allergies, lsKey, syncToDb]);
+  useEffect(() => { localStorage.setItem(lsKey("medications"), JSON.stringify(medications)); syncToDb("medications", medications); }, [medications, lsKey, syncToDb]);
+  useEffect(() => { if (goals.length > 0) syncToDb("goals", goals); }, [goals, syncToDb]);
 
   // Inline form visibility
   const [showAddCondition, setShowAddCondition]   = useState(false);
