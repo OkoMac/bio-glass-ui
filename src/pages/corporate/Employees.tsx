@@ -55,7 +55,7 @@ export default function CorporateEmployees() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isDemo = user?.id?.startsWith("demo_") ?? false;
-  const supabaseId = !isDemo && user?.id ? user.id : null;
+  const supabaseId = !isDemo && user?.profileId ? user.profileId : null;
 
   const [employees, setEmployees] = useState<Employee[]>(EMPLOYEES);
   const [loading, setLoading]     = useState(true);

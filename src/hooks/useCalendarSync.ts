@@ -25,7 +25,7 @@ const LOCAL_KEY = "bion_calendar_events";
  */
 export function useCalendarSync() {
   const { user } = useAuth();
-  const supabaseId = user?.id && !user.id.startsWith("demo_") ? user.id : null;
+  const supabaseId = user?.profileId && !user.id?.startsWith("demo_") ? user.profileId : null;
 
   const [events, setEvents] = useState<CalendarEvent[]>(() => {
     try { return JSON.parse(localStorage.getItem(LOCAL_KEY) ?? "[]"); }

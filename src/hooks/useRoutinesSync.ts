@@ -33,7 +33,7 @@ const LOCAL_KEY = "bion_routines";
  */
 export function useRoutinesSync() {
   const { user } = useAuth();
-  const supabaseId = user?.id && !user.id.startsWith("demo_") ? user.id : null;
+  const supabaseId = user?.profileId && !user.id?.startsWith("demo_") ? user.profileId : null;
 
   const [routines, setRoutines] = useState<Routine[]>(() => {
     try {

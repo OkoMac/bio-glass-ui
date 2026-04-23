@@ -35,7 +35,7 @@ function getToday(): string {
  */
 export function useFoodSync() {
   const { user } = useAuth();
-  const supabaseId = user?.id && !user.id.startsWith("demo_") ? user.id : null;
+  const supabaseId = user?.profileId && !user.id?.startsWith("demo_") ? user.profileId : null;
 
   const [entries, setEntries] = useState<FoodEntry[]>(() => {
     try { return JSON.parse(localStorage.getItem(FOOD_KEY) ?? "[]"); }
