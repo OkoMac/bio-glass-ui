@@ -368,13 +368,23 @@ function isOnboardingComplete(userId: string, role: string): boolean {
     }
   } catch { /* */ }
 
-  // If the user has EVER logged in before (has a stored bio_user), skip onboarding.
-  // Onboarding is for FIRST TIME users only.
+  // If the user has completed at least one booking or has profile data, skip onboarding.
+  // bion_seen_intro alone is not enough — it's set when the splash screen is viewed,
+  // which happens for ALL visitors including first-time users.
   try {
-    const seen = localStorage.getItem("bion_seen_intro");
-    if (seen === "1") {
+    const hasBookings = localStorage.getItem("bion_calendar_events");
+    const hasProfile = localStorage.getItem("bio_user");
+    if (hasBookings && JSON.parse(hasBookings).length > 0) {
       localStorage.setItem(`bion_onboarding_done_${userId}`, "1");
       return true;
+    }
+    // Returning user who previously completed sign-up (has a stored profile with a real ID)
+    if (hasProfile) {
+      const stored = JSON.parse(hasProfile);
+      if (stored.id && !stored.id.startsWith("demo_") && stored.profileId) {
+        localStorage.setItem(`bion_onboarding_done_${userId}`, "1");
+        return true;
+      }
     }
   } catch { /* */ }
 
