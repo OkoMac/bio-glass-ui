@@ -111,7 +111,8 @@ export default function MyPrograms() {
         if (!res.ok || !json.ok) throw new Error(json.error ?? "Failed to load");
         if (!cancelled) setRows(json.data as Enrollment[]);
       } catch (e: any) {
-        if (!cancelled) setErr(e.message ?? "Could not load your programs");
+        // Demo users don't have real auth — suppress API errors silently
+        if (!cancelled && !user?.id?.startsWith("demo_")) setErr(e.message ?? "Could not load your programs");
       } finally {
         if (!cancelled) setLoading(false);
       }
