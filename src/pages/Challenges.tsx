@@ -63,7 +63,7 @@ export default function Challenges() {
       status, participants: r.participant_count, daysLeft, daysTotal: r.days_total,
       progress, reward: r.reward_text, rewardPoints: r.reward_points,
       createdBy: r.created_by_label, badge: r.badge, difficulty: r.difficulty,
-      tasks: taskList, location: r.location ?? undefined,
+      tasks: taskList, providerId: r.provider_id ?? undefined, location: r.location ?? undefined,
     } as Challenge;
   }), [rows, participation]);
 

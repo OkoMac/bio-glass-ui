@@ -119,7 +119,7 @@ export default function CorporateEmployees() {
     localStorage.setItem("bion_corp_employees", JSON.stringify(list));
   };
 
-  const handleInvite = () => {
+  const handleInvite = async () => {
     if (!inviteForm.email.trim() || !inviteForm.name.trim()) return;
     setInviting(true);
 
@@ -135,6 +135,22 @@ export default function CorporateEmployees() {
       status: "pending",
       categories: ["Fitness", "Wellness"],
     };
+
+    // Send invitation via backend API
+    try {
+      const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (token) {
+        await fetch(`${API}/api/corporate/invite`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ email: inviteForm.email, name: inviteForm.name, monthlyBudget: inviteForm.monthly_budget }),
+        });
+      }
+    } catch {
+      // Best-effort — still save locally
+    }
 
     const updated = [...employees, newEmployee];
     persistEmployees(updated);

@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import GlassCard from "@/components/GlassCard";
 import RepNav from "@/components/RepNav";
 import { useAuth } from "@/contexts/AuthContext";
@@ -160,12 +161,18 @@ export default function CRM() {
     setLeads(prev => prev.map(l => l.id === id ? { ...l, stage } : l));
     try {
       const headers = await authHeaders();
-      await fetch(`${API}/api/ranger-crm/leads/${id}`, {
+      const res = await fetch(`${API}/api/ranger-crm/leads/${id}`, {
         method: "PATCH",
         headers,
         body: JSON.stringify({ stage }),
       });
-    } catch { /* offline — local state already updated */ }
+      if (!res.ok) {
+        toast.error("Failed to update stage");
+        setLeads(prev => prev.map(l => l.id === id ? { ...l, stage: l.stage } : l)); // revert
+      }
+    } catch {
+      toast.error("Offline — change saved locally");
+    }
   }
 
   // ── Render ─────────────────────────────────────────────────────
