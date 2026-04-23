@@ -44,7 +44,7 @@ export function useCorporateAnalytics(): CorporateAnalytics {
   const [data, setData] = useState<CorporateAnalytics>(empty);
 
   useEffect(() => {
-    if (!user?.id) { setData(d => ({ ...d, loading: false })); return; }
+    if (!user?.id && !user?.profileId) { setData(d => ({ ...d, loading: false })); return; }
     (async () => {
       setData(d => ({ ...d, loading: true }));
 

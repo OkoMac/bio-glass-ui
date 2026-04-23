@@ -39,25 +39,32 @@ function computeBookingStreak(): { current: number; longest: number; lastDate: s
     const weeks = [...new Set(dates.map(getWeek))].sort();
     if (weeks.length === 0) return { current: 0, longest: 0, lastDate: null };
 
-    // Count consecutive weeks from the end
+    // Count consecutive weeks — walk backwards from most recent week
     let current = 1;
     let longest = 1;
     let streak = 1;
+    let currentFound = false;
 
     for (let i = weeks.length - 1; i > 0; i--) {
-      // Check if weeks are consecutive (simple heuristic: same year, week diff = 1)
       const [y1, w1] = weeks[i].split("-W").map(Number);
       const [y2, w2] = weeks[i - 1].split("-W").map(Number);
       const consecutive = (y1 === y2 && w1 - w2 === 1) || (y1 === y2 + 1 && w2 >= 52 && w1 === 1);
 
       if (consecutive) {
         streak++;
-        if (i === weeks.length - 1 || current === streak - 1) current = streak;
       } else {
+        // First break from the end = current streak is locked in
+        if (!currentFound) {
+          current = streak;
+          currentFound = true;
+        }
         streak = 1;
       }
       longest = Math.max(longest, streak);
     }
+    // If we never hit a break, current streak = entire run
+    if (!currentFound) current = streak;
+    longest = Math.max(longest, streak);
 
     const lastDate = dates[dates.length - 1].toISOString().split("T")[0];
     return { current, longest, lastDate };

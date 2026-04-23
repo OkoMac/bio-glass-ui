@@ -142,7 +142,7 @@ export default function CorporateEmployees() {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       if (token) {
-        await fetch(`${API}/api/corporate/invite`, {
+        await fetch(`${API}/api/corporate/employees/invite`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ email: inviteForm.email, name: inviteForm.name, monthlyBudget: inviteForm.monthly_budget }),
