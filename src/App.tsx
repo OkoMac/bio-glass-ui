@@ -339,42 +339,35 @@ const ONBOARDING_ROUTES: Record<string, string> = {
 };
 
 function isOnboardingComplete(userId: string, role: string): boolean {
-  // Demo accounts have id prefixed "demo_" — they bypass onboarding entirely
+  // Demo accounts bypass onboarding
   if (userId.startsWith("demo_")) return true;
 
-  // Admin and sales_rep users skip onboarding
+  // Admin and sales_rep skip onboarding
   if (role === "admin") return true;
   if (role === "sales_rep") return true;
 
-  // Check localStorage for SCORM-style completion
+  // Simple flag — set once after first onboarding completion. Never show again.
   try {
+    if (localStorage.getItem(`bion_onboarding_done_${userId}`) === "1") return true;
+    // Also check the SCORM key for backwards compat
     const key = `bion_onboarding_${userId}_${role}`;
     const raw = localStorage.getItem(key);
     if (raw) {
       const data = JSON.parse(raw) as { scorm?: { lessonStatus?: string } };
-      if (data?.scorm?.lessonStatus === "passed") return true;
-    }
-  } catch { /* */ }
-
-  // Also check a simple "completed" flag — set after onboarding finishes
-  // This catches users who completed onboarding on another device/browser
-  try {
-    if (localStorage.getItem(`bion_onboarding_done_${userId}`) === "1") return true;
-  } catch { /* */ }
-
-  // For returning users who already have activity, skip onboarding entirely.
-  // If they have bookings, services, or a profile with data, they've already
-  // used the platform — don't force them through onboarding again.
-  try {
-    const profileData = localStorage.getItem("bio_user");
-    if (profileData) {
-      const p = JSON.parse(profileData);
-      // If user has a profileId (real Supabase profile), they've been set up
-      if (p.profileId && !p.profileId.startsWith("demo_")) {
-        // Mark as done so we don't check again
+      if (data?.scorm?.lessonStatus === "passed") {
         localStorage.setItem(`bion_onboarding_done_${userId}`, "1");
         return true;
       }
+    }
+  } catch { /* */ }
+
+  // If the user has EVER logged in before (has a stored bio_user), skip onboarding.
+  // Onboarding is for FIRST TIME users only.
+  try {
+    const seen = localStorage.getItem("bion_seen_intro");
+    if (seen === "1") {
+      localStorage.setItem(`bion_onboarding_done_${userId}`, "1");
+      return true;
     }
   } catch { /* */ }
 

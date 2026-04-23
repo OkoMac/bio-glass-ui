@@ -185,36 +185,23 @@ export default function Directory() {
     return withProviders.filter(c => c.name.toLowerCase().includes(q));
   }, [search]);
 
-  // Auto-detect user's city from their location to filter results
+  // City filter — ONLY when user explicitly chose via filter or manual location picker.
+  // Do NOT auto-detect from GPS — it's unreliable and frustrating.
+  // Distance sorting already handles showing nearest providers first.
   const userCity = useMemo(() => {
-    if (selectedCity) return selectedCity; // explicit city filter takes priority
+    if (selectedCity) return selectedCity;
+    // Only use manual location if user explicitly picked a suburb in the location picker
     if (manualLocation?.name) {
-      // Match location name to a city in our data
       const locLower = manualLocation.name.toLowerCase();
       const cityMatch = ALL_CITIES.find(c => locLower.includes(c.toLowerCase()));
       if (cityMatch) return cityMatch;
-      // Check if any suburb matches and get its city
       const suburbMatch = ALL_PROVIDERS.find(p =>
-        p.suburb?.toLowerCase() === locLower || p.location?.toLowerCase().includes(locLower)
+        p.suburb?.toLowerCase() === locLower
       );
       if (suburbMatch?.city) return suburbMatch.city;
     }
-    // If we have GPS, find the nearest provider and use their city
-    const uLat = manualLocation?.lat ?? geo.latitude;
-    const uLng = manualLocation?.lng ?? geo.longitude;
-    if (uLat && uLng) {
-      let nearest = ALL_PROVIDERS[0];
-      let minDist = 9999;
-      for (const p of ALL_PROVIDERS.slice(0, 200)) { // check first 200 for speed
-        if (p.lat && p.lng) {
-          const d = distanceKm(uLat, uLng, p.lat, p.lng);
-          if (d < minDist) { minDist = d; nearest = p; }
-        }
-      }
-      if (nearest?.city && minDist < 100) return nearest.city;
-    }
-    return null;
-  }, [selectedCity, manualLocation, geo.latitude, geo.longitude]);
+    return null; // No city filter — show all, sorted by distance
+  }, [selectedCity, manualLocation]);
 
   // Filter + sort providers based on selected category, filter tab, suburb, city
   const filteredProviders = useMemo(() => {
