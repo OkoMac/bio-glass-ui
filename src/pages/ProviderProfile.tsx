@@ -756,7 +756,7 @@ export default function ProviderProfile() {
         {provider.availability && (
           <div className="flex items-center gap-2 text-sm">
             <Clock className="w-4 h-4 text-teal" />
-            <span className="text-muted-foreground">{provider.availability}</span>
+            <span className="text-muted-foreground">{Array.isArray(provider.availability) ? provider.availability.join(", ") : provider.availability}</span>
           </div>
         )}
 

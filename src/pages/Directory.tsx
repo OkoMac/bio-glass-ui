@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Search, MapPin, SlidersHorizontal, Navigation, Star, Clock, ChevronRight, X, Plus, Lock, Phone, ArrowLeft, Globe, ExternalLink, Send } from "lucide-react";
 import BookingRequestForm from "@/components/BookingRequestForm";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -125,6 +125,7 @@ function useReverseGeo(lat: number | null, lng: number | null) {
 
 export default function Directory() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const geo = useGeolocation();
   const userSuburb = useReverseGeo(geo.latitude, geo.longitude);
@@ -149,7 +150,7 @@ export default function Directory() {
     showTip("directory", "Tip: Enable location for the best provider matches near you.");
   }, [showTip]);
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchParams.get("q") ?? "");
   const [activeFilter, setActiveFilter] = useState("Nearby");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [showBookingForm, setShowBookingForm] = useState(false);
