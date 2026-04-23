@@ -121,7 +121,9 @@ export function useFoodSync() {
         time: entry.time,
         photo_url: entry.photo,
         date: entry.date,
-      } as any).then(() => {});
+      } as any).then(({ error }) => {
+        if (error && import.meta.env.DEV) console.warn("[food] insert failed:", error.message);
+      });
     }
   }, [entries, supabaseId]);
 
@@ -131,7 +133,9 @@ export function useFoodSync() {
     localStorage.setItem(FOOD_KEY, JSON.stringify(updated));
 
     if (supabaseId) {
-      supabase.from("food_entries" as any).delete().eq("id", id).then(() => {});
+      supabase.from("food_entries" as any).delete().eq("id", id).then(({ error }) => {
+        if (error && import.meta.env.DEV) console.warn("[food] delete failed:", error.message);
+      });
     }
   }, [entries, supabaseId]);
 
@@ -143,7 +147,9 @@ export function useFoodSync() {
       supabase.from("daily_goals" as any).upsert({
         user_id: supabaseId,
         ...g,
-      } as any, { onConflict: "user_id" }).then(() => {});
+      } as any, { onConflict: "user_id" }).then(({ error }) => {
+        if (error && import.meta.env.DEV) console.warn("[food] goals save failed:", error.message);
+      });
     }
   }, [supabaseId]);
 

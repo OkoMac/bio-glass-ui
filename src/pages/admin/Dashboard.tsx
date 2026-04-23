@@ -144,12 +144,14 @@ export default function AdminDashboard() {
   };
 
   const updateRequestStatus = async (id: string, status: string) => {
-    await supabase.from("booking_requests").update({ status } as any).eq("id", id);
+    const { error } = await supabase.from("booking_requests").update({ status } as any).eq("id", id);
+    if (error) { import("sonner").then(({ toast }) => toast.error("Failed to update request")); return; }
     setBookingRequests(prev => prev.map(r => r.id === id ? { ...r, status } : r));
   };
 
   const approveProvider = async (id: string) => {
-    await supabase.from("profiles").update({ is_active: true } as any).eq("id", id);
+    const { error } = await supabase.from("profiles").update({ is_active: true } as any).eq("id", id);
+    if (error) { import("sonner").then(({ toast }) => toast.error("Failed to approve provider")); return; }
     setApprovals(a => ({ ...a, [id]: "approved" }));
   };
 

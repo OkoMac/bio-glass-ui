@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
@@ -230,10 +230,12 @@ export default function BionCalendar() {
 
   // Seed demo accounts with sample events if empty
   const [seeded, setSeeded] = useState(false);
-  if (isDemo && events.length === 0 && !seeded) {
-    buildSampleEvents().forEach(e => syncAddEvent(e));
-    setSeeded(true);
-  }
+  useEffect(() => {
+    if (isDemo && events.length === 0 && !seeded) {
+      buildSampleEvents().forEach(e => syncAddEvent(e));
+      setSeeded(true);
+    }
+  }, [isDemo, events.length, seeded]);
 
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
