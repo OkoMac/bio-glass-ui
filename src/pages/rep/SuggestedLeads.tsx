@@ -48,7 +48,7 @@ export default function SuggestedLeads() {
     (async () => {
       try {
         const headers = await authHeaders();
-        const res = await fetch(`${API}/api/ranger-crm/suggested`, { headers });
+        const res = await fetch(`${API}/api/ranger-crm/suggested-leads`, { headers });
         if (res.ok) {
           const data = await res.json();
           if (!cancelled) setProviders(data);

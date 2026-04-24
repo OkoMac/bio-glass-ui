@@ -9,7 +9,7 @@ import { ArrowLeft, Save } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
-const CATEGORIES = ["Medical", "Beauty", "Fitness", "Wellness", "Veterinary"];
+const CATEGORIES = ["medical", "beauty", "fitness", "wellness", "veterinary"];
 const SOURCES = ["Manual", "Directory", "Referral"];
 
 async function authHeaders() {
@@ -169,7 +169,7 @@ export default function AddLead() {
                   key={c}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setCategory(c)}
-                  className={`text-xs px-3 py-1.5 rounded-pill font-medium ${
+                  className={`text-xs px-3 py-1.5 rounded-pill font-medium capitalize ${
                     category === c
                       ? "gradient-indigo text-white"
                       : "glass-1 text-muted-foreground"
