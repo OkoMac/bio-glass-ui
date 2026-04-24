@@ -25,37 +25,29 @@ type OnboardingStep = {
   flow?: Array<{ icon: string; label: string; desc: string }>;
 };
 
+// Billboard screens — 3 screens, no scrolling, one message each (per Master Spec)
 const onboardingSteps: OnboardingStep[] = [
   {
     type: "default",
-    headline: "Commit to yourself.",
-    sub: "Commit to your health, your wellness and your beauty. Commit to yourself.",
+    headline: "Your health.\nYour wellness.\nYour way.",
+    sub: "Book providers. Track your body. Earn as you go.",
     emoji: "🌟",
-  },
-  {
-    type: "flow",
-    headline: "Companies fund\nyour wellness.",
-    sub: "Your employer loads your BIONWallet. You choose where to spend it across any service on BION.",
     flow: [
-      { icon: "🏢", label: "Corporate", desc: "Funds BIONWallet" },
-      { icon: "👤", label: "Employee", desc: "Books services" },
-      { icon: "🩺", label: "Provider", desc: "Delivers care" },
+      { icon: "🏋", label: "Fitness & gyms", desc: "" },
+      { icon: "💆", label: "Beauty & wellness", desc: "" },
+      { icon: "🩺", label: "Medical & health", desc: "" },
+      { icon: "🧘", label: "Mental wellness", desc: "" },
     ],
   },
   {
     type: "default",
-    headline: "Your health.\nYour beauty.\nYour wellness.",
-    sub: "Doctors, trainers, therapists, nutritionists — browse, book, and track progress all in one place.",
-    emoji: "🤝",
-  },
-  {
-    type: "flow",
-    headline: "One network.\nEveryone wins.",
-    sub: "Providers grow their practice. Companies cut sick days. Employees thrive.",
+    headline: "We're not a directory.",
+    sub: "We're a full wellness platform.",
+    emoji: "🚀",
     flow: [
-      { icon: "🏢", label: "Corporate", desc: "Reduces sick days" },
-      { icon: "👤", label: "Employee", desc: "Thrives & performs" },
-      { icon: "🩺", label: "Provider", desc: "Grows practice" },
+      { icon: "💰", label: "BIONWallet", desc: "pay once, use anywhere on BION" },
+      { icon: "🏆", label: "BIONPoints", desc: "earn rewards on every session" },
+      { icon: "📊", label: "Free health tools", desc: "BMI, calories, sleep, more" },
     ],
   },
 ];
@@ -64,10 +56,10 @@ type Phase = "splash" | "onboarding" | "role" | "auth" | "terms" | "email-sent" 
 type AuthMode = "signin" | "signup";
 
 const ROLE_OPTIONS = [
-  { role: "client"    as UserRole, label: "I'm a Client",       desc: "Discover and book health, beauty & wellness services",  icon: User,        color: "#6366F1" },
-  { role: "provider"  as UserRole, label: "I'm a Provider",     desc: "Manage your bookings, clients and services",            icon: Briefcase,   color: "#2DD4BF" },
-  { role: "corporate" as UserRole, label: "Corporate Wellness", desc: "Manage employee wellness budgets and track engagement", icon: Building2,   color: "#F59E0B" },
-  { role: "sales_rep" as UserRole, label: "Sales Representative", desc: "Earn commissions by signing up providers to BION",      icon: TrendingUp, color: "#10B981" },
+  { role: "client"    as UserRole, label: "I'm looking for services",    desc: "Book health, beauty & wellness providers",              icon: User,        color: "#6366F1" },
+  { role: "provider"  as UserRole, label: "I'm a service provider",     desc: "Manage your bookings, clients and services",            icon: Briefcase,   color: "#2DD4BF" },
+  { role: "corporate" as UserRole, label: "I'm setting up for my company", desc: "Manage employee wellness budgets and track engagement", icon: Building2, color: "#F59E0B" },
+  { role: "sales_rep" as UserRole, label: "I'm a BION Ranger",          desc: "Earn commissions by signing up providers (invite only)", icon: TrendingUp,  color: "#10B981" },
 ];
 
 const ROLE_HOME: Record<UserRole, string> = {
@@ -477,44 +469,29 @@ export default function SplashOnboarding() {
               const step = onboardingSteps[currentStep];
               return (
                 <motion.div key={currentStep} initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -50 }} transition={{ duration: 0.3 }} className="text-center space-y-6 w-full">
-                  {step.type === "flow" && step.flow ? (
-                    <>
-                      <div className="flex items-start justify-center gap-1">
-                        {step.flow.map((node, i) => (
-                          <div key={i} className="flex items-start gap-1">
-                            <motion.div
-                              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: i * 0.12 }}
-                              className="flex flex-col items-center gap-2 w-20"
-                            >
-                              <div className="w-14 h-14 glass-1 rounded-2xl flex items-center justify-center text-2xl border border-white/8">
-                                {node.icon}
-                              </div>
-                              <p className="text-xs font-semibold text-foreground">{node.label}</p>
-                              <p className="text-[10px] text-muted-foreground leading-tight">{node.desc}</p>
-                            </motion.div>
-                            {i < step.flow!.length - 1 && (
-                              <span className="text-indigo text-lg font-bold mt-4 px-0.5">→</span>
-                            )}
+                  exit={{ opacity: 0, x: -50 }} transition={{ duration: 0.3 }} className="text-center space-y-5 w-full max-w-sm mx-auto">
+                  {/* Billboard: emoji/icon → headline → subtitle → category pills */}
+                  <motion.span initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="text-5xl block">
+                    {step.emoji}
+                  </motion.span>
+                  <h1 className="text-2xl md:text-3xl font-bold text-foreground leading-tight whitespace-pre-line">
+                    {step.headline}
+                  </h1>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{step.sub}</p>
+                  {step.flow && (
+                    <div className="space-y-2.5 text-left pt-2">
+                      {step.flow.map((item, i) => (
+                        <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.1 }}
+                          className="flex items-center gap-3 glass-1 rounded-xl px-4 py-3 border border-white/5">
+                          <span className="text-xl shrink-0">{item.icon}</span>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-foreground">{item.label}</p>
+                            {item.desc && <p className="text-xs text-muted-foreground">{item.desc}</p>}
                           </div>
-                        ))}
-                      </div>
-                      <h1 className="text-3xl font-bold text-foreground leading-tight whitespace-pre-line">
-                        {step.headline}
-                      </h1>
-                      <p className="text-base text-muted-foreground leading-relaxed max-w-xs mx-auto">{step.sub}</p>
-                    </>
-                  ) : (
-                    <>
-                      <motion.span initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="text-7xl block">
-                        {step.emoji}
-                      </motion.span>
-                      <h1 className="text-3xl font-bold text-foreground leading-tight whitespace-pre-line">
-                        {step.headline}
-                      </h1>
-                      <p className="text-base text-muted-foreground leading-relaxed max-w-xs mx-auto">{step.sub}</p>
-                    </>
+                        </motion.div>
+                      ))}
+                    </div>
                   )}
                 </motion.div>
               );
@@ -529,14 +506,14 @@ export default function SplashOnboarding() {
           </div>
           <motion.button whileTap={{ scale: 0.97 }}
             onClick={() => {
-              if (currentStep < 3) { setCurrentStep(s => s + 1); return; }
+              if (currentStep < onboardingSteps.length - 1) { setCurrentStep(s => s + 1); return; }
               try { localStorage.setItem("bion_seen_intro", "1"); } catch {}
               setPhase("role");
             }}
             className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta">
-            {currentStep < 3 ? "Continue" : "Get Started"}
+            {currentStep < onboardingSteps.length - 1 ? "Next →" : "Let's go →"}
           </motion.button>
-          {currentStep < 3 && (
+          {currentStep < onboardingSteps.length - 1 && (
             <button
               onClick={() => {
                 try { localStorage.setItem("bion_seen_intro", "1"); } catch {}
@@ -559,8 +536,8 @@ export default function SplashOnboarding() {
         style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(99,102,241,0.08) 0%, #0A0A0F 65%)" }}>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-sm space-y-6">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-foreground">Who are you?</h1>
-            <p className="text-sm text-muted-foreground mt-1">Select your role to get the right experience</p>
+            <h1 className="text-2xl font-bold text-foreground">How are you using BION?</h1>
+            <p className="text-sm text-muted-foreground mt-1">Choose your path.</p>
           </div>
           <div className="space-y-3">
             {ROLE_OPTIONS.map(opt => {
