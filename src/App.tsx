@@ -350,9 +350,9 @@ function isOnboardingComplete(userId: string, role: string): boolean {
   // Demo accounts bypass onboarding
   if (userId.startsWith("demo_")) return true;
 
-  // Admin and sales_rep skip onboarding
+  // Admin skips onboarding (manually created accounts)
   if (role === "admin") return true;
-  if (role === "sales_rep") return true;
+  // Sales reps (Rangers) now go through onboarding — removed skip
 
   // Simple flag — set once after first onboarding completion. Never show again.
   try {
