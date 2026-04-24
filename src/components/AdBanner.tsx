@@ -25,7 +25,18 @@ export default function AdBanner({ slot, format = "auto", className = "" }: AdBa
 
   useEffect(() => {
     if (isPremium || isProvider || pushed.current) return;
+    if (!hasConsent("marketing")) return;
     pushed.current = true;
+
+    // Dynamically load AdSense script if not already present
+    if (!document.getElementById("adsense-script")) {
+      const s = document.createElement("script");
+      s.id = "adsense-script";
+      s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7532216743551384";
+      s.async = true;
+      s.crossOrigin = "anonymous";
+      document.head.appendChild(s);
+    }
 
     try {
       // @ts-ignore
