@@ -143,7 +143,7 @@ export default function CorporateProviders() {
               <Briefcase className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
               <p className="text-sm font-medium text-foreground mb-1">No preferred providers yet</p>
               <p className="text-xs text-muted-foreground">
-                Add providers from the directory to create your approved list for employees.
+                Add providers from the network to create your approved list for employees.
               </p>
               <motion.button whileTap={{ scale: 0.95 }}
                 onClick={() => setShowSearch(true)}

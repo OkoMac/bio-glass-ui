@@ -63,8 +63,8 @@ export default function InvitePage() {
           </h1>
           <p className="text-sm text-muted-foreground">
             {inviter
-              ? `${firstName} thinks you'd love BION — Africa's health, wellness & beauty marketplace.`
-              : "Join BION — Africa's health, wellness & beauty marketplace."}
+              ? `${firstName} thinks you'd love BION — Africa's Beauty, Health & Wellness Ecosystem.`
+              : "Join BION — Africa's Beauty, Health & Wellness Ecosystem."}
           </p>
         </div>
 

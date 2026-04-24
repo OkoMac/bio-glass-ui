@@ -21,7 +21,7 @@ const HOME_TIPS: Tip[] = [
   { id: "home-food",      condition: "no_food",      message: "Track what you eat — I can analyse a photo of your meal and count calories instantly.",  action: "/food-tracker" },
   { id: "home-water",     condition: "no_water",     message: "Staying hydrated? Tap Water to track your daily intake.",                                action: "/water-tracker" },
   { id: "home-sleep",     condition: "no_sleep",     message: "Log your sleep to unlock weekly patterns and insights from me.",                          action: "/sleep-tracker" },
-  { id: "home-booking",   condition: "no_bookings",  message: "Browse 5,000+ providers near you — I'll help you find the right fit for your goals.",    action: "/directory" },
+  { id: "home-booking",   condition: "no_bookings",  message: "Explore 13,300+ professionals near you — I'll help you find the right fit for your goals.",    action: "/directory" },
   { id: "home-location",  condition: "no_location",  message: "Set your location so I can show you providers nearest to you.",                           action: "/settings" },
   { id: "home-medcard",   condition: "no_medcard",   message: "Your digital medical card is ready — fill it in so providers have your info on hand.",   action: "/medical-card" },
   { id: "home-bmi",       condition: "no_bmi",       message: "Check your BMI — it takes 10 seconds and helps track your wellness journey.",            action: "/tools/bmi-calculator" },

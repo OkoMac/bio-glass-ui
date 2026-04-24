@@ -218,15 +218,15 @@ export const PROVIDER_TIER_PRICING: Record<ProviderSubscriptionTier, { monthly: 
   free: {
     monthly: 0,
     yearly: 0,
-    description: 'Basic listing only'
+    description: 'Starter access'
   },
   pro: {
-    monthly: 499, // R499/month
+    monthly: 299, // R299/month — BION Basic
     yearly: 4799, // R4799/year (20% discount)
     description: 'Full platform access'
   },
   elite: {
-    monthly: 999, // R999/month
+    monthly: 699, // R699/month — BION Pro
     yearly: 9599, // R9599/year (20% discount)
     description: 'Enterprise features + white-label'
   },

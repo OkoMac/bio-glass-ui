@@ -57,7 +57,7 @@ export default function Terms() {
           <section>
             <h2 className="text-base font-semibold text-foreground mb-2">4. Services</h2>
             <p>
-              BION is a marketplace platform that connects clients with health, wellness, and beauty service providers
+              BION is a Beauty, Health & Wellness Ecosystem that connects clients with health, wellness, and beauty service providers through AI coaches, biodata tools, and a verified professional marketplace
               across Johannesburg, Pretoria, Cape Town, Durban and beyond. Services include 1-on-1 bookings, group
               classes & workshops, recurring sessions, package deals, gift vouchers, telehealth video consultations
               (Jitsi Meet), walk-in queue management and provider-to-provider referrals. We do not provide medical

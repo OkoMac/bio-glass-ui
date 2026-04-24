@@ -131,7 +131,7 @@ const FOOD_FAQ_DATA = [
   { q: "How many calories should I eat per day?", a: "The recommended daily calorie intake varies by age, sex, and activity level. For most South African adults, it is roughly 2 000 kcal for women and 2 500 kcal for men. Use this tracker to set a personalised goal and monitor your intake over time." },
   { q: "How do I count calories in South African food?", a: "Many traditional SA foods like pap, boerewors, and vetkoek have well-known calorie counts. This tracker includes a built-in database of common South African foods so you can log meals quickly without guessing." },
   { q: "What are macros?", a: "Macros (macronutrients) are protein, carbohydrates, and fat — the three main nutrients your body needs in large amounts. Tracking macros alongside calories helps you maintain a balanced diet and reach specific health goals." },
-  { q: "Need a nutritionist?", a: "If you want personalised meal plans or have specific dietary needs, browse verified dietitians and nutritionists on BION's directory. They can help you create a sustainable eating plan tailored to your lifestyle." },
+  { q: "Need a nutritionist?", a: "If you want personalised meal plans or have specific dietary needs, connect with verified dietitians and nutritionists on BION. They can help you create a sustainable eating plan tailored to your lifestyle." },
 ];
 
 /* ── Component ──────────────────────────────────────── */

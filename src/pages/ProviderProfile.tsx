@@ -383,7 +383,7 @@ export default function ProviderProfile() {
       } finally {
         setBookingBusy(false);
       }
-      setBookingError("This provider hasn't claimed their BION listing yet. Our team has been notified to onboard them — we'll message you when in-app booking is available. In the meantime, their contact info above lets you reach them directly.");
+      setBookingError("This provider hasn't claimed their BION profile yet. Our team has been notified to onboard them — we'll message you when in-app booking is available. In the meantime, their contact info above lets you reach them directly.");
       return;
     }
 
@@ -644,7 +644,7 @@ export default function ProviderProfile() {
     return (
       <div className="min-h-screen bg-obsidian flex flex-col items-center justify-center text-foreground gap-4">
         <p className="text-lg font-semibold">Provider not found</p>
-        <button onClick={() => navigate("/")} className="text-sm text-indigo">Back to directory</button>
+        <button onClick={() => navigate("/")} className="text-sm text-indigo">Back to providers</button>
       </div>
     );
   }
@@ -1094,7 +1094,7 @@ export default function ProviderProfile() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-foreground">Is this your business?</p>
                   <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
-                    Take ownership of this listing to manage your profile & services, accept bookings & payments, and access CRM & analytics.
+                    Take ownership of this profile to manage your profile & services, accept bookings & payments, and access CRM & analytics.
                   </p>
                   <div className="flex flex-wrap gap-2 mt-3">
                     <button

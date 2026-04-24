@@ -42,7 +42,7 @@ const SECTIONS = [
     title: "Ranger Tools & Resources",
     items: [
       "📱 CRM with an 8-stage lead pipeline — track every provider from cold lead to signed and active.",
-      "🤖 Auto-suggested leads from the BION directory — B_ AI identifies unsigned providers near you.",
+      "🤖 Auto-suggested leads from the BION provider network — B_ AI identifies unsigned providers near you.",
       "🎓 13 Bicademy training courses covering platform knowledge, sales techniques, objection handling and compliance.",
       "📣 Pitch providers on 15 dashboard tools (including queue management, telehealth, group bookings, intake forms, treatment plans, analytics and multi-location support).",
     ],

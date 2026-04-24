@@ -408,7 +408,7 @@ const Index = () => {
             <GlassCard className="p-8 text-center">
               <SearchIcon className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
               <p className="text-sm font-medium text-foreground mb-1">No providers to show yet</p>
-              <p className="text-xs text-muted-foreground">Browse the directory to find providers near you.</p>
+              <p className="text-xs text-muted-foreground">Explore the provider network to find professionals near you.</p>
               <button onClick={() => navigate("/directory")} className="mt-3 text-xs text-indigo-light font-medium">
                 Browse directory →
               </button>

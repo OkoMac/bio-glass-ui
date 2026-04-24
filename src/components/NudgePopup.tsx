@@ -60,7 +60,7 @@ const NUDGE_CONTENT: Record<string, NudgeContent> = {
   },
   provider_boost: {
     icon: "🚀",
-    title: "Boost your listing",
+    title: "Boost your profile",
     subtitle: "Get seen by more clients near you.",
     bullets: [
       { icon: "⭐", text: "Gold badge + priority placement" },

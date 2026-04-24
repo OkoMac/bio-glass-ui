@@ -79,7 +79,7 @@ export default function BoostListingCard() {
         <div className="text-center py-2">
           <CheckCircle className="w-8 h-8 text-teal mx-auto mb-2" />
           <p className="text-sm font-semibold text-foreground">Spotlight activated!</p>
-          <p className="text-xs text-muted-foreground">Your listing is now featured in the directory.</p>
+          <p className="text-xs text-muted-foreground">Your profile is now featured and prioritised.</p>
         </div>
       </GlassCard>
     );
@@ -92,7 +92,7 @@ export default function BoostListingCard() {
         <h4 className="text-sm font-semibold text-foreground">Boost Your Listing</h4>
       </div>
       <p className="text-xs text-muted-foreground mb-3">
-        Get featured at the top of the directory with a gold badge. More visibility = more bookings.
+        Get featured at the top of search results with a gold badge. More visibility = more bookings.
       </p>
 
       <div className="space-y-2">

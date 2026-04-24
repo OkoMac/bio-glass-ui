@@ -447,7 +447,7 @@ export default function ProviderBilling() {
               {
                 id: "pro" as const,
                 name: "Pro",
-                price: "R499",
+                price: "R299",
                 period: "/mo",
                 Icon: Zap,
                 features: [
@@ -462,7 +462,7 @@ export default function ProviderBilling() {
               {
                 id: "elite" as const,
                 name: "Elite",
-                price: "R999",
+                price: "R699",
                 period: "/mo",
                 Icon: Crown,
                 features: [

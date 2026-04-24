@@ -368,10 +368,10 @@ export default function SeoCategoryCity() {
           <section className="space-y-3">
             <div className="rounded-2xl glass-1 p-6 text-center">
               <p className="text-sm text-muted-foreground">
-                No {category.label} providers listed yet. Browse the full directory or message B_ on WhatsApp for recommendations.
+                No {category.label} providers listed yet. Explore the full provider network or message B_ on WhatsApp for recommendations.
               </p>
               <Link to="/directory" className="inline-flex items-center gap-1 mt-3 text-xs text-indigo font-medium">
-                Full directory <ArrowRight className="w-3 h-3" />
+                All providers <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
           </section>
@@ -409,7 +409,7 @@ export default function SeoCategoryCity() {
                 <span className="text-indigo">+</span>
               </summary>
               <p className="text-xs text-muted-foreground mt-3 leading-relaxed">
-                Every provider bookable on BION has completed identity verification, a regulator-body check (HPCSA / SANC / SAPC / AHPCSA where applicable), and professional indemnity confirmation. Directory-only listings show an "unclaimed" badge until the owner verifies.
+                Every provider bookable on BION has completed identity verification, a regulator-body check (HPCSA / SANC / SAPC / AHPCSA where applicable), and professional indemnity confirmation. Unclaimed profiles show an "unclaimed" badge until the owner verifies.
               </p>
             </details>
           </div>

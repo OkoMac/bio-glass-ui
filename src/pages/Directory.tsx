@@ -402,7 +402,7 @@ export default function Directory() {
       "@context": "https://schema.org",
       "@type": "ItemList",
       name: "Health, Wellness & Beauty Providers in South Africa",
-      description: "Browse 853+ verified providers on BION — South Africa's health and wellness marketplace.",
+      description: "Browse 853+ verified providers on BION — Africa's Beauty, Health & Wellness Ecosystem.",
       numberOfItems: ALL_PROVIDERS.length,
       itemListElement: ALL_PROVIDERS.slice(0, 10).map((p, i) => ({
         "@type": "ListItem",

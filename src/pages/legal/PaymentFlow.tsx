@@ -25,7 +25,7 @@ export default function PaymentFlow() {
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-2">1. Overview</h2>
-            <p>BION is a marketplace platform connecting clients with health, wellness, beauty, fitness, and medical service providers. All payments are processed securely through <span className="text-teal font-medium">Paystack</span>, a PCI DSS Level 1 compliant payment processor regulated by the South African Reserve Bank.</p>
+            <p>BION is a Beauty, Health & Wellness Ecosystem combining AI personal life coaches, free biodata utilities, and a verified professional marketplace — connecting clients with health, wellness, beauty, fitness, and medical service providers. All payments are processed securely through <span className="text-teal font-medium">Paystack</span>, a PCI DSS Level 1 compliant payment processor regulated by the South African Reserve Bank.</p>
             <p className="mt-2">BION does not hold client funds. Payments flow directly from client to provider via Paystack's split payment infrastructure.</p>
           </section>
 
