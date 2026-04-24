@@ -236,6 +236,7 @@ export default function SplashOnboarding() {
   // KYC gate state — only used for signup
   const [phone, setPhone] = useState("");
   const [otpStep, setOtpStep] = useState<"idle" | "sent" | "verified">("idle");
+  const [otpChannel, setOtpChannel] = useState<"whatsapp" | "email">("whatsapp");
   const [otpCode, setOtpCode] = useState("");
   const [ageVerified, setAgeVerified] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
@@ -310,6 +311,7 @@ export default function SplashOnboarding() {
       });
       const otp = await otpRes.json();
       if (!otp.ok) { setError(otp.error ?? "Couldn't send verification code."); setBusy(false); return; }
+      setOtpChannel(otp.channel ?? "whatsapp");
       setOtpStep("sent");
     } catch (err: any) {
       setError(err.message ?? "Network error.");
@@ -891,7 +893,11 @@ export default function SplashOnboarding() {
           {authMode === "signup" && otpStep === "sent" && (
             <>
               <div className="glass-1 rounded-xl px-4 py-3 text-xs text-muted-foreground">
-                We sent a 6-digit code to <span className="text-foreground font-medium">{normalizePhone(phone)}</span>. Enter it below to finish creating your account.
+                {otpChannel === "email" ? (
+                  <>We sent a 6-digit code to <span className="text-foreground font-medium">{email}</span> (via email). Check your inbox and spam folder.</>
+                ) : (
+                  <>We sent a 6-digit code to <span className="text-foreground font-medium">{normalizePhone(phone)}</span> via WhatsApp. Enter it below to finish.</>
+                )}
               </div>
               <input value={otpCode} onChange={e => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                 placeholder="6-digit code" inputMode="numeric" maxLength={6}
