@@ -826,6 +826,22 @@ export default function SplashOnboarding() {
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+              {/* Password strength indicator */}
+              {password.length > 0 && (() => {
+                const s = password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password) ? 3
+                  : password.length >= 8 && (/[A-Z]/.test(password) || /[0-9]/.test(password)) ? 2
+                  : password.length >= 8 ? 1 : 0;
+                const labels = ["Too short", "Weak", "Good", "Strong"];
+                const colors = ["bg-red-500", "bg-amber", "bg-teal", "bg-teal"];
+                return (
+                  <div className="flex items-center gap-2 px-1">
+                    <div className="flex-1 h-1 rounded-full bg-white/10 overflow-hidden">
+                      <div className={`h-full rounded-full transition-all duration-300 ${colors[s]}`} style={{ width: `${((s + 1) / 4) * 100}%` }} />
+                    </div>
+                    <span className={`text-[10px] ${s >= 2 ? "text-teal" : s === 1 ? "text-amber" : "text-red-400"}`}>{labels[s]}</span>
+                  </div>
+                );
+              })()}
               <input value={phone} onChange={e => setPhone(e.target.value)}
                 placeholder="Mobile number (e.g. 072 123 4567)" type="tel"
                 className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
