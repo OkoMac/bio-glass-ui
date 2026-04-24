@@ -213,6 +213,16 @@ export default function SplashOnboarding() {
   const [phase, setPhase]               = useState<Phase>(loginDirect ? "role" : hasSeenIntro ? "role" : "splash");
   const [progress, setProgress]         = useState(0);
   const [currentStep, setCurrentStep]   = useState(0);
+  // Onboarding analytics — track phase transitions
+  const trackOnboarding = (step: string) => {
+    const API_URL = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+    fetch(`${API_URL}/api/analytics/pageview`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: `/_onboarding/${step}`, device_type: window.innerWidth < 768 ? "mobile" : "desktop" }),
+    }).catch(() => {});
+  };
+
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [authMode, setAuthMode]         = useState<AuthMode>("signin");
   const [name,     setName]             = useState("");
@@ -248,6 +258,7 @@ export default function SplashOnboarding() {
     // they should never see the intro carousel again on any future visit.
     const fallback = setTimeout(() => {
       try { localStorage.setItem("bion_seen_intro", "1"); } catch {}
+      trackOnboarding("screen1_view");
       setPhase("onboarding");
     }, 1500);
     return () => { clearInterval(interval); clearTimeout(fallback); };
@@ -374,6 +385,7 @@ export default function SplashOnboarding() {
         setPhase("email-sent");
         return;
       }
+      trackOnboarding(`signup_complete_${selectedRole}`);
       login({ ...user, phone: normPhone, phoneVerified: true } as any);
       navigate(ROLE_HOME[selectedRole], { replace: true });
     } catch (err: any) {
@@ -506,7 +518,12 @@ export default function SplashOnboarding() {
           </div>
           <motion.button whileTap={{ scale: 0.97 }}
             onClick={() => {
-              if (currentStep < onboardingSteps.length - 1) { setCurrentStep(s => s + 1); return; }
+              if (currentStep < onboardingSteps.length - 1) {
+                trackOnboarding(`screen${currentStep + 2}_view`);
+                setCurrentStep(s => s + 1);
+                return;
+              }
+              trackOnboarding("role_selector_view");
               try { localStorage.setItem("bion_seen_intro", "1"); } catch {}
               setPhase("role");
             }}
@@ -565,7 +582,7 @@ export default function SplashOnboarding() {
             })}
           </div>
           <motion.button whileTap={{ scale: 0.97 }} disabled={!selectedRole}
-            onClick={() => selectedRole && setPhase("auth")}
+            onClick={() => { if (selectedRole) { trackOnboarding(`role_selected_${selectedRole}`); setPhase("auth"); } }}
             className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta disabled:opacity-40">
             Continue →
           </motion.button>
