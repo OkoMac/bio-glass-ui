@@ -1,5 +1,5 @@
 // BION Service Worker — offline shell + caching + push notifications
-const CACHE_NAME = "bion-v4";
+const CACHE_NAME = "bion-v5";
 const SHELL_ASSETS = [
   "/",
   "/manifest.json",
