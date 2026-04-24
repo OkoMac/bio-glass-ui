@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import NudgePopup from "@/components/NudgePopup";
 import GlassCard from "@/components/GlassCard";
 import BiometricsDashboard from "@/components/BiometricsDashboard";
 import BottomNav from "@/components/BottomNav";
@@ -111,6 +112,8 @@ export default function HealthInsights() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
+      {/* Layer 4 nudge — health tools education on first visit */}
+      <NudgePopup featureKey="health_tools_first" />
       <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl px-4 pt-20 space-y-5">
 
         {/* Header */}

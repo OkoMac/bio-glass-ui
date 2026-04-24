@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
+import NudgePopup from "@/components/NudgePopup";
+import { useNudge } from "@/components/NudgePopup";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
@@ -87,6 +89,7 @@ export default function ProviderProfile() {
   const [showAllServices, setShowAllServices] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showBooking, setShowBooking] = useState(false);
+  const walletNudge = useNudge("bionwallet_book");
   const [bookingDate, setBookingDate] = useState(() => {
     const d = new Date(); d.setDate(d.getDate() + 1);
     return d.toISOString().split("T")[0];
@@ -652,6 +655,8 @@ export default function ProviderProfile() {
 
   return (
     <div className="min-h-screen bg-obsidian pb-40">
+      {/* Layer 4 nudge — BIONWallet education on first booking attempt */}
+      {showBooking && walletNudge.show && <NudgePopup featureKey="bionwallet_book" />}
       {/* Hero Cover */}
       <div className="relative h-[240px] md:h-[320px] overflow-hidden">
         <div

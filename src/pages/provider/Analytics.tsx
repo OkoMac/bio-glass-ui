@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import NudgePopup from "@/components/NudgePopup";
 import {
   BarChart, Bar, LineChart, Line,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -243,6 +244,8 @@ export default function ProviderAnalytics() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
+      {/* Layer 4 nudge — BIONBoost Pro value prop on first analytics visit */}
+      <NudgePopup featureKey="provider_boost" />
       <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
