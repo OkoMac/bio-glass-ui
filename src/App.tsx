@@ -254,6 +254,7 @@ const AdminBInbox         = lazy(() => import("./pages/admin/BInbox"));
 const AdminRangers        = lazy(() => import("./pages/admin/Rangers"));
 const AdminCampaigns      = lazy(() => import("./pages/admin/Campaigns"));
 const AdminBroadcasts     = lazy(() => import("./pages/admin/Broadcasts"));
+const DeeperDive          = lazy(() => import("./components/DeeperDive"));
 const AdminOutreach       = lazy(() => import("./pages/admin/Outreach"));
 const Logout              = lazy(() => import("./pages/Logout"));
 const Help                = lazy(() => import("./pages/Help"));
@@ -637,6 +638,14 @@ function AppRoutes() {
   );
 }
 
+/** Layer 3 gate — only renders DeeperDive for logged-in non-demo users */
+function DeeperDiveGate() {
+  const { user } = useAuth();
+  if (!user || user.id?.startsWith("demo_")) return null;
+  // DeeperDive internally checks shouldShowLayer3
+  return <DeeperDive />;
+}
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -669,6 +678,8 @@ const App = () => (
                   </div>
                 }>
                   <AppRoutes />
+                  {/* Layer 3 — deeper dive on second login. Renders as overlay. */}
+                  <Suspense fallback={null}><DeeperDiveGate /></Suspense>
                 </Suspense>
               </TermsGate>
             </BrowserRouter>

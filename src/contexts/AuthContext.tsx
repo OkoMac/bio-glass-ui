@@ -91,6 +91,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           try {
             const profile = await fetchUserProfile(session.user.id);
             if (mounted && profile) { storeUser(profile); setUser(profile); }
+            // Increment login count for Layer 3 deeper dive (SIGNED_IN only, not token refresh)
+            if (event === "SIGNED_IN" && profile?.profileId) {
+              supabase.from("profiles").select("login_count").eq("id", profile.profileId).maybeSingle()
+                .then(({ data }) => {
+                  const count = ((data?.login_count as number) ?? 0) + 1;
+                  supabase.from("profiles").update({ login_count: count, last_login_at: new Date().toISOString() } as any)
+                    .eq("id", profile.profileId).catch(() => {});
+                }).catch(() => {});
+            }
           } catch (e) {
             // Use stored user as fallback
           }
