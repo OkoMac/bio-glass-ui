@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://bionhealth.co.za/sitemap.xml
+Sitemap: https://www.bionhealth.co.za/sitemap.xml
