@@ -353,7 +353,10 @@ function isOnboardingComplete(userId: string, role: string): boolean {
 
   // Admin skips onboarding (manually created accounts)
   if (role === "admin") return true;
-  // Sales reps (Rangers) now go through onboarding — removed skip
+
+  // Clients skip onboarding — Layer 1 billboard is shown pre-auth, that's enough
+  // Feature education happens via Layer 3 (second login) and Layer 4 (contextual nudges)
+  if (role === "client") return true;
 
   // Simple flag — set once after first onboarding completion. Never show again.
   try {

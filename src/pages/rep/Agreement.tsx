@@ -98,6 +98,8 @@ export default function RepAgreement() {
       email: user.email,
     };
     localStorage.setItem("bion_rep_agreement", JSON.stringify(agreement));
+    // Mark onboarding complete so they don't see it again
+    if (user.id) localStorage.setItem(`bion_onboarding_done_${user.id}`, "1");
     navigate("/rep/dashboard");
   };
 
