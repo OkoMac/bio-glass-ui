@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import NudgePopup from "@/components/NudgePopup";
 import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
 import BionAssistant from "@/components/BionAssistant";
@@ -164,6 +165,8 @@ export default function CorporateDashboard() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
+      {/* Layer 4 nudge — corporate points allocation education */}
+      <NudgePopup featureKey="corporate_points" />
       <div className="mx-auto max-w-4xl xl:max-w-7xl px-4 pt-20 pb-10 md:pt-8 space-y-6">
 
         {/* Header */}

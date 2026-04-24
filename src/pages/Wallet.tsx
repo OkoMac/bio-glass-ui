@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import NudgePopup from "@/components/NudgePopup";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
@@ -164,6 +165,8 @@ export default function Wallet() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-32">
+      {/* Layer 4 nudge — BIONPoints education on first wallet/points view */}
+      <NudgePopup featureKey="bionpoints_earned" />
       <div className="max-w-3xl xl:max-w-5xl mx-auto px-4 md:px-8 pt-12 space-y-5">
 
         {/* Header */}

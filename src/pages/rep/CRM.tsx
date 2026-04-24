@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import NudgePopup from "@/components/NudgePopup";
 import GlassCard from "@/components/GlassCard";
 import RepNav from "@/components/RepNav";
 import { useAuth } from "@/contexts/AuthContext";
@@ -178,6 +179,8 @@ export default function CRM() {
   // ── Render ─────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow relative">
+      {/* Layer 4 nudge — Ranger pipeline education on first CRM visit */}
+      <NudgePopup featureKey="ranger_pipeline" />
       <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
