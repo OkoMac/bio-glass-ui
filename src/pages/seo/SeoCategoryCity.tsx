@@ -447,7 +447,7 @@ export default function SeoCategoryCity() {
             <Check className="w-5 h-5 text-teal" />
             <h3 className="text-base font-semibold text-foreground">New to BION?</h3>
             <p className="text-xs text-muted-foreground">
-              Sign up free. Book from 897+ verified providers. Earn rewards on every session.
+              Sign up free. Book from 13,300+ verified providers. Earn rewards on every session.
             </p>
             <Link to="/welcome" className="inline-flex items-center gap-1 text-xs text-indigo font-medium">
               Get started <ArrowRight className="w-3 h-3" />

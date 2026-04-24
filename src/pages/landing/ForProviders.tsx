@@ -141,7 +141,7 @@ export default function ForProviders() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-3 max-w-3xl mx-auto"
           >
-            <HeroStat value="897+" label="providers live" accent="indigo" />
+            <HeroStat value="13,300+" label="providers live" accent="indigo" />
             <HeroStat value="R90" label="kept on every R100" accent="teal" />
             <HeroStat value="5%" label="ring-fenced to your own client acquisition" accent="amber" />
           </motion.div>

@@ -10,7 +10,7 @@ const SECTIONS = [
     number: 1,
     title: "Appointment",
     items: [
-      "🤝 BION appoints you as an independent Sales Representative (Ranger) to introduce and sign up health & wellness service providers to the BION platform — currently 5,724+ providers across Johannesburg, Pretoria, Cape Town & Durban.",
+      "🤝 BION appoints you as an independent Sales Representative (Ranger) to introduce and sign up health & wellness service providers to the BION platform — currently 13,300+ providers across Johannesburg, Pretoria, Cape Town & Durban.",
       "🎓 You must complete the Bicademy Ranger Training (13 courses) and pass the accreditation assessment before commission eligibility is activated.",
     ],
   },

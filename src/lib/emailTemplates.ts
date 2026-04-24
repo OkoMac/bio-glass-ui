@@ -219,7 +219,7 @@ export function welcomeEmail(data: {
       ${data.role === "client" ? `
         <p style="color:${BRAND.text};font-size:13px;">Here's what you can do:</p>
         <ul style="color:${BRAND.text};font-size:13px;padding-left:20px;">
-          <li>Browse 800+ verified providers in Pretoria</li>
+          <li>Browse 13,300+ verified providers in Pretoria</li>
           <li>Book fitness, medical, beauty, and wellness services</li>
           <li>Track your health, meals, routines, and medications</li>
           <li>Get personalised insights from B_, your AI assistant</li>

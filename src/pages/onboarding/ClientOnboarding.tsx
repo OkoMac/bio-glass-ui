@@ -8,7 +8,7 @@ const STEPS: OnboardingStep[] = [
     id: "welcome",
     type: "welcome",
     title: "Welcome to BION",
-    subtitle: "Commit to your health, your wellness and your beauty. 5,724+ verified providers across Johannesburg, Pretoria, Cape Town & Durban.",
+    subtitle: "Commit to your health, your wellness and your beauty. 13,300+ verified providers across Johannesburg, Pretoria, Cape Town & Durban.",
     icon: "🌟",
     highlights: [
       { icon: "🩺", title: "Medical & Health", desc: "GP consults, physiotherapy, nutrition, telehealth video sessions and specialist care" },
@@ -105,7 +105,7 @@ const STEPS: OnboardingStep[] = [
     title: "How BION Works",
     subtitle: "Three simple steps to commit to yourself.",
     highlights: [
-      { icon: "🔍", title: "1. Discover", desc: "Browse 5,724+ verified providers with smart search, Google Places fallback, real photos, callout filter for home visits and Google Maps directions." },
+      { icon: "🔍", title: "1. Discover", desc: "Browse 13,300+ verified providers with smart search, Google Places fallback, real photos, callout filter for home visits and Google Maps directions." },
       { icon: "📅", title: "2. Book", desc: "1-on-1, group classes, recurring sessions, telehealth video, walk-in queues or gift vouchers. Pay with BIONWallet or card — WhatsApp confirmation in under 60 seconds." },
       { icon: "📊", title: "3. Track", desc: "Log calories with photo analysis, water, sleep, BMI. View your medical card, follow treatment plans with daily check-ins, and earn BioPoints for every action." },
     ],
@@ -193,7 +193,7 @@ const STEPS: OnboardingStep[] = [
     type: "complete",
     title: "You're All Set! 🎉",
     subtitle: "Your BION account is ready.",
-    description: "Start by exploring 5,724+ providers near you — book a 1-on-1, join a group class, try a telehealth consult, or send a gift voucher to someone you love. Your wellness journey begins today.",
+    description: "Start by exploring 13,300+ providers near you — book a 1-on-1, join a group class, try a telehealth consult, or send a gift voucher to someone you love. Your wellness journey begins today.",
   },
 ];
 
