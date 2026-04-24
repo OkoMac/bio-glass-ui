@@ -41,10 +41,25 @@ createRoot(document.getElementById("root")!).render(<App />);
 
 // ── Service Worker registration ──
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch((err) => {
+  window.addEventListener("load", async () => {
+    try {
+      const reg = await navigator.serviceWorker.register("/sw.js");
+      // Force check for updates on every page load
+      reg.update().catch(() => {});
+      // Auto-reload when new SW is installed (user gets latest version)
+      reg.addEventListener("updatefound", () => {
+        const newSW = reg.installing;
+        if (!newSW) return;
+        newSW.addEventListener("statechange", () => {
+          if (newSW.state === "activated" && navigator.serviceWorker.controller) {
+            // New SW active — reload to use fresh assets
+            window.location.reload();
+          }
+        });
+      });
+    } catch (err: any) {
       console.warn("[SW] registration failed:", err?.message ?? err);
-    });
+    }
   });
 }
 
