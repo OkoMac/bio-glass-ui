@@ -584,7 +584,7 @@ export default function BionAssistant() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button onClick={() => requestHuman()}
-                    className="flex items-center gap-1 text-[10px] text-teal px-2.5 py-1.5 rounded-lg border border-teal/20 bg-teal/5 hover:bg-teal/10 transition-colors"
+                    className="flex items-center gap-1 text-[10px] text-teal px-2.5 py-1.5 rounded-lg border border-teal/30 bg-teal/8 hover:bg-teal/20 hover:border-teal/50 hover:text-teal hover:shadow-[0_0_8px_rgba(13,148,136,0.25)] transition-all duration-300 animate-[subtle-pulse_3s_ease-in-out_infinite]"
                     aria-label="Talk to a human agent">
                     <UserCheck className="w-3 h-3" /> Human
                   </button>
