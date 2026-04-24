@@ -2,6 +2,7 @@
   "name": "BION — Commit to Yourself",
   "short_name": "BION",
   "description": "Commit to your health, your wellness and your beauty. Commit to yourself. Browse 5,000+ verified providers.",
+  "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
