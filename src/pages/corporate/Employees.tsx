@@ -127,7 +127,7 @@ export default function CorporateEmployees() {
       id: crypto.randomUUID(),
       name: inviteForm.name,
       email: inviteForm.email,
-      image: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(inviteForm.name)}`,
+      image: `data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22%3E%3Crect width=%22120%22 height=%22120%22 rx=%2224%22 fill=%22%236366F1%22/%3E%3Ctext x=%2260%22 y=%2260%22 text-anchor=%22middle%22 dominant-baseline=%22central%22 font-family=%22sans-serif%22 font-weight=%22600%22 font-size=%2242%22 fill=%22%23fff%22%3E${inviteForm.name?.charAt(0) ?? "E"}%3C/text%3E%3C/svg%3E`,
       department: "General",
       walletBalance: inviteForm.monthly_budget,
       monthlyBudget: inviteForm.monthly_budget,
