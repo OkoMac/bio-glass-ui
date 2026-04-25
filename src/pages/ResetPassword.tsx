@@ -13,6 +13,7 @@ export default function ResetPassword() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [sessionReady, setSessionReady] = useState(false);
+  const [linkExpired, setLinkExpired] = useState(false);
 
   // Supabase sets a session when the user clicks the reset link.
   // We need to wait for the auth state change event to confirm the session.
@@ -28,7 +29,15 @@ export default function ResetPassword() {
       if (session) setSessionReady(true);
     });
 
-    return () => { subscription.unsubscribe(); };
+    // If no session after 8 seconds, the link is expired or invalid
+    const timeout = setTimeout(() => {
+      setSessionReady(prev => {
+        if (!prev) setLinkExpired(true);
+        return prev;
+      });
+    }, 8000);
+
+    return () => { subscription.unsubscribe(); clearTimeout(timeout); };
   }, []);
 
   const handleReset = async () => {
@@ -94,12 +103,28 @@ export default function ResetPassword() {
         <p className="text-sm text-muted-foreground">
           {sessionReady
             ? "Choose a new password for your BION account."
-            : "Verifying your reset link..."}
+            : linkExpired
+              ? "This reset link has expired or is invalid."
+              : "Verifying your reset link..."}
         </p>
 
-        {!sessionReady && (
+        {!sessionReady && !linkExpired && (
           <div className="flex items-center justify-center py-4">
             <Loader2 className="w-6 h-6 animate-spin text-indigo" />
+          </div>
+        )}
+
+        {linkExpired && (
+          <div className="space-y-3 text-center">
+            <p className="text-xs text-coral">
+              Please request a new password reset link from the sign-in page.
+            </p>
+            <button
+              onClick={() => navigate("/welcome?login=true")}
+              className="w-full rounded-pill py-3 text-sm font-semibold gradient-indigo text-primary-foreground"
+            >
+              Back to sign in
+            </button>
           </div>
         )}
 

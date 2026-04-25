@@ -413,7 +413,7 @@ function RequireAuth({ children, allowedRoles, skipOnboardingCheck }: {
     </div>
   );
 
-  if (!user) return <Navigate to="/welcome" state={{ from: location }} replace />;
+  if (!user) return <Navigate to="/welcome?login=true" state={{ from: location }} replace />;
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     const home =

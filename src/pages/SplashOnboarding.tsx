@@ -210,7 +210,8 @@ export default function SplashOnboarding() {
   }, []);
 
   const loginDirect = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("login") === "true";
-  const [phase, setPhase]               = useState<Phase>(loginDirect ? "role" : hasSeenIntro ? "role" : "splash");
+  // Returning users (redirected from auth guard or password reset) skip straight to auth
+  const [phase, setPhase]               = useState<Phase>(loginDirect ? "auth" : hasSeenIntro ? "role" : "splash");
   const [progress, setProgress]         = useState(0);
   const [currentStep, setCurrentStep]   = useState(0);
   // Onboarding analytics — track phase transitions
@@ -279,7 +280,7 @@ export default function SplashOnboarding() {
   /** Step 1 of signup: precheck (duplicate block) + send OTP. */
   const startSignup = async () => {
     setError("");
-    if (!selectedRole) return;
+    if (!selectedRole) { setError("Please go back and select how you'll use BION."); return; }
     if (!name.trim())     { setError("Please enter your full name."); return; }
     if (!email.trim())    { setError("Please enter your email."); return; }
     if (!password.trim() || password.length < 8) { setError("Password must be at least 8 characters."); return; }
@@ -402,15 +403,26 @@ export default function SplashOnboarding() {
       if (otpStep === "sent")   return completeSignup();
       return;
     }
-    // Sign in path — unchanged, no OTP required for existing users
+    // Sign in path — no OTP required for existing users.
+    // Role selection is NOT required for sign-in — the DB has the real role.
     setError("");
-    if (!selectedRole) return;
-    if (!email.trim() || !password.trim()) { setError("Please fill in all fields."); return; }
+    if (!email.trim() || !password.trim()) { setError("Please enter your email and password."); return; }
     setBusy(true);
-    const { user, error: err } = await signInWithEmail(email.trim(), password);
-    if (err || !user) { setError(err ?? "Login failed"); setBusy(false); return; }
-    login(user);
-    navigate(ROLE_HOME[user.role], { replace: true });
+    try {
+      const { user: signedInUser, error: err } = await signInWithEmail(email.trim(), password);
+      if (err || !signedInUser) {
+        const friendly = err?.includes("Invalid login")
+          ? "Incorrect email or password. Please try again."
+          : err ?? "Login failed. Please check your connection and try again.";
+        setError(friendly);
+        setBusy(false);
+        return;
+      }
+      login(signedInUser);
+      navigate(ROLE_HOME[signedInUser.role], { replace: true });
+    } catch {
+      setError("Something went wrong. Please try again.");
+    }
     setBusy(false);
   };
 
@@ -772,14 +784,18 @@ export default function SplashOnboarding() {
             </h2>
             <p className="text-xs text-muted-foreground">
               {authMode === "signup"
-                ? <>Joining as <span className="text-indigo font-medium capitalize">{selectedRole.replace(/_/g, " ")}</span></>
+                ? selectedRole
+                  ? <>Joining as <span className="text-indigo font-medium capitalize">{selectedRole.replace(/_/g, " ")}</span></>
+                  : "Choose a role to get started"
                 : "Sign in to continue"
               }
             </p>
           </div>
-          <button onClick={() => setPhase("role")} className="text-xs text-muted-foreground underline">
-            Change role
-          </button>
+          {authMode === "signup" && (
+            <button onClick={() => setPhase("role")} className="text-xs text-muted-foreground underline">
+              Change role
+            </button>
+          )}
         </div>
 
         {/* Sign in / Sign up toggle */}
