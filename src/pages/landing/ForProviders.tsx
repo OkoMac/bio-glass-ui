@@ -100,8 +100,8 @@ export default function ForProviders() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-4xl md:text-6xl xl:text-7xl font-bold tracking-tight leading-[1.05]"
           >
-            Run your practice<br />
-            <span className="text-gradient-indigo">on BION.</span>
+            We don't list you.<br />
+            <span className="text-gradient-indigo">We run your business.</span>
           </motion.h1>
 
           <motion.p
@@ -110,8 +110,8 @@ export default function ForProviders() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mt-6 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            The operating system for health, wellness &amp; beauty professionals in South Africa.
-            Bookings, payments, CRM, client acquisition — all in one place.
+            BION is an AI-powered operating system for your practice — we bring you clients,
+            process payments, automate your admin, and grow your business while you focus on what you do best.
           </motion.p>
 
           <motion.div
@@ -124,7 +124,7 @@ export default function ForProviders() {
               to="/welcome?role=provider"
               className="rounded-pill px-8 py-3.5 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta inline-flex items-center gap-2"
             >
-              List my practice free <ArrowRight className="w-4 h-4" />
+              Start with BION Basic — R299/mo <ArrowRight className="w-4 h-4" />
             </Link>
             <button
               onClick={scrollToFeatures}

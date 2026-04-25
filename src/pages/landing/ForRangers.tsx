@@ -104,8 +104,8 @@ export default function ForRangers() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mt-6 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            BION Rangers earn on every subscription and every booking of every provider they sign up.
-            Sign up 50 providers — earn <span className="font-data text-foreground font-semibold">R6,000+/month</span> passive income.
+            You're not pushing listings — you're selling an AI-powered ecosystem that runs wellness practices.
+            Sign up 50 providers — earn <span className="font-data text-foreground font-semibold">R6,000+/month</span> in recurring commissions.
           </motion.p>
 
           <motion.div

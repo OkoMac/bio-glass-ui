@@ -92,8 +92,8 @@ export default function ForCorporate() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-4xl md:text-6xl xl:text-7xl font-bold tracking-tight leading-[1.05]"
           >
-            Wellness that actually<br />
-            <span className="text-gradient-teal">reaches your team.</span>
+            Wellness infrastructure<br />
+            <span className="text-gradient-teal">not vouchers in a drawer.</span>
           </motion.h1>
 
           <motion.p
@@ -102,8 +102,8 @@ export default function ForCorporate() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mt-6 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            BION Corporate lets your employees book from 900+ verified providers using a
-            company wallet you control. No enrolment fees. No monthly minimums.
+            Give your team AI wellness coaching, free health tools, and access to 13,300+ verified
+            professionals — all tracked in one privacy-first dashboard. R150/employee/month.
           </motion.p>
 
           <motion.div
