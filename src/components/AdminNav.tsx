@@ -91,7 +91,7 @@ export default function AdminNav() {
             if (!c) return null;
             return (
               <button key={r}
-                onClick={() => { switchRole(r as any); navigate(c.path); }}
+                onClick={() => { switchRole(r as any); window.location.href = c.path; }}
                 className="w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all text-sm">
                 <span>{c.icon}</span> Switch to {c.label}
               </button>

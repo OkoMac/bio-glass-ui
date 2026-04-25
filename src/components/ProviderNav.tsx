@@ -108,7 +108,7 @@ export default function ProviderNav() {
             if (!c) return null;
             return (
               <button key={r}
-                onClick={() => { switchRole(r as any); navigate(c.path); }}
+                onClick={() => { switchRole(r as any); window.location.href = c.path; }}
                 className="w-full flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
                 <span className="text-sm">{c.icon}</span> Switch to {c.label}
               </button>

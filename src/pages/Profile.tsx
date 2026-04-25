@@ -514,7 +514,7 @@ const Profile = () => {
                     const c = config[r] ?? { label: r, icon: "👤", path: "/home", color: "border-white/10 bg-white/5 text-foreground" };
                     return (
                       <motion.button key={r} whileTap={{ scale: 0.95 }}
-                        onClick={() => { switchRole(r as any); navigate(c.path); }}
+                        onClick={() => { switchRole(r as any); window.location.href = c.path; }}
                         className={`flex-1 min-w-[120px] rounded-2xl py-3 border text-sm font-medium flex items-center justify-center gap-2 hover:opacity-80 transition-opacity ${c.color}`}>
                         <span>{c.icon}</span> {c.label}
                       </motion.button>
