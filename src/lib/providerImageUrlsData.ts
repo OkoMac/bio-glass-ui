@@ -1,8 +1,71 @@
-/**
- * Provider image URL map.
- * Previously contained 2,445 Google Maps Photo API URLs which cost $91/month.
- * Cleared on 25 April 2026. Providers upload their own photos via Settings.
- * The initials avatar system (providerImages.ts) handles the fallback beautifully.
- */
-const providerImageUrls: Record<string, string> = {};
+// Provider photos stored in Supabase Storage (downloaded from provider websites).
+// Never loaded from external APIs on page load.
+
+const providerImageUrls: Record<string, string> = {
+  "brk_bright_smile": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/brk_bright_smile.png",
+  "brk_soul_space": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/brk_soul_space.png",
+  "cen_elmien_psych": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/cen_elmien_psych.jpg",
+  "cen_hilde_physio": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/cen_hilde_physio.jpg",
+  "cen_lyttelton_vet": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/cen_lyttelton_vet.png",
+  "co_0a5501b0ef": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_0a5501b0ef.png",
+  "co_0bcd130a63": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_0bcd130a63.png",
+  "co_0f742663dd": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_0f742663dd.png",
+  "co_13633b3f02": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_13633b3f02.jpg",
+  "co_22cb16716b": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_22cb16716b.png",
+  "co_256086b5c8": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_256086b5c8.jpg",
+  "co_28f0d10233": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_28f0d10233.jpg",
+  "co_5e05f2f85f": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_5e05f2f85f.png",
+  "co_70a1124ac1": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_70a1124ac1.png",
+  "co_769ec9843f": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_769ec9843f.png",
+  "co_7ac16731ab": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_7ac16731ab.JPG",
+  "co_ac1ef74617": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_ac1ef74617.jpg",
+  "co_af1a21b3b0": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_af1a21b3b0.jpg",
+  "co_b5de51f30b": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_b5de51f30b.png",
+  "co_be47c81380": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_be47c81380.png",
+  "co_c26f174838": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_c26f174838.jpg",
+  "co_cf8615a584": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_cf8615a584.jpg",
+  "co_d12a370a8b": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_d12a370a8b.jpg",
+  "co_d7fb69521f": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_d7fb69521f.png",
+  "co_ec240deca5": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_ec240deca5.jpg",
+  "co_f3f16a19ed": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_f3f16a19ed.png",
+  "co_fc2ffdbd47": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/co_fc2ffdbd47.png",
+  "fg_beauty_works": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/fg_beauty_works.png",
+  "fg_bodydynamics": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/fg_bodydynamics.jpg",
+  "fg_bodymind": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/fg_bodymind.png",
+  "fg_cut_africa": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/fg_cut_africa.jpg",
+  "fg_dr_ade_dent": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/fg_dr_ade_dent.png",
+  "fg_identist": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/fg_identist.jpg",
+  "fg_janine_beauty": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/fg_janine_beauty.png",
+  "fg_larissa_psych": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/fg_larissa_psych.jpg",
+  "fg_specialized_dent": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/fg_specialized_dent.png",
+  "gar_cilliers_physio": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gar_cilliers_physio.jpg",
+  "gar_dr_jacques_chiro": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gar_dr_jacques_chiro.png",
+  "gp_2139fb64df": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_2139fb64df.png",
+  "gp_216db6e63b": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_216db6e63b.png",
+  "gp_23b956447e": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_23b956447e.png",
+  "gp_24c115308a": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_24c115308a.jpg",
+  "gp_2791d4ca59": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_2791d4ca59.jpg",
+  "gp_4b2c9a00cd": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_4b2c9a00cd.jpg",
+  "gp_4c9e8b9904": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_4c9e8b9904.jpg",
+  "gp_50ae727d27": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_50ae727d27.png",
+  "gp_6033320e8f": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_6033320e8f.jpeg",
+  "gp_714fea6b0a": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_714fea6b0a.jpg",
+  "gp_7482b761e3": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_7482b761e3.png",
+  "gp_9c586f857c": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_9c586f857c.png",
+  "gp_a51a68e28b": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_a51a68e28b.png",
+  "gp_a9e9ac6f5a": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_a9e9ac6f5a.jpg",
+  "gp_aad95c1de4": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_aad95c1de4.jpg",
+  "gp_af40052885": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_af40052885.jpg",
+  "gp_c651448819": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_c651448819.png",
+  "gp_c84ff313a3": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_c84ff313a3.png",
+  "gp_cd49ae075e": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_cd49ae075e.jpg",
+  "gp_d87fec0ee5": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_d87fec0ee5.jpg",
+  "gp_eb5afc032e": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_eb5afc032e.jpg",
+  "gp_f68f6f7922": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/gp_f68f6f7922.png",
+  "hat_chali_hair": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/hat_chali_hair.jpg",
+  "hat_hatmed": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/hat_hatmed.jpg",
+  "hat_la_bobo": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/hat_la_bobo.png",
+  "hat_marise_psych": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/hat_marise_psych.webp",
+  "lyn_chianti": "https://lybwhwsgduhjrwjsiqsh.supabase.co/storage/v1/object/public/provider-photos/lyn_chianti.jpg"
+};
 export default providerImageUrls;
