@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { getAuthHeaders } from "@/lib/authFetch";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -175,11 +176,12 @@ export interface BookingDisputeRow {
 }
 
 async function authHeaders(): Promise<Record<string, string>> {
-  const { data } = await supabase.auth.getSession();
-  const tok = data.session?.access_token;
-  const h: Record<string, string> = { "Content-Type": "application/json" };
-  if (tok) h.Authorization = `Bearer ${tok}`;
-  return h;
+  try {
+    return await getAuthHeaders();
+  } catch {
+    window.location.href = "/welcome";
+    return { "Content-Type": "application/json" };
+  }
 }
 
 /** Client: open a booking dispute */

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { getAuthHeaders } from "@/lib/authFetch";
 import {
   Subscription,
   UserType,
@@ -56,8 +57,11 @@ export interface LiveInvoice {
 }
 
 async function authHeaders(): Promise<Record<string, string>> {
-  const token = (await supabase.auth.getSession()).data.session?.access_token;
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  try {
+    return await getAuthHeaders();
+  } catch {
+    return {};
+  }
 }
 
 export function useSubscription() {

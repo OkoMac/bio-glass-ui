@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
+import { getAuthHeaders } from "@/lib/authFetch";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -61,12 +62,12 @@ const PRIORITY_TONE: Record<Priority, string> = {
 };
 
 async function authHeaders(): Promise<Record<string, string>> {
-  const h: Record<string, string> = { "Content-Type": "application/json" };
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.access_token) h["Authorization"] = `Bearer ${session.access_token}`;
-  } catch { /* */ }
-  return h;
+    return await getAuthHeaders();
+  } catch {
+    window.location.href = "/welcome";
+    return { "Content-Type": "application/json" };
+  }
 }
 
 export default function MyTickets() {

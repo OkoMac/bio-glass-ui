@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/contexts/AuthContext";
+import { getAuthHeaders } from "@/lib/authFetch";
 import {
   Building2, CheckCircle, Loader2, AlertCircle, Shield, ArrowRight,
 } from "lucide-react";
@@ -19,11 +20,12 @@ interface LinkedBank {
 }
 
 async function authHeaders(): Promise<Record<string, string>> {
-  const { data } = await supabase.auth.getSession();
-  const token = data.session?.access_token;
-  return token
-    ? { "Content-Type": "application/json", Authorization: `Bearer ${token}` }
-    : { "Content-Type": "application/json" };
+  try {
+    return await getAuthHeaders();
+  } catch {
+    window.location.href = "/welcome";
+    return { "Content-Type": "application/json" };
+  }
 }
 
 /**

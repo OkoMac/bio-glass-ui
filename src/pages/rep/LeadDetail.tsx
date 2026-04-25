@@ -5,6 +5,7 @@ import GlassCard from "@/components/GlassCard";
 import RepNav from "@/components/RepNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { getAuthHeaders } from "@/lib/authFetch";
 import {
   ArrowLeft, Phone, MessageCircle, Mail, Users as UsersIcon,
   Monitor, Clock, FileText, Save, ExternalLink, ChevronDown,
@@ -86,11 +87,12 @@ function activityIcon(type: ActivityType) {
 
 // ── Helpers ─────────────────────────────────────────────────────────
 async function authHeaders() {
-  const { data } = await supabase.auth.getSession();
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${data.session?.access_token ?? ""}`,
-  };
+  try {
+    return await getAuthHeaders();
+  } catch {
+    window.location.href = "/welcome";
+    return { "Content-Type": "application/json", Authorization: "" };
+  }
 }
 
 // ── Component ───────────────────────────────────────────────────────

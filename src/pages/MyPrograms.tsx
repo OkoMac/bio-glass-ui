@@ -6,6 +6,7 @@ import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { getAuthHeaders } from "@/lib/authFetch";
 import { ArrowLeft, CheckCircle, Loader2, Play, Calendar } from "lucide-react";
 
 interface ProgramMeta {
@@ -46,10 +47,12 @@ interface ProgramDetail extends ProgramMeta {
 const API = (import.meta.env.VITE_API_URL as string | undefined) ?? "https://bion-backend.onrender.com";
 
 async function authHeaders(): Promise<Record<string, string>> {
-  const { data: { session } } = await supabase.auth.getSession();
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
-  if (session?.access_token) headers["Authorization"] = `Bearer ${session.access_token}`;
-  return headers;
+  try {
+    return await getAuthHeaders();
+  } catch {
+    window.location.href = "/welcome";
+    return { "Content-Type": "application/json" };
+  }
 }
 
 // ── Progress ring ─────────────────────────────────────

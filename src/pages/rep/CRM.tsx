@@ -7,6 +7,7 @@ import GlassCard from "@/components/GlassCard";
 import RepNav from "@/components/RepNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { getAuthHeaders } from "@/lib/authFetch";
 import {
   Search, Plus, Phone, MessageCircle, FileText, ChevronRight,
   ArrowLeft, Filter, Users, Sparkles, X,
@@ -60,11 +61,12 @@ const CATEGORIES = ["Medical", "Beauty", "Fitness", "Wellness", "Veterinary"];
 
 // ── Helpers ─────────────────────────────────────────────────────────
 async function authHeaders() {
-  const { data } = await supabase.auth.getSession();
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${data.session?.access_token ?? ""}`,
-  };
+  try {
+    return await getAuthHeaders();
+  } catch {
+    window.location.href = "/welcome";
+    return { "Content-Type": "application/json", Authorization: "" };
+  }
 }
 
 function relativeDate(iso?: string) {
