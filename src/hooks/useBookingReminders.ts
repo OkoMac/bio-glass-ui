@@ -28,11 +28,13 @@ export function useBookingReminders() {
         // Only remind for bookings in the next 24 hours
         if (bookingTime <= now || bookingTime > in24h) return;
 
-        // Check if we already reminded for this booking
-        const reminderKey = `bion_reminder_${booking.id}`;
+        const hoursUntil = Math.round((bookingTime - now) / (60 * 60 * 1000));
+
+        // Two reminder windows: 24h and 1h. Each fires once.
+        const window = hoursUntil <= 1 ? "1h" : "24h";
+        const reminderKey = `bion_reminder_${booking.id}_${window}`;
         if (localStorage.getItem(reminderKey)) return;
 
-        const hoursUntil = Math.round((bookingTime - now) / (60 * 60 * 1000));
         const timeLabel = hoursUntil <= 1 ? "in about an hour" : `in ${hoursUntil} hours`;
 
         // Try browser notification
