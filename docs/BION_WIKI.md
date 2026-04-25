@@ -1773,6 +1773,31 @@ B_ now handles common account/tech issues directly instead of routing everything
 - Or shows support channels (SKIP flow)
 - Auto-creates support ticket
 
+#### **Data Privacy Rules (POPIA Compliant — Added 25 April 2026)**
+
+B_ NEVER shares personal data over WhatsApp. WhatsApp is not a verified identity channel — anyone with access to the phone could read messages.
+
+| Data Type | What B_ Shows in WhatsApp | Where to View Full Details |
+|-----------|--------------------------|---------------------------|
+| Bookings | Count only ("you have 3 upcoming bookings") | bionhealth.co.za/schedule (login required) |
+| Medical info | Nothing — directs to app | bionhealth.co.za/medical-card (login required) |
+| Health stats | Nothing — directs to app | bionhealth.co.za/progress (login required) |
+| Wallet/points | Nothing — directs to app | bionhealth.co.za/wallet (login required) |
+| Account details | Nothing — directs to app | bionhealth.co.za/profile (login required) |
+| Provider search results | Full public info (name, rating, suburb, link) | Public data, no login needed |
+| Platform info (pricing, policies) | Full details | Public data, no login needed |
+
+**AI System Prompt Enforcement:**
+- `generateSmartResponse()` system prompt includes explicit DATA PRIVACY section
+- Hardcoded handlers for `my_bookings`, `my_health`, `my_stats`, `my_routine` all redirect to BION app
+- If user insists on seeing data in WhatsApp: "For your safety under POPIA, personal data is only shown after you sign in at bionhealth.co.za"
+
+#### **B_ Knowledge Base (`backend/src/knowledge/bion-platform.ts`)**
+- Contains all customer-facing facts about BION
+- Injected into AI system prompt for accurate answers
+- Includes: pricing, policies, fee model, dispute resolution, troubleshooting
+- Updated 25 April 2026 with: data privacy rules, common issues & resolutions
+
 ---
 
 ### SECTION 20: BUGS FIXED — 25 APRIL 2026 SESSION
