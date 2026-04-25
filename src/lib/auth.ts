@@ -44,19 +44,26 @@ export function removeUser(): void {
 /** Fetch profile + role from DB and return a BioUser */
 export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser | null> {
   try {
-    const [{ data: profile }, { data: roleRow }, { data: authData }] = await Promise.all([
+    const [{ data: profile }, { data: roleRows }, { data: authData }] = await Promise.all([
       supabase.from("profiles").select("id, full_name, email, avatar_url").eq("user_id", supabaseUserId).maybeSingle(),
-      supabase.from("user_roles").select("role").eq("user_id", supabaseUserId).maybeSingle(),
+      supabase.from("user_roles").select("role").eq("user_id", supabaseUserId),
       supabase.auth.getUser(),
     ]);
+    // Get the first role from the roles table (admin > provider > client priority)
+    const rolePriority = ["admin", "provider", "corporate", "sales_rep", "client"];
+    const dbRoles = (roleRows ?? []).map((r: any) => r.role as string);
+    const roleRow = { role: rolePriority.find(r => dbRoles.includes(r)) ?? dbRoles[0] };
 
-    // Role priority: 1) user_metadata.bio_role (set at signup), 2) user_roles table, 3) fallback to client
-    const metaRole = authData.user?.user_metadata?.bio_role as UserRole | undefined;
+    // Role priority:
+    // 1) Stored switched role (user explicitly chose this via role switcher)
+    // 2) user_roles table (source of truth for assigned roles)
+    // 3) user_metadata.bio_role (set at signup — may be stale)
+    // 4) fallback to client
+    const storedUser = getStoredUser();
+    const switchedRole = storedUser?.id === supabaseUserId ? storedUser?.role : undefined;
     const dbRole = roleRow?.role as UserRole | undefined;
-    const role: UserRole = metaRole ?? dbRole ?? "client";
-
-    // If metaRole exists but DB role doesn't match, trust metaRole (RLS may block user_roles read)
-    if (import.meta.env.DEV) console.log(`[auth] User ${supabaseUserId}: metaRole=${metaRole}, dbRole=${dbRole}, resolved=${role}`);
+    const metaRole = authData.user?.user_metadata?.bio_role as UserRole | undefined;
+    const role: UserRole = switchedRole ?? dbRole ?? metaRole ?? "client";
 
     // First-time OAuth users (Google / etc.) have no profile row yet — create
     // one on the fly so hooks that depend on profileId don't crash and so we
