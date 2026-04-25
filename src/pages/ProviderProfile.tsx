@@ -1033,7 +1033,7 @@ export default function ProviderProfile() {
                   : `https://www.google.com/maps/dir/?api=1&destination=${mapsQuery}`;
 
                 const mapImgUrl = hasCoords
-                  ? `https://maps.googleapis.com/maps/api/staticmap?center=${provider.lat},${provider.lng}&zoom=15&size=600x200&scale=2&maptype=roadmap&style=feature:all|element:geometry|color:0x1a1a2e&style=feature:all|element:labels.text.fill|color:0xcccccc&style=feature:all|element:labels.text.stroke|color:0x0a0a0f&style=feature:water|color:0x0d1117&style=feature:road|element:geometry|color:0x2a2a4a&markers=color:0x6366F1|${provider.lat},${provider.lng}&key=AIzaSyDH4okH3pluutebv0_WcQ7on3jnn3-2OMY`
+                  ? `https://www.google.com/maps/search/?api=1&query=${provider.lat},${provider.lng}
                   : null;
 
                 return (
