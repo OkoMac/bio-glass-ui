@@ -1032,9 +1032,7 @@ export default function ProviderProfile() {
                   ? `https://www.google.com/maps/dir/?api=1&destination=${provider.lat},${provider.lng}`
                   : `https://www.google.com/maps/dir/?api=1&destination=${mapsQuery}`;
 
-                const mapImgUrl = hasCoords
-                  ? `https://www.google.com/maps/search/?api=1&query=${provider.lat},${provider.lng}
-                  : null;
+                const mapImgUrl = null; // Static map removed — was using billable Google API
 
                 return (
                   <>
