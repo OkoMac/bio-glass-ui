@@ -92,7 +92,7 @@ export default function ProgramDetail() {
   const enroll = async () => {
     if (!program) return;
     if (!user) {
-      navigate("/welcome");
+      navigate("/welcome?login=true");
       return;
     }
     setEnrollBusy(true);
@@ -224,7 +224,7 @@ export default function ProgramDetail() {
 
         <motion.button
           whileTap={{ scale: 0.97 }}
-          onClick={() => (user ? setShowEnroll(true) : navigate("/welcome"))}
+          onClick={() => (user ? setShowEnroll(true) : navigate("/welcome?login=true"))}
           className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta"
         >
           {user

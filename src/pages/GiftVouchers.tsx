@@ -81,7 +81,7 @@ export default function GiftVouchers() {
 
   async function handleSend() {
     if (!user) {
-      navigate("/welcome?redirect=/gift-vouchers");
+      navigate("/welcome?login=true&redirect=/gift-vouchers");
       return;
     }
 
@@ -389,7 +389,7 @@ export default function GiftVouchers() {
               <GlassCard className="p-6 text-center">
                 <p className="text-sm text-muted-foreground mb-3">Sign in to see your vouchers</p>
                 <button
-                  onClick={() => navigate("/welcome?redirect=/gift-vouchers")}
+                  onClick={() => navigate("/welcome?login=true&redirect=/gift-vouchers")}
                   className="rounded-pill px-5 py-2 gradient-indigo text-primary-foreground text-xs font-semibold"
                 >
                   Sign in

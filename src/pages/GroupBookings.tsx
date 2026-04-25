@@ -71,7 +71,7 @@ export default function GroupBookings() {
 
   async function handleJoin(sessionId: string) {
     if (!user) {
-      navigate("/welcome?redirect=/group-bookings");
+      navigate("/welcome?login=true&redirect=/group-bookings");
       return;
     }
 

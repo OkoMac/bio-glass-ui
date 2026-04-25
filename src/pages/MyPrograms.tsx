@@ -50,7 +50,7 @@ async function authHeaders(): Promise<Record<string, string>> {
   try {
     return await getAuthHeaders();
   } catch {
-    window.location.href = "/welcome";
+    window.location.href = "/welcome?login=true";
     return { "Content-Type": "application/json" };
   }
 }
@@ -132,7 +132,7 @@ export default function MyPrograms() {
     return (
       <div className="min-h-screen bg-obsidian flex flex-col items-center justify-center text-foreground gap-3">
         <p className="text-sm font-semibold">Sign in to see your programs</p>
-        <button onClick={() => navigate("/welcome")} className="rounded-pill px-4 py-2 gradient-indigo text-xs font-semibold text-white">
+        <button onClick={() => navigate("/welcome?login=true")} className="rounded-pill px-4 py-2 gradient-indigo text-xs font-semibold text-white">
           Sign up / Log in
         </button>
       </div>

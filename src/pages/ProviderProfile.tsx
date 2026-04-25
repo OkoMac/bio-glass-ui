@@ -358,7 +358,7 @@ export default function ProviderProfile() {
     // Gate 1 — must be signed in
     if (!user?.profileId) {
       setBookingError("Please sign up or log in first.");
-      setTimeout(() => navigate("/welcome"), 1500);
+      setTimeout(() => navigate("/welcome?login=true"), 1500);
       return;
     }
 
@@ -848,7 +848,7 @@ export default function ProviderProfile() {
         ) : (
           <motion.button
             whileTap={{ scale: 0.97 }}
-            onClick={() => navigate("/welcome")}
+            onClick={() => navigate("/welcome?login=true")}
             className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta"
           >
             Sign Up to Book
@@ -1071,7 +1071,7 @@ export default function ProviderProfile() {
                   Sign up below to reveal the full phone number and book directly.
                 </p>
                 <button
-                  onClick={() => navigate("/welcome")}
+                  onClick={() => navigate("/welcome?login=true")}
                   className="shrink-0 px-3 py-1.5 gradient-indigo rounded-pill text-xs font-medium text-white shadow-cta"
                 >
                   Sign Up
@@ -1296,7 +1296,7 @@ export default function ProviderProfile() {
         </span>
         <motion.button
           whileTap={{ scale: 0.95 }}
-          onClick={() => isSignedIn ? setShowBooking(true) : navigate("/welcome")}
+          onClick={() => isSignedIn ? setShowBooking(true) : navigate("/welcome?login=true")}
           className="rounded-pill px-6 py-3 text-[13px] md:text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta"
         >
           {isSignedIn ? "Book Now" : "Sign Up to Book"}
@@ -1649,8 +1649,8 @@ export default function ProviderProfile() {
                   whileTap={{ scale: 0.97 }}
                   onClick={() => {
                     if (!user?.profileId) {
-                      // Not signed in — redirect to signup
-                      navigate("/welcome");
+                      // Not signed in — redirect to login
+                      navigate("/welcome?login=true");
                       return;
                     }
                     if (!isRegisteredOnBion) {
@@ -2099,7 +2099,7 @@ function ProviderPackagesSection({ providerId }: { providerId: string }) {
 
   async function handleBuy(pkgId: string) {
     if (!user) {
-      window.location.href = "/welcome";
+      window.location.href = "/welcome?login=true";
       return;
     }
     setPurchasing(pkgId);

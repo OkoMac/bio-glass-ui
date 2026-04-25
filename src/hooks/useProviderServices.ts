@@ -68,7 +68,7 @@ async function authHeaders(): Promise<Record<string, string>> {
   try {
     return await getAuthHeaders();
   } catch {
-    window.location.href = "/welcome";
+    window.location.href = "/welcome?login=true";
     return { "Content-Type": "application/json" };
   }
 }

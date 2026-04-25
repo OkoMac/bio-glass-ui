@@ -91,5 +91,5 @@ function redirectToLogin() {
   // Avoid redirect loops — only redirect if not already on auth pages
   const loc = window.location.pathname;
   if (loc === "/welcome" || loc === "/login" || loc === "/signup") return;
-  window.location.href = "/welcome";
+  window.location.href = "/welcome?login=true";
 }
