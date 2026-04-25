@@ -41,7 +41,7 @@ const mobileNav = [
 
 export default function ProviderNav() {
   const navigate = useNavigate();
-  const { user, logout, switchRole } = useAuth();
+  const { user, logout, switchRole, availableRoles } = useAuth();
   const { pendingCount } = useBookings();
   const { tierDisplayName, isActive } = useSubscription();
 
@@ -97,16 +97,23 @@ export default function ProviderNav() {
               <p className="text-[10px] text-muted-foreground">{tierDisplayName()} Plan{isActive() ? " · Active" : ""}</p>
             </div>
           </div>
-          <button
-            onClick={() => {
-              switchRole("client");
-              navigate("/home");
-            }}
-            className="w-full flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1 mb-1"
-          >
-            <Users className="w-3.5 h-3.5" />
-            Switch to Client
-          </button>
+          {availableRoles.filter(r => r !== "provider").map(r => {
+            const cfg: Record<string, { label: string; icon: string; path: string }> = {
+              client: { label: "Client", icon: "👤", path: "/home" },
+              admin: { label: "Admin", icon: "🛡️", path: "/admin/dashboard" },
+              corporate: { label: "Corporate", icon: "🏢", path: "/corporate/dashboard" },
+              sales_rep: { label: "Ranger", icon: "⚡", path: "/rep/dashboard" },
+            };
+            const c = cfg[r];
+            if (!c) return null;
+            return (
+              <button key={r}
+                onClick={() => { switchRole(r as any); navigate(c.path); }}
+                className="w-full flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
+                <span className="text-sm">{c.icon}</span> Switch to {c.label}
+              </button>
+            );
+          })}
           <button
             onClick={logout}
             className="w-full flex items-center gap-2 text-xs text-muted-foreground hover:text-coral transition-colors py-1"

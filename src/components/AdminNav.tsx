@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Users, Briefcase, BarChart2,
@@ -32,7 +32,8 @@ const navItems = [
 ];
 
 export default function AdminNav() {
-  const { user, logout } = useAuth();
+  const { user, logout, switchRole, availableRoles } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -79,6 +80,23 @@ export default function AdminNav() {
               <p className="text-[10px] text-coral">Administrator</p>
             </div>
           </div>
+          {availableRoles.filter(r => r !== "admin").map(r => {
+            const cfg: Record<string, { label: string; icon: string; path: string }> = {
+              client: { label: "Client", icon: "👤", path: "/home" },
+              provider: { label: "Provider", icon: "🏥", path: "/pro/dashboard" },
+              corporate: { label: "Corporate", icon: "🏢", path: "/corporate/dashboard" },
+              sales_rep: { label: "Ranger", icon: "⚡", path: "/rep/dashboard" },
+            };
+            const c = cfg[r];
+            if (!c) return null;
+            return (
+              <button key={r}
+                onClick={() => { switchRole(r as any); navigate(c.path); }}
+                className="w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all text-sm">
+                <span>{c.icon}</span> Switch to {c.label}
+              </button>
+            );
+          })}
           <button onClick={logout}
             aria-label="Sign out"
             className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground hover:text-coral hover:bg-white/5 transition-all text-sm">

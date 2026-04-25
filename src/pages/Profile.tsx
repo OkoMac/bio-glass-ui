@@ -115,7 +115,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState<"dashboard" | "rewards">("dashboard");
   const [referralCopied, setReferralCopied] = useState(false);
   const navigate = useNavigate();
-  const { user, logout, switchRole, updateAvatar } = useAuth();
+  const { user, logout, switchRole, updateAvatar, availableRoles } = useAuth();
   const { bookings } = useBookings();
   const { balance: bioPoints } = useBioPoints();
   const { streak } = useStreaks("booking");
@@ -498,12 +498,31 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Switch to provider */}
-            <motion.button whileTap={{ scale: 0.97 }}
-              onClick={() => { switchRole("provider"); navigate("/pro/dashboard"); }}
-              className="w-full rounded-2xl py-3 border border-indigo/20 bg-indigo/5 text-sm text-indigo font-medium flex items-center justify-center gap-2 hover:bg-indigo/10 transition-colors">
-              <Star className="w-4 h-4" /> Switch to Provider Mode
-            </motion.button>
+            {/* Role switcher — shows all available roles */}
+            {availableRoles.length > 1 && (
+              <div className="space-y-2">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider px-1">Switch Profile</p>
+                <div className="flex gap-2 flex-wrap">
+                  {availableRoles.filter(r => r !== user?.role).map(r => {
+                    const config: Record<string, { label: string; icon: string; path: string; color: string }> = {
+                      client:    { label: "Client",   icon: "👤", path: "/home",               color: "border-indigo/20 bg-indigo/5 text-indigo" },
+                      provider:  { label: "Provider", icon: "🏥", path: "/pro/dashboard",      color: "border-teal/20 bg-teal/5 text-teal" },
+                      admin:     { label: "Admin",    icon: "🛡️", path: "/admin/dashboard",    color: "border-amber/20 bg-amber/5 text-amber" },
+                      corporate: { label: "Corporate",icon: "🏢", path: "/corporate/dashboard", color: "border-indigo/20 bg-indigo/5 text-indigo" },
+                      sales_rep: { label: "Ranger",   icon: "⚡", path: "/rep/dashboard",       color: "border-teal/20 bg-teal/5 text-teal" },
+                    };
+                    const c = config[r] ?? { label: r, icon: "👤", path: "/home", color: "border-white/10 bg-white/5 text-foreground" };
+                    return (
+                      <motion.button key={r} whileTap={{ scale: 0.95 }}
+                        onClick={() => { switchRole(r as any); navigate(c.path); }}
+                        className={`flex-1 min-w-[120px] rounded-2xl py-3 border text-sm font-medium flex items-center justify-center gap-2 hover:opacity-80 transition-opacity ${c.color}`}>
+                        <span>{c.icon}</span> {c.label}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Sign Out — prominent button */}
             <motion.button whileTap={{ scale: 0.97 }}
