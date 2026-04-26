@@ -64,6 +64,39 @@ export const REWARDS = {
   expenditureRewardRate: 0.0025,
 } as const;
 
+// ── Tier benefits (mirror of backend/src/config/pricing.ts TIER_BENEFITS) ──
+export const TIER_BENEFITS = {
+  Bronze: {
+    threshold: 0,
+    earnMultiplier: 1.00,
+    perks: ["Standard earning rate"],
+  },
+  Silver: {
+    threshold: 1000,
+    earnMultiplier: 1.05,
+    perks: ["+5% on every log", "Early-access flag for new utilities"],
+  },
+  Gold: {
+    threshold: 5000,
+    earnMultiplier: 1.10,
+    perks: ["+10% on every log", "1 free wellness check / month", "Priority customer support"],
+  },
+  Platinum: {
+    threshold: 10000,
+    earnMultiplier: 1.15,
+    perks: ["+15% on every log", "1 free wellness check / month", "Priority booking on premium providers", "Premium support hotline"],
+  },
+} as const;
+
+export type TierName = keyof typeof TIER_BENEFITS;
+
+export function tierForBalance(balance: number): TierName {
+  if (balance >= TIER_BENEFITS.Platinum.threshold) return "Platinum";
+  if (balance >= TIER_BENEFITS.Gold.threshold) return "Gold";
+  if (balance >= TIER_BENEFITS.Silver.threshold) return "Silver";
+  return "Bronze";
+}
+
 export const BOOST = {
   oneWeekRand:   199,
   twoWeeksRand:  349,
