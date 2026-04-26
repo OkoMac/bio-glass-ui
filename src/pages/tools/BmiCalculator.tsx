@@ -6,7 +6,8 @@ import AdBanner from "@/components/AdBanner";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePageView } from "@/hooks/usePageView";
-import { ArrowLeft, Calculator, ChevronDown, ChevronUp } from "lucide-react";
+import { authFetchJson } from "@/lib/authFetch";
+import { ArrowLeft, Calculator, ChevronDown, ChevronUp, TrendingUp } from "lucide-react";
 
 const STORAGE_KEY = "bion_bmi_last";
 
@@ -59,10 +60,28 @@ export default function BmiCalculator() {
     }
   });
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [history, setHistory] = useState<Array<{ created_at: string; bmi: number }>>([]);
 
   useEffect(() => {
     document.title = "Free BMI Calculator | BION";
   }, []);
+
+  // Load BMI history (signed-in users only)
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await authFetchJson<{ ok: boolean; data: Array<{ created_at: string; bmi: number }> }>(
+          "/api/health-profile/bmi/history",
+        );
+        if (!cancelled && res?.data) setHistory(res.data);
+      } catch {
+        /* not signed in or no history yet */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
 
   useEffect(() => {
     const schema = {
@@ -83,7 +102,7 @@ export default function BmiCalculator() {
     };
   }, []);
 
-  const calculate = () => {
+  const calculate = async () => {
     const h = parseFloat(height);
     const w = parseFloat(weight);
     if (!h || !w || h <= 0 || w <= 0) return;
@@ -91,6 +110,25 @@ export default function BmiCalculator() {
     const res = classify(bmi);
     setResult(res);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(res));
+
+    // Auto-save for signed-in users so they get a trend chart over time.
+    // Non-blocking: a failed save still gives the user their result.
+    if (user) {
+      try {
+        await authFetchJson<{ ok: boolean; data: any }>("/api/health-profile/bmi", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ height_cm: h, weight_kg: w }),
+        });
+        // Refresh history after a successful save
+        const refreshed = await authFetchJson<{ ok: boolean; data: Array<{ created_at: string; bmi: number }> }>(
+          "/api/health-profile/bmi/history",
+        );
+        if (refreshed?.data) setHistory(refreshed.data);
+      } catch (err) {
+        console.warn("[BmiCalculator] save failed:", err);
+      }
+    }
   };
 
   return (
@@ -169,6 +207,23 @@ export default function BmiCalculator() {
           </motion.div>
         )}
 
+        {/* Trend chart — signed-in users with at least 2 data points */}
+        {user && history.length >= 2 && (
+          <GlassCard className="p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp className="w-4 h-4 text-teal-400" />
+              <h3 className="text-sm font-semibold text-foreground">Your BMI Trend</h3>
+              <span className="ml-auto text-[10px] text-muted-foreground">
+                {history.length} {history.length === 1 ? "entry" : "entries"}
+              </span>
+            </div>
+            <BmiTrendChart data={history} />
+            <p className="text-[10px] text-muted-foreground mt-3 leading-relaxed">
+              Calculated values are saved automatically. Each new measurement is added to your trend.
+            </p>
+          </GlassCard>
+        )}
+
         {/* CTA bridge */}
         <GlassCard variant="accent-indigo" className="p-4">
           <p className="text-sm text-foreground font-medium mb-2">
@@ -221,6 +276,43 @@ export default function BmiCalculator() {
         <AdBanner slot="tools-bmi-bottom" format="rectangle" />
       </div>
       {user && <BottomNav />}
+    </div>
+  );
+}
+
+/** Lightweight inline SVG sparkline of BMI over time. No chart library. */
+function BmiTrendChart({ data }: { data: Array<{ created_at: string; bmi: number }> }) {
+  const w = 320;
+  const h = 80;
+  const padX = 8;
+  const padY = 14;
+  const minBmi = Math.min(...data.map(d => d.bmi));
+  const maxBmi = Math.max(...data.map(d => d.bmi));
+  const span = Math.max(0.5, maxBmi - minBmi);
+  const points = data.map((d, i) => {
+    const x = padX + (i / Math.max(1, data.length - 1)) * (w - 2 * padX);
+    const y = padY + (1 - (d.bmi - minBmi) / span) * (h - 2 * padY);
+    return { x, y, bmi: d.bmi };
+  });
+  const path = points.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  const latest = points[points.length - 1];
+  const trendUp = points.length >= 2 && points[points.length - 1].bmi > points[0].bmi;
+  return (
+    <div className="w-full overflow-x-auto">
+      <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-20">
+        <path d={path} fill="none" stroke={trendUp ? "rgb(248, 113, 113)" : "rgb(45, 212, 191)"} strokeWidth="2" />
+        {points.map((p, i) => (
+          <circle key={i} cx={p.x} cy={p.y} r={i === points.length - 1 ? 4 : 2}
+            fill={i === points.length - 1 ? "rgb(99, 102, 241)" : "rgba(255,255,255,0.5)"} />
+        ))}
+        <text x={latest.x + 6} y={latest.y - 4} className="text-[10px]" fill="rgb(99, 102, 241)">
+          {latest.bmi.toFixed(1)}
+        </text>
+      </svg>
+      <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+        <span>{new Date(data[0].created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}</span>
+        <span>{new Date(data[data.length - 1].created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}</span>
+      </div>
     </div>
   );
 }
