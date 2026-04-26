@@ -100,7 +100,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           clearDemoIfPresent();
           try {
             const profile = await fetchUserProfile(session.user.id);
-            if (mounted && profile) { storeUser(profile); setUser(profile); }
+            if (mounted && profile) {
+              storeUser(profile);
+              setUser(profile);
+              // Magic-link / new-device fix: if the user has a real DB profile,
+              // they're an existing user — mark onboarding done so RequireAuth
+              // doesn't loop them back to /onboarding/* on a fresh browser.
+              // The previous logic only checked localStorage, which is empty
+              // on first login from any new device/browser.
+              if (profile.id && !profile.id.startsWith("demo_") && profile.profileId) {
+                try { localStorage.setItem(`bion_onboarding_done_${profile.id}`, "1"); } catch { /* */ }
+              }
+            }
             // Increment login count for Layer 3 deeper dive (SIGNED_IN only, not token refresh)
             if (event === "SIGNED_IN" && profile?.profileId) {
               supabase.from("profiles").select("login_count").eq("id", profile.profileId).maybeSingle()
