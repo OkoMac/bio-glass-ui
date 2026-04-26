@@ -49,8 +49,22 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>NSHealthShareUsageDescription</key>
-	<string>BION reads your health data to provide personalized wellness insights</string>
+	<string>BION reads your steps, heart rate, sleep and weight from Apple Health to power your wellness dashboard.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>BION saves your logged health data to Apple Health</string>
+	<string>BION saves your weight and water intake to Apple Health so your other apps can see your progress.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>BION uses the camera to take food photos for calorie analysis, profile pictures, and provider verification documents.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>BION needs photo library access so you can upload food photos and profile pictures.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>BION saves progress photos and shared content to your photo library.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>BION uses your location to show wellness providers near you. Location is only read while the app is open.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>BION uses your contacts to find friends already on the platform when you choose to invite people.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>BION uses the microphone for voice notes when logging meals, mood, or sleep.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>BION uses Face ID to unlock the app and confirm sensitive actions like wallet withdrawals.</string>
 </dict>
 </plist>

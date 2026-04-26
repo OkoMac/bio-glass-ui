@@ -55,26 +55,15 @@
       "presentationOptions": ["badge", "sound", "alert"]
     },
     "CapacitorHealthkit": {
+      "_audit_note": "Trimmed 2026-04-26 — only types actually read by useNativeHealth.ts. App Store Guideline 5.1.1 rejects permission overreach. To add a new type: implement the read fn FIRST, surface in UI, then add here.",
       "read": [
         "stepCount",
-        "distanceWalkingRunning",
-        "activeEnergyBurned",
         "heartRate",
-        "restingHeartRate",
         "sleepAnalysis",
-        "bodyMass",
-        "height",
-        "bodyFatPercentage",
-        "bodyMassIndex",
-        "bloodPressureSystolic",
-        "bloodPressureDiastolic",
-        "oxygenSaturation",
-        "dietaryWater"
+        "bodyMass"
       ],
       "write": [
         "bodyMass",
-        "height",
-        "bodyFatPercentage",
         "dietaryWater"
       ]
     }

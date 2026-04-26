@@ -8,6 +8,8 @@ import { ArrowLeft, Droplets, Plus, Minus, Trophy, Target, Flame } from "lucide-
 import { useAuth } from "@/contexts/AuthContext";
 import AdBanner from "@/components/AdBanner";
 import { useActivityPoints } from "@/hooks/useActivityPoints";
+import { useNativeHealth } from "@/hooks/useNativeHealth";
+import { haptics } from "@/lib/haptics";
 import { usePageView } from "@/hooks/usePageView";
 import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
 import { trackEvent } from "@/lib/habits";
@@ -131,6 +133,7 @@ export default function WaterTracker() {
   const [streak, setStreak] = useState(getStreak);
   const [milestone, setMilestone] = useState<string | null>(null);
   const { awardPoints } = useActivityPoints();
+  const native = useNativeHealth();
   usePageView();
   const { showTip } = useFeatureDiscovery();
 
@@ -193,6 +196,11 @@ export default function WaterTracker() {
     // We keep it simple here — points awarded per click; the yearly cap protects abuse.
     awardPoints("log_water", `${dateKey}-glass-${data.glasses + 1}`).catch(() => {});
     trackEvent("tool_use", { category: "wellness_tracking", metadata: { tool: "water", amount_ml: 250 } });
+    // Native: write 250ml back to Apple Health so other apps see BION as a contributor.
+    // No-op on web. Best-effort — never blocks the UI.
+    native.writeWater(0.25).catch(() => {});
+    // Tactile feedback on native
+    haptics.light();
   };
 
   const removeGlass = () => {

@@ -1,0 +1,45 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "_comment": "PLACEHOLDER — replace TEAMID with your Apple Developer Team ID once enrolled. Bundle id matches capacitor.config.json appId. The file MUST be served from https://bionhealth.co.za/.well-known/apple-app-site-association with Content-Type: application/json and NO file extension.",
+        "appIDs": ["TEAMID.co.za.bionhealth.app"],
+        "components": [
+          {
+            "/": "/provider/*",
+            "comment": "Open provider profiles in the app"
+          },
+          {
+            "/": "/quick-book",
+            "comment": "Open quick-book in the app"
+          },
+          {
+            "/": "/schedule",
+            "comment": "Open schedule in the app"
+          },
+          {
+            "/": "/wallet",
+            "comment": "Open wallet in the app"
+          },
+          {
+            "/": "/medical-card",
+            "comment": "Open medical card in the app"
+          },
+          {
+            "/": "/welcome*",
+            "exclude": true,
+            "comment": "Welcome page stays in browser for first-touch users"
+          },
+          {
+            "/": "/legal/*",
+            "exclude": true
+          }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["TEAMID.co.za.bionhealth.app"]
+  }
+}

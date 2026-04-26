@@ -629,12 +629,16 @@ export default function ProviderProfile() {
     return () => { document.title = "BION — Commit to Yourself"; };
   }, [provider, trackView]);
 
-  const shareProvider = () => {
+  const shareProvider = async () => {
     const url = `https://bionhealth.co.za/provider/${provider.id}`;
-    if (navigator.share) {
-      navigator.share({ title: provider.name, text: `${provider.specialty} in ${provider.location}`, url }).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(url);
+    const { shareItem } = await import("@/lib/share");
+    const result = await shareItem({
+      title: provider.name,
+      text: `${provider.specialty} in ${provider.location} on BION`,
+      url,
+      dialogTitle: "Share this provider",
+    });
+    if (result.ok && result.channel === "clipboard") {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }

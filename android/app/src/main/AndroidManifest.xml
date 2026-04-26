@@ -65,23 +65,22 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- Health Connect permissions -->
+    <!-- Android 13+ runtime push notification permission. Without this,
+         system push notifications won't display on Android 13 (API 33) and up.
+         App must call requestPermission() at runtime as well. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!--
+      Health Connect permissions — trimmed 2026-04-26 to match actual reads in
+      src/hooks/useNativeHealth.ts (Steps, HeartRate, Weight). Adding more
+      permissions here without a corresponding read/write fn triggers Play
+      Store pre-launch warnings about excess permissions.
+    -->
     <uses-permission android:name="android.permission.health.READ_STEPS" />
-    <uses-permission android:name="android.permission.health.READ_DISTANCE" />
-    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
     <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
-    <uses-permission android:name="android.permission.health.READ_RESTING_HEART_RATE" />
-    <uses-permission android:name="android.permission.health.READ_SLEEP" />
     <uses-permission android:name="android.permission.health.READ_WEIGHT" />
-    <uses-permission android:name="android.permission.health.READ_HEIGHT" />
-    <uses-permission android:name="android.permission.health.READ_BODY_FAT" />
-    <uses-permission android:name="android.permission.health.READ_BLOOD_PRESSURE" />
-    <uses-permission android:name="android.permission.health.READ_OXYGEN_SATURATION" />
     <uses-permission android:name="android.permission.health.WRITE_WEIGHT" />
-    <uses-permission android:name="android.permission.health.WRITE_HEIGHT" />
-    <uses-permission android:name="android.permission.health.WRITE_BODY_FAT" />
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
-    <uses-permission android:name="android.permission.BODY_SENSORS" />
 
     <!-- Declare Health Connect activity for permission rationale -->
     <queries>

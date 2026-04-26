@@ -77,12 +77,18 @@ export default function Wallet() {
       });
       const json = await res.json();
       if (json.ok && json.paymentUrl) {
+        const { haptics } = await import("@/lib/haptics");
+        await haptics.medium();
         window.location.href = json.paymentUrl;
       } else {
+        const { haptics } = await import("@/lib/haptics");
+        await haptics.error();
         showMessage("error", json.error ?? "Could not initiate top-up. Try again.");
         setProcessing(false);
       }
     } catch {
+      const { haptics } = await import("@/lib/haptics");
+      await haptics.error();
       showMessage("error", "Network error. Please try again.");
       setProcessing(false);
     }

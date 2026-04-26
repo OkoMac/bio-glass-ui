@@ -5,6 +5,7 @@ import GlassCard from "./GlassCard";
 import BioAvatar from "./BioAvatar";
 import { X, ChevronLeft, CreditCard, Shield, Lock, AlertCircle, Check, Loader2 } from "lucide-react";
 import BookingCelebration from "./BookingCelebration";
+import { haptics } from "@/lib/haptics";
 import StripePaymentForm from "./StripePaymentForm";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -125,6 +126,7 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
       
       setIsProcessing(false);
       setShowCelebration(true);
+      haptics.success();
     }, 1500);
   };
 
@@ -167,11 +169,13 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
     
     setStripePaymentId(paymentIntentId);
     setShowCelebration(true);
+    haptics.success();
   };
 
   const handleStripePaymentError = (error: string) => {
     setStripeError(error);
     setIsProcessing(false);
+    haptics.error();
   };
 
   const handleCelebrationClose = (goToSchedule: boolean) => {

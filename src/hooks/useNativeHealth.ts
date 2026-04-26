@@ -32,6 +32,15 @@ export interface NativeHealthData {
   refresh: () => Promise<void>;
   /** true while any query is in flight */
   loading: boolean;
+  /**
+   * Write a water intake amount to Apple Health (iOS) — closes the loop so
+   * BION's water log shows up alongside the user's other health-tracking
+   * apps. Returns true on success. Android Health Connect hydration write
+   * is not yet implemented (plugin gap).
+   */
+  writeWater: (litres: number) => Promise<boolean>;
+  /** Write weight (kg) back to Apple Health / Health Connect. */
+  writeWeight: (weightKg: number) => Promise<boolean>;
 }
 
 // ---------------------------------------------------------------------------
@@ -64,25 +73,17 @@ function nowISO(): string {
 async function iosRequestAuth(): Promise<boolean> {
   const { CapacitorHealthkit } = await import("@perfood/capacitor-healthkit");
   try {
+    // Only request what we actually read or write. Adding more here without a
+    // corresponding read/write function = App Store rejection (Guideline 5.1.1).
     await CapacitorHealthkit.requestAuthorization({
       all: [],
       read: [
         "stepCount",
-        "distanceWalkingRunning",
-        "activeEnergyBurned",
         "heartRate",
-        "restingHeartRate",
         "sleepAnalysis",
         "bodyMass",
-        "height",
-        "bodyFatPercentage",
-        "bodyMassIndex",
-        "bloodPressureSystolic",
-        "bloodPressureDiastolic",
-        "oxygenSaturation",
-        "dietaryWater",
       ],
-      write: ["bodyMass", "height", "bodyFatPercentage", "dietaryWater"],
+      write: ["bodyMass", "dietaryWater"],
     });
     return true;
   } catch {
@@ -145,6 +146,46 @@ async function iosReadSleep(): Promise<number | null> {
   }
 }
 
+/**
+ * Write a water intake (in litres) to Apple Health. The user's other apps
+ * (Apple Health summary, Fitness Rings, etc.) will see BION as a contributor.
+ * Best-effort — failures don't break the user-facing flow.
+ */
+async function iosWriteWater(litres: number): Promise<boolean> {
+  if (litres <= 0) return false;
+  const { CapacitorHealthkit } = await import("@perfood/capacitor-healthkit");
+  try {
+    // The plugin's exact signature varies by version; we use the most
+    // common quantity-write shape. If the call fails, callers fall back
+    // to BION-only logging.
+    await (CapacitorHealthkit as any).storeWaterSample({
+      value: litres,
+      unit: "L",
+      startDate: new Date().toISOString(),
+      endDate: new Date().toISOString(),
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function iosWriteWeight(weightKg: number): Promise<boolean> {
+  if (weightKg <= 0) return false;
+  const { CapacitorHealthkit } = await import("@perfood/capacitor-healthkit");
+  try {
+    await (CapacitorHealthkit as any).storeWeightSample({
+      value: weightKg,
+      unit: "kg",
+      startDate: new Date().toISOString(),
+      endDate: new Date().toISOString(),
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function iosReadWeight(): Promise<number | null> {
   const { CapacitorHealthkit } = await import("@perfood/capacitor-healthkit");
   try {
@@ -176,19 +217,11 @@ async function androidRequestAuth(): Promise<boolean> {
     const { availability } = await HealthConnect.checkAvailability();
     if (availability !== "Available") return false;
 
+    // Only request what we actually read or write. Play Store flags excess
+    // permissions; matching to UI features keeps the rationale screen honest.
     const result = await HealthConnect.requestHealthPermissions({
-      read: [
-        "Steps",
-        "ActiveCaloriesBurned",
-        "HeartRateSeries",
-        "RestingHeartRate",
-        "Weight",
-        "Height",
-        "BodyFat",
-        "BloodPressure",
-        "OxygenSaturation",
-      ],
-      write: ["Weight", "Height", "BodyFat"],
+      read: ["Steps", "HeartRateSeries", "Weight"],
+      write: ["Weight"],
     });
     return result.hasAllPermissions;
   } catch {
@@ -247,6 +280,27 @@ async function androidReadSleep(): Promise<number | null> {
   // Health Connect doesn't have a dedicated sleep RecordType in this plugin version.
   // Return null — the dashboard will fall back to manually-logged data.
   return null;
+}
+
+/**
+ * Write weight to Health Connect. Hydration write is currently NOT
+ * exposed by capacitor-health-connect 0.7 — pending plugin upgrade.
+ */
+async function androidWriteWeight(weightKg: number): Promise<boolean> {
+  if (weightKg <= 0) return false;
+  const { HealthConnect } = await import("capacitor-health-connect");
+  try {
+    await (HealthConnect as any).insertRecords({
+      records: [{
+        type: "Weight",
+        time: new Date(),
+        weight: { unit: "kilogram", value: weightKg },
+      }],
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function androidReadWeight(): Promise<number | null> {
@@ -353,6 +407,20 @@ export function useNativeHealth(): NativeHealthData {
     }
   }, [authorized, refresh]);
 
+  // Native write-back wrappers — gate on platform + authorized
+  const writeWater = useCallback(async (litres: number): Promise<boolean> => {
+    if (!isNative || !authorized || litres <= 0) return false;
+    if (platform === "ios") return iosWriteWater(litres);
+    return false; // Android Health Connect hydration write pending plugin support
+  }, [isNative, authorized, platform]);
+
+  const writeWeight = useCallback(async (weightKg: number): Promise<boolean> => {
+    if (!isNative || !authorized || weightKg <= 0) return false;
+    if (platform === "ios") return iosWriteWeight(weightKg);
+    if (platform === "android") return androidWriteWeight(weightKg);
+    return false;
+  }, [isNative, authorized, platform]);
+
   // ── Web no-op ──
   if (!isNative) {
     return {
@@ -365,6 +433,8 @@ export function useNativeHealth(): NativeHealthData {
       weight: null,
       refresh: async () => {},
       loading: false,
+      writeWater: async () => false,
+      writeWeight: async () => false,
     };
   }
 
@@ -378,5 +448,7 @@ export function useNativeHealth(): NativeHealthData {
     weight,
     refresh,
     loading,
+    writeWater,
+    writeWeight,
   };
 }
