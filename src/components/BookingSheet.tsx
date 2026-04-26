@@ -407,7 +407,7 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
                         <div>
                           <p className="text-xs font-medium text-foreground">Secure Booking</p>
                           <p className="text-xs text-muted-foreground mt-0.5">
-                            Your booking is confirmed instantly. Cancel 24h+ before: full refund to wallet. Cancel &lt;24h: 50% fee.
+                            Your booking is confirmed instantly. Cancel 24h+ before: 10% fee, 90% refunded. Cancel &lt;24h: 50% fee, 50% refunded.
                           </p>
                         </div>
                       </div>
@@ -472,7 +472,7 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
                         <div>
                           <p className="text-xs font-medium text-foreground">Secure Advance Payment</p>
                           <p className="text-xs text-muted-foreground mt-0.5">
-                            Your payment is held securely until your appointment is completed. Cancel 24h+ before: full refund to wallet. Cancel &lt;24h: 50% fee.
+                            Your payment is held securely until your appointment is completed. Cancel 24h+ before: 10% fee, 90% refunded. Cancel &lt;24h: 50% fee, 50% refunded.
                           </p>
                         </div>
                       </div>

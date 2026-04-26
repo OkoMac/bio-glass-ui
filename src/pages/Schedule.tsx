@@ -529,7 +529,7 @@ const Schedule = () => {
                 <div>
                   <h3 className="text-lg font-bold text-foreground">Before you cancel…</h3>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Rescheduling is free (up to 3 times). Cancel 24h+ before: full refund to wallet. Cancel &lt;24h: 50% fee applies.
+                    Rescheduling is free (up to 3 times). Cancel 24h+ before: 10% fee, 90% refunded. Cancel &lt;24h: 50% fee, 50% refunded.
                   </p>
                 </div>
                 <button onClick={() => !cancelling && setCancelIntent(null)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center shrink-0">

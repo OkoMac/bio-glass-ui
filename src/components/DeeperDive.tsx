@@ -16,7 +16,7 @@ const SCREENS = [
     items: [
       { icon: "🔒", text: "Money held safely until sessions complete" },
       { icon: "⚡", text: "Pay providers in one tap" },
-      { icon: "↩️", text: "Cancelled in time? Full refund automatically" },
+      { icon: "↩️", text: "Cancel 24h+ early: 90% refund. Late: 50% refund." },
     ],
   },
   {

@@ -72,9 +72,11 @@ export default function Terms() {
               All payments are processed through our authorized payment partner Paystack (PCI DSS Level 1). A 5%
               booking fee is charged to clients on each transaction (3.5% for Premium subscribers at R29/month).
               Providers receive 90% of the service price after a 5% platform fee and 5% acquisition-marketing
-              contribution. Wallet cash-out to bank: 10% fee, minimum R200. Cancellation policy: client cancels
-              24h+ before = full refund; client cancels &lt;24h = 50% fee; provider cancels = full refund + 10%
-              fee to provider + strike. Refunds are governed by our
+              contribution. Wallet cash-out to bank: 10% fee, minimum R200. Cancellation policy (the canceller pays
+              the fee, regardless of side): cancel 24h+ before booking = 10% fee on canceller; cancel &lt;24h before
+              = 50% fee on canceller. When the client cancels, the fee is retained by BION and the balance is
+              refunded to the client wallet. When the provider cancels, the client receives a 100% refund to
+              wallet and the fee is debited from the provider wallet (plus a strike). Refunds are governed by our
               <a href="/legal/dispute-resolution" className="text-indigo hover:underline ml-1">Dispute Resolution Policy</a>.
             </p>
           </section>

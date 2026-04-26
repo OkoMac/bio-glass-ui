@@ -11,9 +11,9 @@ const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
 const FAQS: Array<{ q: string; a: string }> = [
   { q: "How do I cancel a booking?",
-    a: "Open /schedule, tap the booking, tap Cancel. Cancel 24h+ before: full refund to wallet, no fee. Cancel <24h before (client's fault): 50% cancellation fee, 50% refunded to wallet. Voucher bookings: voucher auto-restored, no fee. A short cancellation questionnaire is required. Rescheduling is free (up to 3 times). B_ mediates all cancellations via WhatsApp." },
+    a: "Open /schedule, tap the booking, tap Cancel. Cancellation policy is symmetric — the canceller pays the fee. Cancel 24h+ before booking: 10% fee, 90% refunded to wallet. Cancel <24h before booking: 50% fee, 50% refunded to wallet. Voucher bookings: voucher auto-restored, no fee. Rescheduling is free (up to 3 times) — always cheaper than cancelling." },
   { q: "How are refunds processed?",
-    a: "Cancellation refunds go automatically to your BION Wallet based on timing (see cancellation policy). For disputes, email disputes@bionhealth.co.za — admin processes with a 10% BION refund fee (waivable when the provider was at fault). If a provider cancels, you get a full refund to wallet and the provider pays a 10% transaction fee + receives a cancellation strike." },
+    a: "Cancellation refunds go automatically to your BION Wallet immediately. Cancel 24h+ early = 90% back. Cancel late = 50% back. If a PROVIDER cancels, you receive a 100% refund to wallet and the provider's wallet is debited the cancellation fee (10% if 24h+ early, 50% if late) plus a strike on their record. For disputes (service quality, no-show etc.), email disputes@bionhealth.co.za — admin handles those with a 10% BION refund fee (waivable when provider at fault)." },
   { q: "How do provider payouts work?",
     a: "Providers keep 90% of every booking. Earnings land in your BION Wallet instantly on payment. Withdraw to your SA bank via Paystack Transfer with a 10% cash-out fee (minimum R200)." },
   { q: "What do Premium / Pro / Elite give me?",

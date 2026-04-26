@@ -260,9 +260,11 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
     }
   }, [user?.id]);
 
-  /** Client-initiated cancellation. Calls the backend which voids the booking
-   *  (no automatic refund). Returns the server's instructions so the UI can
-   *  tell the user how to request a refund if they need one. */
+  /** Client-initiated cancellation. Backend computes refund per canonical policy:
+   *    - Cancel 24h+ before booking: 10% fee, 90% refunded to wallet
+   *    - Cancel <24h before booking: 50% fee, 50% refunded to wallet
+   *    - Voucher bookings: voucher auto-restored, no fee
+   *  Returns refund_amount + cancellation_fee + cancel_window so UI can show details. */
   const cancel = useCallback(async (id: string) => {
     if (!user?.profileId) return { ok: false, error: "Not signed in" };
     try {
