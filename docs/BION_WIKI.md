@@ -1,6 +1,6 @@
 # BION Platform Wiki & Knowledge Base
 ## Complete System Documentation
-### Last updated: 25 April 2026
+### Last updated: 26 April 2026
 
 ---
 
@@ -1638,7 +1638,91 @@ PREMIUM (Provider Elite R999 + Client Premium R29):
 
 ---
 
-### SECTION 18: NOTIFICATION & REMINDER SYSTEM (Updated 25 April 2026)
+### SECTION 18: NOTIFICATION SYSTEM v2 (Rebuilt 26 April 2026)
+
+**Architecture: Single Pipeline, Multi-Channel Delivery**
+
+The notification system was rebuilt from 4 independent engines into a single `notify()` pipeline. Every notification flows through: EMIT → RULES → ENQUEUE → DELIVER → RECORD.
+
+#### Core Files:
+- `backend/src/services/notify.ts` — single entry point `notify()` function
+- `backend/src/services/notificationRules.ts` — rules engine (channels, quiet hours, frequency caps, dedup)
+- `backend/src/services/notificationWorker.ts` — delivery queue worker (polls every 60s)
+- `backend/src/routes/notification-preferences.ts` — user preferences CRUD API
+- `backend/src/routes/admin-notifications.ts` — admin stats + failure monitoring
+- `bio-glass-ui/src/components/NotificationSettings.tsx` — 3-tab settings UI
+- `bio-glass-ui/src/hooks/useNotificationPreferences.ts` — frontend preferences hook
+
+#### Database Tables (Created 26 April 2026):
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| `notifications` (enhanced) | Canonical notification record | + category, idempotency_key, source, priority, metadata, reference_id, scheduled_for |
+| `notification_preferences` | Per-user channel/category toggles | channel_email/push/whatsapp, cat_critical through cat_marketing, quiet_start/end, daily_cap |
+| `notification_deliveries` | Per-channel delivery tracking + queue | notification_id, channel, status, attempts, scheduled_at, error |
+| `notification_audit` | Event log for observability | event_type, notification_id, user_id, channel, category, detail |
+| `push_subscriptions` | Browser push endpoints | profile_id, endpoint, p256dh, auth, active |
+
+#### 6 Notification Categories:
+
+| Category | Default | Quiet Hours | Cannot Opt Out |
+|----------|---------|-------------|----------------|
+| CRITICAL | Always on | NO | YES |
+| TRANSACTIONAL | On | YES | No |
+| WELLNESS | On | YES | No |
+| ENGAGEMENT | On | YES | No |
+| BUSINESS (Provider) | On | YES | No |
+| MARKETING | Off (POPIA opt-in) | YES (strict) | No |
+
+#### Channel Defaults by Category:
+
+| Category | in_app | push | email | whatsapp |
+|----------|--------|------|-------|----------|
+| critical | always | always | yes | yes |
+| transactional | yes | yes | yes | if opted in |
+| wellness | yes | yes | no | no |
+| engagement | yes | no | yes | no |
+| business | yes | yes | yes | yes |
+| marketing | yes | no | yes | no |
+
+#### notify() Flow:
+1. Dedup check (idempotency_key hash, 24h window)
+2. Load user preferences (defaults if no row)
+3. Category opt-in check (skip if opted out, except critical)
+4. Quiet hours check (defer non-critical to quiet_end)
+5. Frequency cap check (max 5 external/day default)
+6. INSERT into notifications table (always — in-app delivery)
+7. INSERT delivery rows for each external channel
+8. Immediate dispatch via existing send functions
+9. Log to notification_audit
+
+#### Files Migrated to notify():
+- `utils/notifications.ts` — createNotification() is now a wrapper
+- `routes/challenges.ts` — 2 inserts → notify()
+- `routes/programs.ts` — 1 insert → 2 notify() calls
+- `routes/queue.ts` — 1 insert → notify()
+- `routes/provider-referrals.ts` — 2 inserts → notify()
+- `routes/bookings.ts` — insert + push → single notify()
+- `services/providerEngagement.ts` — review request → notify() with dedup
+
+#### 8 Re-enabled Crons (Previously Disabled):
+All now gated by user notification_preferences:
+1. Morning briefing (8am SAST) — cat_business
+2. Gap-filling offers (4pm SAST) — cat_business
+3. End-of-day summary (6pm SAST) — cat_business
+4. Client re-engagement (Mon 10am) — cat_business
+5. Wellness reminders (9am/1pm/9pm) — cat_wellness
+6. Weekly wellness digest (Sun 6pm) — cat_engagement
+7. Engagement nudges (11am) — cat_engagement
+8. Onboarding abandonment nudges — cat_engagement
+
+#### Settings UI (3 Tabs):
+- **Channels:** Push, Email, WhatsApp toggles (in-app always on)
+- **Categories:** Critical (locked on), Transactional, Wellness, Engagement, Business (providers only), Marketing (POPIA)
+- **Quiet Hours:** Start/end time pickers, daily cap selector (3/5/10)
+
+#### Previous Section 18 content below for reference:
+---
 
 **Architecture:** 4 independent layers merged into one UI at `/notifications`
 
