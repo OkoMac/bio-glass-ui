@@ -124,7 +124,7 @@ export default function ForProviders() {
               to="/welcome?role=provider"
               className="rounded-pill px-8 py-3.5 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta inline-flex items-center gap-2"
             >
-              Start with BION Basic — R299/mo <ArrowRight className="w-4 h-4" />
+              Start with BION Pro — R499/mo <ArrowRight className="w-4 h-4" />
             </Link>
             <button
               onClick={scrollToFeatures}
