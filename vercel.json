@@ -1,6 +1,6 @@
 {
   "installCommand": "npm install --legacy-peer-deps --include=dev",
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run drift:check && npm run build",
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
