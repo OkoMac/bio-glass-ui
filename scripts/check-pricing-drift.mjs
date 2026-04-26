@@ -22,11 +22,15 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 
+const MCQ_DISTRACTOR = /"isCorrect"\s*:\s*false/;
+
 const STALE_RULES = [
   { pattern: /\bR\s*299\b\s*(?:\/|per)\s*(?:mo|month)/gi, name: "Provider Basic R299/mo (REMOVED — use Free or Pro R499)" },
   { pattern: /\bR\s*699\b\s*(?:\/|per)\s*(?:mo|month)/gi, name: "Provider Pro R699/mo (DEPRECATED — canonical is R499)" },
   { pattern: /R\s*59\.\s*80\b/gi,  name: "Ranger commission R59.80 (was 20% of R299 — old)" },
   { pattern: /R\s*139\.\s*80\b/gi, name: "Ranger commission R139.80 (was 20% of R699 — old)" },
+  { pattern: /\bR\s*299\b/gi, name: "Bare R299 reference (legacy tier — use R499)", skipIfMcqDistractor: true },
+  { pattern: /\bR\s*699\b/gi, name: "Bare R699 reference (legacy tier — use R999)", skipIfMcqDistractor: true },
 ];
 
 const SCAN_DIRS = [
@@ -70,11 +74,14 @@ function collectFiles() {
 
 function scanFile(filePath) {
   const content = readFileSync(filePath, "utf8");
+  const lines = content.split("\n");
   const issues = [];
   for (const rule of STALE_RULES) {
     rule.pattern.lastIndex = 0;
     for (const m of content.matchAll(rule.pattern)) {
       const lineNum = content.slice(0, m.index).split("\n").length;
+      const lineText = lines[lineNum - 1] ?? "";
+      if (rule.skipIfMcqDistractor && MCQ_DISTRACTOR.test(lineText)) continue;
       issues.push({ line: lineNum, match: m[0], rule: rule.name });
     }
   }
