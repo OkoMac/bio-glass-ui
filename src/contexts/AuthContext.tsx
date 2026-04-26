@@ -85,6 +85,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen to future auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
+      // Password recovery: Supabase fires PASSWORD_RECOVERY when a user clicks
+      // a recovery email link. We must navigate them to /reset-password so they
+      // can set a new password — otherwise they land on home as if signed in
+      // and have no obvious way to set the password the link was for.
+      if (event === "PASSWORD_RECOVERY") {
+        if (window.location.pathname !== "/reset-password") {
+          window.location.replace("/reset-password");
+        }
+        return;
+      }
       if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
         if (session?.user) {
           clearDemoIfPresent();
