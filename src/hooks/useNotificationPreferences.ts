@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { getAuthHeaders, NoSessionError } from "@/lib/authFetch";
+import { useAuth } from "@/contexts/AuthContext";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -43,13 +44,37 @@ const DEFAULTS: NotificationPreferences = {
   daily_cap: 5,
 };
 
+// Demo accounts (id starts with "demo_") use localStorage instead of the API
+const DEMO_KEY = "bion_demo_notif_prefs";
+
+function loadDemoPrefs(): NotificationPreferences {
+  try {
+    const raw = localStorage.getItem(DEMO_KEY);
+    if (raw) return { ...DEFAULTS, ...JSON.parse(raw) };
+  } catch { /* fall through */ }
+  return DEFAULTS;
+}
+
+function saveDemoPrefs(prefs: NotificationPreferences): void {
+  try { localStorage.setItem(DEMO_KEY, JSON.stringify(prefs)); } catch { /* quota? */ }
+}
+
 export function useNotificationPreferences() {
+  const { user } = useAuth();
+  const isDemo = !!user?.id?.startsWith("demo_");
+
   const [prefs, setPrefs] = useState<NotificationPreferences>(DEFAULTS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isDefault, setIsDefault] = useState(true);
 
   const fetchPrefs = useCallback(async () => {
+    if (isDemo) {
+      setPrefs(loadDemoPrefs());
+      setIsDefault(false);
+      setLoading(false);
+      return;
+    }
     try {
       const headers = await getAuthHeaders();
       const res = await fetch(`${API}/api/notification-preferences`, { headers });
@@ -64,13 +89,23 @@ export function useNotificationPreferences() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isDemo]);
 
   useEffect(() => { fetchPrefs(); }, [fetchPrefs]);
 
   const updatePrefs = useCallback(async (updates: Partial<NotificationPreferences>): Promise<boolean> => {
     setSaving(true);
     try {
+      // Demo accounts → localStorage only
+      if (isDemo) {
+        setPrefs(prev => {
+          const next = { ...prev, ...updates };
+          saveDemoPrefs(next);
+          return next;
+        });
+        return true;
+      }
+
       const headers = await getAuthHeaders();
       const res = await fetch(`${API}/api/notification-preferences`, {
         method: "PATCH",
@@ -89,7 +124,7 @@ export function useNotificationPreferences() {
     } finally {
       setSaving(false);
     }
-  }, []);
+  }, [isDemo]);
 
-  return { prefs, loading, saving, isDefault, updatePrefs, refetch: fetchPrefs };
+  return { prefs, loading, saving, isDefault, isDemo, updatePrefs, refetch: fetchPrefs };
 }
