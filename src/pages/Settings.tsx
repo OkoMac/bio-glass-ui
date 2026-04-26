@@ -12,6 +12,7 @@ import {
   AlertTriangle, FileText, X, Cookie,
 } from "lucide-react";
 import CookieConsent, { openCookieBanner } from "@/components/CookieConsent";
+import NotificationSettings from "@/components/NotificationSettings";
 import { getConsent, onConsentChanged, type ConsentState } from "@/lib/cookieConsent";
 import { trackedFetch } from "@/lib/errorReporter";
 
@@ -492,14 +493,7 @@ export default function Settings() {
   const [tab, setTab]     = useState<Tab>(initialTab);
   const [saved, setSaved] = useState(false);
 
-  /* ── Notification prefs ── */
-  const [pushBookingReminder, setPushReminder]   = useState(true);
-  const [pushNewMessage, setPushMessage]         = useState(true);
-  const [pushPromotion, setPushPromo]            = useState(false);
-  const [pushStreakAlert, setPushStreak]          = useState(true);
-  const [emailReceipts, setEmailReceipts]        = useState(true);
-  const [emailWeeklyReport, setEmailWeekly]      = useState(false);
-  const [emailMarketing, setEmailMarketing]      = useState(false);
+  /* ── Notification prefs — now managed by NotificationSettings component ── */
 
   /* ── Payment ── */
   type SavedCard = { id: string; last4: string; brand: string; expiry: string };
@@ -709,48 +703,11 @@ export default function Settings() {
           })}
         </div>
 
-        {/* ── Notifications ── */}
+        {/* ── Notifications — real preferences via API ── */}
         {tab === "notifications" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-            <GlassCard className="p-5 space-y-4">
-              <div className="flex items-center gap-2 mb-1">
-                <Smartphone className="w-4 h-4 text-indigo" />
-                <h2 className="text-sm font-semibold text-foreground">Push Notifications</h2>
-              </div>
-              {[
-                { label: "Booking reminders",     sub: "24h and 1h before your session",          val: pushBookingReminder, set: setPushReminder },
-                { label: "New messages",          sub: "Notify when a provider messages you",      val: pushNewMessage,      set: setPushMessage  },
-                { label: "Streak alerts",         sub: "Daily reminder to keep your streak alive", val: pushStreakAlert,      set: setPushStreak   },
-                { label: "Promotions & offers",   sub: "Deals and featured provider offers",       val: pushPromotion,       set: setPushPromo    },
-              ].map(row => (
-                <div key={row.label} className="flex items-start justify-between gap-3">
-                  <div className="flex-1">
-                    <p className="text-sm text-foreground">{row.label}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{row.sub}</p>
-                  </div>
-                  <Toggle value={row.val} onChange={row.set} />
-                </div>
-              ))}
-            </GlassCard>
-
-            <GlassCard className="p-5 space-y-4">
-              <div className="flex items-center gap-2 mb-1">
-                <Mail className="w-4 h-4 text-teal" />
-                <h2 className="text-sm font-semibold text-foreground">Email Notifications</h2>
-              </div>
-              {[
-                { label: "Booking receipts",   sub: "Confirmation and payment receipts",     val: emailReceipts,      set: setEmailReceipts },
-                { label: "Weekly wellness recap", sub: "Summary of your week's activity",   val: emailWeeklyReport,  set: setEmailWeekly  },
-                { label: "Marketing & tips",   sub: "Wellness content and platform updates", val: emailMarketing,     set: setEmailMarketing },
-              ].map(row => (
-                <div key={row.label} className="flex items-start justify-between gap-3">
-                  <div className="flex-1">
-                    <p className="text-sm text-foreground">{row.label}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{row.sub}</p>
-                  </div>
-                  <Toggle value={row.val} onChange={row.set} />
-                </div>
-              ))}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <GlassCard className="p-5">
+              <NotificationSettings />
             </GlassCard>
           </motion.div>
         )}
