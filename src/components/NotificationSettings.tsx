@@ -155,6 +155,34 @@ export default function NotificationSettings() {
             checked={prefs.cat_wellness}
             onChange={v => update("cat_wellness", v)}
           />
+          {prefs.cat_wellness && (
+            <div className="ml-11 mt-1 mb-2 pl-4 border-l border-white/10 space-y-0">
+              <Toggle
+                label="Food / calorie nudges"
+                description="9am morning prompt — ‘log your breakfast’"
+                checked={(prefs as any).wellness_food ?? true}
+                onChange={v => update("wellness_food" as keyof NotificationPreferences, v)}
+              />
+              <Toggle
+                label="Water reminders"
+                description="1pm hydration check-in"
+                checked={(prefs as any).wellness_water ?? true}
+                onChange={v => update("wellness_water" as keyof NotificationPreferences, v)}
+              />
+              <Toggle
+                label="Sleep prompts"
+                description="9pm wind-down + sleep logging"
+                checked={(prefs as any).wellness_sleep ?? true}
+                onChange={v => update("wellness_sleep" as keyof NotificationPreferences, v)}
+              />
+              <Toggle
+                label="Mood check-in"
+                description="Daily emoji mood (when shipped)"
+                checked={(prefs as any).wellness_mood ?? true}
+                onChange={v => update("wellness_mood" as keyof NotificationPreferences, v)}
+              />
+            </div>
+          )}
           <Toggle
             label="Engagement"
             description="Streaks, points earned, weekly digests, tips"
