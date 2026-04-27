@@ -24,6 +24,13 @@ export interface Profile {
   serviceRadiusKm: number | null;
 }
 
+type SupaProvider = {
+  specialty: string | null; vertical: string | null;
+  experience_years: number | null; qualifications: string[] | null;
+  is_active: boolean | null; is_featured: boolean | null;
+  bio: string | null; location: string | null;
+};
+
 type SupaProfile = {
   id: string; user_id: string; full_name: string; email: string | null;
   phone: string | null; bio: string | null; avatar_url: string | null;
@@ -33,23 +40,35 @@ type SupaProfile = {
   city: string | null; suburb: string | null;
   lat: number | null; lng: number | null;
   service_radius_km: number | null;
+  // Multi-role Step 3 — embedded read of provider_profiles via FK.
+  // Postgrest returns the embedded row as an object (or null if no match).
+  provider_profiles?: SupaProvider | null;
 };
 
+// Multi-role Step 3 — provider-specific fields read from
+// provider_profiles when present, else fall back to the legacy column on
+// profiles. Step 4 will drop the legacy columns.
 function mapProfile(r: SupaProfile): Profile {
+  const pp = r.provider_profiles ?? null;
   return {
     id: r.id, userId: r.user_id, fullName: r.full_name,
     email: r.email ?? "", phone: r.phone,
-    bio: r.bio, avatarUrl: r.avatar_url, location: r.location,
-    specialty: r.specialty, vertical: r.vertical,
-    experienceYears: r.experience_years,
-    qualifications: r.qualifications ?? [],
-    isActive: r.is_active ?? true,
-    isFeatured: r.is_featured ?? false,
+    avatarUrl: r.avatar_url,
+    bio: pp?.bio ?? r.bio,
+    location: pp?.location ?? r.location,
+    specialty: pp?.specialty ?? r.specialty,
+    vertical: pp?.vertical ?? r.vertical,
+    experienceYears: pp?.experience_years ?? r.experience_years,
+    qualifications: pp?.qualifications ?? r.qualifications ?? [],
+    isActive: pp?.is_active ?? r.is_active ?? true,
+    isFeatured: pp?.is_featured ?? r.is_featured ?? false,
     city: r.city, suburb: r.suburb,
     lat: r.lat, lng: r.lng,
     serviceRadiusKm: r.service_radius_km,
   };
 }
+
+const PROFILE_SELECT = "*, provider_profiles(specialty, vertical, experience_years, qualifications, is_active, is_featured, bio, location)";
 
 export function useProfile() {
   const { user } = useAuth();
@@ -59,7 +78,7 @@ export function useProfile() {
   useEffect(() => {
     if (!user?.id || user.id.startsWith("demo_")) return;
     setLoading(true);
-    supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle()
+    supabase.from("profiles").select(PROFILE_SELECT).eq("user_id", user.id).maybeSingle()
       .then(({ data, error }) => {
         if (!error && data) setProfile(mapProfile(data as SupaProfile));
         setLoading(false);
@@ -78,7 +97,7 @@ export function useProfile() {
       .from("profiles")
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq("user_id", user.id)
-      .select()
+      .select(PROFILE_SELECT)
       .single();
     if (!error && data) setProfile(mapProfile(data as SupaProfile));
   }, [user?.id]);
@@ -94,7 +113,7 @@ export function useProviderProfile(profileId: string | null) {
   useEffect(() => {
     if (!profileId) return;
     setLoading(true);
-    supabase.from("profiles").select("*").eq("id", profileId).maybeSingle()
+    supabase.from("profiles").select(PROFILE_SELECT).eq("id", profileId).maybeSingle()
       .then(({ data, error }) => {
         if (!error && data) setProfile(mapProfile(data as SupaProfile));
         setLoading(false);
