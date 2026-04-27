@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
   MessageSquare, Loader2, Inbox, Clock, AlertCircle, CheckCircle2,
-  Mail, User, Phone, ArrowLeft, Send, RefreshCcw, Flame,
+  Mail, User, Phone, ArrowLeft, Send, RefreshCcw, Flame, UserCheck,
 } from "lucide-react";
 import AdminNav from "@/components/AdminNav";
 import AdminTokenGate from "@/components/AdminTokenGate";
@@ -41,6 +41,8 @@ interface QueueRow {
   resolved_at: string | null;
   first_response_at: string | null;
   age_hours: number;
+  is_sentry?: boolean;
+  is_auto?: boolean;
   submitter?: { id: string; full_name: string | null; email: string | null } | null;
   assignee?:  { id: string; full_name: string | null; email: string | null } | null;
 }
@@ -62,6 +64,7 @@ const STATUS_TABS: Array<{ key: string; label: string; icon: React.ReactNode }> 
 ];
 
 const PRIORITY_FILTERS = ["all", "urgent", "high", "normal", "low"] as const;
+const SOURCE_FILTERS = ["all", "user", "sentry", "auto"] as const;
 
 const STATUS_TONE: Record<Status, string> = {
   open:           "border-indigo/30 text-indigo bg-indigo/10",
@@ -82,6 +85,7 @@ export default function AdminTickets() {
   const { token, loading: tokenLoading } = useAdminToken();
   const [tab, setTab] = useState<string>("open");
   const [priorityFilter, setPriorityFilter] = useState<(typeof PRIORITY_FILTERS)[number]>("all");
+  const [sourceFilter, setSourceFilter] = useState<(typeof SOURCE_FILTERS)[number]>("all");
   const [rows, setRows] = useState<QueueRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<QueueRow | null>(null);
@@ -93,6 +97,7 @@ export default function AdminTickets() {
       const params = new URLSearchParams();
       params.set("status", tab);
       if (priorityFilter !== "all") params.set("priority", priorityFilter);
+      if (sourceFilter !== "all") params.set("source", sourceFilter);
       const res = await fetch(`${API}/api/support/tickets/admin/queue?${params}`, {
         headers: { "X-Admin-Token": token },
       
@@ -107,7 +112,7 @@ export default function AdminTickets() {
     }
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [tab, priorityFilter, token]);
+  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [tab, priorityFilter, sourceFilter, token]);
 
   const counts = useMemo(() => {
     const c: Record<string, number> = { open: 0, in_progress: 0, awaiting_user: 0, resolved: 0, all: rows.length };
@@ -186,6 +191,25 @@ export default function AdminTickets() {
             ))}
           </div>
 
+          {/* Source filter — Sentry / auto-error / user-submitted */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Source</span>
+            {SOURCE_FILTERS.map((s) => (
+              <button
+                key={s}
+                onClick={() => setSourceFilter(s)}
+                className={`rounded-pill px-3 py-1.5 text-[11px] font-medium ${
+                  sourceFilter === s
+                    ? "gradient-indigo text-primary-foreground"
+                    : "glass-1 text-muted-foreground"
+                }`}
+                title={s === "sentry" ? "Tickets originated from Sentry alerts" : s === "auto" ? "Auto-tickets from frontend crashes / API errors" : s === "user" ? "Human-submitted tickets only" : "All ticket sources"}
+              >
+                {s === "all" ? "All" : s}
+              </button>
+            ))}
+          </div>
+
           {/* Queue */}
           {loading ? (
             <div className="flex items-center justify-center py-16">
@@ -235,6 +259,16 @@ function TicketRow({ row, onOpen }: { row: QueueRow; onOpen: () => void }) {
               {row.priority}
             </span>
             <span className="text-[10px] text-muted-foreground">{row.category}</span>
+            {row.is_sentry && (
+              <span className="text-[9px] px-2 py-0.5 rounded-pill border border-violet-500/30 text-violet-300 bg-violet-500/10" title="Originated from Sentry">
+                sentry
+              </span>
+            )}
+            {row.is_auto && !row.is_sentry && (
+              <span className="text-[9px] px-2 py-0.5 rounded-pill border border-amber/30 text-amber bg-amber/10" title="Auto-reported frontend error">
+                auto
+              </span>
+            )}
             {isOverdue && (
               <span className="text-[9px] px-2 py-0.5 rounded-pill border border-coral/30 text-coral bg-coral/10">
                 overdue
@@ -273,6 +307,13 @@ function TicketDetail({
   const [sending, setSending] = useState(false);
   const [statusBusy, setStatusBusy] = useState<Status | null>(null);
   const [note, setNote] = useState("");
+  // Admin assignment — load the admin profile list once so the
+  // "Assign to…" dropdown can render. Backend endpoint at
+  // POST /api/support/tickets/admin/:id/assign already exists; this is
+  // just the UI it was missing.
+  const [admins, setAdmins] = useState<Array<{ id: string; full_name: string | null; email: string | null }>>([]);
+  const [assignBusy, setAssignBusy] = useState(false);
+  const [currentAssignee, setCurrentAssignee] = useState<string | null>(ticket.assigned_to);
 
   const load = async () => {
     setLoading(true);
@@ -298,6 +339,44 @@ function TicketDetail({
   };
 
   useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [ticket.id]);
+
+  // Load admin profile list once. Multi-role admins (post-Step-2) are
+  // user_roles rows where role='admin'; we need their profile id, not
+  // just user_id, since support_tickets.assigned_to references profiles.id.
+  useEffect(() => {
+    (async () => {
+      const { data: roleRows } = await supabase
+        .from("user_roles").select("user_id").eq("role", "admin");
+      const userIds = (roleRows ?? []).map((r: any) => r.user_id).filter(Boolean);
+      if (!userIds.length) return;
+      const { data: profileRows } = await supabase
+        .from("profiles").select("id, full_name, email").in("user_id", userIds).order("full_name");
+      setAdmins((profileRows ?? []) as any[]);
+    })();
+  }, []);
+
+  const assign = async (adminProfileId: string | null) => {
+    setAssignBusy(true);
+    try {
+      const res = await fetch(`${API}/api/support/tickets/admin/${ticket.id}/assign`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+        body: JSON.stringify({ adminProfileId }),
+      });
+      const j = await res.json();
+      if (!j.ok) throw new Error(j.error ?? "Failed to assign");
+      const target = adminProfileId
+        ? admins.find(a => a.id === adminProfileId)?.full_name ?? "admin"
+        : "unassigned";
+      toast.success(`Ticket → ${target}`);
+      setCurrentAssignee(adminProfileId);
+      await onChanged();
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to assign");
+    } finally {
+      setAssignBusy(false);
+    }
+  };
 
   const sendReply = async () => {
     if (!replyBody.trim()) return;
@@ -455,6 +534,34 @@ function TicketDetail({
           {replies.map((r) => <AdminReplyBubble key={r.id} reply={r} />)}
         </div>
       ) : null}
+
+      {/* Assignment */}
+      <GlassCard className="p-4 space-y-3">
+        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+          <UserCheck className="w-3 h-3" /> Assign to
+        </p>
+        <div className="flex items-center gap-2 flex-wrap">
+          <select
+            value={currentAssignee ?? ""}
+            onChange={(e) => assign(e.target.value || null)}
+            disabled={assignBusy}
+            className="flex-1 min-w-[200px] glass-1 rounded-xl px-3 py-2 text-sm text-foreground bg-transparent outline-none disabled:opacity-50"
+          >
+            <option value="" className="bg-obsidian">Unassigned</option>
+            {admins.map(a => (
+              <option key={a.id} value={a.id} className="bg-obsidian">
+                {a.full_name ?? a.email ?? a.id.slice(0, 8)}
+              </option>
+            ))}
+          </select>
+          {assignBusy && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+        </div>
+        {currentAssignee && (
+          <p className="text-[11px] text-muted-foreground">
+            Assigning auto-flips status from <span className="font-data">open</span> → <span className="font-data">in_progress</span>.
+          </p>
+        )}
+      </GlassCard>
 
       {/* Status controls */}
       <GlassCard className="p-4 space-y-3">
