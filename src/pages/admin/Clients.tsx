@@ -88,7 +88,7 @@ export default function AdminClients() {
       <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
-        <div className="mx-auto max-w-3xl xl:max-w-7xl px-4 pt-20 pb-10 md:pt-8 flex flex-col items-center justify-center gap-3" style={{ minHeight: "60vh" }}>
+        <div className="mx-auto max-w-3xl xl:max-w-7xl px-4 pt-24 pb-10 md:pt-8 flex flex-col items-center justify-center gap-3" style={{ minHeight: "60vh" }}>
           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           <p className="text-sm text-muted-foreground">Loading clients...</p>
         </div>
@@ -102,7 +102,7 @@ export default function AdminClients() {
       <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
-      <div className="mx-auto max-w-3xl xl:max-w-7xl px-4 pt-20 pb-10 md:pt-8 space-y-5">
+      <div className="mx-auto max-w-3xl xl:max-w-7xl px-4 pt-24 pb-10 md:pt-8 space-y-5">
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Clients</h1>

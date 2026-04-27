@@ -128,7 +128,7 @@ export default function AdminTickets() {
           onChanged={async () => { await load(); }}
         />
       ) : (
-        <div className="max-w-6xl mx-auto pt-20 md:pt-8 pb-20 px-4 space-y-5">
+        <div className="max-w-6xl mx-auto pt-24 md:pt-8 pb-20 px-4 space-y-5">
           <header className="flex items-start justify-between gap-3">
             <div>
               <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
@@ -353,7 +353,7 @@ function TicketDetail({
   const isResolved = ticket.status === "resolved" || ticket.status === "closed";
 
   return (
-    <div className="max-w-4xl mx-auto pt-20 md:pt-8 pb-20 px-4 space-y-5">
+    <div className="max-w-4xl mx-auto pt-24 md:pt-8 pb-20 px-4 space-y-5">
       <div className="flex items-center gap-2">
         <button onClick={onBack} className="w-9 h-9 rounded-xl glass-1 flex items-center justify-center text-foreground">
           <ArrowLeft className="w-4 h-4" />

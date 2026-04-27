@@ -132,7 +132,7 @@ export default function BInbox() {
         <ArrowLeft className="w-5 h-5" />
       </button>
       <AdminNav />
-      <div className="max-w-5xl mx-auto pt-20 md:pt-8 pb-20 px-4 space-y-5">
+      <div className="max-w-5xl mx-auto pt-24 md:pt-8 pb-20 px-4 space-y-5">
         {/* Header */}
         <header className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 min-w-0">

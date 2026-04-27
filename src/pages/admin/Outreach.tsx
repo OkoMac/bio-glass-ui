@@ -100,7 +100,7 @@ export default function AdminOutreach() {
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-32">
       <AdminNav />
-      <div className="w-full px-4 md:px-8 xl:px-12 pt-20 space-y-6">
+      <div className="w-full px-4 md:px-8 xl:px-12 pt-24 md:pt-8 space-y-6">
 
         {/* Header */}
         <div className="flex items-center gap-3">
