@@ -65,10 +65,14 @@ const verticals = ["teal", "indigo", "coral", "amber"] as const;
     languages: p.languages || [],
     servicesOffered: p.servicesOffered || [p.service],
     contact: {
-      email: p.contact?.email,
-      phone: p.contact?.phone,
-      website: p.contact?.website,
+      email: (p as any).email ?? p.contact?.email,
+      phone: (p as any).phone ?? p.contact?.phone,
+      website: (p as any).website ?? p.contact?.website,
     },
+    specialization: (p as any).specialization,
+    openingHours: (p as any).opening_hours ?? [],
+    googlePlaceId: (p as any).google_place_id,
+    businessStatus: (p as any).business_status,
     callout: !!p.callout,
   };
 });
@@ -773,6 +777,35 @@ export default function ProviderProfile() {
             <Clock className="w-4 h-4 text-teal" />
             <span className="text-muted-foreground">{Array.isArray(provider.availability) ? provider.availability.join(", ") : provider.availability}</span>
           </div>
+        )}
+
+        {/* Opening hours — shown only when scraped Google Place data has them */}
+        {Array.isArray(provider.openingHours) && provider.openingHours.length > 0 && (
+          <details className="group">
+            <summary className="flex items-center gap-2 text-sm cursor-pointer select-none list-none">
+              <Clock className="w-4 h-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Hours</span>
+              <span className="text-[10px] text-muted-foreground/60 group-open:hidden">tap to expand</span>
+            </summary>
+            <ul className="mt-2 ml-6 space-y-1 text-xs text-muted-foreground font-data">
+              {provider.openingHours.map((line: string, i: number) => (
+                <li key={i}>{line}</li>
+              ))}
+            </ul>
+          </details>
+        )}
+
+        {/* Google Place link — for admin/clients to verify the listing matches reality */}
+        {provider.googlePlaceId && (
+          <a
+            href={`https://www.google.com/maps/place/?q=place_id:${provider.googlePlaceId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-xs text-indigo hover:underline"
+          >
+            <MapPin className="w-3.5 h-3.5" />
+            View on Google Maps (reviews & photos)
+          </a>
         )}
 
         {/* ── Location Picker (multi-location providers) ── */}
