@@ -19,8 +19,15 @@ export default function CalendarButton() {
 
   if (!user) return null;
 
-  // Hide on calendar/schedule/onboarding/legal pages
-  const hidden = ["/calendar", "/schedule", "/welcome", "/onboarding", "/legal"].some(p => location.pathname.startsWith(p));
+  // Hide on calendar/schedule/onboarding/legal pages.
+  // Also hide on pages that own their own top-left chrome (back arrow,
+  // splash header) so the floating calendar doesn't stack/overlap with them.
+  const hidden = [
+    "/calendar", "/schedule", "/welcome", "/onboarding", "/legal",
+    "/provider/", "/booking", "/medical-card", "/reset-password",
+    "/admin", "/pro", "/corporate", "/rep",
+    "/tools/",
+  ].some(p => location.pathname.startsWith(p));
   if (hidden) return null;
 
   // Count upcoming bookings (today + future)
