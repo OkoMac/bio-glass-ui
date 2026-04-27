@@ -106,13 +106,17 @@ export default function AdminNav() {
       </aside>
 
       {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 px-4 py-3 flex items-center justify-between"
+      {/* Logo h-16 (64px) + py-3 (24px) made the bar ~88px tall; page content
+          only reserved pt-16 (64px), so admin pages were sliding UNDER the
+          bar (cf. screenshot from 2026-04-27). Shrunk the logo to h-7 so the
+          bar is ~52px tall and pt-16 actually clears it. */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 px-4 py-2.5 flex items-center justify-between"
         role="navigation"
         aria-label="Admin mobile navigation"
         style={{ background: "rgba(10,10,18,0.95)", backdropFilter: "blur(40px)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-coral" />
-          <img src="/bion-logo-white-sm.png" alt="BION" className="h-16 w-auto" /><span className="text-[10px] text-muted-foreground ml-1">Admin</span>
+          <img src="/bion-logo-white-sm.png" alt="BION" className="h-7 w-auto" /><span className="text-[10px] text-muted-foreground ml-1">Admin</span>
         </div>
         <div className="flex gap-1">
           {navItems.slice(0,4).map(item => (
