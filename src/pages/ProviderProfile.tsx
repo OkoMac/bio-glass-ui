@@ -278,6 +278,12 @@ export default function ProviderProfile() {
 
   useEffect(() => {
     if (!id) return;
+    // Skip for non-UUID directory slugs — the backend route validates UUID
+    // shape and returns 400. Directory-only providers can't have locations
+    // since they have no profiles.id row anyway.
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    if (!isUuid) return;
+
     const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
     fetch(`${API}/api/providers/locations/by-provider/${id}`)
       .then(r => r.json())

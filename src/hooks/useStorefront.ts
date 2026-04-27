@@ -27,6 +27,10 @@ export function useStorefront(providerProfileId?: string) {
 
   useEffect(() => {
     if (!targetId) { setLoading(false); return; }
+    // Skip the query for non-UUID IDs (directory slugs like "fg_specialized_dent").
+    // Otherwise Postgres returns a 400 "invalid input syntax for type uuid" error.
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetId);
+    if (!isUuid) { setLoading(false); return; }
 
     supabase
       .from("provider_storefronts")

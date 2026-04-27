@@ -125,6 +125,9 @@ export function useProviderProducts(providerProfileId: string | null) {
 
   useEffect(() => {
     if (!providerProfileId) { setLoading(false); return; }
+    // Skip for non-UUID slugs (directory-only providers).
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(providerProfileId);
+    if (!isUuid) { setLoading(false); return; }
 
     supabase
       .from("products")

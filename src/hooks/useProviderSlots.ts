@@ -128,6 +128,13 @@ export function useProviderSlots(
   // Load existing bookings for (providerId, date). Re-run on date change.
   useEffect(() => {
     if (!providerId || !date) { setBookings([]); return; }
+    // Directory provider IDs are slugs (e.g. "fg_specialized_dent"), not
+    // UUIDs. Querying bookings.provider_id (uuid column) with a slug throws
+    // a 400 "invalid input syntax for type uuid". Skip the query entirely
+    // for non-UUID IDs — directory providers can't have bookings yet anyway.
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(providerId);
+    if (!isUuid) { setBookings([]); return; }
+
     const myReq = ++reqId.current;
     setLoading(true);
     setError(null);
