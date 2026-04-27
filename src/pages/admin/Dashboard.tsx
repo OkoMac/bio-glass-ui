@@ -180,7 +180,7 @@ export default function AdminDashboard() {
       <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
-      <div className="w-full px-4 md:px-8 xl:px-12 pt-16 pb-10 md:pt-8 space-y-6">
+      <div className="w-full px-4 md:px-8 xl:px-12 pt-20 pb-10 md:pt-8 space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>

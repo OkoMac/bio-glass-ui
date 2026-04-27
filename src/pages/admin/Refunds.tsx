@@ -154,7 +154,7 @@ export default function AdminRefunds() {
         <ArrowLeft className="w-5 h-5" />
       </button>
       <AdminNav />
-      <div className="max-w-5xl mx-auto pt-8 pb-20 px-4 space-y-5">
+      <div className="max-w-5xl mx-auto pt-20 md:pt-8 pb-20 px-4 space-y-5">
         <header>
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <DollarSign className="w-6 h-6 text-indigo" /> Manual Refunds

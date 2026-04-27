@@ -300,7 +300,7 @@ export default function AdminCompliance() {
         <ArrowLeft className="w-5 h-5" />
       </button>
       <AdminNav />
-      <div className="max-w-5xl mx-auto pt-8 pb-20 px-4 space-y-5">
+      <div className="max-w-5xl mx-auto pt-20 md:pt-8 pb-20 px-4 space-y-5">
         <header className="flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">

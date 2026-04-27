@@ -173,7 +173,7 @@ export default function AdminWhatsApp() {
         <ArrowLeft className="w-5 h-5" />
       </button>
       <AdminNav />
-      <div className="px-4 pt-8 pb-16 max-w-7xl mx-auto">
+      <div className="px-4 pt-20 md:pt-8 pb-16 max-w-7xl mx-auto">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
