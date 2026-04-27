@@ -46,6 +46,8 @@ export default function AdminOutreach() {
   const [logs, setLogs] = useState<OutreachLog[]>([]);
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  // Bulk-send confirm modal — guards the 50-message WhatsApp blast.
+  const [confirmBlast, setConfirmBlast] = useState(false);
 
   const headers: Record<string, string> = { "X-Admin-Token": token ?? "" };
 
@@ -85,6 +87,7 @@ export default function AdminOutreach() {
       const data = await res.json();
       if (data.ok) {
         toast.success(`Sent ${data.stats?.sent ?? 0} WhatsApp messages`);
+        setConfirmBlast(false);
         fetchAll();
       } else {
         toast.error(data.error ?? "Failed");
@@ -255,7 +258,7 @@ export default function AdminOutreach() {
 
             <div className="flex gap-2">
               <button
-                onClick={triggerWhatsAppNow}
+                onClick={() => setConfirmBlast(true)}
                 disabled={sending || (waStatus?.template?.status !== "APPROVED") || (waStatus?.remaining ?? 0) === 0}
                 className="flex-1 py-3 rounded-pill text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta disabled:opacity-50 flex items-center justify-center gap-2"
               >
@@ -345,6 +348,47 @@ export default function AdminOutreach() {
           </div>
         )}
       </div>
+
+      {/* Bulk-blast confirmation — names exactly how many messages, the
+          template, and the remaining quota so the admin can sanity-check
+          before triggering. */}
+      {confirmBlast && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-obsidian/70 backdrop-blur-sm"
+          onClick={() => !sending && setConfirmBlast(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Confirm WhatsApp blast">
+          <div className="w-full max-w-md glass-2 rounded-2xl p-5 space-y-4"
+            onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-amber" />
+              <h3 className="text-base font-bold text-foreground">Send WhatsApp blast?</h3>
+            </div>
+            <div className="text-sm space-y-2">
+              <p className="text-muted-foreground">
+                This will queue up to <span className="text-foreground font-semibold">50 WhatsApp messages</span> using
+                the <span className="text-foreground font-semibold">{waStatus?.template?.name ?? "approved"}</span> template.
+              </p>
+              <p className="text-muted-foreground">
+                {waStatus?.providers?.withPhone ?? 0} providers eligible · {waStatus?.providers?.alreadySent ?? 0} already
+                contacted · <span className="text-foreground font-semibold">{waStatus?.remaining ?? 0} remaining</span> in this run.
+              </p>
+            </div>
+            <div className="flex gap-2 justify-end pt-1">
+              <button onClick={() => setConfirmBlast(false)}
+                disabled={sending}
+                className="rounded-pill px-4 py-2 text-xs font-semibold glass-1 text-muted-foreground hover:text-foreground disabled:opacity-50">
+                Cancel
+              </button>
+              <button onClick={triggerWhatsAppNow}
+                disabled={sending}
+                className="rounded-pill px-4 py-2 text-xs font-semibold gradient-indigo text-primary-foreground disabled:opacity-50">
+                {sending ? "Sending…" : "Send 50"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -68,6 +68,10 @@ export default function AdminWhatsApp() {
   const [stats, setStats] = useState<{ daily_cap: number; active_conversations: number } | null>(null);
   const [replyText, setReplyText] = useState("");
   const [sending, setSending] = useState(false);
+  // Slice "admin reply confirmation" — after Skin Nourishers wrong-thread
+  // send (2026-04-26ish), every send goes through a confirm modal showing
+  // the recipient + preview before the message actually leaves.
+  const [pendingReply, setPendingReply] = useState<{ phone: string; message: string } | null>(null);
 
   async function fetchThreads() {
     if (!token) return;
@@ -100,19 +104,28 @@ export default function AdminWhatsApp() {
     } catch {}
   }
 
-  const sendAdminReply = async () => {
+  // Open the confirm modal — the actual fetch only fires from confirmSend()
+  // below. This is intentional: pressing Enter or clicking Send no longer
+  // immediately blasts a reply down the wire.
+  const stageReply = () => {
     if (!replyText.trim() || !selected) return;
+    setPendingReply({ phone: selected, message: replyText.trim() });
+  };
+
+  const confirmSend = async () => {
+    if (!pendingReply) return;
     setSending(true);
     try {
       const res = await fetch(`${API}/api/whatsapp/admin/reply`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Admin-Token": token },
-        body: JSON.stringify({ phone: selected, message: replyText.trim() }),
+        body: JSON.stringify({ phone: pendingReply.phone, message: pendingReply.message }),
       });
       const j = await res.json();
       if (j.ok) {
         setReplyText("");
-        fetchDetail(selected);
+        setPendingReply(null);
+        fetchDetail(pendingReply.phone);
         toast.success("Reply sent");
       } else {
         toast.error(j.error ?? "Failed to send");
@@ -268,16 +281,19 @@ export default function AdminWhatsApp() {
                       </div>
                     </div>
                   ))}
-                  {/* Admin reply */}
+                  {/* Admin reply — Enter no longer auto-sends. Click Send (or
+                      Cmd/Ctrl+Enter) to open the confirm modal first. */}
                   <div className="flex gap-2 mt-3">
                     <input
                       value={replyText}
                       onChange={e => setReplyText(e.target.value)}
                       placeholder="Type a reply..."
-                      onKeyDown={e => e.key === "Enter" && sendAdminReply()}
+                      onKeyDown={e => {
+                        if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) stageReply();
+                      }}
                       className="flex-1 glass-1 rounded-xl px-3 py-2 text-sm text-foreground bg-transparent outline-none"
                     />
-                    <button onClick={sendAdminReply} disabled={!replyText.trim() || sending}
+                    <button onClick={stageReply} disabled={!replyText.trim() || sending}
                       className="rounded-pill px-4 py-2 text-xs font-semibold gradient-indigo text-primary-foreground disabled:opacity-50">
                       Send
                     </button>
@@ -288,6 +304,46 @@ export default function AdminWhatsApp() {
           </GlassCard>
         </div>
       </div>
+
+      {/* Send-confirmation modal — reads the staged recipient + message
+          back to the admin so accidentally selecting the wrong thread
+          becomes recoverable before the message goes out. */}
+      {pendingReply && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-obsidian/70 backdrop-blur-sm"
+          onClick={() => !sending && setPendingReply(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Confirm reply">
+          <div className="w-full max-w-md glass-2 rounded-2xl p-5 space-y-4"
+            onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-amber" />
+              <h3 className="text-base font-bold text-foreground">Send this reply?</h3>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Phone className="w-3.5 h-3.5" />
+                <span className="font-data text-foreground">{formatPhone(pendingReply.phone)}</span>
+              </div>
+              <div className="glass-1 rounded-xl p-3 text-foreground whitespace-pre-wrap text-sm">
+                {pendingReply.message}
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end pt-1">
+              <button onClick={() => setPendingReply(null)}
+                disabled={sending}
+                className="rounded-pill px-4 py-2 text-xs font-semibold glass-1 text-muted-foreground hover:text-foreground disabled:opacity-50">
+                Cancel
+              </button>
+              <button onClick={confirmSend}
+                disabled={sending}
+                className="rounded-pill px-4 py-2 text-xs font-semibold gradient-indigo text-primary-foreground disabled:opacity-50">
+                {sending ? "Sending…" : "Send"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
