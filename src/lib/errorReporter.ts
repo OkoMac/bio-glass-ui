@@ -157,6 +157,11 @@ export function installGlobalErrorHandlers(): void {
     // Skip 3rd-party / extension noise
     if (msg.includes("adsbygoogle") || msg.includes("TagError")) return;
     if (msg.includes("chrome-extension://") || msg.includes("moz-extension://")) return;
+    // Service worker update failures — fire constantly from older browsers /
+    // bad network conditions / browser restart races. Not actionable. Audit
+    // (27 Apr 2026) found 200+ auto-tickets in 7 days from this single pattern.
+    if (msg.includes("Failed to update a ServiceWorker")) return;
+    if (msg.includes("ServiceWorker") && (msg.includes("script evaluation") || msg.includes("scope"))) return;
     const user = getCurrentUser();
     const report: ErrorReport = {
       type: "unhandled",
@@ -182,6 +187,10 @@ export function installGlobalErrorHandlers(): void {
     if (msg.includes("adsbygoogle") || msg.includes("TagError")) return;
     // Browser extension errors (Chrome ad-blocker, etc.) we can't fix
     if (msg.includes("chrome-extension://") || msg.includes("moz-extension://")) return;
+    // Service worker update / activation failures — see unhandledrejection
+    // handler. Same noise, just routed via 'error' event in some browsers.
+    if (msg.includes("Failed to update a ServiceWorker")) return;
+    if (msg.includes("ServiceWorker") && (msg.includes("script evaluation") || msg.includes("scope"))) return;
     const user = getCurrentUser();
     const report: ErrorReport = {
       type: "unhandled",
