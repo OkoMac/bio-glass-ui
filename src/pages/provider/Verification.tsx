@@ -287,8 +287,15 @@ export default function ProviderVerification() {
   useEffect(() => {
     (async () => {
       if (!user?.profileId) return;
-      const { data } = await supabase.from("profiles").select("provider_status").eq("id", user.profileId).maybeSingle();
-      if ((data as any)?.provider_status) setProviderStatus((data as any).provider_status);
+      // Multi-Role Step 4: provider_status moved off profiles. Look up
+      // user_id from profiles, then read provider_profiles.provider_status.
+      const { data: prof } = await supabase
+        .from("profiles").select("user_id").eq("id", user.profileId).maybeSingle();
+      const userId = (prof as any)?.user_id;
+      if (!userId) return;
+      const { data: pp } = await supabase
+        .from("provider_profiles" as any).select("provider_status").eq("user_id", userId).maybeSingle();
+      if ((pp as any)?.provider_status) setProviderStatus((pp as any).provider_status);
     })();
   }, [user?.profileId]);
 
