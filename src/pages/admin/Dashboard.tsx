@@ -81,12 +81,24 @@ export default function AdminDashboard() {
 
   const loadPendingProviders = async () => {
     try {
+      // Multi-Role Step 3 — specialty now lives on provider_profiles.
+      // Embed it; fall back to the legacy column on profiles until Step 4
+      // drops it.
       const { data } = await withTimeout(
-        () => supabase.from("profiles").select("id, full_name, specialty, created_at").eq("is_active", false).order("created_at", { ascending: false }).limit(10),
+        () => supabase.from("profiles")
+          .select("id, full_name, specialty, created_at, provider_profiles(specialty)")
+          .eq("is_active", false)
+          .order("created_at", { ascending: false })
+          .limit(10),
         5000,
         { data: null } as any,
       );
-      const list = data ?? [];
+      const list = (data ?? []).map((p: any) => ({
+        id: p.id,
+        full_name: p.full_name,
+        specialty: p.provider_profiles?.specialty ?? p.specialty ?? null,
+        created_at: p.created_at,
+      }));
       setPendingProviders(list);
       setApprovals(Object.fromEntries(list.map(p => [p.id, null])));
     } catch (err) {
@@ -98,13 +110,29 @@ export default function AdminDashboard() {
 
   const loadVerticalStats = async () => {
     try {
-      const { data } = await supabase
-        .from("profiles")
+      // Read specialty from provider_profiles (source of truth post-Step 2)
+      // and fall through to profiles.specialty for any row that hasn't
+      // been backfilled (e.g. brand-new signups before slice 4 dual-write).
+      const { data: ppData } = await supabase
+        .from("provider_profiles")
         .select("specialty")
         .not("specialty", "is", null);
-      if (data && data.length > 0) {
+      const { data: legacyData } = await supabase
+        .from("profiles")
+        .select("user_id, specialty")
+        .not("specialty", "is", null);
+      const seen = new Set<string>();
+      const merged: { specialty: string | null }[] = [];
+      (ppData ?? []).forEach((p: any) => merged.push({ specialty: p.specialty }));
+      // Add legacy rows whose user_id isn't already represented in provider_profiles.
+      // We can't dedupe perfectly here without joining, so just include both —
+      // step 4 will drop legacy and the dupe risk goes away.
+      (legacyData ?? []).forEach((p: any) => {
+        if (!seen.has(p.user_id)) merged.push({ specialty: p.specialty });
+      });
+      if (merged.length > 0) {
         const counts: Record<string, number> = {};
-        data.forEach(p => {
+        merged.forEach(p => {
           const key = p.specialty || "Other";
           counts[key] = (counts[key] || 0) + 1;
         });
