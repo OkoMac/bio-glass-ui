@@ -9,7 +9,7 @@ import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 import {
   Search, Star, MapPin, CheckCircle, XCircle, Eye, Pause, Play,
   MessageSquare, Plus, ChevronRight, X, Settings, Lock, Phone, Mail,
-  SlidersHorizontal, UserPlus, ArrowLeft,
+  SlidersHorizontal, UserPlus, ArrowLeft, Globe, ExternalLink,
 } from "lucide-react";
 
 import realData from "@/data/bion_pretoria_data.json";
@@ -43,9 +43,12 @@ const ALL_PROVIDERS = realData.providers.map((p: any) => ({
   specialization: p.specialization ?? p.service,
   location: p.location,
   address: p.address,
-  phone: p.contact?.phone ?? "",
-  email: p.contact?.email ?? "",
-  website: p.contact?.website ?? "",
+  phone: (p as any).phone ?? p.contact?.phone ?? "",
+  email: (p as any).email ?? p.contact?.email ?? "",
+  website: (p as any).website ?? p.contact?.website ?? "",
+  googlePlaceId: (p as any).google_place_id ?? "",
+  openingHours: (p as any).opening_hours ?? [],
+  businessStatus: (p as any).business_status ?? "",
   rating: typeof p.rating === "string" ? parseFloat(p.rating) || 0 : (p.rating ?? 0),
   reviews: p.reviewCount ?? 0,
   price: p.price ?? "Price on request",
@@ -265,6 +268,18 @@ export default function AdminProviders() {
                                 <div className="flex items-center gap-2 text-muted-foreground">
                                   <Mail className="w-3 h-3" /> {p.email}
                                 </div>
+                              )}
+                              {p.website && (
+                                <a
+                                  href={p.website.startsWith("http") ? p.website : `https://${p.website}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 text-teal hover:underline col-span-full"
+                                >
+                                  <Globe className="w-3 h-3 shrink-0" />
+                                  <span className="truncate">{p.website}</span>
+                                  <ExternalLink className="w-3 h-3 shrink-0 opacity-70" />
+                                </a>
                               )}
                               {p.address && (
                                 <div className="flex items-center gap-2 text-muted-foreground col-span-full">
