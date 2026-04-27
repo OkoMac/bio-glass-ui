@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
 import { getActiveReminders } from "@/lib/reminders";
+import { shouldShowFloatingChrome } from "@/lib/floatingChrome";
 import Tooltip from "./Tooltip";
 
 /**
@@ -20,11 +21,8 @@ export default function NotificationBell() {
   // Don't show if not logged in
   if (!user) return null;
 
-  // Hide on notifications page, onboarding, welcome, and legal pages
-  const hidden = ["/notifications", "/welcome", "/onboarding", "/legal"].some(
-    p => location.pathname.startsWith(p)
-  );
-  if (hidden) return null;
+  // Only show on shell pages — every other page has its own top chrome.
+  if (!shouldShowFloatingChrome(location.pathname)) return null;
 
   const reminderCount = getActiveReminders().length;
   const totalCount = reminderCount + dbUnread;

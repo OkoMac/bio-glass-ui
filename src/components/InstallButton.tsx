@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Download, Smartphone, Share, X, Check, RefreshCw, Plus } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import { shouldShowFloatingChrome } from "@/lib/floatingChrome";
 import Tooltip from "./Tooltip";
 
 const APP_VERSION = "2.4.0";
@@ -126,9 +127,10 @@ export default function InstallButton() {
     } catch { /* */ }
   }, [device, installed, dismissed]);
 
-  // Hide on auth/onboarding/legal pages AND all portal dashboards (admin, provider, corporate)
-  const hidden = ["/welcome", "/onboarding", "/legal", "/admin", "/pro", "/corporate", "/rep"].some(p => location.pathname.startsWith(p))
-    || location.pathname === "/" || location.pathname === "/directory";
+  // Only show on shell pages — every other page has its own top chrome
+  // and the floating Install pill was overlapping page-level Save buttons
+  // (cf. screenshot 2026-04-27 on /settings).
+  const hidden = !shouldShowFloatingChrome(location.pathname);
 
   // Listen for beforeinstallprompt (Chrome, Edge)
   useEffect(() => {

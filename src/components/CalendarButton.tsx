@@ -3,6 +3,7 @@ import { CalendarDays } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
+import { shouldShowFloatingChrome } from "@/lib/floatingChrome";
 import Tooltip from "./Tooltip";
 
 /**
@@ -19,16 +20,8 @@ export default function CalendarButton() {
 
   if (!user) return null;
 
-  // Hide on calendar/schedule/onboarding/legal pages.
-  // Also hide on pages that own their own top-left chrome (back arrow,
-  // splash header) so the floating calendar doesn't stack/overlap with them.
-  const hidden = [
-    "/calendar", "/schedule", "/welcome", "/onboarding", "/legal",
-    "/provider/", "/booking", "/medical-card", "/reset-password",
-    "/admin", "/pro", "/corporate", "/rep",
-    "/tools/",
-  ].some(p => location.pathname.startsWith(p));
-  if (hidden) return null;
+  // Only show on pages that don't have their own top chrome.
+  if (!shouldShowFloatingChrome(location.pathname)) return null;
 
   // Count upcoming bookings (today + future)
   const today = new Date().toISOString().split("T")[0];
