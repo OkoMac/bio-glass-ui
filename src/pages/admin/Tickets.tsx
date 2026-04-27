@@ -86,6 +86,9 @@ export default function AdminTickets() {
   const [tab, setTab] = useState<string>("open");
   const [priorityFilter, setPriorityFilter] = useState<(typeof PRIORITY_FILTERS)[number]>("all");
   const [sourceFilter, setSourceFilter] = useState<(typeof SOURCE_FILTERS)[number]>("all");
+  // First-response-time meta from the queue endpoint — single metric
+  // shown in the header so admins can see if the team is keeping up.
+  const [meta, setMeta] = useState<{ median_frt_ms: number | null; frt_sample_size: number; frt_window_days: number } | null>(null);
   const [rows, setRows] = useState<QueueRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<QueueRow | null>(null);
@@ -105,6 +108,7 @@ export default function AdminTickets() {
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed to load queue");
       setRows(j.data ?? []);
+      setMeta(j.meta ?? null);
     } catch (err: any) {
       toast.error(err?.message ?? "Failed to load queue");
     } finally {
@@ -143,12 +147,15 @@ export default function AdminTickets() {
                 Triage user support requests. Urgent first, sorted by age.
               </p>
             </div>
-            <button
-              onClick={load}
-              className="rounded-pill px-3 py-2 text-xs font-medium glass-1 text-foreground flex items-center gap-1.5"
-            >
-              <RefreshCcw className="w-3.5 h-3.5" /> Refresh
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              <FrtPill meta={meta} />
+              <button
+                onClick={load}
+                className="rounded-pill px-3 py-2 text-xs font-medium glass-1 text-foreground flex items-center gap-1.5"
+              >
+                <RefreshCcw className="w-3.5 h-3.5" /> Refresh
+              </button>
+            </div>
           </header>
 
           {/* Status tabs */}
@@ -647,6 +654,36 @@ function AdminReplyBubble({ reply }: { reply: ReplyRow }) {
         <p className="whitespace-pre-wrap">{reply.body}</p>
       </div>
     </div>
+  );
+}
+
+/**
+ * Median first-response-time over the last 7d. The single metric per
+ * the CTO refactor — visible on the queue header so the team sees
+ * slippage in real time. Tinted by tier: <1h teal, <4h amber, >=4h coral.
+ */
+function FrtPill({ meta }: { meta: { median_frt_ms: number | null; frt_sample_size: number; frt_window_days: number } | null }) {
+  if (!meta || meta.median_frt_ms == null) {
+    return (
+      <span className="rounded-pill px-3 py-2 text-[11px] glass-1 text-muted-foreground" title="No tickets with a first response in the last 7 days">
+        FRT · n/a
+      </span>
+    );
+  }
+  const ms = meta.median_frt_ms;
+  const mins = Math.round(ms / 60_000);
+  const label = mins < 60 ? `${mins}m` : mins < 24 * 60 ? `${Math.round(mins / 60)}h` : `${Math.round(mins / 60 / 24)}d`;
+  const tone =
+    ms < 60 * 60_000          ? "bg-teal/20 text-teal border border-teal/40"
+    : ms < 4 * 60 * 60_000    ? "bg-amber/20 text-amber border border-amber/40"
+    :                            "bg-coral/20 text-coral border border-coral/40";
+  return (
+    <span
+      className={`rounded-pill px-3 py-2 text-[11px] font-semibold ${tone}`}
+      title={`Median first-response time over last ${meta.frt_window_days} days · ${meta.frt_sample_size} tickets`}
+    >
+      FRT · {label}
+    </span>
   );
 }
 
