@@ -80,7 +80,12 @@ export default function AdminNav() {
               <p className="text-[10px] text-coral">Administrator</p>
             </div>
           </div>
-          {availableRoles.filter(r => r !== "admin").map(r => {
+          {/* Admins can impersonate every role for QA / support, even ones
+              their user_roles row doesn't include. Non-admins (shouldn't
+              normally render this nav anyway) only see roles they own. */}
+          {(["client", "provider", "corporate", "sales_rep"] as const)
+            .filter(r => user?.role === "admin" || availableRoles.includes(r))
+            .map(r => {
             const cfg: Record<string, { label: string; icon: string; path: string }> = {
               client: { label: "Client", icon: "👤", path: "/home" },
               provider: { label: "Provider", icon: "🏥", path: "/pro/dashboard" },

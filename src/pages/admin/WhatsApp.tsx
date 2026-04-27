@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import GlassCard from "@/components/GlassCard";
+import AdminTokenGate from "@/components/AdminTokenGate";
 import AdminNav from "@/components/AdminNav";
 import { MessageSquare, RefreshCw, Phone, Clock, Bot, User, AlertCircle, ArrowLeft } from "lucide-react";
 
@@ -135,37 +136,7 @@ export default function AdminWhatsApp() {
   );
 
   // ── Token entry gate ──
-  if (!token) {
-    return (
-      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
-        <ArrowLeft className="w-5 h-5" />
-      </button>
-        <AdminNav />
-        <div className="max-w-md mx-auto pt-20 px-4">
-          <GlassCard className="p-6 space-y-4">
-            <h1 className="text-xl font-bold text-foreground">Admin token required</h1>
-            <p className="text-sm text-muted-foreground">
-              The WhatsApp archive is protected by the <code>ADMIN_SETUP_TOKEN</code> set on the backend. Paste it below — it'll be stored in your browser localStorage for this session.
-            </p>
-            <input
-              type="password"
-              placeholder="ADMIN_SETUP_TOKEN"
-              className="w-full h-10 glass-1 rounded-xl px-3 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none"
-              onKeyDown={e => {
-                if (e.key === "Enter") {
-                  const v = (e.target as HTMLInputElement).value.trim();
-                  if (v) { localStorage.setItem("bion_admin_token", v); location.reload(); }
-                }
-              }}
-              autoFocus
-            />
-            <p className="text-xs text-muted-foreground">Press Enter to save.</p>
-          </GlassCard>
-        </div>
-      </div>
-    );
-  }
+  if (!token) return <AdminTokenGate tokenLoading={tokenLoading} />;
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">

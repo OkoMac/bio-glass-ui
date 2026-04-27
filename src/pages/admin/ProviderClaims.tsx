@@ -18,6 +18,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AdminNav from "@/components/AdminNav";
 import GlassCard from "@/components/GlassCard";
+import AdminTokenGate from "@/components/AdminTokenGate";
 import { supabase } from "@/integrations/supabase/client";
 import {
   UserCheck, CheckCircle, XCircle, Loader2, AlertCircle, Clock,
@@ -163,53 +164,7 @@ export default function AdminProviderClaims() {
     }
   };
 
-  // ─── Token entry screen ────────────────────────────────────────
-  if (!token) {
-    return (
-      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
-        <ArrowLeft className="w-5 h-5" />
-      </button>
-        <div className="mx-auto max-w-xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
-          <div className="flex items-center gap-2">
-            <UserCheck className="w-5 h-5 text-coral" />
-            <h1 className="text-2xl font-bold text-foreground">Provider Claims</h1>
-          </div>
-          <GlassCard className="p-5">
-            <div className="flex items-center gap-3 mb-3">
-              <ShieldCheck className="w-5 h-5 text-indigo shrink-0" />
-              <div>
-                <p className="text-sm font-semibold text-foreground">Admin token required</p>
-                <p className="text-xs text-muted-foreground">Paste the ADMIN_SETUP_TOKEN — stored in localStorage for this session.</p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="password"
-                value={tokenDraft}
-                onChange={e => setTokenDraft(e.target.value)}
-                placeholder="ADMIN_SETUP_TOKEN"
-                className="flex-1 h-10 glass-1 rounded-xl px-3 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none border border-white/[0.08] focus:border-indigo/40"
-              />
-              <button
-                onClick={() => {
-                  const v = tokenDraft.trim();
-                  if (v) {
-                    try { localStorage.setItem("bion_admin_token", v); } catch { /* ignore */ }
-                    location.reload();
-                  }
-                }}
-                className="px-4 py-2 gradient-indigo rounded-xl text-sm font-semibold text-white shadow-cta"
-              >
-                Unlock
-              </button>
-            </div>
-          </GlassCard>
-        </div>
-        <AdminNav />
-      </div>
-    );
-  }
+  if (!token) return <AdminTokenGate tokenLoading={tokenLoading} />;
 
   // ─── Main view ─────────────────────────────────────────────────
   return (

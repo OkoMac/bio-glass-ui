@@ -7,6 +7,7 @@ import {
   Mail, User, Phone, ArrowLeft, Send, RefreshCcw, Flame,
 } from "lucide-react";
 import AdminNav from "@/components/AdminNav";
+import AdminTokenGate from "@/components/AdminTokenGate";
 import GlassCard from "@/components/GlassCard";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -114,30 +115,7 @@ export default function AdminTickets() {
     return c;
   }, [rows]);
 
-  if (!token) {
-    return (
-      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
-        <AdminNav />
-        <div className="max-w-md mx-auto pt-20 px-4">
-          <GlassCard className="p-6 space-y-4">
-            <h1 className="text-xl font-bold text-foreground">Admin token required</h1>
-            <input
-              type="password"
-              placeholder="ADMIN_SETUP_TOKEN"
-              className="w-full h-10 glass-1 rounded-xl px-3 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  const v = (e.target as HTMLInputElement).value.trim();
-                  if (v) { localStorage.setItem("bion_admin_token", v); location.reload(); }
-                }
-              }}
-              autoFocus
-            />
-          </GlassCard>
-        </div>
-      </div>
-    );
-  }
+  if (!token) return <AdminTokenGate tokenLoading={tokenLoading} />;
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">

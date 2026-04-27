@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdminToken } from "@/hooks/useAdminToken";
 import AdminNav from "@/components/AdminNav";
+import AdminTokenGate from "@/components/AdminTokenGate";
 import GlassCard from "@/components/GlassCard";
 import { toast } from "sonner";
 import {
@@ -94,31 +95,7 @@ export default function AdminOutreach() {
 
   useEffect(() => { if (token) fetchAll(); }, [token]);
 
-  if (!token) {
-    return (
-      <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
-        <AdminNav />
-        <div className="max-w-md mx-auto pt-20 px-4">
-          <GlassCard className="p-6 space-y-4">
-            <h1 className="text-xl font-bold text-foreground">Admin token required</h1>
-            <p className="text-sm text-muted-foreground">Paste your ADMIN_SETUP_TOKEN below.</p>
-            <input
-              type="password"
-              placeholder="ADMIN_SETUP_TOKEN"
-              className="w-full h-10 glass-1 rounded-xl px-3 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none"
-              onKeyDown={e => {
-                if (e.key === "Enter") {
-                  const v = (e.target as HTMLInputElement).value.trim();
-                  if (v) { localStorage.setItem("bion_admin_token", v); location.reload(); }
-                }
-              }}
-              autoFocus
-            />
-          </GlassCard>
-        </div>
-      </div>
-    );
-  }
+  if (!token) return <AdminTokenGate tokenLoading={tokenLoading} />;
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-32">
