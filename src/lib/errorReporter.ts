@@ -154,6 +154,9 @@ export function installGlobalErrorHandlers(): void {
     const msg = event.reason?.message ?? String(event.reason ?? "Unknown rejection");
     // Skip chunk loading errors (handled by ErrorBoundary)
     if (msg.includes("dynamically imported module") || msg.includes("Loading chunk")) return;
+    // Skip 3rd-party / extension noise
+    if (msg.includes("adsbygoogle") || msg.includes("TagError")) return;
+    if (msg.includes("chrome-extension://") || msg.includes("moz-extension://")) return;
     const user = getCurrentUser();
     const report: ErrorReport = {
       type: "unhandled",
@@ -173,6 +176,12 @@ export function installGlobalErrorHandlers(): void {
     const msg = event.message ?? "Unknown error";
     if (msg.includes("dynamically imported module") || msg.includes("Loading chunk")) return;
     if (msg.includes("ResizeObserver")) return; // Benign browser noise
+    // 3rd-party ad SDK noise — Google AdSense fires "TagError: adsbygoogle.push()
+    // error: No slot size for available width" on slow connections / mobile.
+    // Not actionable, was flooding the support queue with auto-tickets.
+    if (msg.includes("adsbygoogle") || msg.includes("TagError")) return;
+    // Browser extension errors (Chrome ad-blocker, etc.) we can't fix
+    if (msg.includes("chrome-extension://") || msg.includes("moz-extension://")) return;
     const user = getCurrentUser();
     const report: ErrorReport = {
       type: "unhandled",
