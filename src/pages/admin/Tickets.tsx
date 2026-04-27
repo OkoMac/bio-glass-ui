@@ -293,6 +293,11 @@ function TicketRow({ row, onOpen }: { row: QueueRow; onOpen: () => void }) {
             <span className="flex items-center gap-1 shrink-0">
               <Clock className="w-3 h-3" /> {ageLabel(row.age_hours)}
             </span>
+            {row.assignee && (
+              <span className="flex items-center gap-1 shrink-0 text-teal" title={`Assigned to ${row.assignee.full_name ?? row.assignee.email ?? "admin"}`}>
+                <UserCheck className="w-3 h-3" /> {row.assignee.full_name?.split(" ")[0] ?? "assigned"}
+              </span>
+            )}
           </div>
         </div>
       </div>
