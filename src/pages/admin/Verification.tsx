@@ -147,12 +147,26 @@ export default function AdminVerification() {
       const REQUIRED = ["sa_id", "professional_reg", "qualifications"];
       const allDone = REQUIRED.every(r => verified.has(r));
       if (allDone) {
+        // Multi-Role Step 3 [slice 4]: dual-write provider_status to
+        // both legacy profiles and the new provider_profiles row. Step 4
+        // drops profiles.provider_status once every read has been flipped.
+        const updateAt = new Date().toISOString();
         await supabase.from("profiles").update({
           provider_status: "verified",
-          provider_status_at: new Date().toISOString(),
+          provider_status_at: updateAt,
           identity_verified: true,
-          identity_verified_at: new Date().toISOString(),
+          identity_verified_at: updateAt,
         }).eq("id", providerId);
+        try {
+          const { data: row } = await supabase
+            .from("profiles").select("user_id").eq("id", providerId).maybeSingle();
+          const userId = (row as any)?.user_id;
+          if (userId) {
+            await supabase.from("provider_profiles" as any).update({
+              provider_status: "verified",
+            }).eq("user_id", userId);
+          }
+        } catch { /* dual-write is best-effort during the migration */ }
 
         // Notify the provider via backend email endpoint
         try {

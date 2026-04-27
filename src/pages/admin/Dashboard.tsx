@@ -180,6 +180,14 @@ export default function AdminDashboard() {
   const approveProvider = async (id: string) => {
     const { error } = await supabase.from("profiles").update({ is_active: true } as any).eq("id", id);
     if (error) { import("sonner").then(({ toast }) => toast.error("Failed to approve provider")); return; }
+    // Slice 4 dual-write — mirror is_active to provider_profiles.
+    try {
+      const { data: row } = await supabase.from("profiles").select("user_id").eq("id", id).maybeSingle();
+      const userId = (row as any)?.user_id;
+      if (userId) {
+        await supabase.from("provider_profiles" as any).update({ is_active: true }).eq("user_id", userId);
+      }
+    } catch { /* best-effort */ }
     setApprovals(a => ({ ...a, [id]: "approved" }));
   };
 

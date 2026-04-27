@@ -312,6 +312,14 @@ export default function AdminProviders() {
                               <button
                                 onClick={async () => {
                                   const { error } = await supabase.from("profiles").update({ provider_status: "suspended" } as any).eq("id", p.id);
+                                  // Slice 4 dual-write — mirror to provider_profiles.
+                                  try {
+                                    const { data: row } = await supabase.from("profiles").select("user_id").eq("id", p.id).maybeSingle();
+                                    const userId = (row as any)?.user_id;
+                                    if (userId) {
+                                      await supabase.from("provider_profiles" as any).update({ provider_status: "suspended" }).eq("user_id", userId);
+                                    }
+                                  } catch { /* best-effort */ }
                                   if (error) { import("sonner").then(({ toast }) => toast.error("Failed to suspend")); }
                                   else { import("sonner").then(({ toast }) => toast.success("Provider suspended")); }
                                 }}
