@@ -152,8 +152,12 @@ export function installGlobalErrorHandlers(): void {
   // Catch unhandled promise rejections
   window.addEventListener("unhandledrejection", (event) => {
     const msg = event.reason?.message ?? String(event.reason ?? "Unknown rejection");
-    // Skip chunk loading errors (handled by ErrorBoundary)
+    // Skip chunk loading errors (handled by ErrorBoundary). All shapes:
+    //   "Failed to fetch dynamically imported module"
+    //   "Loading chunk N failed"
+    //   "Importing a module script failed" (Safari)
     if (msg.includes("dynamically imported module") || msg.includes("Loading chunk")) return;
+    if (msg.includes("Importing a module script failed")) return;
     // Skip 3rd-party / extension noise
     if (msg.includes("adsbygoogle") || msg.includes("TagError")) return;
     if (msg.includes("chrome-extension://") || msg.includes("moz-extension://")) return;
@@ -180,6 +184,7 @@ export function installGlobalErrorHandlers(): void {
   window.addEventListener("error", (event) => {
     const msg = event.message ?? "Unknown error";
     if (msg.includes("dynamically imported module") || msg.includes("Loading chunk")) return;
+    if (msg.includes("Importing a module script failed")) return;
     if (msg.includes("ResizeObserver")) return; // Benign browser noise
     // 3rd-party ad SDK noise — Google AdSense fires "TagError: adsbygoogle.push()
     // error: No slot size for available width" on slow connections / mobile.

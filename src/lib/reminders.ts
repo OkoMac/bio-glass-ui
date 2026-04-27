@@ -379,6 +379,10 @@ function markNotified(id: string): void {
  * Call this on app mount + at intervals (every 5-15 min).
  */
 export function fireReminderNotifications(): void {
+  // Safari + some private-browsing modes don't expose `Notification` at all.
+  // Direct access throws "Can't find variable: Notification" — was crashing
+  // the page on every reminder tick. Guard with `in window` first.
+  if (typeof window === "undefined" || !("Notification" in window)) return;
   if (Notification.permission !== "granted") return;
   const notified = getNotifiedToday();
   const active = getActiveReminders();
