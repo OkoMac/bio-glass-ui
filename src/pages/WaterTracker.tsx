@@ -27,11 +27,22 @@ function getStoredData(dateKey: string) {
     const raw = localStorage.getItem(STORAGE_KEY);
     const all = raw ? JSON.parse(raw) : {};
     const base = all[dateKey] || { glasses: 0, goal: 8, log: [] };
-    // Reconcile with the flat key — FoodTracker writes directly to
-    // `bion_water_<date>`, so we prefer the higher count when they disagree.
+    // Reconcile across the three places water can be incremented:
+    //   • this page (writes glasses + log together)
+    //   • FoodTracker / BionAssistant / dashboard (write the flat key only)
+    //   • the log array itself (length is the audit trail)
+    // Source of truth is the highest count, and the log is padded so the
+    // totals and "Today's Log" never disagree (reported 2026-04-28 — the
+    // 2000ml/100% banner showed while only 5 log lines were visible).
     const flat = parseInt(localStorage.getItem(`bion_water_${dateKey}`) ?? "0") || 0;
-    if (flat > (base.glasses ?? 0)) return { ...base, glasses: flat };
-    return base;
+    const baseGlasses = base.glasses ?? 0;
+    const log: Array<{ time: string; amount: string }> = Array.isArray(base.log) ? base.log : [];
+    const glasses = Math.max(flat, baseGlasses, log.length);
+    if (glasses > log.length) {
+      const fill = Array.from({ length: glasses - log.length }, () => ({ time: "—", amount: "250ml" }));
+      return { ...base, glasses, log: [...log, ...fill] };
+    }
+    return { ...base, glasses, log };
   } catch { return { glasses: 0, goal: 8, log: [] }; }
 }
 
