@@ -54,14 +54,10 @@ export default function RepDashboard() {
   const [copied, setCopied] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  // Redirect to agreement page if not yet accepted
-  const agreementRaw = localStorage.getItem("bion_rep_agreement");
-  const agreement = agreementRaw ? JSON.parse(agreementRaw) : null;
-  if (!agreement?.accepted) { navigate("/rep/agreement"); return null; }
-
-  // Referral code — prefer the canonical one stored on the Ranger's profile
-  // (written once when the rep accepts the agreement). Fall back to the
-  // legacy localStorage-only helper so existing demo flows still work.
+  // QA bug-mining 2026-04-28: hooks below were declared AFTER the
+  // navigate-and-return branch, so on the not-accepted path we'd skip
+  // some hooks and React would warn (rules-of-hooks). Hoisted above the
+  // early return.
   const [referralCode, setReferralCode] = useState<string>(() => generateReferralCode(user?.name ?? "REP"));
   const [attributionCount, setAttributionCount] = useState<number>(0);
 
@@ -107,6 +103,14 @@ export default function RepDashboard() {
   // Gracefully returns `completed: false` if bicademy tables aren't migrated.
   const { completed: foundationsDone, loading: foundationsLoading } =
     useCourseCompletion("RANGER-101");
+
+  // Redirect to agreement page if not yet accepted — runs AFTER all
+  // hooks (useState, useEffect, useCourseCompletion) have been declared
+  // so the call order stays stable on every render. Earlier this lived
+  // above the hooks which violated React's rules-of-hooks.
+  const agreementRaw = localStorage.getItem("bion_rep_agreement");
+  const agreement = agreementRaw ? JSON.parse(agreementRaw) : null;
+  if (!agreement?.accepted) { navigate("/rep/agreement"); return null; }
 
   const providers = getRepProviders();
   const commissions = getCommissionHistory();

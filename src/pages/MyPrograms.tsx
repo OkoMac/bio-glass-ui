@@ -92,16 +92,23 @@ export default function MyPrograms() {
   const { user } = useAuth();
   const { enrollmentId } = useParams<{ enrollmentId?: string }>();
 
-  // Single-enrollment detail mode
-  if (enrollmentId) {
-    return <MyProgramDay enrollmentId={enrollmentId} />;
-  }
-
+  // QA bug-mining 2026-04-28: hooks were declared AFTER the early-return
+  // for enrollmentId, violating React's rules-of-hooks (different number
+  // of hooks called depending on the route param). React would warn
+  // loudly in dev and produce subtle wrong-state bugs in prod. Hoisted
+  // above the early return — they're harmless to call on the detail
+  // path because the component returns before the effects fire useful
+  // work.
   const [rows, setRows] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
+    // Skip the fetch on the detail-mode path — the page early-returns
+    // <MyProgramDay /> below and doesn't render the list view, so this
+    // effect's setState would be a no-op anyway. Guard kept here so
+    // the hook itself runs unconditionally (rules-of-hooks).
+    if (enrollmentId) return;
     if (!user) return;
     let cancelled = false;
     (async () => {
@@ -121,12 +128,18 @@ export default function MyPrograms() {
       }
     })();
     return () => { cancelled = true; };
-  }, [user]);
+  }, [user, enrollmentId]);
 
   useEffect(() => {
     document.title = "My Programs — BION";
     return () => { document.title = "BION — Commit to Yourself"; };
   }, []);
+
+  // Single-enrollment detail mode — early-returns AFTER all hooks have
+  // been declared so the hook call order stays stable across renders.
+  if (enrollmentId) {
+    return <MyProgramDay enrollmentId={enrollmentId} />;
+  }
 
   if (!user) {
     return (
