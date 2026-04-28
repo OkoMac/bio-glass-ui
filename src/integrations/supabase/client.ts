@@ -1,4 +1,5 @@
 import { createClient, processLock } from '@supabase/supabase-js';
+import { Capacitor } from '@capacitor/core';
 import type { Database } from './types';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -31,9 +32,58 @@ const AUTH_STORAGE_KEY = `sb-${SUPABASE_URL.split('//')[1].split('.')[0]}-auth-t
   }
 })();
 
+/**
+ * QA audit M-10 (2026-04-28, P1): on Capacitor native, default
+ * localStorage is plain JSON in the app's data directory and
+ * readable by ADB / device-compromise / a malicious sibling app.
+ * Wrap the storage with @capacitor/preferences which uses
+ * platform-encrypted storage (Keychain on iOS, EncryptedSharedPreferences
+ * on Android). Web path is unchanged.
+ *
+ * Migrates legacy localStorage tokens on first read so existing
+ * sessions don't get orphaned by the swap.
+ */
+function buildSupabaseStorage(): any {
+  if (!Capacitor.isNativePlatform()) return localStorage;
+
+  // Lazy-import the plugin so web bundles don't pay the cost.
+  let prefsP: Promise<typeof import('@capacitor/preferences').Preferences> | null = null;
+  const prefs = async () => {
+    if (!prefsP) prefsP = import('@capacitor/preferences').then(m => m.Preferences);
+    return prefsP!;
+  };
+
+  return {
+    getItem: async (key: string): Promise<string | null> => {
+      const P = await prefs();
+      const { value } = await P.get({ key });
+      if (value !== null) return value;
+      // One-time migration from plain localStorage on first read so
+      // a user who upgrades the app stays signed in.
+      const legacy = localStorage.getItem(key);
+      if (legacy !== null) {
+        await P.set({ key, value: legacy });
+        localStorage.removeItem(key);
+        return legacy;
+      }
+      return null;
+    },
+    setItem: async (key: string, value: string): Promise<void> => {
+      const P = await prefs();
+      await P.set({ key, value });
+    },
+    removeItem: async (key: string): Promise<void> => {
+      const P = await prefs();
+      await P.remove({ key });
+      // Belt-and-suspenders: also clear any straggling legacy entry.
+      try { localStorage.removeItem(key); } catch { /* noop */ }
+    },
+  };
+}
+
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
+    storage: buildSupabaseStorage(),
     storageKey: AUTH_STORAGE_KEY,
     persistSession: true,
     autoRefreshToken: true,

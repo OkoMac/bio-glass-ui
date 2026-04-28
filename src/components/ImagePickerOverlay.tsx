@@ -24,6 +24,36 @@ async function compressImage(file: File, maxPx = 400): Promise<string> {
   });
 }
 
+/** QA audit M-5 (2026-04-28): on Capacitor native, the HTML <input
+ *  type="file" accept="image/*"> picker can only open the gallery —
+ *  it can't trigger Camera.app directly. @capacitor/camera was already
+ *  installed but never wired. This helper detects native + uses
+ *  Camera.getPhoto() when available, falling back to null on web so
+ *  the existing file-input path runs. Returns a JPEG data URL sized
+ *  to maxPx, matching compressImage()'s contract. */
+async function pickViaCapacitorCamera(maxPx: number): Promise<string | null> {
+  try {
+    const { Capacitor } = await import("@capacitor/core");
+    if (!Capacitor.isNativePlatform()) return null;
+    const { Camera, CameraResultType, CameraSource } = await import("@capacitor/camera");
+    const photo = await Camera.getPhoto({
+      resultType: CameraResultType.DataUrl,
+      source: CameraSource.Prompt, // user picks Camera or Gallery
+      quality: 82,
+      width: maxPx,
+      allowEditing: false,
+    });
+    return photo.dataUrl ?? null;
+  } catch (err: any) {
+    // User cancelled or plugin unavailable — fall back to nothing,
+    // and the HTML file input is still wired as a secondary path.
+    if (err?.message && !/cancel/i.test(err.message)) {
+      console.warn("[ImagePicker] Capacitor camera failed:", err.message);
+    }
+    return null;
+  }
+}
+
 // ─── Avatar overlay ───────────────────────────────────────────────────────────
 // Wraps any image/avatar element with a camera badge. Clicking anywhere on
 // the element opens the file picker.
@@ -53,6 +83,18 @@ export function ImagePickerOverlay({
     onChange(compressed);
   };
 
+  const handleClick = async () => {
+    // Native path first — Camera.getPhoto returns a dataUrl directly
+    // (already sized + compressed by the plugin). Falls through to the
+    // file input on web or if the user cancels.
+    const native = await pickViaCapacitorCamera(400);
+    if (native) {
+      onChange(native);
+      return;
+    }
+    inputRef.current?.click();
+  };
+
   const badgeClass =
     badgePosition === "bottom-right"
       ? "absolute -bottom-1 -right-1"
@@ -61,7 +103,7 @@ export function ImagePickerOverlay({
   return (
     <div
       className={`relative inline-block cursor-pointer ${className}`}
-      onClick={() => inputRef.current?.click()}
+      onClick={handleClick}
     >
       <input
         ref={inputRef}
@@ -100,13 +142,22 @@ export function ServiceCoverPicker({ coverImage, onChange }: CoverPickerProps) {
     onChange(compressed);
   };
 
+  const handleClick = async () => {
+    const native = await pickViaCapacitorCamera(900);
+    if (native) {
+      onChange(native);
+      return;
+    }
+    inputRef.current?.click();
+  };
+
   return (
     <div>
       <label className="text-[10px] text-muted-foreground uppercase tracking-wider block mb-1.5">
         Cover photo (wallpaper)
       </label>
       <div
-        onClick={() => inputRef.current?.click()}
+        onClick={handleClick}
         className="relative w-full h-24 rounded-xl overflow-hidden cursor-pointer border-2 border-dashed border-white/10 hover:border-indigo/40 transition-all flex items-center justify-center group"
         style={
           coverImage
