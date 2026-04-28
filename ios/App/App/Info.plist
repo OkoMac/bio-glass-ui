@@ -60,8 +60,11 @@
 	<string>BION saves progress photos and shared content to your photo library.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>BION uses your location to show wellness providers near you. Location is only read while the app is open.</string>
-	<key>NSContactsUsageDescription</key>
-	<string>BION uses your contacts to find friends already on the platform when you choose to invite people.</string>
+	<!-- QA audit M-15 (2026-04-28): NSContactsUsageDescription removed.
+	     No Contacts plugin installed and no code reads the address book.
+	     Apple Guideline 5.1.1 prohibits declaring permissions for
+	     unimplemented features. Re-add when the friend-invite-from-contacts
+	     flow actually ships. -->
 	<key>NSMicrophoneUsageDescription</key>
 	<string>BION uses the microphone for voice notes when logging meals, mood, or sleep.</string>
 	<!-- QA audit M-6 (2026-04-28): NSFaceIDUsageDescription was declared

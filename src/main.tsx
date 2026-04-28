@@ -4,13 +4,14 @@ import "./index.css";
 import * as Sentry from "@sentry/react";
 
 // ── Sentry error monitoring ──
-// DSN is injected at build time via VITE_SENTRY_DSN. Falls back to a
-// baked-in DSN for the prod build. Dev builds without VITE_SENTRY_DSN
-// never report to Sentry (DSN empty → init no-ops).
-const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN as string | undefined
-  || (import.meta.env.PROD
-    ? "https://1b97b3c9e494f532ca8e4f26bc477fb5@o4511231086821376.ingest.de.sentry.io/4511231110086736"
-    : "");
+// QA audit M-13 (2026-04-28): DSN must come from VITE_SENTRY_DSN at
+// build time. The previous hardcoded prod fallback baked the org id +
+// DSN into the bundle, where any visitor could harvest it to flood
+// the project's Sentry quota with junk events.
+const SENTRY_DSN = (import.meta.env.VITE_SENTRY_DSN as string | undefined) ?? "";
+if (!SENTRY_DSN && import.meta.env.PROD) {
+  console.warn("[sentry] VITE_SENTRY_DSN not set — error monitoring is OFF in this build. Set it in Vercel project env vars.");
+}
 if (SENTRY_DSN) {
   Sentry.init({
     dsn: SENTRY_DSN,
