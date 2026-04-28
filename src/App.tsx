@@ -403,7 +403,7 @@ function RequireAuth({ children, allowedRoles, skipOnboardingCheck }: {
   allowedRoles?: string[];
   skipOnboardingCheck?: boolean;
 }) {
-  const { user, loading } = useAuth();
+  const { user, loading, availableRoles } = useAuth();
   const location = useLocation();
 
   // While Supabase is restoring the session, render a spinner to avoid flash-to-welcome
@@ -415,13 +415,30 @@ function RequireAuth({ children, allowedRoles, skipOnboardingCheck }: {
 
   if (!user) return <Navigate to="/welcome?login=true" state={{ from: location }} replace />;
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    const home =
-      user.role === "admin"      ? "/admin/dashboard"     :
-      user.role === "provider"   ? "/pro/dashboard"        :
-      user.role === "corporate"  ? "/corporate/dashboard"  :
-      user.role === "sales_rep"  ? "/rep/dashboard"         : "/";
-    return <Navigate to={home} replace />;
+  // QA audit A2-12 (2026-04-28, P1): UI role enforcement uses BOTH the
+  // active role (`user.role`) AND the server-side role list
+  // (`availableRoles`, fetched from /api/account/roles). Without the
+  // availableRoles cross-check, an attacker who set bio_user.role="admin"
+  // in localStorage would render the admin shell until backend RLS kicked
+  // in. Backend RLS still authoritative for data; this is defense-in-depth
+  // so the admin chrome / nav items don't flash for non-admins.
+  //
+  // Tolerated: when availableRoles is still loading (empty array), trust
+  // user.role for one render to avoid a redirect loop on cold mount. The
+  // useEffect in AuthContext fills it within ~100ms.
+  if (allowedRoles) {
+    const activeRoleAllowed = allowedRoles.includes(user.role);
+    const serverRoleAllowed = availableRoles.length === 0
+      ? activeRoleAllowed // not yet loaded — trust active role for the first render
+      : availableRoles.some((r) => allowedRoles.includes(r));
+    if (!activeRoleAllowed || !serverRoleAllowed) {
+      const home =
+        user.role === "admin"      ? "/admin/dashboard"     :
+        user.role === "provider"   ? "/pro/dashboard"        :
+        user.role === "corporate"  ? "/corporate/dashboard"  :
+        user.role === "sales_rep"  ? "/rep/dashboard"         : "/";
+      return <Navigate to={home} replace />;
+    }
   }
 
   // Redirect new users to onboarding on first login
