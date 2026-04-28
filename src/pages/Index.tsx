@@ -22,6 +22,7 @@ import { useHabitProfile } from "@/hooks/useHabits";
 import { useVerifiedProviders } from "@/hooks/useVerifiedProviders";
 import { distanceToSuburb } from "@/lib/pretoriaSuburbs";
 import BiometricsDashboard from "@/components/BiometricsDashboard";
+import TodaySummaryCard from "@/components/TodaySummaryCard";
 import PendingRatingsBanner from "@/components/PendingRatingsBanner";
 import ExpenditureRewardsStrip from "@/components/ExpenditureRewardsStrip";
 import realData from "@/data/bion_pretoria_data.json";
@@ -349,6 +350,9 @@ const Index = () => {
             </div>
           </div>
         </motion.div>
+
+        {/* ── Today rollup (water + food + sleep + sessions) ── */}
+        <TodaySummaryCard />
 
         {/* ── Biometrics dashboard (compact) ── */}
         <section>

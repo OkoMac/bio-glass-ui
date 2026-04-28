@@ -49,6 +49,12 @@ export function useFoodSync() {
 
   const [loading, setLoading] = useState(true);
 
+  // Pre-aggregated history rollups, populated from food_entries_monthly /
+  // _yearly views (bion-food-history-rollups-2026-04-28.sql). Empty arrays
+  // until first load completes; UI tolerates that.
+  const [monthly, setMonthly] = useState<Array<{ month_start: string; total_calories: number; total_protein: number; total_carbs: number; total_fat: number; entry_count: number; days_logged: number }>>([]);
+  const [yearly,  setYearly]  = useState<Array<{ year_start: string;  total_calories: number; total_protein: number; total_carbs: number; total_fat: number; entry_count: number; days_logged: number }>>([]);
+
   // Load from Supabase
   useEffect(() => {
     if (!supabaseId) { setLoading(false); return; }
@@ -81,6 +87,20 @@ export function useFoodSync() {
           setEntries(mapped);
           localStorage.setItem(FOOD_KEY, JSON.stringify(mapped));
         }
+
+        // Load monthly + yearly rollups in parallel — pre-aggregated views,
+        // bounded payload (12 months ≈ 12 rows; years even smaller).
+        Promise.all([
+          supabase.from("food_entries_monthly" as any)
+            .select("*").eq("user_id", supabaseId)
+            .order("month_start", { ascending: false }),
+          supabase.from("food_entries_yearly" as any)
+            .select("*").eq("user_id", supabaseId)
+            .order("year_start", { ascending: false }),
+        ]).then(([m, y]) => {
+          setMonthly((m.data ?? []) as any);
+          setYearly((y.data ?? []) as any);
+        }).catch(() => { /* views may not exist on stale envs — silent */ });
 
         // Load goals
         const { data: goalsData } = await supabase
@@ -158,5 +178,5 @@ export function useFoodSync() {
 
   const todayEntries = entries.filter(e => e.date === getToday());
 
-  return { entries, todayEntries, goals, addEntry, deleteEntry, saveGoals, loading };
+  return { entries, todayEntries, monthly, yearly, goals, addEntry, deleteEntry, saveGoals, loading };
 }

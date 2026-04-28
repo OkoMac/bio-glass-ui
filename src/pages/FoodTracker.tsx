@@ -141,7 +141,7 @@ export default function FoodTracker() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sync with Supabase for authenticated users
-  const { entries, todayEntries, goals, addEntry: syncAddEntry, deleteEntry: syncDeleteEntry, saveGoals: syncSaveGoals } = useFoodSync();
+  const { entries, todayEntries, monthly, yearly, goals, addEntry: syncAddEntry, deleteEntry: syncDeleteEntry, saveGoals: syncSaveGoals } = useFoodSync();
   const { awardPoints } = useActivityPoints();
   usePageView();
   const { showTip } = useFeatureDiscovery();
@@ -792,7 +792,17 @@ export default function FoodTracker() {
                   );
                 }
 
-                if (days.length === 0) {
+                // Filter monthly to "older than the daily window" — months
+                // whose start is more than 30 days ago. Yearly: all years
+                // older than 365 days. Per Oko's request the data is kept
+                // forever; the rollup views aggregate at month/year grain
+                // so payload stays small even after years of logging.
+                const monthCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+                const yearCutoff  = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+                const olderMonths = (monthly ?? []).filter(m => new Date(m.month_start) < monthCutoff && new Date(m.month_start) >= yearCutoff);
+                const olderYears  = (yearly ?? []).filter(y => new Date(y.year_start) < yearCutoff);
+
+                if (days.length === 0 && olderMonths.length === 0 && olderYears.length === 0) {
                   return (
                     <div className="py-10 text-center">
                       <Calendar className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
@@ -803,36 +813,104 @@ export default function FoodTracker() {
                 }
 
                 return (
-                  <div className="space-y-2">
-                    {days.map(day => {
-                      const items = byDay.get(day) ?? [];
-                      const cal = items.reduce((s, e) => s + e.calories, 0);
-                      const goalPct = Math.min(100, Math.round((cal / goals.calories) * 100));
-                      const over = cal > goals.calories;
-                      return (
-                        <button key={day} onClick={() => setHistoryDay(day)}
-                          className="w-full text-left">
-                          <GlassCard className="p-3 hover:border-white/16 transition-colors">
-                            <div className="flex items-center justify-between mb-1.5">
-                              <div>
-                                <p className="text-sm text-foreground font-medium">
-                                  {new Date(day).toLocaleDateString("en-ZA", { weekday: "short", month: "short", day: "numeric" })}
-                                </p>
-                                <p className="text-[10px] text-muted-foreground">{items.length} item{items.length === 1 ? "" : "s"}</p>
-                              </div>
-                              <div className="text-right">
-                                <p className={`text-sm font-bold ${over ? "text-coral" : "text-foreground"}`}>{cal}</p>
-                                <p className="text-[9px] text-muted-foreground">/ {goals.calories} kcal</p>
-                              </div>
-                            </div>
-                            <div className="h-1 rounded-full bg-white/5">
-                              <div className={`h-full rounded-full ${over ? "bg-coral" : "bg-teal"} transition-all`}
-                                style={{ width: `${goalPct}%` }} />
-                            </div>
-                          </GlassCard>
-                        </button>
-                      );
-                    })}
+                  <div className="space-y-4">
+                    {/* Last 30 days — daily detail */}
+                    {days.length > 0 && (
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Last 30 days</p>
+                        <div className="space-y-2">
+                          {days.map(day => {
+                            const items = byDay.get(day) ?? [];
+                            const cal = items.reduce((s, e) => s + e.calories, 0);
+                            const goalPct = Math.min(100, Math.round((cal / goals.calories) * 100));
+                            const over = cal > goals.calories;
+                            return (
+                              <button key={day} onClick={() => setHistoryDay(day)}
+                                className="w-full text-left">
+                                <GlassCard className="p-3 hover:border-white/16 transition-colors">
+                                  <div className="flex items-center justify-between mb-1.5">
+                                    <div>
+                                      <p className="text-sm text-foreground font-medium">
+                                        {new Date(day).toLocaleDateString("en-ZA", { weekday: "short", month: "short", day: "numeric" })}
+                                      </p>
+                                      <p className="text-[10px] text-muted-foreground">{items.length} item{items.length === 1 ? "" : "s"}</p>
+                                    </div>
+                                    <div className="text-right">
+                                      <p className={`text-sm font-bold ${over ? "text-coral" : "text-foreground"}`}>{cal}</p>
+                                      <p className="text-[9px] text-muted-foreground">/ {goals.calories} kcal</p>
+                                    </div>
+                                  </div>
+                                  <div className="h-1 rounded-full bg-white/5">
+                                    <div className={`h-full rounded-full ${over ? "bg-coral" : "bg-teal"} transition-all`}
+                                      style={{ width: `${goalPct}%` }} />
+                                  </div>
+                                </GlassCard>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 30d–365d — monthly summaries */}
+                    {olderMonths.length > 0 && (
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Earlier this year</p>
+                        <div className="space-y-2">
+                          {olderMonths.map(m => {
+                            const avgKcal = m.days_logged > 0 ? Math.round(Number(m.total_calories) / Number(m.days_logged)) : 0;
+                            return (
+                              <GlassCard key={m.month_start} className="p-3">
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <p className="text-sm text-foreground font-medium">
+                                      {new Date(m.month_start).toLocaleDateString("en-ZA", { month: "long", year: "numeric" })}
+                                    </p>
+                                    <p className="text-[10px] text-muted-foreground">
+                                      {m.days_logged} day{m.days_logged === 1 ? "" : "s"} logged · {m.entry_count} item{m.entry_count === 1 ? "" : "s"}
+                                    </p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="text-sm font-bold text-foreground">{Number(m.total_calories).toLocaleString()}</p>
+                                    <p className="text-[9px] text-muted-foreground">kcal · avg {avgKcal}/day</p>
+                                  </div>
+                                </div>
+                              </GlassCard>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 365d+ — yearly summaries */}
+                    {olderYears.length > 0 && (
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Past years</p>
+                        <div className="space-y-2">
+                          {olderYears.map(y => {
+                            const avgKcal = y.days_logged > 0 ? Math.round(Number(y.total_calories) / Number(y.days_logged)) : 0;
+                            return (
+                              <GlassCard key={y.year_start} className="p-3">
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <p className="text-sm text-foreground font-medium">
+                                      {new Date(y.year_start).getFullYear()}
+                                    </p>
+                                    <p className="text-[10px] text-muted-foreground">
+                                      {y.days_logged} day{y.days_logged === 1 ? "" : "s"} logged · {y.entry_count} item{y.entry_count === 1 ? "" : "s"}
+                                    </p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="text-sm font-bold text-foreground">{Number(y.total_calories).toLocaleString()}</p>
+                                    <p className="text-[9px] text-muted-foreground">kcal · avg {avgKcal}/day</p>
+                                  </div>
+                                </div>
+                              </GlassCard>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })()}
