@@ -243,11 +243,37 @@ export function useOnboarding(userId: string, role: string, steps: OnboardingSte
     if (!step) return true;
     if (step.canSkip) return true;
     if (step.type === "quiz") {
-      // For knowledge-check quizzes, just need to answer all required questions
       if (!step.questions) return true;
       const required = step.questions.filter((q) => q.required);
       const answered = required.filter((q) => progress.answers[q.id] !== undefined);
-      return answered.length >= required.length;
+      if (answered.length < required.length) return false;
+
+      // QA audit O-5 (2026-04-28, P2): when the step declares a
+      // passScore, also verify the user got that fraction of
+      // knowledge-check questions correct. Without this gate the
+      // field was decorative — users could click through with 0/N
+      // correct answers.
+      if (typeof step.passScore === "number") {
+        const kc = step.questions.filter((q) => q.isKnowledgeCheck);
+        if (kc.length === 0) return true;
+        let correct = 0;
+        for (const q of kc) {
+          const ans = progress.answers[q.id];
+          const correctOpts = (q.options ?? []).filter((o) => o.isCorrect).map((o) => o.id);
+          if (q.type === "single") {
+            if (typeof ans === "string" && correctOpts.includes(ans)) correct++;
+          } else if (q.type === "multiple") {
+            // All correct options chosen, no incorrect ones.
+            const sel = Array.isArray(ans) ? (ans as string[]) : [];
+            const allCorrect = correctOpts.every((c) => sel.includes(c));
+            const noIncorrect = sel.every((s) => correctOpts.includes(s));
+            if (allCorrect && noIncorrect) correct++;
+          }
+        }
+        const scorePct = Math.round((correct / kc.length) * 100);
+        return scorePct >= step.passScore;
+      }
+      return true;
     }
     if (step.type === "form" && step.fields) {
       const required = step.fields.filter((f) => f.required);
