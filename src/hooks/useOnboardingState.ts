@@ -74,13 +74,20 @@ export function useOnboardingState() {
     if (user?.id) localStorage.setItem(`bion_onboarding_done_${user.id}`, "1");
   }, [profileId, isDemo, user?.id]);
 
-  /** Mark a nudge as seen (never show again) */
+  /** Mark a nudge as seen (never show again).
+   *  Always updates local state first so the modal dismisses immediately,
+   *  even for demo users / sessions where profileId hasn't loaded yet —
+   *  previous early-return left users trapped on the BIONWallet popup
+   *  with no way to close it (reported 2026-04-28). Persistence is
+   *  best-effort and only fires when we have a profile id. */
   const markNudgeSeen = useCallback(async (featureKey: string) => {
+    setState(prev => (
+      prev.nudgesSeen.includes(featureKey)
+        ? prev
+        : { ...prev, nudgesSeen: [...prev.nudgesSeen, featureKey] }
+    ));
+
     if (!profileId || isDemo) return;
-    setState(prev => ({
-      ...prev,
-      nudgesSeen: [...prev.nudgesSeen, featureKey],
-    }));
 
     try {
       const { data } = await supabase
