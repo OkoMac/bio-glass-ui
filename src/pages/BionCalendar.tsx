@@ -261,11 +261,40 @@ export default function BionCalendar() {
 
   const addEvent = () => {
     if (!newEvent.title?.trim()) return;
+    const dateStr = newEvent.date ?? selectedDate;
+    const category = newEvent.category ?? "fitness";
+
+    // Past-date guard. The user reported (2026-04-28) that the calendar
+    // accepted an 08:00 appointment for "today" at 23:07 silently —
+    // appointments in the past are almost always a typo. Block hard for
+    // category=appointment, soft confirm for everything else (some users
+    // log routines / medication retroactively).
+    const eventDateTime = newEvent.time
+      ? new Date(`${dateStr}T${newEvent.time}`)
+      : new Date(`${dateStr}T23:59`); // end-of-day if time omitted
+    const isPast = eventDateTime.getTime() < Date.now();
+
+    if (isPast) {
+      if (category === "appointment") {
+        import("sonner").then(({ toast }) => toast.error(
+          "That appointment time is in the past. Pick a future date and time, or log it as a 'wellness' / 'goal' entry instead.",
+          { duration: 5000 },
+        ));
+        return;
+      }
+      // Soft confirm for past entries in non-appointment categories.
+      const ok = window.confirm(
+        `This entry is in the past (${eventDateTime.toLocaleString("en-ZA", { dateStyle: "medium", timeStyle: "short" })}). ` +
+        `Add it anyway? (e.g. logging a workout or medication you already took)`,
+      );
+      if (!ok) return;
+    }
+
     const event: CalendarEvent = {
       id: `custom_${Date.now()}`,
       title: newEvent.title!.trim(),
-      category: newEvent.category ?? "fitness",
-      date: newEvent.date ?? selectedDate,
+      category,
+      date: dateStr,
       time: newEvent.time,
       duration: newEvent.duration,
       provider: newEvent.provider,
