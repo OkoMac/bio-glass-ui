@@ -3,8 +3,8 @@
     "apps": [],
     "details": [
       {
-        "_comment": "PLACEHOLDER — replace TEAMID with your Apple Developer Team ID once enrolled. Bundle id matches capacitor.config.json appId. The file MUST be served from https://bionhealth.co.za/.well-known/apple-app-site-association with Content-Type: application/json and NO file extension.",
-        "appIDs": ["TEAMID.co.za.bionhealth.app"],
+        "_comment": "Bundle id matches capacitor.config.json appId. This file MUST be served from https://bionhealth.co.za/.well-known/apple-app-site-association with Content-Type: application/json and NO file extension.",
+        "appIDs": ["Y5CSGG3KYY.co.za.bionhealth.app"],
         "components": [
           {
             "/": "/provider/*",
@@ -40,6 +40,6 @@
     ]
   },
   "webcredentials": {
-    "apps": ["TEAMID.co.za.bionhealth.app"]
+    "apps": ["Y5CSGG3KYY.co.za.bionhealth.app"]
   }
 }
