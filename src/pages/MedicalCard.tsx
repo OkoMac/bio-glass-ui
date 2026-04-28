@@ -10,7 +10,7 @@ import { usePageView } from "@/hooks/usePageView";
 import AdBanner from "@/components/AdBanner";
 import {
   ArrowLeft, Heart, QrCode, Shield, Phone, User, Pill,
-  AlertTriangle, X, Share2, Plus, Trash2, Edit3, Save,
+  AlertTriangle, X, Share2, Plus, Trash2, Edit3, Save, Camera, Loader2,
 } from "lucide-react";
 
 const STORAGE_KEY = "bion_medical_card";
@@ -437,6 +437,61 @@ function MedicalAidSection({
   const [showToProvider, setShowToProvider] = useState(true);
   const [synced, setSynced] = useState(false);
   const [saving, setSaving] = useState(false);
+  // Photo-extract state — drives the camera button. Reuses
+  // /api/profiles/medical-aid/extract-from-photo (gpt-4o-mini vision).
+  const [extracting, setExtracting] = useState(false);
+
+  const extractFromPhoto = async (file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    setExtracting(true);
+    try {
+      // Read file → data URL.
+      const dataUrl: string = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error("Could not read image"));
+        reader.readAsDataURL(file);
+      });
+
+      const { data: { session } } = await (await import("@/integrations/supabase/client")).supabase.auth.getSession();
+      if (!session) {
+        const { toast } = await import("sonner");
+        toast.error("Please sign in before using photo extraction.");
+        return;
+      }
+
+      const res = await fetch(`${MEDICAL_AID_API}/api/profiles/medical-aid/extract-from-photo`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ imageDataUrl: dataUrl }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error ?? "Photo extraction failed");
+
+      const { scheme: sFromAi, planName: pFromAi, memberNumber: mFromAi, dependantCode: dFromAi, confidence } = json.data ?? {};
+      // Match the AI-detected scheme to our exact list when possible so
+      // the dropdown selects correctly without manual fix-up.
+      const matchedScheme = SA_SCHEMES.find(s => s.toLowerCase() === String(sFromAi ?? "").toLowerCase()) ?? sFromAi ?? "";
+
+      if (matchedScheme) setScheme(matchedScheme);
+      if (pFromAi) setPlanName(pFromAi);
+      if (mFromAi) setMemberNumber(mFromAi);
+      if (dFromAi) setDependantCode(dFromAi);
+
+      const { toast } = await import("sonner");
+      const filledCount = [matchedScheme, pFromAi, mFromAi, dFromAi].filter(Boolean).length;
+      if (filledCount === 0) {
+        toast.error("Couldn't read the card clearly. Try better lighting or fill in manually.");
+      } else {
+        toast.success(`Filled ${filledCount} field${filledCount === 1 ? "" : "s"} from photo (confidence: ${confidence}). Review before saving.`);
+      }
+    } catch (err: any) {
+      const { toast } = await import("sonner");
+      toast.error(err?.message ?? "Photo extraction failed");
+    } finally {
+      setExtracting(false);
+    }
+  };
 
   // Load from backend on mount if logged in
   useEffect(() => {
@@ -498,9 +553,36 @@ function MedicalAidSection({
           <Shield className="w-4 h-4 text-teal-400" />
           <span className="text-sm font-semibold text-foreground">Medical Aid / Insurance</span>
         </div>
-        {synced && (
-          <span className="text-[9px] px-2 py-0.5 bg-teal/10 text-teal rounded-pill">Synced</span>
-        )}
+        <div className="flex items-center gap-2">
+          {/* Snap a photo of the card → auto-fill scheme/plan/member/dependant.
+              Only shown in editing mode. capture="environment" hints
+              mobile to open the back camera straight to scan; falls
+              back to library on desktop. */}
+          {editing && (
+            <label className="cursor-pointer text-[10px] px-2.5 py-1 bg-indigo/15 text-indigo rounded-pill border border-indigo/30 flex items-center gap-1.5 hover:bg-indigo/25 transition-colors">
+              {extracting ? (
+                <><Loader2 className="w-3 h-3 animate-spin" /> Reading…</>
+              ) : (
+                <><Camera className="w-3 h-3" /> Scan card</>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                disabled={extracting}
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) extractFromPhoto(file);
+                  e.target.value = ""; // allow re-upload of same file
+                }}
+              />
+            </label>
+          )}
+          {synced && (
+            <span className="text-[9px] px-2 py-0.5 bg-teal/10 text-teal rounded-pill">Synced</span>
+          )}
+        </div>
       </div>
 
       {/* Scheme selector */}
