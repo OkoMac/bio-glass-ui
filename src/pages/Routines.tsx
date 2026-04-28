@@ -403,6 +403,9 @@ export default function Routines() {
   const [customExercises, setCustomExercises] = useState<Exercise[]>([]);
   const [newExName, setNewExName] = useState("");
   const [newExSets, setNewExSets] = useState("");
+  // Validation flags painted onto inputs after a failed Create attempt.
+  // Cleared the moment the user starts typing in the offending field.
+  const [createErrors, setCreateErrors] = useState<{ title?: boolean; schedule?: boolean }>({});
 
   const toggle = (routineId: string, idx: number) => {
     const key = `${routineId}-${idx}`;
@@ -425,7 +428,16 @@ export default function Routines() {
   };
 
   const handleCreateRoutine = () => {
-    if (!newRoutine.title.trim()) return;
+    // Inline validation. Button is always tappable now — pressing it with
+    // missing fields highlights them in red instead of silently no-op'ing
+    // (which read as "the button is broken").
+    const errs: { title?: boolean; schedule?: boolean } = {};
+    if (!newRoutine.title.trim())    errs.title = true;
+    if (!newRoutine.schedule.trim()) errs.schedule = true;
+    if (errs.title || errs.schedule) {
+      setCreateErrors(errs);
+      return;
+    }
     const exercises = customExercises.length > 0
       ? customExercises
       : EXERCISE_TEMPLATES[newRoutine.type] ?? [];
@@ -444,6 +456,7 @@ export default function Routines() {
     syncAddRoutine(routine);
     setNewRoutine({ title: "", type: "workout", schedule: "", totalDays: 28 });
     setCustomExercises([]);
+    setCreateErrors({});
     setShowCreate(false);
     setExpanded(routine.id);
   };
@@ -746,7 +759,7 @@ export default function Routines() {
         {showCreate && (
           <>
             <motion.div key="create-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setShowCreate(false)} className="fixed inset-0 bg-obsidian/60 z-[60]" />
+              onClick={() => { setShowCreate(false); setCreateErrors({}); }} className="fixed inset-0 bg-obsidian/60 z-[60]" />
             <motion.div key="create-sheet"
               initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "100%", opacity: 0 }}
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
@@ -762,7 +775,7 @@ export default function Routines() {
                   >
                     <Sparkles className="w-3 h-3" /> Import
                   </button>
-                  <button onClick={() => setShowCreate(false)}
+                  <button onClick={() => { setShowCreate(false); setCreateErrors({}); }}
                     className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
                     <X className="w-4 h-4" />
                   </button>
@@ -772,11 +785,18 @@ export default function Routines() {
               <div className="space-y-4">
                 {/* Title */}
                 <div>
-                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Routine Name *</label>
+                  <label className={`text-[10px] uppercase tracking-wider mb-1 block ${createErrors.title ? "text-coral" : "text-muted-foreground"}`}>
+                    Routine Name *{createErrors.title && <span className="ml-1 normal-case tracking-normal">— required</span>}
+                  </label>
                   <input value={newRoutine.title}
-                    onChange={e => setNewRoutine(prev => ({ ...prev, title: e.target.value }))}
+                    onChange={e => {
+                      setNewRoutine(prev => ({ ...prev, title: e.target.value }));
+                      if (createErrors.title) setCreateErrors(prev => ({ ...prev, title: undefined }));
+                    }}
                     placeholder="e.g. Morning Strength, Evening Yoga"
-                    className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-teal/40 transition-colors" />
+                    className={`w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border transition-colors ${
+                      createErrors.title ? "border-coral/60 focus:border-coral" : "border-white/08 focus:border-teal/40"
+                    }`} />
                 </div>
 
                 {/* Type */}
@@ -809,11 +829,18 @@ export default function Routines() {
                 {/* Schedule */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Schedule</label>
+                    <label className={`text-[10px] uppercase tracking-wider mb-1 block ${createErrors.schedule ? "text-coral" : "text-muted-foreground"}`}>
+                      Schedule *{createErrors.schedule && <span className="ml-1 normal-case tracking-normal">— required</span>}
+                    </label>
                     <input value={newRoutine.schedule}
-                      onChange={e => setNewRoutine(prev => ({ ...prev, schedule: e.target.value }))}
+                      onChange={e => {
+                        setNewRoutine(prev => ({ ...prev, schedule: e.target.value }));
+                        if (createErrors.schedule) setCreateErrors(prev => ({ ...prev, schedule: undefined }));
+                      }}
                       placeholder="e.g. Mon, Wed, Fri"
-                      className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-teal/40 transition-colors" />
+                      className={`w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border transition-colors ${
+                        createErrors.schedule ? "border-coral/60 focus:border-coral" : "border-white/08 focus:border-teal/40"
+                      }`} />
                   </div>
                   <div>
                     <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Duration (days)</label>
@@ -891,10 +918,14 @@ export default function Routines() {
               </div>
 
               <motion.button whileTap={{ scale: 0.97 }} onClick={handleCreateRoutine}
-                disabled={!newRoutine.title.trim()}
-                className="w-full mt-5 py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 transition-opacity">
+                className="w-full mt-5 py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 transition-opacity">
                 Create Routine
               </motion.button>
+              {(createErrors.title || createErrors.schedule) && (
+                <p className="text-[11px] text-coral text-center mt-2">
+                  Fill in the highlighted field{createErrors.title && createErrors.schedule ? "s" : ""} to continue.
+                </p>
+              )}
             </motion.div>
           </>
         )}
