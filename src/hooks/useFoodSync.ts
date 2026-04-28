@@ -54,12 +54,15 @@ export function useFoodSync() {
     if (!supabaseId) { setLoading(false); return; }
     const load = async () => {
       try {
-        // Load today's food entries
+        // Load the last 30 days of food entries so the history view has
+        // something to show. Capped to bound payload — older data lives
+        // in localStorage if the user wants further back on this device.
+        const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
         const { data } = await supabase
           .from("food_entries" as any)
           .select("*")
           .eq("user_id", supabaseId)
-          .gte("date", getToday())
+          .gte("date", cutoff)
           .order("created_at", { ascending: true });
 
         if (data && data.length > 0) {

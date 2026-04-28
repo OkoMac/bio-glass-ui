@@ -14,7 +14,7 @@ import { trackEvent } from "@/lib/habits";
 import {
   ArrowLeft, Camera, Plus, X, Flame, TrendingUp, TrendingDown,
   Utensils, Droplets, Apple, Coffee, Moon, Sun, ChevronRight,
-  Target, Trash2, Image, Zap, Clock, AlertTriangle
+  Target, Trash2, Image, Zap, Clock, AlertTriangle, History, Calendar
 } from "lucide-react";
 
 /* ── Types ──────────────────────────────────────────── */
@@ -172,6 +172,8 @@ export default function FoodTracker() {
   const [showAdd, setShowAdd] = useState(false);
   const [showGoals, setShowGoals] = useState(false);
   const [showBurn, setShowBurn] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyDay, setHistoryDay] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMeal, setSelectedMeal] = useState<FoodEntry["meal"]>("breakfast");
   const [manualEntry, setManualEntry] = useState({ name: "", calories: "", protein: "", carbs: "", fat: "" });
@@ -324,6 +326,11 @@ export default function FoodTracker() {
             <h1 className="text-2xl font-bold text-foreground">Free Calorie Calculator & Meal Tracker</h1>
             <p className="text-xs text-muted-foreground">Track meals, calories & nutrition</p>
           </div>
+          <motion.button whileTap={{ scale: 0.9 }} onClick={() => setShowHistory(true)}
+            aria-label="View history"
+            className="w-9 h-9 glass-1 rounded-full flex items-center justify-center">
+            <History className="w-4 h-4 text-foreground" />
+          </motion.button>
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => setShowGoals(true)}
             className="w-9 h-9 glass-1 rounded-full flex items-center justify-center">
             <Target className="w-4 h-4 text-teal" />
@@ -680,6 +687,155 @@ export default function FoodTracker() {
                 className="w-full mt-4 py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400">
                 Save Goals
               </motion.button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ── History Sheet ──────────────────────────── */}
+      <AnimatePresence>
+        {showHistory && (
+          <>
+            <motion.div key="hist-ov" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => { setShowHistory(false); setHistoryDay(null); }}
+              className="fixed inset-0 bg-obsidian/60 z-[60]" />
+            <motion.div key="hist-sheet"
+              initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "100%", opacity: 0 }}
+              transition={{ type: "spring", damping: 28, stiffness: 280 }}
+              className="fixed bottom-0 left-0 right-0 z-[70] rounded-t-[2rem] p-5 max-h-[85vh] overflow-y-auto"
+              style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  {historyDay && (
+                    <button onClick={() => setHistoryDay(null)}
+                      className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                      <ArrowLeft className="w-4 h-4" />
+                    </button>
+                  )}
+                  <h3 className="text-lg font-bold text-foreground">
+                    {historyDay
+                      ? new Date(historyDay).toLocaleDateString("en-ZA", { weekday: "long", month: "short", day: "numeric" })
+                      : "History (last 30 days)"}
+                  </h3>
+                </div>
+                <button onClick={() => { setShowHistory(false); setHistoryDay(null); }}
+                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {(() => {
+                // Build per-day summaries from `entries`. Today is excluded —
+                // the main page already shows it.
+                const today = getToday();
+                const byDay = new Map<string, FoodEntry[]>();
+                for (const e of entries) {
+                  if (!e.date || e.date === today) continue;
+                  const list = byDay.get(e.date) ?? [];
+                  list.push(e);
+                  byDay.set(e.date, list);
+                }
+                const days = Array.from(byDay.keys()).sort((a, b) => b.localeCompare(a));
+
+                if (historyDay) {
+                  const dayMeals = (byDay.get(historyDay) ?? []).slice().sort((a, b) => (a.time ?? "").localeCompare(b.time ?? ""));
+                  const dayCal = dayMeals.reduce((s, e) => s + e.calories, 0);
+                  const dayProtein = dayMeals.reduce((s, e) => s + (e.protein ?? 0), 0);
+                  const dayCarbs = dayMeals.reduce((s, e) => s + (e.carbs ?? 0), 0);
+                  const dayFat = dayMeals.reduce((s, e) => s + (e.fat ?? 0), 0);
+                  return (
+                    <div className="space-y-3">
+                      <GlassCard className="p-4 flex items-center justify-between">
+                        <div>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total</p>
+                          <p className="text-xl font-bold text-foreground">{dayCal} <span className="text-xs text-muted-foreground font-normal">kcal</span></p>
+                        </div>
+                        <div className="grid grid-cols-3 gap-3 text-right">
+                          <div><p className="text-[9px] text-muted-foreground">P</p><p className="text-xs text-foreground font-data">{dayProtein}g</p></div>
+                          <div><p className="text-[9px] text-muted-foreground">C</p><p className="text-xs text-foreground font-data">{dayCarbs}g</p></div>
+                          <div><p className="text-[9px] text-muted-foreground">F</p><p className="text-xs text-foreground font-data">{dayFat}g</p></div>
+                        </div>
+                      </GlassCard>
+                      {(["breakfast", "lunch", "dinner", "snack"] as const).map(meal => {
+                        const items = dayMeals.filter(m => m.meal === meal);
+                        if (items.length === 0) return null;
+                        const Icon = MEAL_ICONS[meal];
+                        return (
+                          <div key={meal}>
+                            <div className="flex items-center gap-2 mb-2">
+                              <Icon className="w-3.5 h-3.5 text-teal" />
+                              <span className="text-xs text-muted-foreground font-medium">{MEAL_LABELS[meal]}</span>
+                              <span className="text-[10px] text-muted-foreground">· {items.reduce((s, e) => s + e.calories, 0)} kcal</span>
+                            </div>
+                            <div className="space-y-1.5">
+                              {items.map(entry => (
+                                <GlassCard key={entry.id} className="p-3 flex items-center justify-between">
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-sm text-foreground truncate">{entry.name}</p>
+                                    <p className="text-[10px] text-muted-foreground">{entry.calories} kcal</p>
+                                  </div>
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    <span className="text-[10px] text-muted-foreground">{entry.time}</span>
+                                    <button onClick={() => deleteEntry(entry.id)}
+                                      aria-label="Delete entry"
+                                      className="text-muted-foreground hover:text-coral transition-colors">
+                                      <Trash2 className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                </GlassCard>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                }
+
+                if (days.length === 0) {
+                  return (
+                    <div className="py-10 text-center">
+                      <Calendar className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+                      <p className="text-sm font-medium text-foreground mb-1">No history yet</p>
+                      <p className="text-xs text-muted-foreground">Past days will appear here once you've logged meals on more than one day.</p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="space-y-2">
+                    {days.map(day => {
+                      const items = byDay.get(day) ?? [];
+                      const cal = items.reduce((s, e) => s + e.calories, 0);
+                      const goalPct = Math.min(100, Math.round((cal / goals.calories) * 100));
+                      const over = cal > goals.calories;
+                      return (
+                        <button key={day} onClick={() => setHistoryDay(day)}
+                          className="w-full text-left">
+                          <GlassCard className="p-3 hover:border-white/16 transition-colors">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <div>
+                                <p className="text-sm text-foreground font-medium">
+                                  {new Date(day).toLocaleDateString("en-ZA", { weekday: "short", month: "short", day: "numeric" })}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground">{items.length} item{items.length === 1 ? "" : "s"}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className={`text-sm font-bold ${over ? "text-coral" : "text-foreground"}`}>{cal}</p>
+                                <p className="text-[9px] text-muted-foreground">/ {goals.calories} kcal</p>
+                              </div>
+                            </div>
+                            <div className="h-1 rounded-full bg-white/5">
+                              <div className={`h-full rounded-full ${over ? "bg-coral" : "bg-teal"} transition-all`}
+                                style={{ width: `${goalPct}%` }} />
+                            </div>
+                          </GlassCard>
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </motion.div>
           </>
         )}
