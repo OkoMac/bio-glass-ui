@@ -246,6 +246,13 @@ export default function BionAssistant() {
 
   const API_URL = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
+  /* CRISIS INTERCEPTION (P0 safety) — runs before any template/API
+   * routing in send(). Tight pattern: matches explicit self-harm /
+   * suicide phrasing only. Idiomatic frustration ("give up", "no
+   * point") is intentionally NOT matched. False negatives fall
+   * through to the API system-prompt advisory (defense-in-depth). */
+  const CRISIS_PATTERN = /\b(suicid(e|al)|kill\s+(myself|me)|end\s+(my\s+)?(life|it\s+all)|take\s+my\s+(own\s+)?life|self.?harm|cutting\s+myself|cut\s+my\s+wrist|hurt(ing)?\s+myself|want(ed|s)?\s+to\s+die|don'?t\s+want\s+to\s+(live|be\s+alive)|no\s+(point|reason)\s+(in\s+)?(living|life)|nothing\s+(left|to\s+live\s+for)|(can'?t|cannot)\s+go\s+on)\b/i;
+
   /* Detect when user wants a human or shows frustration */
   function detectsHumanRequest(text: string): boolean {
     const t = text.toLowerCase();
@@ -274,6 +281,37 @@ export default function BionAssistant() {
     const userMsg: Message = { id: Date.now() + "u", role: "user", text: text.trim(), ts: new Date() };
     setMessages(prev => [...prev, userMsg]);
     setInput("");
+
+    // CRISIS — must run BEFORE human-request / template / API routing.
+    if (CRISIS_PATTERN.test(text)) {
+      const safetyReply: Message = {
+        id: Date.now() + "c",
+        role: "assistant",
+        text: `If you're in crisis, please reach out now — these helplines are free, 24/7, and staffed by trained counsellors:\n\n📞 SADAG: **0800 567 567**\n📞 Lifeline: **0861 322 322**\n🚨 Emergency: **10177**\n\nYou don't have to be alone with this. I've also raised a support ticket so a real person from our team can check in with you.`,
+        ts: new Date(),
+      };
+      setMessages(prev => [...prev, safetyReply]);
+      // Pre-fill the human-support modal with a CRISIS tag so the
+      // ticket is prioritised in the support queue.
+      setHumanReason(`[CRISIS_KEYWORD] ${text}`);
+      setShowHumanModal(true);
+      // Best-effort backend ping so the team is alerted even if the
+      // user closes the tab before submitting the modal.
+      fetch(`${API_URL}/api/support/tickets`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          source: "web_chat",
+          priority: "urgent",
+          subject: "🚨 Crisis keyword detected — web chat",
+          body: text,
+          submitter_name: user?.name ?? "anonymous",
+          submitter_email: user?.email ?? null,
+          tags: ["crisis_keyword"],
+        }),
+      }).catch(() => { /* best-effort */ });
+      return;
+    }
 
     // Detect human-request or frustration → offer escalation
     if (detectsHumanRequest(text)) {
