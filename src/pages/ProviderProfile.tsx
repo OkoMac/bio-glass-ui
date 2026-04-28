@@ -855,16 +855,47 @@ export default function ProviderProfile() {
           </div>
         )}
 
-        {/* CTA — sign up or book */}
+        {/* CTA — sign up or book.
+            Honest routing: BION's own checkout only fires when this
+            provider has actually claimed + published real services
+            (hasRealServices). For directory-only listings with a known
+            website, send the user to the provider's own booking page
+            instead — BION can't fulfil that booking and pretending we
+            can leads to lost payments + angry customers. */}
         {isSignedIn ? (
           <div className="space-y-2">
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={() => setShowBooking(true)}
-              className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta"
-            >
-              Book a Session — {provider.price}
-            </motion.button>
+            {hasRealServices ? (
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setShowBooking(true)}
+                className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta"
+              >
+                Book a Session — {provider.price}
+              </motion.button>
+            ) : provider.contact?.website ? (() => {
+              const url = provider.contact.website.startsWith("http") ? provider.contact.website : `https://${provider.contact.website}`;
+              let domain = "their website";
+              try { domain = new URL(url).hostname.replace(/^www\./, ""); } catch { /* keep fallback */ }
+              return (
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta flex items-center justify-center gap-2"
+                >
+                  <Globe className="w-4 h-4" />
+                  Book on {domain}
+                </a>
+              );
+            })() : (
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setShowBooking(true)}
+                className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta"
+              >
+                Request a Booking — {provider.price}
+              </motion.button>
+            )}
 
             {/* Queue / Walk-in button */}
             {queuePosition ? (
