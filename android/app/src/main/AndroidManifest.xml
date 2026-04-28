@@ -70,6 +70,19 @@
          App must call requestPermission() at runtime as well. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- QA audit M-4 (2026-04-28): image picking on Android 13+ requires
+         the granular READ_MEDIA_IMAGES permission. Without it, the
+         HTML file input + Capacitor camera plugin silently fail when
+         the user tries to attach a profile photo, food log image, or
+         medical aid card scan. -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <!-- Pre-API-33 fallback (Android 12 and below). Scoped to maxSdkVersion=32
+         because READ_MEDIA_IMAGES supersedes it on API 33+ — declaring both
+         without the cap triggers Play pre-launch warnings about overreach. -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+
     <!--
       Health Connect permissions — trimmed 2026-04-26 to match actual reads in
       src/hooks/useNativeHealth.ts (Steps, HeartRate, Weight). Adding more

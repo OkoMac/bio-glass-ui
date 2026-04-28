@@ -64,7 +64,10 @@
 	<string>BION uses your contacts to find friends already on the platform when you choose to invite people.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>BION uses the microphone for voice notes when logging meals, mood, or sleep.</string>
-	<key>NSFaceIDUsageDescription</key>
-	<string>BION uses Face ID to unlock the app and confirm sensitive actions like wallet withdrawals.</string>
+	<!-- QA audit M-6 (2026-04-28): NSFaceIDUsageDescription was declared
+	     without an installed biometric plugin and no code calling
+	     LocalAuthentication APIs. Apple Guideline 5.1.1 prohibits declaring
+	     permissions for unimplemented features. Re-add this key the same
+	     time the biometric flow ships (e.g. @capacitor-community/biometric-auth). -->
 </dict>
 </plist>

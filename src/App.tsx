@@ -2,8 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import React, { ReactNode } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
+import React, { ReactNode, useEffect } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { BookingsProvider } from "@/contexts/BookingsContext";
 import { useBookingReminders } from "@/hooks/useBookingReminders";
@@ -649,6 +649,38 @@ function DeeperDiveGate() {
   return <DeeperDive />;
 }
 
+/** QA audit M-9 (2026-04-28): handle the Android system back button.
+ *  Without this, Capacitor's default behaviour exits the app on every
+ *  back press — flagged by Play Store pre-launch reports and confusing
+ *  for users mid-flow. With it, back navigates within the SPA history
+ *  first; only exits when there's no history left.
+ *  Web/iOS are no-ops (Capacitor.isNativePlatform() guards). */
+function BackButtonHandler() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    let unsub: (() => void) | undefined;
+    (async () => {
+      try {
+        const { Capacitor } = await import("@capacitor/core");
+        if (!Capacitor.isNativePlatform()) return;
+        const { App: CapApp } = await import("@capacitor/app");
+        const handle = await CapApp.addListener("backButton", ({ canGoBack }) => {
+          if (canGoBack && window.history.length > 1) {
+            navigate(-1);
+          } else {
+            CapApp.exitApp();
+          }
+        });
+        unsub = () => handle.remove();
+      } catch (err) {
+        // Plugin may not be available on web preview — silently no-op.
+      }
+    })();
+    return () => { unsub?.(); };
+  }, [navigate]);
+  return null;
+}
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -658,6 +690,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <BackButtonHandler />
               <OfflineBanner />
               <Suspense fallback={null}><CommandPalette /></Suspense>
               <AuthGate>
