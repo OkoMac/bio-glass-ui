@@ -50,7 +50,6 @@ export default function QuickBook() {
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
   const [search, setSearch] = useState("");
   const [showCustomize, setShowCustomize] = useState(false);
-  const [showAddProvider, setShowAddProvider] = useState(false);
 
   // User's pinned tools (loaded from localStorage)
   const [pinnedTools, setPinnedTools] = useState<string[]>(() => {
@@ -284,7 +283,7 @@ export default function QuickBook() {
             <p className="text-xs text-muted-foreground uppercase tracking-widest">
               {myProviders.length > 0 ? "My Providers" : "Suggested for You"}
             </p>
-            <button onClick={() => setShowAddProvider(true)}
+            <button onClick={() => navigate("/directory", { state: { from: "/book" } })}
               className="text-xs text-teal font-medium">+ Add</button>
           </div>
 
@@ -424,41 +423,6 @@ export default function QuickBook() {
 
               <p className="text-[10px] text-muted-foreground text-center mt-4">
                 {pinnedTools.length} of {ALL_TOOLS.length} tools pinned
-              </p>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* ── Add Provider Sheet ─────────────────────── */}
-      <AnimatePresence>
-        {showAddProvider && (
-          <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setShowAddProvider(false)} className="fixed inset-0 bg-obsidian/60 z-[60]" />
-            <motion.div initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "100%", opacity: 0 }}
-              transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="fixed bottom-0 left-0 right-0 z-[70] rounded-t-[2rem] p-5 max-h-[80vh] overflow-y-auto"
-              style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="text-lg font-bold text-foreground">Find a Provider</h3>
-                  <p className="text-xs text-muted-foreground">Browse the directory to add a new provider</p>
-                </div>
-                <button onClick={() => setShowAddProvider(false)}
-                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/directory")}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal to-emerald-400 text-white font-semibold flex items-center justify-center gap-2">
-                <Search className="w-4 h-4" /> Browse Directory
-              </motion.button>
-
-              <p className="text-[10px] text-muted-foreground text-center mt-4">
-                Once you book a session, that provider will appear here automatically.
               </p>
             </motion.div>
           </>

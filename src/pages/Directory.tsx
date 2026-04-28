@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { Search, MapPin, SlidersHorizontal, Navigation, Star, Clock, ChevronRight, X, Plus, Lock, Phone, ArrowLeft, Globe, ExternalLink, Send } from "lucide-react";
 import BookingRequestForm from "@/components/BookingRequestForm";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -129,7 +129,13 @@ function useReverseGeo(lat: number | null, lng: number | null) {
 
 export default function Directory() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
+  // If the user came in via "+ Add" on /book, surface a clearly labelled
+  // back-pill so they know how to return. Tapping it pops history (which
+  // is correct because navigate("/directory") added a single entry).
+  const cameFrom = (location.state as { from?: string } | null)?.from;
+  const backLabel = cameFrom === "/book" ? "Back to Book" : null;
   const { user } = useAuth();
   const geo = useGeolocation();
   const userSuburb = useReverseGeo(geo.latitude, geo.longitude);
@@ -432,9 +438,17 @@ export default function Directory() {
         <div className="w-full px-4 md:px-8 xl:px-12 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <button onClick={() => navigate(-1)} aria-label="Go back" className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
-                <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-              </button>
+              {backLabel ? (
+                <button onClick={() => navigate(-1)} aria-label={backLabel}
+                  className="shrink-0 flex items-center gap-1.5 pl-2 pr-3 h-9 glass-2 rounded-full text-foreground hover:bg-white/[0.06] transition-colors">
+                  <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+                  <span className="text-xs font-medium">{backLabel}</span>
+                </button>
+              ) : (
+                <button onClick={() => navigate(-1)} aria-label="Go back" className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+                  <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+                </button>
+              )}
               <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
                 <img src="/bion-logo-white-sm.png" alt="BION" className="h-14 md:h-20 w-auto" />
               </motion.div>
