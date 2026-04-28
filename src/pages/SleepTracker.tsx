@@ -120,14 +120,17 @@ export default function SleepTracker() {
     setTimeout(() => setSaved(false), 2000);
     trackEvent("tool_use", { category: "wellness_tracking", metadata: { tool: "sleep", duration_hours: duration, quality } });
 
-    // Persist to Supabase health_logs so wellness score + HealthProfile can see it
+    // Persist to Supabase health_logs so wellness score + HealthProfile can see it.
+    // Bug fix 2026-04-28: was writing column `date` and conflict-target `user_id,date`,
+    // but the schema uses `log_date` with UNIQUE(user_id, log_date). Every sleep
+    // upsert silently 4xx'd which is why Progress always read 0h.
     if (user?.profileId && !user.id?.startsWith("demo_")) {
       supabase.from("health_logs").upsert({
         user_id: user.profileId,
-        date: todayKey(),
+        log_date: todayKey(),
         sleep_hours: duration,
         notes: `Quality: ${quality}/5, Bed: ${bedtime}, Wake: ${wakeTime}`,
-      }, { onConflict: "user_id,date" }).then(({ error }) => {
+      } as any, { onConflict: "user_id,log_date" }).then(({ error }) => {
         if (error && import.meta.env.DEV) console.warn("[sleep] DB sync failed:", error.message);
       });
     }

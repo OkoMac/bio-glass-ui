@@ -181,14 +181,17 @@ export default function WaterTracker() {
       updateStreak(true);
       setStreak(getStreak());
     }
-    // Sync to Supabase health_logs so wellness score can see it
+    // Sync to Supabase water_log so dashboards can read across devices.
+    // Bug fix 2026-04-28: was writing to health_logs.water_glasses (column
+    // doesn't exist) with onConflict user_id,date (constraint doesn't
+    // exist). Every upsert silently 4xx'd. Right home is water_log
+    // (count, date) which the schema actually defines.
     if (user?.profileId && !user.id?.startsWith("demo_") && data.glasses > 0) {
-      supabase.from("health_logs").upsert({
+      supabase.from("water_log" as any).upsert({
         user_id: user.profileId,
         date: dateKey,
-        water_glasses: data.glasses,
-        notes: `Goal: ${data.goal} glasses`,
-      }, { onConflict: "user_id,date" }).then(({ error }) => {
+        count: data.glasses,
+      } as any, { onConflict: "user_id,date" }).then(({ error }) => {
         if (error && import.meta.env.DEV) console.warn("[water] DB sync failed:", error.message);
       });
     }
