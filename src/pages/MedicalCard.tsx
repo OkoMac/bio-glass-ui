@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBookings } from "@/contexts/BookingsContext";
 import { usePageView } from "@/hooks/usePageView";
 import AdBanner from "@/components/AdBanner";
 import {
@@ -46,11 +47,17 @@ function save(data: MedicalData) {
 }
 
 // Editable text field
+// Fixed enums — pickers, not free-form text. Blood Type is the
+// canonical example: free-form invited typos like "A pos" or "+A".
+const BLOOD_TYPES = ["", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "Unknown"];
+
 function Field({
-  label, value, onChange, editing, icon: Icon, placeholder,
+  label, value, onChange, editing, icon: Icon, placeholder, options,
 }: {
   label: string; value: string; onChange: (v: string) => void;
   editing: boolean; icon: any; placeholder?: string;
+  /** When supplied, the editor is a <select> dropdown instead of a free-form input. */
+  options?: string[];
 }) {
   return (
     <div className="flex items-start gap-3">
@@ -60,11 +67,25 @@ function Field({
       <div className="flex-1">
         <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
         {editing ? (
-          <input
-            value={value} onChange={(e) => onChange(e.target.value)}
-            placeholder={placeholder || label}
-            className="w-full bg-transparent border-b border-white/10 text-sm text-foreground outline-none py-1 placeholder:text-white/20"
-          />
+          options ? (
+            <select
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              className="w-full bg-transparent border-b border-white/10 text-sm text-foreground outline-none py-1"
+            >
+              {options.map(opt => (
+                <option key={opt || "__empty"} value={opt} className="bg-obsidian">
+                  {opt || `Select ${label.toLowerCase()}…`}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              value={value} onChange={(e) => onChange(e.target.value)}
+              placeholder={placeholder || label}
+              className="w-full bg-transparent border-b border-white/10 text-sm text-foreground outline-none py-1 placeholder:text-white/20"
+            />
+          )
         ) : (
           <p className="text-sm text-foreground">{value || "Not set"}</p>
         )}
@@ -132,9 +153,21 @@ const MEDICAL_FAQ_DATA = [
 export default function MedicalCard() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { bookings } = useBookings();
   const [data, setData] = useState<MedicalData>(load);
   const [editing, setEditing] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [shareTarget, setShareTarget] = useState<string>("in_person");
+  // Upcoming bookings = future-dated, not cancelled. The share modal
+  // uses these so the user can pick a specific provider as the audience
+  // instead of "share with anyone" being implied.
+  const upcomingBookings = useMemo(() => {
+    const todayStr = new Date().toISOString().split("T")[0];
+    return bookings
+      .filter(b => (b.status === "pending" || b.status === "confirmed") && b.date >= todayStr)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(0, 8);
+  }, [bookings]);
   usePageView();
 
   useEffect(() => { document.title = "Free Digital Medical Card | BION"; }, []);
@@ -209,7 +242,8 @@ export default function MedicalCard() {
 
           <div className="grid grid-cols-2 gap-4">
             <Field label="Blood Type" value={data.bloodType}
-              onChange={(v) => update({ bloodType: v })} editing={editing} icon={Heart} placeholder="e.g. O+" />
+              onChange={(v) => update({ bloodType: v })} editing={editing} icon={Heart}
+              options={BLOOD_TYPES} />
           </div>
         </GlassCard>
 
@@ -274,7 +308,7 @@ export default function MedicalCard() {
           onClick={() => setShowShare(true)}
           className="w-full rounded-2xl gradient-teal text-white font-semibold py-3.5 flex items-center justify-center gap-2"
         >
-          <Share2 className="w-4 h-4" /> Share with Provider
+          <Share2 className="w-4 h-4" /> Show medical summary
         </motion.button>
 
         {/* POPIA notice */}
@@ -311,6 +345,31 @@ export default function MedicalCard() {
                   <X className="w-5 h-5 text-muted-foreground" />
                 </button>
               </div>
+
+              {/* Recipient picker — explicit so 'who am I sharing with'
+                  is answered before any data is shown. Defaults to
+                  in-person QR so the user can read it out at a desk;
+                  upcoming bookings let them target a specific provider
+                  by name. Nothing is transmitted automatically. */}
+              <div className="space-y-1.5">
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Sharing with</p>
+                <select
+                  value={shareTarget}
+                  onChange={(e) => setShareTarget(e.target.value)}
+                  className="w-full glass-1 rounded-xl px-3 py-2 text-sm text-foreground outline-none border border-white/[0.08]"
+                >
+                  <option value="in_person" className="bg-obsidian">In-person provider (show QR / read out)</option>
+                  {upcomingBookings.map(b => (
+                    <option key={b.id} value={`booking:${b.id}`} className="bg-obsidian">
+                      {b.providerName} — {b.date}{b.time ? ` ${b.time}` : ""}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-muted-foreground">
+                  Nothing leaves your device until you press a Share button below.
+                </p>
+              </div>
+
               <div className="space-y-2 text-sm">
                 <p className="text-foreground"><span className="text-muted-foreground">Name:</span> {data.name || "Not set"}</p>
                 <p className="text-foreground"><span className="text-muted-foreground">Blood Type:</span> {data.bloodType || "Not set"}</p>
