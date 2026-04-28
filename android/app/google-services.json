@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "595029125077",
+    "project_id": "bion-fe410",
+    "storage_bucket": "bion-fe410.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:595029125077:android:ce461b217b6416bbe8bf5c",
+        "android_client_info": {
+          "package_name": "co.za.bionhealth.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfpa2usU2o3FkoAOs4F3Ksh7MVsLGREE0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

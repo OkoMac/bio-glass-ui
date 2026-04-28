@@ -32,3 +32,11 @@ dist-ssr
 *.apk
 bun.lock
 bun.lockb
+
+# Firebase service-account keys — NEVER commit. Real keystore lives at
+# ~/Documents/Builds/BION-secrets/firebase/ and the JSON is provisioned to
+# Render env (FCM_SERVICE_ACCOUNT_JSON) for backend push fan-out.
+# google-services.json + GoogleService-Info.plist are NOT secrets and ARE
+# committed (they only contain bundle-id-scoped public identifiers).
+*-firebase-adminsdk-*.json
+fcm-service-account.json

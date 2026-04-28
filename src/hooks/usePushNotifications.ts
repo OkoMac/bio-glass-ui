@@ -74,9 +74,73 @@ export function usePushNotifications(): UsePushNotifications {
   }, [supported]);
 
   const subscribe = useCallback(async (): Promise<boolean> => {
-    if (!supported) return false;
     setLoading(true);
     try {
+      // ── Native path (Capacitor): FCM on Android, APNs on iOS ──
+      // Detected at runtime so the same hook works on web + iOS + Android
+      // without separate code paths in callers. Falls through to the Web
+      // Push branch on plain browsers.
+      try {
+        const { Capacitor } = await import("@capacitor/core");
+        if (Capacitor.isNativePlatform()) {
+          const { PushNotifications } = await import("@capacitor/push-notifications");
+          // Permission + register
+          const permResult = await PushNotifications.requestPermissions();
+          if (permResult.receive !== "granted") {
+            setPermission("denied" as Permission);
+            return false;
+          }
+          setPermission("granted" as Permission);
+
+          // Register returns void; the actual token arrives via the
+          // 'registration' event listener.
+          const tokenPromise = new Promise<string | null>((resolve) => {
+            const timer = setTimeout(() => resolve(null), 15_000);
+            PushNotifications.addListener("registration", (reg) => {
+              clearTimeout(timer);
+              resolve(reg.value);
+            });
+            PushNotifications.addListener("registrationError", () => {
+              clearTimeout(timer);
+              resolve(null);
+            });
+          });
+          await PushNotifications.register();
+          const token = await tokenPromise;
+          if (!token) return false;
+
+          // POST to backend with platform + token. Capacitor on iOS
+          // returns APNs tokens unless Firebase iOS SDK is wired to
+          // exchange them for FCM tokens (CocoaPods step). Either way,
+          // we tag with the platform so the backend dispatches via the
+          // correct transport.
+          const platform = Capacitor.getPlatform() === "ios" ? "apns" : "fcm";
+          const authHeader = await getAuthHeader();
+          if (!authHeader.Authorization) {
+            if (import.meta.env.DEV) console.warn("[push] no auth session — cannot register native token");
+            return false;
+          }
+          const res = await fetch(`${API}/api/notifications/push/subscribe`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", ...authHeader },
+            body: JSON.stringify({
+              nativeToken: token,
+              platform,
+              userAgent: navigator.userAgent,
+            }),
+          });
+          const json = await res.json();
+          if (!json?.ok) return false;
+          setSubscribed(true);
+          return true;
+        }
+      } catch {
+        // Capacitor not available (web bundle on plain browser) — fall
+        // through to Web Push.
+      }
+
+      if (!supported) return false;
+
       // 1. Ask for permission (browser-level)
       let perm = Notification.permission;
       if (perm !== "granted") {
