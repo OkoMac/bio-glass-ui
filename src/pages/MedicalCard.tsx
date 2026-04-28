@@ -94,22 +94,43 @@ function Field({
   );
 }
 
-// Editable list
+// Editable list. When `editing` is false, shows a + Add chip instead
+// of the "None listed" deadend so the user can tap it to start adding
+// without first finding the page-level Edit button (reported
+// 2026-04-28: layout was unfamiliar, no clear way to update).
 function ListSection({
-  label, items, onAdd, onRemove, editing, icon: Icon,
+  label, items, onAdd, onRemove, editing, icon: Icon, onRequestEdit,
 }: {
   label: string; items: string[]; onAdd: (v: string) => void;
   onRemove: (i: number) => void; editing: boolean; icon: any;
+  /** Called when the user taps "+ Add" while the page isn't in edit mode. */
+  onRequestEdit?: () => void;
 }) {
   const [input, setInput] = useState("");
+  const showInlineAdd = !editing && !!onRequestEdit;
   return (
     <div>
       <div className="flex items-center gap-2 mb-2">
         <Icon className="w-4 h-4 text-indigo-400" />
         <span className="text-sm font-semibold text-foreground">{label}</span>
+        {showInlineAdd && (
+          <button
+            onClick={onRequestEdit}
+            className="ml-auto inline-flex items-center gap-1 glass-2 rounded-pill px-2.5 py-0.5 text-[10px] text-teal hover:bg-teal/10 transition-colors"
+            aria-label={`Add ${label.toLowerCase()}`}
+          >
+            <Plus className="w-3 h-3" /> Add
+          </button>
+        )}
       </div>
       {items.length === 0 && !editing && (
-        <p className="text-xs text-muted-foreground ml-6">None listed</p>
+        <button
+          onClick={onRequestEdit}
+          disabled={!onRequestEdit}
+          className="text-xs text-muted-foreground ml-6 hover:text-teal transition-colors disabled:cursor-default"
+        >
+          {onRequestEdit ? `None listed — tap to add` : "None listed"}
+        </button>
       )}
       <div className="flex flex-wrap gap-2 ml-6">
         {items.map((item, i) => (
@@ -259,6 +280,7 @@ export default function MedicalCard() {
         <GlassCard variant="glass-1" className="p-4">
           <ListSection label="Allergies" items={data.allergies} icon={AlertTriangle}
             editing={editing}
+            onRequestEdit={() => setEditing(true)}
             onAdd={(v) => update({ allergies: [...data.allergies, v] })}
             onRemove={(i) => update({ allergies: data.allergies.filter((_, idx) => idx !== i) })}
           />
@@ -268,6 +290,7 @@ export default function MedicalCard() {
         <GlassCard variant="glass-1" className="p-4">
           <ListSection label="Medical Conditions" items={data.conditions} icon={Heart}
             editing={editing}
+            onRequestEdit={() => setEditing(true)}
             onAdd={(v) => update({ conditions: [...data.conditions, v] })}
             onRemove={(i) => update({ conditions: data.conditions.filter((_, idx) => idx !== i) })}
           />
@@ -277,6 +300,7 @@ export default function MedicalCard() {
         <GlassCard variant="glass-1" className="p-4">
           <ListSection label="Current Medications" items={data.medications} icon={Pill}
             editing={editing}
+            onRequestEdit={() => setEditing(true)}
             onAdd={(v) => update({ medications: [...data.medications, v] })}
             onRemove={(i) => update({ medications: data.medications.filter((_, idx) => idx !== i) })}
           />
