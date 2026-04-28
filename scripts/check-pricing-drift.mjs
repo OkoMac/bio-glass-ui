@@ -42,6 +42,12 @@ const SCAN_DIRS = [
   "src/components/NudgePopup.tsx",
   "src/components/BookingSheet.tsx",
   "src/components/DeeperDive.tsx",
+  // QA audit pass-2 follow-up (2026-04-28): subscription.ts had drifted
+  // to R299/R699 ("Basic"/"Pro") while the canonical config was
+  // R499/R999 ("Pro"/"Elite"). Drift checker missed it because this
+  // path wasn't in scope. Now it is.
+  "src/lib/subscription.ts",
+  "src/config/pricing.ts",
 ];
 
 const SKIP_PATTERNS = [/node_modules/, /\.git\//, /dist\//, /build\//];

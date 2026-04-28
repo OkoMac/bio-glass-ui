@@ -220,14 +220,18 @@ export const PROVIDER_TIER_PRICING: Record<ProviderSubscriptionTier, { monthly: 
     yearly: 0,
     description: 'Starter access'
   },
+  // QA audit + drift detector (2026-04-28): values reconciled with the
+  // canonical config in src/config/pricing.ts (mirrored from
+  // backend/src/config/pricing.ts — single source of truth).
+  // Yearly is 12× monthly with 20% off.
   pro: {
-    monthly: 299, // R299/month — BION Basic
-    yearly: 4799, // R4799/year (20% discount)
+    monthly: 499,                // R499/month — Pro tier
+    yearly: Math.round(499 * 12 * 0.80), // R4790/year (20% discount)
     description: 'Full platform access'
   },
   elite: {
-    monthly: 699, // R699/month — BION Pro
-    yearly: 9599, // R9599/year (20% discount)
+    monthly: 999,                // R999/month — Elite tier
+    yearly: Math.round(999 * 12 * 0.80), // R9590/year (20% discount)
     description: 'Enterprise features + white-label'
   },
 };
