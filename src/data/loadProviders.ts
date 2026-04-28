@@ -21,9 +21,15 @@ export const providers: Provider[] = Array.isArray(rawData.providers)
   ? rawData.providers 
   : [];
 
-// Helper to categorize providers
-export function categorize(service: string): string {
-  const s = service.toLowerCase();
+// Helper to categorize providers. Now optionally takes the provider
+// name so pet-grooming / kennel businesses with `service: "Beauty"`
+// (e.g. Paw Buddies Mobile Grooming, reported 2026-04-28) don't land
+// under human beauticians. Pet check runs FIRST so a "Beauty" service
+// label can't shadow it.
+export function categorize(service: string, name?: string): string {
+  const s = (service ?? "").toLowerCase();
+  const haystack = `${(name ?? "").toLowerCase()} ${s}`;
+  if (/\bpaw\b|\bpet[s]?\b|\b(dog|cat|kitten|puppy)\b|kennel|cattery|grooming.*pet|pet.*grooming|mobile grooming|pet salon/i.test(haystack)) return "veterinary";
   if (/personal training|gym|fitness center|fitness training|fitness assessment|cardio|strength/i.test(s)) return "fitness";
   if (/group fitness|zumba|spin|boxing|martial arts|class/i.test(s)) return "fitness";
   if (/yoga|pilates|meditation|flexibility/i.test(s)) return "yoga";

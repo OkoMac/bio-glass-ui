@@ -33,8 +33,12 @@ interface WebSearchResult {
 }
 
 // ── Map scraped providers to categories ─────────────
-function categorize(service: string): string {
-  const s = service.toLowerCase();
+function categorize(service: string, name?: string): string {
+  const s = (service ?? "").toLowerCase();
+  const haystack = `${(name ?? "").toLowerCase()} ${s}`;
+  // Pet / grooming check FIRST so a pet groomer with service:"Beauty"
+  // doesn't match the human-beauty regex below (Paw Buddies bug, 2026-04-28).
+  if (/\bpaw\b|\bpet[s]?\b|\b(dog|cat|kitten|puppy)\b|kennel|cattery|grooming.*pet|pet.*grooming|mobile grooming|pet salon/i.test(haystack)) return "veterinary";
   if (/personal training|gym|fitness center|fitness training|fitness assessment|cardio|strength/i.test(s)) return "fitness";
   if (/group fitness|zumba|spin|boxing|martial arts|class/i.test(s)) return "fitness";
   if (/yoga|pilates|meditation|flexibility/i.test(s)) return "yoga";
@@ -64,7 +68,7 @@ const ALL_PROVIDERS = mergedProviders
     id: p.id,
     name: p.name,
     specialty: p.service,
-    category: p.enhanced_category || p.category || categorize(p.service),
+    category: p.enhanced_category || p.category || categorize(p.service, p.name),
     rating: typeof p.rating === "string" ? parseFloat(p.rating) || 0 : p.rating,
     reviews: p.reviewCount || p.review_count || 0,
     location: p.location,

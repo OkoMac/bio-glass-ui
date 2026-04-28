@@ -15,8 +15,12 @@ import {
 import realData from "@/data/bion_pretoria_data.json";
 
 // ── Build provider list from ALL real scraped data ──
-function categorize(s: string): string {
-  const l = s.toLowerCase();
+function categorize(s: string, name?: string): string {
+  const l = (s ?? "").toLowerCase();
+  const haystack = `${(name ?? "").toLowerCase()} ${l}`;
+  // Pet / grooming check FIRST — pet groomers with service:"Beauty"
+  // were landing under human beauticians (Paw Buddies, 2026-04-28).
+  if (/\bpaw\b|\bpet[s]?\b|\b(dog|cat|kitten|puppy)\b|kennel|cattery|grooming.*pet|pet.*grooming|mobile grooming|pet salon/i.test(haystack)) return "veterinary";
   if (/hair|barber|stylist|color|bridal/.test(l)) return "hair";
   if (/nail|manicur|pedicur|gel nail|sculpture/.test(l)) return "nails";
   if (/skin|facial|laser|aesthetic|contour|pmu/.test(l)) return "skincare";
@@ -53,7 +57,7 @@ const ALL_PROVIDERS = realData.providers.map((p: any) => ({
   reviews: p.reviewCount ?? 0,
   price: p.price ?? "Price on request",
   availability: p.availability ?? "",
-  category: categorize(p.service),
+  category: categorize(p.service, p.name),
   image: (p as any).imageUrl || getProviderImage(p.id, p.name),
   hasLogo: !!(p as any).imageUrl || hasCustomImage(p.id),
   qualifications: p.qualifications ?? [],

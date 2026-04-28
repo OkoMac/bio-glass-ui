@@ -714,7 +714,17 @@ export default function Routines() {
                   <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5 block">Type</label>
                   <div className="flex gap-2 flex-wrap">
                     {(["workout", "rehab", "meal", "skincare", "medication", "wellness", "beauty", "custom"] as const).map(t => (
-                      <button key={t} onClick={() => setNewRoutine(prev => ({ ...prev, type: t }))}
+                      <button key={t} onClick={() => {
+                        // Reset the customised exercises list when the
+                        // user switches type — otherwise the previous
+                        // type's exercises stay rendered under the new
+                        // label (reported 2026-04-28: switching to Meal
+                        // Plan still showed Squats / Bench Press / etc.).
+                        // Switching back into the same type lets the
+                        // EXERCISE_TEMPLATES default re-render fresh.
+                        if (t !== newRoutine.type) setCustomExercises([]);
+                        setNewRoutine(prev => ({ ...prev, type: t }));
+                      }}
                         className={`px-3 py-1.5 rounded-pill text-xs font-medium border flex items-center gap-1.5 transition-all ${
                           newRoutine.type === t
                             ? "border-teal/40 bg-teal/10 text-teal"
@@ -791,7 +801,10 @@ export default function Routines() {
                           onKeyDown={e => e.key === "Enter" && addCustomExercise()}
                           className="w-20 px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/08" />
                         <button onClick={addCustomExercise}
-                          className="w-9 h-9 rounded-xl bg-teal/20 text-teal flex items-center justify-center shrink-0">
+                          disabled={!newExName.trim()}
+                          aria-label={newExName.trim() ? "Add exercise" : "Type an exercise name first"}
+                          title={newExName.trim() ? "Add exercise" : "Type an exercise name first"}
+                          className="w-9 h-9 rounded-xl bg-teal/20 text-teal flex items-center justify-center shrink-0 disabled:opacity-40 disabled:cursor-not-allowed">
                           <Plus className="w-4 h-4" />
                         </button>
                       </div>
