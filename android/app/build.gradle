@@ -1,5 +1,15 @@
 apply plugin: 'com.android.application'
 
+// Load release-signing config from android/keystore.properties (gitignored).
+// Absent on CI/dev machines that don't sign releases — release builds will
+// fail explicitly there until the file is provisioned, which is the safe
+// default. Debug builds use the auto-generated debug keystore as usual.
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "co.za.bionhealth.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -16,10 +26,25 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // Only attach signing config when keystore.properties is present;
+            // otherwise Gradle would fail at config time on CI without secrets.
+            if (keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }

@@ -1,12 +1,12 @@
 [
   {
-    "_comment": "PLACEHOLDER — replace SHA256 with your Android signing key fingerprint. Generate via: keytool -list -v -keystore <your-keystore> -alias <your-alias>. Required for Android App Links autoVerify=true (manifest line 26) to work.",
+    "_comment": "Upload key fingerprint (the one this device signs APKs/AABs with before upload). Once enrolled in Play App Signing, ALSO add the Google-managed app-signing key fingerprint (Play Console → Setup → App integrity → App signing) as a second entry in this array — App Links must verify against whichever key was used for the install.",
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
       "package_name": "co.za.bionhealth.app",
       "sha256_cert_fingerprints": [
-        "REPLACE_WITH_RELEASE_SIGNING_KEY_SHA256_FINGERPRINT"
+        "8C:75:CC:C0:52:E3:85:03:E8:02:52:C1:55:16:85:D1:97:CA:01:E9:DD:F8:DD:84:88:DD:AA:7E:C0:24:C5:98"
       ]
     }
   }
