@@ -12,7 +12,7 @@ import realData from "@/data/bion_pretoria_data.json";
 import {
   ArrowLeft, ChevronRight, CheckCircle, Circle, Plus, X,
   Dumbbell, Apple, Stethoscope, Play, Eye, EyeOff, Shield, Pill, Heart,
-  Clock, Calendar, Flame, ChevronDown, Trash2, Share2
+  Clock, Calendar, Flame, ChevronDown, Trash2, Share2, Camera, Sparkles, Loader2,
 } from "lucide-react";
 
 /* ── Types ─────────────────────────────────────────── */
@@ -385,6 +385,13 @@ export default function Routines() {
   const [showCreate, setShowCreate] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "self" | "provider">("all");
+  // Import-routine state — paste text or upload a photo of an existing
+  // programme; B_ extracts items into customExercises so the user
+  // doesn't have to type every line. Reported 2026-04-28: 'Should you
+  // be able to upload routine.'
+  const [showImport, setShowImport] = useState(false);
+  const [importText, setImportText] = useState("");
+  const [importing, setImporting] = useState(false);
 
   // New routine form
   const [newRoutine, setNewRoutine] = useState({
@@ -446,6 +453,61 @@ export default function Routines() {
     setCustomExercises(prev => [...prev, { name: newExName.trim(), sets: newExSets.trim() || "—", done: false }]);
     setNewExName("");
     setNewExSets("");
+  };
+
+  // Send pasted text or a photo to /api/routines/extract; on success
+  // append the extracted items into customExercises so the user can
+  // review + edit before saving the routine. Best-effort; failures
+  // don't break the dialog.
+  const runImport = async (opts: { text?: string; imageDataUrl?: string }) => {
+    setImporting(true);
+    try {
+      const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        const { toast } = await import("sonner");
+        toast.error("Sign in to import a routine");
+        return;
+      }
+      const res = await fetch(`${API}/api/routines/extract`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ ...opts, routineType: newRoutine.type }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error ?? "Extraction failed");
+      const items: Array<{ name: string; sets: string }> = json.data?.items ?? [];
+      if (items.length === 0) {
+        const { toast } = await import("sonner");
+        toast.error("Couldn't find any items to import. Try cleaner text or a sharper photo.");
+        return;
+      }
+      setCustomExercises(prev => [
+        ...prev,
+        ...items.map(i => ({ name: i.name, sets: i.sets, done: false })),
+      ]);
+      const { toast } = await import("sonner");
+      toast.success(`Imported ${items.length} item${items.length === 1 ? "" : "s"}. Review before saving.`);
+      setShowImport(false);
+      setImportText("");
+    } catch (err: any) {
+      const { toast } = await import("sonner");
+      toast.error(err?.message ?? "Import failed");
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const importPhoto = async (file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    const dataUrl: string = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(new Error("Could not read image"));
+      reader.readAsDataURL(file);
+    });
+    await runImport({ imageDataUrl: dataUrl });
   };
 
   const filtered = routines.filter(r =>
@@ -693,10 +755,18 @@ export default function Routines() {
 
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-foreground">Create Routine</h3>
-                <button onClick={() => setShowCreate(false)}
-                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
-                  <X className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowImport(true)}
+                    className="text-[10px] px-2.5 py-1 bg-indigo/15 text-indigo rounded-pill border border-indigo/30 flex items-center gap-1.5 hover:bg-indigo/25 transition-colors"
+                  >
+                    <Sparkles className="w-3 h-3" /> Import
+                  </button>
+                  <button onClick={() => setShowCreate(false)}
+                    className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -825,6 +895,89 @@ export default function Routines() {
                 className="w-full mt-5 py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 transition-opacity">
                 Create Routine
               </motion.button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Import-routine sub-sheet — paste text or scan a photo of an
+          existing programme and let B_ extract the items into the
+          customExercises list of the parent Create Routine modal.
+          Reported 2026-04-28: typing every line was the friction. */}
+      <AnimatePresence>
+        {showImport && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => !importing && setShowImport(false)}
+              className="fixed inset-0 bg-obsidian/70 z-[80]" />
+            <motion.div initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "100%", opacity: 0 }}
+              transition={{ type: "spring", damping: 28, stiffness: 280 }}
+              className="fixed bottom-0 left-0 right-0 z-[90] rounded-t-[2rem] p-5 max-h-[85vh] overflow-y-auto"
+              style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-indigo" />
+                  <h3 className="text-lg font-bold text-foreground">Import routine</h3>
+                </div>
+                <button onClick={() => !importing && setShowImport(false)}
+                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground mb-4">
+                Paste your programme below — or snap a photo of a written plan — and B_ will fill the exercises for you. You can edit each row before saving.
+              </p>
+
+              <div className="flex gap-2 mb-3">
+                <label className="flex-1 cursor-pointer rounded-pill px-3 py-2.5 text-xs font-semibold gradient-indigo text-primary-foreground flex items-center justify-center gap-1.5 shadow-cta">
+                  {importing ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Reading…</>
+                  ) : (
+                    <><Camera className="w-4 h-4" /> Scan a photo</>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    disabled={importing}
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) importPhoto(file);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+              </div>
+
+              <textarea
+                value={importText}
+                onChange={(e) => setImportText(e.target.value)}
+                rows={8}
+                disabled={importing}
+                placeholder={`Paste your programme. Examples:\n\nWarm-up 5 min\nSquats 4×12\nBench Press 4×10\n…\n\nor for meals:\nBreakfast: oats + berries — 350 kcal\nLunch: chicken + rice — 500 kcal`}
+                className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] resize-none disabled:opacity-50"
+              />
+
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={() => !importing && setShowImport(false)}
+                  disabled={importing}
+                  className="flex-1 rounded-pill py-2.5 text-xs font-semibold glass-1 text-muted-foreground"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => runImport({ text: importText.trim() })}
+                  disabled={importing || !importText.trim()}
+                  className="flex-[2] rounded-pill py-2.5 text-xs font-semibold gradient-indigo text-primary-foreground disabled:opacity-40"
+                >
+                  {importing ? "Extracting…" : "Extract from text"}
+                </button>
+              </div>
+              <p className="text-[10px] text-muted-foreground text-center mt-2">
+                B_ runs gpt-4o-mini · stays inside your account
+              </p>
             </motion.div>
           </>
         )}
