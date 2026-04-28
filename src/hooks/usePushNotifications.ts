@@ -29,12 +29,22 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 }
 
 function isSupported(): boolean {
+  if (typeof window === "undefined") return false;
+  // Capacitor native (iOS / Android) — @capacitor/push-notifications
+  // plugin handles delivery via APNs/FCM. The web-only checks below
+  // would all fail on native, which would hide EnablePushCard etc. and
+  // mean native users never get prompted.
+  if ((window as any).Capacitor?.isNativePlatform?.()) return true;
+  // Web Push path
   return (
-    typeof window !== "undefined" &&
     "serviceWorker" in navigator &&
     "PushManager" in window &&
     "Notification" in window
   );
+}
+
+function isNativePlatform(): boolean {
+  return typeof window !== "undefined" && !!(window as any).Capacitor?.isNativePlatform?.();
 }
 
 async function getAuthHeader(): Promise<Record<string, string>> {
@@ -56,16 +66,44 @@ async function getAuthHeader(): Promise<Record<string, string>> {
  */
 export function usePushNotifications(): UsePushNotifications {
   const [supported] = useState<boolean>(() => isSupported());
-  const [permission, setPermission] = useState<Permission>(() =>
-    isSupported() ? Notification.permission : "unsupported",
-  );
+  const [permission, setPermission] = useState<Permission>(() => {
+    if (!isSupported()) return "unsupported";
+    // Native: actual permission state is async (Capacitor plugin); start as
+    // 'default' so the EnablePushCard renders the prompt and we resolve
+    // when the user taps it.
+    if (isNativePlatform()) return "default";
+    return Notification.permission;
+  });
   const [subscribed, setSubscribed] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // On mount, check whether this browser already has a live subscription.
+  // On mount, check whether this device already has a live subscription.
+  // Web: getSubscription() from the ServiceWorker registration.
+  // Native: Capacitor PushNotifications doesn't expose a "is subscribed"
+  // query directly — we proxy by checking permission state. If granted,
+  // we assume the registration event fired previously and the token is
+  // already with the backend (idempotent upsert handles re-registration).
   useEffect(() => {
     if (!supported) return;
     let cancelled = false;
+
+    if (isNativePlatform()) {
+      (async () => {
+        try {
+          const { PushNotifications } = await import("@capacitor/push-notifications");
+          const status = await PushNotifications.checkPermissions();
+          if (cancelled) return;
+          if (status.receive === "granted") {
+            setPermission("granted");
+            setSubscribed(true);
+          } else if (status.receive === "denied") {
+            setPermission("denied");
+          }
+        } catch { /* plugin unavailable in this build — leave as default */ }
+      })();
+      return () => { cancelled = true; };
+    }
+
     navigator.serviceWorker.ready
       .then((reg) => reg.pushManager.getSubscription())
       .then((sub) => { if (!cancelled) setSubscribed(!!sub); })
