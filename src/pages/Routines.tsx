@@ -381,7 +381,32 @@ export default function Routines() {
 
   const [expanded, setExpanded] = useState<string | null>(routines[0]?.id ?? null);
   const [checked, setChecked] = useState<Record<string, boolean>>({});
-  const [activeSession, setActiveSession] = useState<string | null>(null);
+  // Active workout session — `startedAt` is the unix-ms when the user
+  // tapped Start Session. The button below shows live elapsed time and
+  // toggles to "End" until the user taps again. Persisted to localStorage
+  // so a refresh mid-session doesn't lose the timer.
+  type ActiveSession = { routineId: string; startedAt: number };
+  const [activeSession, setActiveSession] = useState<ActiveSession | null>(() => {
+    try {
+      const raw = localStorage.getItem("bion_routine_active_session");
+      return raw ? JSON.parse(raw) as ActiveSession : null;
+    } catch { return null; }
+  });
+  // Force re-render once a second while a session is running, so the
+  // elapsed clock on the button ticks. We don't put elapsed in state
+  // because that thrashes the whole component tree — cheaper to nudge.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (!activeSession) return;
+    const id = setInterval(() => setTick(n => n + 1), 1000);
+    return () => clearInterval(id);
+  }, [activeSession]);
+  useEffect(() => {
+    try {
+      if (activeSession) localStorage.setItem("bion_routine_active_session", JSON.stringify(activeSession));
+      else localStorage.removeItem("bion_routine_active_session");
+    } catch { /* */ }
+  }, [activeSession]);
   const [showCreate, setShowCreate] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "self" | "provider">("all");
@@ -425,6 +450,45 @@ export default function Routines() {
         : [...r.sharedWith, providerId];
       return { ...r, sharedWith: shared };
     }));
+  };
+
+  const formatElapsed = (ms: number): string => {
+    const sec = Math.max(0, Math.floor(ms / 1000));
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    if (h > 0) return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
+
+  const toggleSession = (routineId: string) => {
+    if (activeSession?.routineId === routineId) {
+      // End: log the session locally so the user has a history. Backend
+      // sync can layer in later via a routine_sessions table; for now
+      // localStorage is enough to prove time was tracked.
+      const endedAt = Date.now();
+      const durationSec = Math.round((endedAt - activeSession.startedAt) / 1000);
+      try {
+        const raw = localStorage.getItem("bion_routine_sessions");
+        const log = raw ? JSON.parse(raw) as Array<any> : [];
+        log.push({
+          routineId,
+          startedAt: activeSession.startedAt,
+          endedAt,
+          durationSec,
+          date: new Date(activeSession.startedAt).toISOString().slice(0, 10),
+        });
+        localStorage.setItem("bion_routine_sessions", JSON.stringify(log.slice(-500)));
+      } catch { /* */ }
+      setActiveSession(null);
+    } else if (activeSession) {
+      // Another session already running — refuse rather than silently
+      // dropping its time. User has to end it first.
+      const elapsed = formatElapsed(Date.now() - activeSession.startedAt);
+      alert(`Another routine session is running (${elapsed}). End it before starting a new one.`);
+    } else {
+      setActiveSession({ routineId, startedAt: Date.now() });
+    }
   };
 
   const handleCreateRoutine = () => {
@@ -679,15 +743,29 @@ export default function Routines() {
 
                         {/* Action buttons */}
                         <div className="flex gap-2 mt-3 pt-2 border-t border-white/5">
-                          {r.type === "workout" && (
-                            <motion.button whileTap={{ scale: 0.97 }}
-                              onClick={() => { setActiveSession(r.id); setTimeout(() => setActiveSession(null), 2000); }}
-                              className={`flex-1 rounded-pill py-2 text-xs font-semibold flex items-center justify-center gap-1.5 ${
-                                activeSession === r.id ? "glass-accent-teal text-teal" : "gradient-teal text-obsidian"
-                              }`}>
-                              {activeSession === r.id ? <><CheckCircle className="w-3.5 h-3.5" /> Started!</> : <><Play className="w-3.5 h-3.5" /> Start Session</>}
-                            </motion.button>
-                          )}
+                          {r.type === "workout" && (() => {
+                            const isThisActive  = activeSession?.routineId === r.id;
+                            const isOtherActive = activeSession && !isThisActive;
+                            const elapsedMs     = isThisActive ? Date.now() - activeSession.startedAt : 0;
+                            return (
+                              <motion.button whileTap={{ scale: 0.97 }}
+                                onClick={() => toggleSession(r.id)}
+                                disabled={isOtherActive ?? false}
+                                className={`flex-1 rounded-pill py-2 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors ${
+                                  isThisActive
+                                    ? "glass-accent-teal text-teal border border-teal/40"
+                                    : isOtherActive
+                                      ? "glass-1 text-muted-foreground opacity-60"
+                                      : "gradient-teal text-obsidian"
+                                }`}>
+                                {isThisActive
+                                  ? <><span className="w-1.5 h-1.5 rounded-full bg-teal animate-pulse" /> End · {formatElapsed(elapsedMs)}</>
+                                  : isOtherActive
+                                    ? <>Another session running</>
+                                    : <><Play className="w-3.5 h-3.5" /> Start Session</>}
+                              </motion.button>
+                            );
+                          })()}
                           <button onClick={() => setShowPrivacy(showPrivacy === r.id ? null : r.id)}
                             className="px-3 py-2 rounded-pill text-xs glass-1 text-muted-foreground flex items-center gap-1.5 hover:text-foreground transition-colors">
                             <Shield className="w-3 h-3" /> Privacy
