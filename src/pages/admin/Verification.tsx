@@ -14,6 +14,31 @@ ArrowLeft, } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
+/** QA audit pass-2 A2-4 (2026-04-28): fire-and-forget audit log write
+ *  for KYC decisions (doc verify / reject / provider auto-promote).
+ *  Posts to the admin-token-gated POST /api/admin/audit-log endpoint.
+ *  Best-effort — a logging failure shouldn't block the admin's action,
+ *  but we surface in dev console so it's visible. */
+async function logAuditAction(
+  action: string,
+  targetType: string,
+  targetId: string,
+  details: Record<string, any>,
+  adminUserId?: string | null,
+): Promise<void> {
+  try {
+    const adminToken = localStorage.getItem("bion_admin_token") ?? "";
+    if (!adminToken) return; // no token → nothing we can do (also blocks dev)
+    await fetch(`${API_URL}/api/admin/audit-log`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Admin-Token": adminToken },
+      body: JSON.stringify({ admin_user_id: adminUserId ?? "system", action, target_type: targetType, target_id: targetId, details }),
+    });
+  } catch (err: any) {
+    if (import.meta.env.DEV) console.warn("[admin verification] audit log failed:", err?.message);
+  }
+}
+
 interface PendingDoc {
   id: string;
   provider_id: string;
@@ -203,6 +228,15 @@ export default function AdminVerification() {
           : d
       ));
 
+      // QA audit pass-2 A2-4: log the verification decision.
+      logAuditAction(
+        "provider_document_verified",
+        "provider_document",
+        doc.id,
+        { provider_id: doc.provider_id, doc_type: doc.doc_type, file_name: doc.file_name },
+        user?.id ?? null,
+      );
+
       // Promote the provider once all required docs are verified.
       await maybePromoteProvider(doc.provider_id);
     } catch (err: any) {
@@ -241,6 +275,21 @@ export default function AdminVerification() {
           ? { ...d, status: "rejected", reviewed_at: new Date().toISOString(), notes: rejectNotes || "Document rejected" }
           : d
       ));
+
+      // QA audit pass-2 A2-4: log the rejection decision (with reason).
+      logAuditAction(
+        "provider_document_rejected",
+        "provider_document",
+        rejectModal.id,
+        {
+          provider_id: rejectModal.provider_id,
+          doc_type: rejectModal.doc_type,
+          file_name: rejectModal.file_name,
+          reason: rejectNotes || "Document rejected — please re-upload",
+        },
+        user?.id ?? null,
+      );
+
       setRejectModal(null);
       setRejectNotes("");
     } catch (err: any) {
