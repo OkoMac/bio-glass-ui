@@ -6,6 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCalendarSync } from "@/hooks/useCalendarSync";
+import { useProviderData } from "@/data/useProviderData";
 import {
   ArrowLeft, ChevronLeft, ChevronRight, Plus, X, Calendar,
   Dumbbell, Apple, Pill, Heart, Stethoscope, Sparkles, Eye,
@@ -244,6 +245,24 @@ export default function BionCalendar() {
   const [showAdd, setShowAdd] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<EventCategory | "all">("all");
   const [newEvent, setNewEvent] = useState<Partial<CalendarEvent>>({ category: "fitness", date: fmt(today) });
+  // Provider typeahead — resolves real BION providers as the user types
+  // in the Provider field. Free-form is still allowed (user might book
+  // a provider not on BION yet); picking from the list just fills the
+  // name verbatim. Lazy-loaded so the calendar doesn't pull the 3MB
+  // JHB JSON until the picker is opened.
+  const [providerPickerOpen, setProviderPickerOpen] = useState(false);
+  const { providers: allProviders } = useProviderData(showAdd ? "all" : "pta");
+  const providerSuggestions = useMemo(() => {
+    const q = (newEvent.provider ?? "").trim().toLowerCase();
+    if (!q || q.length < 2) return [];
+    return allProviders
+      .filter(p =>
+        p.name?.toLowerCase().includes(q) ||
+        p.service?.toLowerCase().includes(q) ||
+        p.location?.toLowerCase().includes(q),
+      )
+      .slice(0, 6);
+  }, [newEvent.provider, allProviders]);
 
   const monthDays = getMonthDays(currentYear, currentMonth);
   const firstDayOfWeek = monthDays[0].getDay();
@@ -307,7 +326,17 @@ export default function BionCalendar() {
     setShowAdd(false);
   };
 
-  const deleteEvent = (id: string) => syncDeleteEvent(id);
+  // Confirm before deleting — the X button is small and easily mis-tapped
+  // (user reported 2026-04-28 that an accidental tap silently removed
+  // an entry). Skip the confirm for events the user has already toggled
+  // to completed since those are explicitly logged-and-done.
+  const deleteEvent = (id: string) => {
+    const ev = events.find(e => e.id === id);
+    const label = ev?.title ? `"${ev.title}"` : "this entry";
+    const ok = window.confirm(`Delete ${label}? This can't be undone.`);
+    if (!ok) return;
+    syncDeleteEvent(id);
+  };
 
   const prevMonth = () => {
     if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); }
@@ -557,11 +586,31 @@ export default function BionCalendar() {
                       placeholder="e.g. 60 min"
                       className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/08" />
                   </div>
-                  <div>
+                  <div className="relative">
                     <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Provider</label>
-                    <input value={newEvent.provider ?? ""} onChange={e => setNewEvent(p => ({ ...p, provider: e.target.value }))}
-                      placeholder="Optional"
-                      className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/08" />
+                    <input
+                      value={newEvent.provider ?? ""}
+                      onChange={e => { setNewEvent(p => ({ ...p, provider: e.target.value })); setProviderPickerOpen(true); }}
+                      onFocus={() => setProviderPickerOpen(true)}
+                      onBlur={() => setTimeout(() => setProviderPickerOpen(false), 150)}
+                      placeholder="Search BION providers (optional)"
+                      className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/08"
+                    />
+                    {providerPickerOpen && providerSuggestions.length > 0 && (
+                      <div className="absolute left-0 right-0 mt-1 z-20 glass-2 rounded-xl border border-white/[0.08] overflow-hidden shadow-card max-h-64 overflow-y-auto">
+                        {providerSuggestions.map(p => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onMouseDown={(e) => { e.preventDefault(); setNewEvent(prev => ({ ...prev, provider: p.name })); setProviderPickerOpen(false); }}
+                            className="w-full text-left px-3 py-2 hover:bg-white/[0.04] transition-colors border-b border-white/[0.04] last:border-0"
+                          >
+                            <p className="text-sm text-foreground truncate">{p.name}</p>
+                            <p className="text-[10px] text-muted-foreground truncate">{p.service} · {p.location}</p>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div>
