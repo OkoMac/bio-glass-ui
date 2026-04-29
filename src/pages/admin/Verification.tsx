@@ -6,6 +6,8 @@ import AdminNav from "@/components/AdminNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { AdminMfaProvider, useAdminMfa } from "@/hooks/useAdminMfa";
+import { toast } from "sonner";
 import {
   CheckCircle, XCircle, Clock, Loader2, FileText, User,
   ExternalLink, Filter, AlertCircle, Award, CreditCard, Shield, Building2,
@@ -71,8 +73,79 @@ const STATUS_CONFIG = {
 };
 
 export default function AdminVerification() {
+  return (
+    <AdminMfaProvider>
+      <AdminVerificationInner />
+    </AdminMfaProvider>
+  );
+}
+
+function AdminVerificationInner() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { mfaProtectedFetch } = useAdminMfa();
+  const [manualOpen, setManualOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Array<any>>([]);
+  const [searching, setSearching] = useState(false);
+  const [verifyTarget, setVerifyTarget] = useState<any | null>(null);
+  const [verifyReason, setVerifyReason] = useState("");
+  const [verifying, setVerifying] = useState(false);
+
+  const buildHeaders = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    return {
+      "Content-Type": "application/json",
+      ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+    } as Record<string, string>;
+  };
+
+  const runProviderSearch = async () => {
+    if (searchQuery.trim().length < 2) return;
+    setSearching(true);
+    try {
+      const r = await fetch(`${API_URL}/api/admin/providers/search`, {
+        method: "POST",
+        headers: await buildHeaders(),
+        body: JSON.stringify({ q: searchQuery.trim() }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j?.error ?? `Search failed (${r.status})`);
+      setSearchResults(j.results ?? []);
+    } catch (err: any) {
+      toast.error(err?.message ?? "Could not search providers");
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const submitManualVerify = async () => {
+    if (!verifyTarget) return;
+    if (verifyReason.trim().length < 10) {
+      toast.error("Reason must be at least 10 characters — explain why we're bypassing the doc flow.");
+      return;
+    }
+    setVerifying(true);
+    try {
+      const r = await mfaProtectedFetch(`${API_URL}/api/admin/providers/verify-manual`, {
+        method: "POST",
+        headers: await buildHeaders(),
+        body: JSON.stringify({ profileId: verifyTarget.id, reason: verifyReason.trim() }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j?.error ?? `Verify failed (${r.status})`);
+      toast.success(`${verifyTarget.full_name ?? "Provider"} verified.`);
+      setVerifyTarget(null);
+      setVerifyReason("");
+      // Refresh the search list so the verified state updates
+      void runProviderSearch();
+    } catch (err: any) {
+      toast.error(err?.message ?? "Could not verify provider");
+    } finally {
+      setVerifying(false);
+    }
+  };
+
   const [docs, setDocs] = useState<PendingDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -328,11 +401,134 @@ export default function AdminVerification() {
             <h1 className="text-2xl font-bold text-foreground">Provider Verification</h1>
             <p className="text-xs text-muted-foreground">Review and approve KYC documents</p>
           </div>
-          <button onClick={loadDocs}
-            className="text-xs text-teal font-medium px-3 py-1.5 rounded-pill border border-teal/20 bg-teal/5 hover:bg-teal/10 transition-colors">
-            Refresh
-          </button>
+          <div className="flex gap-2">
+            <button onClick={() => setManualOpen(v => !v)}
+              className="text-xs text-indigo font-medium px-3 py-1.5 rounded-pill border border-indigo/20 bg-indigo/5 hover:bg-indigo/10 transition-colors flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              Verify Manually
+            </button>
+            <button onClick={loadDocs}
+              className="text-xs text-teal font-medium px-3 py-1.5 rounded-pill border border-teal/20 bg-teal/5 hover:bg-teal/10 transition-colors">
+              Refresh
+            </button>
+          </div>
         </div>
+
+        {/* Manual-verify panel — collapsed by default. Search providers
+            by name / email / phone, pick one, give a reason, MFA
+            challenge fires, profile is flipped to verified. */}
+        <AnimatePresence>
+          {manualOpen && (
+            <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
+              <GlassCard className="p-4 border border-indigo/20">
+                <div className="flex items-start gap-3 mb-3">
+                  <Sparkles className="w-4 h-4 text-indigo mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-foreground">Manual Verification (override)</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Bypass the doc-submission flow when a provider has been vetted off-platform.
+                      Requires admin MFA + a written reason for audit.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 mb-3">
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                    <input
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") void runProviderSearch(); }}
+                      placeholder="Name, email, or phone (+27...)"
+                      className="w-full pl-9 pr-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-indigo/40" />
+                  </div>
+                  <button onClick={() => void runProviderSearch()} disabled={searching || searchQuery.trim().length < 2}
+                    className="px-4 py-2 rounded-xl text-xs font-semibold gradient-indigo text-primary-foreground disabled:opacity-40">
+                    {searching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Search"}
+                  </button>
+                </div>
+
+                {searchResults.length > 0 && (
+                  <div className="space-y-2 max-h-80 overflow-y-auto">
+                    {searchResults.map((row: any) => {
+                      const verified = row.identity_verified === true ||
+                                       row.provider_profile?.provider_status === "verified";
+                      return (
+                        <div key={row.id}
+                          className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5 mb-0.5">
+                              <p className="text-sm font-medium text-foreground truncate">{row.full_name ?? "(no name)"}</p>
+                              {verified && <span className="text-[9px] px-1.5 py-0.5 rounded-pill bg-teal/15 text-teal font-semibold uppercase">Verified</span>}
+                              {row.primary_role && <span className="text-[9px] px-1.5 py-0.5 rounded-pill bg-white/[0.05] text-muted-foreground">{row.primary_role}</span>}
+                            </div>
+                            <p className="text-[11px] text-muted-foreground truncate">
+                              {row.email ?? "—"} · {row.phone ?? "no phone"} · {row.city ?? "no city"}
+                            </p>
+                            {row.provider_profile?.specialty && (
+                              <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{row.provider_profile.specialty}</p>
+                            )}
+                          </div>
+                          {!verified && (
+                            <button onClick={() => { setVerifyTarget(row); setVerifyReason(""); }}
+                              className="shrink-0 px-3 py-1.5 rounded-pill text-[11px] font-semibold gradient-teal text-obsidian">
+                              Verify
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </GlassCard>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Verify confirmation modal */}
+        <AnimatePresence>
+          {verifyTarget && (
+            <>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                onClick={() => !verifying && setVerifyTarget(null)}
+                className="fixed inset-0 bg-obsidian/70 z-[100]" />
+              <motion.div
+                initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 12 }}
+                className="fixed inset-0 z-[110] flex items-center justify-center p-4 pointer-events-none">
+                <div className="pointer-events-auto w-full max-w-md rounded-3xl p-5"
+                  style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Sparkles className="w-4 h-4 text-indigo" />
+                    <h3 className="text-base font-bold text-foreground">Manually verify {verifyTarget.full_name}?</h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    This bypasses the standard doc-submission flow. Provide a reason for the audit log
+                    (e.g. "Regulator confirmed via phone", "Known business — verified via in-person meeting").
+                  </p>
+                  <textarea
+                    value={verifyReason}
+                    onChange={e => setVerifyReason(e.target.value)}
+                    placeholder="Why are we bypassing the doc flow?"
+                    rows={3}
+                    className="w-full px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-indigo/40 mb-3" />
+                  <p className="text-[10px] text-muted-foreground mb-3">
+                    Tap Verify → admin MFA challenge fires → profile is marked verified + provider is emailed.
+                  </p>
+                  <div className="flex gap-2">
+                    <button onClick={() => setVerifyTarget(null)} disabled={verifying}
+                      className="flex-1 py-2 rounded-pill text-xs font-semibold glass-1 text-muted-foreground hover:text-foreground">
+                      Cancel
+                    </button>
+                    <button onClick={() => void submitManualVerify()} disabled={verifying || verifyReason.trim().length < 10}
+                      className="flex-1 py-2 rounded-pill text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 flex items-center justify-center gap-1.5">
+                      {verifying ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Verifying…</> : "Verify"}
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
 
         {/* Error banner */}
         {error && (
