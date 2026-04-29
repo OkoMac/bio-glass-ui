@@ -33,7 +33,9 @@ interface CachedCoordinates {
 
 const devLog = (...args: any[]) => { if (import.meta.env.DEV) console.log(...args); };
 const devWarn = (...args: any[]) => { if (import.meta.env.DEV) console.warn(...args); };
-const devError = (...args: any[]) => { if (import.meta.env.DEV) console.error(...args); };
+// Errors are real failures — surface in prod too (was dev-only which
+// hid Nominatim outages from us until users complained).
+const devError = (...args: any[]) => { console.error(...args); };
 
 class GeocodingService {
   private nominatimUrl = 'https://nominatim.openstreetmap.org/search';

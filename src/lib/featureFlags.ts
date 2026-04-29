@@ -2,7 +2,9 @@
 // This allows us to enable/disable features without breaking existing functionality
 
 const devWarn = (...args: any[]) => { if (import.meta.env.DEV) console.warn(...args); };
-const devError = (...args: any[]) => { if (import.meta.env.DEV) console.error(...args); };
+// Errors stay loud in prod — feature-flag misconfig is an ops issue
+// we want to see immediately, not after users complain.
+const devError = (...args: any[]) => { console.error(...args); };
 
 export type FeatureFlag = {
   name: string;

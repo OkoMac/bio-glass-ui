@@ -38,7 +38,8 @@ export function useFavorites() {
     supabase.from("favourites")
       .select("provider_id")
       .eq("profile_id", profileId)
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) { console.error("[favorites] load failed:", error.message); return; }
         if (!data || data.length === 0) return;
         const merged = new Set(local);
         data.forEach((r: any) => { if (r.provider_id) merged.add(r.provider_id); });
@@ -66,19 +67,21 @@ export function useFavorites() {
       else next.delete(providerId);
       saveFavoritesLocal(profileId, next);
 
-      // Sync to Supabase (fire-and-forget)
+      // Sync to Supabase (fire-and-forget — but log errors loud, was
+      // a silent .then(() => {}) which would have hidden any schema or
+      // RLS drift exactly like the favourites code did with sleep/water).
       if (isReal) {
         if (adding) {
           supabase.from("favourites").upsert(
             { profile_id: profileId, provider_id: providerId },
             { onConflict: "profile_id,provider_id" },
-          ).then(() => {});
+          ).then(({ error }) => { if (error) console.error("[favorites] add failed:", error.message); });
         } else {
           supabase.from("favourites")
             .delete()
             .eq("profile_id", profileId)
             .eq("provider_id", providerId)
-            .then(() => {});
+            .then(({ error }) => { if (error) console.error("[favorites] remove failed:", error.message); });
         }
       }
       return next;
@@ -94,7 +97,7 @@ export function useFavorites() {
         supabase.from("favourites").upsert(
           { profile_id: profileId, provider_id: providerId },
           { onConflict: "profile_id,provider_id" },
-        ).then(() => {});
+        ).then(({ error }) => { if (error) console.error("[favorites] add failed:", error.message); });
       }
       return next;
     });
@@ -110,7 +113,7 @@ export function useFavorites() {
           .delete()
           .eq("profile_id", profileId)
           .eq("provider_id", providerId)
-          .then(() => {});
+          .then(({ error }) => { if (error) console.error("[favorites] remove failed:", error.message); });
       }
       return next;
     });
