@@ -65,8 +65,33 @@ async function sendReport(report: ErrorReport): Promise<void> {
   }
 }
 
+/** Patterns that should NEVER create a ticket — known transients that
+ * self-recover or aren't actionable. Mirrors the filters applied in the
+ * global unhandled/error handlers below. Reused by reportCrash so the
+ * ErrorBoundary path doesn't bypass them.
+ *
+ * 2026-04-29 fix (Mistake 19): reportCrash had no filter, so any
+ * ErrorBoundary trigger — including chunk-loading errors during a
+ * Vercel deploy — created an urgent ticket. 4 such tickets piled up
+ * during today's walkthrough alone. Now matches the global handlers. */
+const SUPPRESS_PATTERNS = [
+  /dynamically imported module/i,
+  /Loading chunk \d+ failed/i,
+  /Importing a module script failed/i,
+  /Failed to update a ServiceWorker/i,
+  /adsbygoogle|TagError/i,
+  /chrome-extension:|moz-extension:/i,
+  /ResizeObserver/i,
+  /cannot add `postgres_changes` callbacks/i, // Mistake 16, fixed
+];
+
+function isSuppressed(message: string): boolean {
+  return SUPPRESS_PATTERNS.some((re) => re.test(message));
+}
+
 /** Report a crash from ErrorBoundary */
 export function reportCrash(error: Error): void {
+  if (isSuppressed(error.message)) return;
   const user = getCurrentUser();
   const report: ErrorReport = {
     type: "crash",
