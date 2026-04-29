@@ -453,6 +453,12 @@ function AdminVerificationInner() {
                     {searchResults.map((row: any) => {
                       const verified = row.identity_verified === true ||
                                        row.provider_profile?.provider_status === "verified";
+                      // Only providers can be manually verified — verifying a
+                      // client would incorrectly insert a provider_profiles row
+                      // and convert their account silently. Walkthrough caught
+                      // this 2026-04-29: Lee Grant (client) showed a Verify
+                      // button even though it'd mis-promote him.
+                      const isProvider = row.primary_role === "provider";
                       return (
                         <div key={row.id}
                           className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
@@ -469,11 +475,16 @@ function AdminVerificationInner() {
                               <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{row.provider_profile.specialty}</p>
                             )}
                           </div>
-                          {!verified && (
+                          {!verified && isProvider && (
                             <button onClick={() => { setVerifyTarget(row); setVerifyReason(""); }}
                               className="shrink-0 px-3 py-1.5 rounded-pill text-[11px] font-semibold gradient-teal text-obsidian">
                               Verify
                             </button>
+                          )}
+                          {!verified && !isProvider && (
+                            <span className="shrink-0 text-[10px] text-muted-foreground italic">
+                              not a provider
+                            </span>
                           )}
                         </div>
                       );
