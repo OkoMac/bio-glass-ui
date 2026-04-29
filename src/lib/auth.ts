@@ -101,8 +101,10 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
         profileAvatar = (created as any)?.avatar_url;
       } catch (err) {
         // Don't block sign-in if profile creation fails — caller still gets a
-        // usable BioUser and can retry on their next action.
-        if (import.meta.env.DEV) console.warn("[auth] profile upsert failed:", err);
+        // usable BioUser and can retry on their next action. Log loud
+        // (was dev-only): a failure here means OAuth users land without
+        // a profileId and downstream queries silently return nothing.
+        console.error("[auth] profile upsert failed:", err);
       }
     }
 

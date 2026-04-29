@@ -8,6 +8,8 @@ import {
   ArrowLeft, Plus, Send, Clock, CheckCircle, Users,
   Loader2, MessageSquare, BarChart3, AlertTriangle,
 } from "lucide-react";
+import { AdminMfaProvider, useAdminMfa } from "@/hooks/useAdminMfa";
+import { toast } from "sonner";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -36,8 +38,17 @@ const AUDIENCE_LABELS: Record<string, string> = {
 };
 
 export default function AdminBroadcasts() {
+  return (
+    <AdminMfaProvider>
+      <AdminBroadcastsInner />
+    </AdminMfaProvider>
+  );
+}
+
+function AdminBroadcastsInner() {
   const navigate = useNavigate();
   const { session } = useAuth();
+  const { mfaProtectedFetch } = useAdminMfa();
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -98,9 +109,17 @@ export default function AdminBroadcasts() {
   async function triggerSend(id: string) {
     setSending(id);
     try {
-      await fetch(`${API}/api/broadcasts/${id}/send`, { method: "POST", headers });
+      // mfaProtectedFetch handles the 401 mfa_required round-trip when
+      // sending an all_clients broadcast (admin step-up MFA gate).
+      const res = await mfaProtectedFetch(`${API}/api/broadcasts/${id}/send`, { method: "POST", headers });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error ?? `Send failed (${res.status})`);
+      }
       loadBroadcasts();
-    } catch {}
+    } catch (err: any) {
+      toast.error(err?.message ?? "Could not send broadcast");
+    }
     setSending(null);
   }
 

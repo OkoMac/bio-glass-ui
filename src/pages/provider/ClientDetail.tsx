@@ -208,14 +208,23 @@ export default function ClientDetail() {
     // Save to Supabase (skip for demo)
     if (!isDemo) {
       try {
-        await supabase.from("client_notes").insert({
+        // Schema has note_type + is_private; the page UI exposes a
+        // "pinned" boolean. Map it to note_type='pinned' (the schema's
+        // existing CHECK allows arbitrary text) so the bit persists
+        // without a column rename. Was previously inserting a non-
+        // existent `pinned` column → silent fail every time.
+        const { error } = await supabase.from("client_notes").insert({
           client_id: client.id,
           provider_id: user.profileId ?? user.id,
           note: text,
-          pinned,
+          note_type: pinned ? "pinned" : "general",
+          is_private: true,
         });
-      } catch (err) {
-        if (import.meta.env.DEV) console.warn("[client notes] save failed:", err);
+        if (error) throw error;
+      } catch (err: any) {
+        // Loud — was dev-only which hid the missing-column bug for
+        // every provider note save.
+        console.error("[client notes] save failed:", err);
       }
     }
   };

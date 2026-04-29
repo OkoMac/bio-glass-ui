@@ -169,7 +169,13 @@ export default function AdminVerification() {
         .eq("provider_id", providerId);
       const rows = (providerDocs ?? []) as any[];
       const verified = new Set(rows.filter(d => d.status === "verified").map(d => d.doc_type));
-      const REQUIRED = ["sa_id", "professional_reg", "qualifications"];
+      // Doc-type alignment fix (2026-04-29): KYC submit-documents writes
+      // "id_document", "proof_of_address", "regulator_certificate". The
+      // page previously checked for "sa_id" / "professional_reg" /
+      // "qualifications" — types KYC never produces — so the
+      // auto-promote-to-verified branch never fired in prod even after
+      // admin approved everything. Aligned with kyc.ts.
+      const REQUIRED = ["id_document", "proof_of_address", "regulator_certificate"];
       const allDone = REQUIRED.every(r => verified.has(r));
       if (allDone) {
         // Multi-Role Step 3 [slice 4]: dual-write provider_status to
@@ -203,7 +209,7 @@ export default function AdminVerification() {
         } catch { /* email is best-effort */ }
       }
     } catch (err) {
-      if (import.meta.env.DEV) console.warn("[admin verification] provider promote skipped:", err);
+      console.error("[admin verification] provider promote skipped:", err);
     }
   };
 
