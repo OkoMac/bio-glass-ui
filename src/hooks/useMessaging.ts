@@ -122,8 +122,16 @@ export function useConversations() {
   useEffect(() => {
     if (!profileId || profileId.startsWith("demo_")) return;
 
+    // 2026-04-29 (Mistake 16): channel name was deterministic
+    // (`conversations-for-${profileId}`). React 18 effect re-runs (and
+    // Supabase's internal channel cache) caused the second mount to
+    // grab the still-subscribed channel and the second `.on()` chain
+    // fired "cannot add postgres_changes callbacks after subscribe()",
+    // crashing the page into the ErrorBoundary. Suffix with a random
+    // id so each mount gets a fresh channel; cleanup removes it by
+    // reference regardless.
     const channel = supabase
-      .channel(`conversations-for-${profileId}`)
+      .channel(`conversations-for-${profileId}-${crypto.randomUUID()}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "messages" },
@@ -213,7 +221,7 @@ export function useConversation(conversationId: string | null) {
     if (!conversationId || !profileId) return;
 
     const channel = supabase
-      .channel(`conversation-${conversationId}`)
+      .channel(`conversation-${conversationId}-${crypto.randomUUID()}`)
       .on(
         "postgres_changes",
         {
