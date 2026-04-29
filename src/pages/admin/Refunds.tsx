@@ -8,6 +8,8 @@ import {
   Search, Loader2, AlertTriangle, CheckCircle2, DollarSign, Mail, Calendar,
 ArrowLeft, } from "lucide-react";
 import { toast } from "sonner";
+import { AdminMfaProvider, useAdminMfa } from "@/hooks/useAdminMfa";
+import { supabase } from "@/integrations/supabase/client";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -29,9 +31,19 @@ interface BookingRow {
   provider_email: string | null;
 }
 
+// Wrapper to mount the MFA provider above the page that needs it.
 export default function AdminRefunds() {
+  return (
+    <AdminMfaProvider>
+      <AdminRefundsInner />
+    </AdminMfaProvider>
+  );
+}
+
+function AdminRefundsInner() {
   const navigate = useNavigate();
   const { token, loading: tokenLoading } = useAdminToken();
+  const { mfaProtectedFetch } = useAdminMfa();
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<BookingRow[]>([]);
@@ -65,9 +77,18 @@ export default function AdminRefunds() {
     setProcessing(true);
     setLastBreakdown(null);
     try {
-      const res = await fetch(`${API}/api/compliance/admin/manual-refund`, {
+      // A2-11 (2026-04-29): manual-refund now requires JWT + admin
+      // scope + a recent verified MFA challenge. mfaProtectedFetch
+      // handles the 401 mfa_required → modal → verify → retry round-trip.
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        "X-Admin-Token": token,
+      };
+      if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
+      const res = await mfaProtectedFetch(`${API}/api/compliance/admin/manual-refund`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+        headers,
         body: JSON.stringify({
           bookingId: selected.id,
           channel,
