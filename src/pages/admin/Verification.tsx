@@ -93,6 +93,12 @@ function AdminVerificationInner() {
   const [verifying, setVerifying] = useState(false);
   const [pendingProviders, setPendingProviders] = useState<Array<any>>([]);
   const [pendingLoading, setPendingLoading] = useState(false);
+  const [orphans, setOrphans] = useState<Array<any>>([]);
+  const [orphansLoading, setOrphansLoading] = useState(false);
+  const [orphansSelected, setOrphansSelected] = useState<Set<string>>(new Set());
+  const [orphansCleanupOpen, setOrphansCleanupOpen] = useState(false);
+  const [orphansCleanupReason, setOrphansCleanupReason] = useState("");
+  const [orphansCleaning, setOrphansCleaning] = useState(false);
 
   const buildHeaders = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -122,7 +128,58 @@ function AdminVerificationInner() {
     }
   };
 
-  useEffect(() => { loadPending(); }, []);
+  const loadOrphans = async () => {
+    setOrphansLoading(true);
+    try {
+      const r = await fetch(`${API_URL}/api/admin/orphans/scan`, {
+        method: "GET",
+        headers: await buildHeaders(),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j?.error ?? `Orphan scan failed (${r.status})`);
+      setOrphans(j.results ?? []);
+      setOrphansSelected(new Set());
+    } catch (err: any) {
+      console.error("[admin verification] orphan scan failed:", err?.message);
+      setOrphans([]);
+    } finally {
+      setOrphansLoading(false);
+    }
+  };
+
+  const submitOrphanCleanup = async () => {
+    if (orphansSelected.size === 0) return;
+    if (orphansCleanupReason.trim().length < 10) {
+      toast.error("Reason must be at least 10 characters.");
+      return;
+    }
+    setOrphansCleaning(true);
+    try {
+      const r = await mfaProtectedFetch(`${API_URL}/api/admin/orphans/cleanup`, {
+        method: "POST",
+        headers: await buildHeaders(),
+        body: JSON.stringify({
+          ids: Array.from(orphansSelected),
+          reason: orphansCleanupReason.trim(),
+        }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j?.error ?? `Cleanup failed (${r.status})`);
+      toast.success(`Deleted ${j.deleted ?? 0} of ${j.attempted ?? 0} orphan(s).`);
+      setOrphansCleanupOpen(false);
+      setOrphansCleanupReason("");
+      void loadOrphans();
+    } catch (err: any) {
+      toast.error(err?.message ?? "Could not delete orphans");
+    } finally {
+      setOrphansCleaning(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPending();
+    loadOrphans();
+  }, []);
 
   const runProviderSearch = async () => {
     if (searchQuery.trim().length < 2) return;
@@ -640,6 +697,132 @@ function AdminVerificationInner() {
             )}
           </GlassCard>
         )}
+
+        {/* Orphan Auth Users — auth.users rows with no matching profile.
+            These block re-signups even after the precheck Mistake 21 fix
+            because supabase.auth.signUp checks auth.users uniqueness on
+            its own. The daily cron auto-deletes orphans >7 days old that
+            never signed in; this panel handles edge cases (recent
+            signups, partially-completed accounts) under MFA. */}
+        {(orphansLoading || orphans.length > 0) && (
+          <GlassCard className="p-4 border border-coral/20">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-coral" />
+                <p className="text-sm font-medium text-foreground">
+                  Orphan Auth Users
+                  {!orphansLoading && (
+                    <span className="ml-2 text-[11px] font-data text-coral">{orphans.length}</span>
+                  )}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                {orphansSelected.size > 0 && (
+                  <button onClick={() => setOrphansCleanupOpen(true)}
+                    className="text-[10px] px-2.5 py-1 rounded-pill bg-coral/15 text-coral font-semibold hover:bg-coral/25">
+                    Delete {orphansSelected.size}
+                  </button>
+                )}
+                <button onClick={loadOrphans} disabled={orphansLoading}
+                  className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1">
+                  {orphansLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "Refresh"}
+                </button>
+              </div>
+            </div>
+            <p className="text-[11px] text-muted-foreground mb-3 italic">
+              auth.users rows with no profile. Block new signups with the same phone/email until cleaned. Daily cron auto-deletes those &gt;7d old without sign-in; tick the rest manually.
+            </p>
+            {orphansLoading && orphans.length === 0 ? (
+              <p className="text-xs text-muted-foreground italic">Loading…</p>
+            ) : orphans.length === 0 ? (
+              <p className="text-xs text-muted-foreground italic">No orphan auth users — clean.</p>
+            ) : (
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {orphans.map((row: any) => {
+                  const checked = orphansSelected.has(row.id);
+                  const everSignedIn = !!row.last_sign_in_at;
+                  return (
+                    <label key={row.id}
+                      className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
+                        checked ? "bg-coral/10 border-coral/40" : "bg-white/[0.03] border-white/[0.05] hover:border-white/[0.12]"
+                      }`}>
+                      <input type="checkbox" checked={checked}
+                        onChange={(e) => {
+                          const next = new Set(orphansSelected);
+                          if (e.target.checked) next.add(row.id); else next.delete(row.id);
+                          setOrphansSelected(next);
+                        }}
+                        className="shrink-0 w-4 h-4 accent-coral" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                          <p className="text-xs font-medium text-foreground truncate">
+                            {row.email ?? row.phone ?? "(no contact)"}
+                          </p>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-pill bg-white/[0.05] text-muted-foreground font-data">
+                            {row.age_days}d old
+                          </span>
+                          {everSignedIn && (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-pill bg-amber/15 text-amber font-medium">
+                              signed in before
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground truncate font-data">
+                          {row.id} · {row.email ? row.phone ?? "no phone" : ""}
+                        </p>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+          </GlassCard>
+        )}
+
+        {/* Orphan cleanup confirmation modal */}
+        <AnimatePresence>
+          {orphansCleanupOpen && (
+            <>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                onClick={() => !orphansCleaning && setOrphansCleanupOpen(false)}
+                className="fixed inset-0 bg-obsidian/70 z-[100]" />
+              <motion.div
+                initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 12 }}
+                className="fixed inset-0 z-[110] flex items-center justify-center p-4 pointer-events-none">
+                <div className="pointer-events-auto w-full max-w-md rounded-3xl p-5"
+                  style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <AlertCircle className="w-4 h-4 text-coral" />
+                    <h3 className="text-base font-bold text-foreground">Delete {orphansSelected.size} orphan auth user{orphansSelected.size === 1 ? "" : "s"}?</h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    This permanently removes the auth.users row(s). The next signup attempt with the same phone/email will be allowed. Audit-logged with your reason.
+                  </p>
+                  <textarea
+                    value={orphansCleanupReason}
+                    onChange={e => setOrphansCleanupReason(e.target.value)}
+                    placeholder="e.g. Lee Grant's stale orphans from partial signups Apr 20+27 — re-engagement requires the original phone to be free"
+                    rows={3}
+                    className="w-full px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-coral/40 mb-3" />
+                  <p className="text-[10px] text-muted-foreground mb-3">
+                    Tap Delete → admin MFA challenge fires → ids removed from auth.users.
+                  </p>
+                  <div className="flex gap-2">
+                    <button onClick={() => setOrphansCleanupOpen(false)} disabled={orphansCleaning}
+                      className="flex-1 py-2 rounded-pill text-xs font-semibold glass-1 text-muted-foreground hover:text-foreground">
+                      Cancel
+                    </button>
+                    <button onClick={() => void submitOrphanCleanup()}
+                      disabled={orphansCleaning || orphansCleanupReason.trim().length < 10}
+                      className="flex-1 py-2 rounded-pill text-xs font-semibold text-white bg-gradient-to-r from-coral to-rose-500 disabled:opacity-40 flex items-center justify-center gap-1.5">
+                      {orphansCleaning ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Deleting…</> : "Delete"}
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
 
         {/* Filter tabs */}
         <div className="grid grid-cols-4 gap-2">
