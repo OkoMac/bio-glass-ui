@@ -91,6 +91,8 @@ function AdminVerificationInner() {
   const [verifyTarget, setVerifyTarget] = useState<any | null>(null);
   const [verifyReason, setVerifyReason] = useState("");
   const [verifying, setVerifying] = useState(false);
+  const [pendingProviders, setPendingProviders] = useState<Array<any>>([]);
+  const [pendingLoading, setPendingLoading] = useState(false);
 
   const buildHeaders = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -99,6 +101,28 @@ function AdminVerificationInner() {
       ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
     } as Record<string, string>;
   };
+
+  const loadPending = async () => {
+    setPendingLoading(true);
+    try {
+      const r = await fetch(`${API_URL}/api/admin/providers/pending`, {
+        method: "GET",
+        headers: await buildHeaders(),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j?.error ?? `Pending list failed (${r.status})`);
+      setPendingProviders(j.results ?? []);
+    } catch (err: any) {
+      // Quiet — admin sees an empty section instead of an error toast on
+      // every page load. Real errors land in console for debugging.
+      console.error("[admin verification] pending fetch failed:", err?.message);
+      setPendingProviders([]);
+    } finally {
+      setPendingLoading(false);
+    }
+  };
+
+  useEffect(() => { loadPending(); }, []);
 
   const runProviderSearch = async () => {
     if (searchQuery.trim().length < 2) return;
@@ -137,8 +161,9 @@ function AdminVerificationInner() {
       toast.success(`${verifyTarget.full_name ?? "Provider"} verified.`);
       setVerifyTarget(null);
       setVerifyReason("");
-      // Refresh the search list so the verified state updates
+      // Refresh both the search list (if open) and the pending queue
       void runProviderSearch();
+      void loadPending();
     } catch (err: any) {
       toast.error(err?.message ?? "Could not verify provider");
     } finally {
@@ -548,6 +573,72 @@ function AdminVerificationInner() {
             <AlertCircle className="w-4 h-4 text-coral shrink-0 mt-0.5" />
             <p className="text-xs text-coral">{error}</p>
           </motion.div>
+        )}
+
+        {/* Pending Providers — verified-status queue. Shows every
+            primary_role=provider profile that isn't both
+            identity_verified=true AND provider_status='verified'.
+            Admin can one-click → MFA → verified. Updates after each
+            successful verify so the list shrinks to nothing as the
+            queue clears. */}
+        {(pendingLoading || pendingProviders.length > 0) && (
+          <GlassCard className="p-4 border border-amber/20">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-amber" />
+                <p className="text-sm font-medium text-foreground">
+                  Pending Providers
+                  {!pendingLoading && (
+                    <span className="ml-2 text-[11px] font-data text-amber">{pendingProviders.length}</span>
+                  )}
+                </p>
+              </div>
+              <button onClick={loadPending} disabled={pendingLoading}
+                className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1">
+                {pendingLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "Refresh"}
+              </button>
+            </div>
+            {pendingLoading && pendingProviders.length === 0 ? (
+              <p className="text-xs text-muted-foreground italic">Loading…</p>
+            ) : pendingProviders.length === 0 ? (
+              <p className="text-xs text-muted-foreground italic">All caught up — no providers awaiting verification.</p>
+            ) : (
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {pendingProviders.map((row: any) => {
+                  const noLogin = (row.login_count ?? 0) === 0;
+                  const docsState = row.provider_profile?.provider_status ?? "no provider profile";
+                  return (
+                    <div key={row.id}
+                      className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                          <p className="text-sm font-medium text-foreground truncate">{row.full_name ?? "(no name)"}</p>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-pill bg-amber/10 text-amber font-semibold uppercase">
+                            {docsState.replace(/_/g, " ")}
+                          </span>
+                          {noLogin && (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-pill bg-coral/10 text-coral font-medium">
+                              never logged in
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {row.email ?? "—"} · {row.phone ?? "no phone"} · {row.city ?? "no city"}
+                        </p>
+                        {row.provider_profile?.specialty && (
+                          <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{row.provider_profile.specialty}</p>
+                        )}
+                      </div>
+                      <button onClick={() => { setVerifyTarget(row); setVerifyReason(""); }}
+                        className="shrink-0 px-3 py-1.5 rounded-pill text-[11px] font-semibold gradient-teal text-obsidian">
+                        Verify
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </GlassCard>
         )}
 
         {/* Filter tabs */}
