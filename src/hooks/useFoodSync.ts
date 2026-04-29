@@ -145,7 +145,9 @@ export function useFoodSync() {
         photo_url: entry.photo,
         date: entry.date,
       } as any).then(({ error }) => {
-        if (error && import.meta.env.DEV) console.warn("[food] insert failed:", error.message);
+        // Loud log on prod-failure too — was dev-only which hid the same
+        // class of schema-drift bug we found in Sleep/Water yesterday.
+        if (error) console.error("[food] insert failed:", error.message);
       });
     }
   }, [entries, supabaseId]);
@@ -157,7 +159,7 @@ export function useFoodSync() {
 
     if (supabaseId) {
       supabase.from("food_entries" as any).delete().eq("id", id).then(({ error }) => {
-        if (error && import.meta.env.DEV) console.warn("[food] delete failed:", error.message);
+        if (error) console.error("[food] delete failed:", error.message);
       });
     }
   }, [entries, supabaseId]);
@@ -171,7 +173,7 @@ export function useFoodSync() {
         user_id: supabaseId,
         ...g,
       } as any, { onConflict: "user_id" }).then(({ error }) => {
-        if (error && import.meta.env.DEV) console.warn("[food] goals save failed:", error.message);
+        if (error) console.error("[food] goals save failed:", error.message);
       });
     }
   }, [supabaseId]);

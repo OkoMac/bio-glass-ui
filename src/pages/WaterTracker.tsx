@@ -192,7 +192,7 @@ export default function WaterTracker() {
         date: dateKey,
         count: data.glasses,
       } as any, { onConflict: "user_id,date" }).then(({ error }) => {
-        if (error && import.meta.env.DEV) console.warn("[water] DB sync failed:", error.message);
+        if (error) console.error("[water] DB sync failed:", error.message);
       });
     }
   }, [data, dateKey]);

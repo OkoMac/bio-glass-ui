@@ -131,7 +131,9 @@ export default function SleepTracker() {
         sleep_hours: duration,
         notes: `Quality: ${quality}/5, Bed: ${bedtime}, Wake: ${wakeTime}`,
       } as any, { onConflict: "user_id,log_date" }).then(({ error }) => {
-        if (error && import.meta.env.DEV) console.warn("[sleep] DB sync failed:", error.message);
+        // Loud — silent dev-only logging is what hid the date / log_date
+        // column mismatch in prod for weeks. Any future drift surfaces.
+        if (error) console.error("[sleep] DB sync failed:", error.message);
       });
     }
   };

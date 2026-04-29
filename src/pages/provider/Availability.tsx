@@ -7,6 +7,7 @@ import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Clock, Plus, X, ChevronDown, CheckCircle, Calendar, AlertTriangle, Loader2, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 
 type Day = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
 
@@ -75,7 +76,7 @@ export default function ProviderAvailability() {
     const load = async () => {
       try {
         const { data } = await supabase
-          .from("provider_availabilities" as any)
+          .from("provider_availability" as any)
           .select("*")
           .eq("provider_id", supabaseId)
           .order("day_of_week", { ascending: true });
@@ -85,7 +86,7 @@ export default function ProviderAvailability() {
           (data as any[]).forEach((row: any) => {
             const day = DAYS[row.day_of_week] as Day;
             if (!day) return;
-            if (!loaded[day]) loaded[day] = { enabled: row.is_available ?? true, blocks: [] };
+            if (!loaded[day]) loaded[day] = { enabled: row.active ?? true, blocks: [] };
             if (row.start_time && row.end_time) {
               loaded[day]!.blocks.push({ start: row.start_time.slice(0, 5), end: row.end_time.slice(0, 5) });
             }
@@ -98,7 +99,9 @@ export default function ProviderAvailability() {
           localStorage.setItem(AVAIL_STORAGE_KEY, JSON.stringify(loaded));
         }
       } catch (err) {
-        if (import.meta.env.DEV) console.warn("[availability] Supabase load failed:", err);
+        // Real failure — log loud (was dev-only previously, which hid
+        // the silent prod schema-mismatch bug fixed in this commit).
+        console.error("[availability] Supabase load failed:", err);
       }
     };
     load();
@@ -153,7 +156,7 @@ export default function ProviderAvailability() {
     if (supabaseId) {
       try {
         // Delete existing rows
-        await supabase.from("provider_availabilities" as any).delete().eq("provider_id", supabaseId);
+        await supabase.from("provider_availability" as any).delete().eq("provider_id", supabaseId);
         // Insert new rows — one per time block per day
         const rows: any[] = [];
         DAYS.forEach((day, dayIdx) => {
@@ -173,14 +176,19 @@ export default function ProviderAvailability() {
                 day_of_week: dayIdx,
                 start_time: block.start + ":00",
                 end_time: block.end + ":00",
-                is_available: daySchedule.enabled,
+                active: daySchedule.enabled,
               });
             });
           }
         });
-        await supabase.from("provider_availabilities" as any).insert(rows);
-      } catch (err) {
-        if (import.meta.env.DEV) console.warn("[availability] Supabase save failed:", err);
+        const { error } = await supabase.from("provider_availability" as any).insert(rows);
+        if (error) throw error;
+      } catch (err: any) {
+        // Real failure — toast + loud log so the provider knows their
+        // hours didn't actually save. Silent failure (the prior dev-only
+        // warn) is what made the table-name typo invisible for so long.
+        console.error("[availability] Supabase save failed:", err);
+        toast.error(`Couldn't save availability to server: ${err?.message ?? "unknown error"}. Please try again.`);
       }
     }
 
