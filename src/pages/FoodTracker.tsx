@@ -200,7 +200,7 @@ export default function FoodTracker() {
 
   const addFromDatabase = (name: string, info: typeof FOOD_DATABASE[string]) => {
     const entry: FoodEntry = {
-      id: `food_${Date.now()}`,
+      id: crypto.randomUUID(),
       name: name.charAt(0).toUpperCase() + name.slice(1),
       calories: info.cal,
       protein: info.protein,
@@ -219,7 +219,7 @@ export default function FoodTracker() {
   const addManual = () => {
     if (!manualEntry.name.trim() || !manualEntry.calories) return;
     const entry: FoodEntry = {
-      id: `food_${Date.now()}`,
+      id: crypto.randomUUID(),
       name: manualEntry.name.trim(),
       calories: parseInt(manualEntry.calories) || 0,
       protein: parseInt(manualEntry.protein) || 0,
