@@ -25,6 +25,48 @@ interface DailyGoal {
 
 const FOOD_KEY = "bion_food_tracker";
 const GOALS_KEY = "bion_food_goals";
+// Mistake 18 (2026-04-29): real iPhone user (investable123@gmail.com,
+// ticket #10) hit `QuotaExceededError` writing to localStorage on
+// /food-tracker. Cause: every entry's `photo` field was a base64 data
+// URL (50-500KB each), inlined into the JSON we wrote on every change.
+// 30 logged meals with photos × 200KB ≈ 6MB → past Safari's quota.
+//
+// Fix: sanitise before write — drop dataURL photos and trim to last
+// 60 days. The DB still has full data including photo_url (the server
+// URL, not the base64). Memory state keeps the photo for the current
+// view; only the persisted copy is slimmed.
+const PERSIST_DAYS = 60;
+function sanitiseForStorage(entries: FoodEntry[]): FoodEntry[] {
+  const cutoff = new Date(Date.now() - PERSIST_DAYS * 24 * 60 * 60 * 1000)
+    .toISOString().slice(0, 10);
+  return entries
+    .filter(e => !e.date || e.date >= cutoff)
+    .map(e => {
+      // Strip base64 data URLs; keep external/server URLs (smaller).
+      const photo = e.photo && !e.photo.startsWith("data:") ? e.photo : undefined;
+      return { ...e, photo };
+    });
+}
+function safeSetEntries(entries: FoodEntry[]): void {
+  const slim = sanitiseForStorage(entries);
+  try {
+    localStorage.setItem(FOOD_KEY, JSON.stringify(slim));
+  } catch (err: any) {
+    if (err?.name === "QuotaExceededError") {
+      // Last-ditch: drop to last 14 days, no photos
+      const minimal = slim.slice(-50).map(e => ({ ...e, photo: undefined }));
+      try {
+        localStorage.setItem(FOOD_KEY, JSON.stringify(minimal));
+        console.warn("[food] localStorage trimmed to last 50 entries due to quota");
+      } catch {
+        console.error("[food] localStorage write still failing after trim — dropping cache");
+        try { localStorage.removeItem(FOOD_KEY); } catch { /* */ }
+      }
+    } else {
+      console.error("[food] localStorage write failed:", err?.message);
+    }
+  }
+}
 
 function getToday(): string {
   return new Date().toISOString().split("T")[0];
@@ -85,7 +127,7 @@ export function useFoodSync() {
             date: e.date,
           }));
           setEntries(mapped);
-          localStorage.setItem(FOOD_KEY, JSON.stringify(mapped));
+          safeSetEntries(mapped);
         }
 
         // Load monthly + yearly rollups in parallel — pre-aggregated views,
@@ -129,7 +171,7 @@ export function useFoodSync() {
   const addEntry = useCallback((entry: FoodEntry) => {
     const updated = [...entries, entry];
     setEntries(updated);
-    localStorage.setItem(FOOD_KEY, JSON.stringify(updated));
+    safeSetEntries(updated);
 
     if (supabaseId) {
       supabase.from("food_entries" as any).insert({
@@ -155,7 +197,7 @@ export function useFoodSync() {
   const deleteEntry = useCallback((id: string) => {
     const updated = entries.filter(e => e.id !== id);
     setEntries(updated);
-    localStorage.setItem(FOOD_KEY, JSON.stringify(updated));
+    safeSetEntries(updated);
 
     if (supabaseId) {
       supabase.from("food_entries" as any).delete().eq("id", id).then(({ error }) => {
