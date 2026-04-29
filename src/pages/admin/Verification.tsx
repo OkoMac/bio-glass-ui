@@ -178,26 +178,34 @@ export default function AdminVerification() {
       const REQUIRED = ["id_document", "proof_of_address", "regulator_certificate"];
       const allDone = REQUIRED.every(r => verified.has(r));
       if (allDone) {
-        // Multi-Role Step 3 [slice 4]: dual-write provider_status to
-        // both legacy profiles and the new provider_profiles row. Step 4
-        // drops profiles.provider_status once every read has been flipped.
+        // 2026-04-29 (Mistake 20): the original dual-write targeted
+        // profiles.provider_status / .provider_status_at, but those
+        // columns were dropped in Multi-Role Step 4 of the migration —
+        // leaving the legacy update silently 400'ing inside a try/catch
+        // and the auto-promote dead. Now we only touch columns that
+        // actually exist: profiles.identity_verified for the audit
+        // signal, and provider_profiles.provider_status for the
+        // canonical verified state.
         const updateAt = new Date().toISOString();
-        await supabase.from("profiles").update({
-          provider_status: "verified",
-          provider_status_at: updateAt,
+        const { error: profErr } = await supabase.from("profiles").update({
           identity_verified: true,
           identity_verified_at: updateAt,
-        }).eq("id", providerId);
+        } as any).eq("id", providerId);
+        if (profErr) console.error("[admin verification] profile identity_verified update failed:", profErr.message);
+
         try {
           const { data: row } = await supabase
             .from("profiles").select("user_id").eq("id", providerId).maybeSingle();
           const userId = (row as any)?.user_id;
           if (userId) {
-            await supabase.from("provider_profiles" as any).update({
+            const { error: ppErr } = await supabase.from("provider_profiles" as any).update({
               provider_status: "verified",
             }).eq("user_id", userId);
+            if (ppErr) console.error("[admin verification] provider_profiles status update failed:", ppErr.message);
           }
-        } catch { /* dual-write is best-effort during the migration */ }
+        } catch (e: any) {
+          console.error("[admin verification] provider_profiles dual-write error:", e?.message);
+        }
 
         // Notify the provider via backend email endpoint
         try {
