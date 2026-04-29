@@ -20,6 +20,7 @@ import {
 ArrowLeft, } from "lucide-react";
 import { toast } from "sonner";
 import { formatRelativeTime } from "@/lib/relativeTime";
+import { AdminMfaProvider, useAdminMfa } from "@/hooks/useAdminMfa";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -71,6 +72,25 @@ const BO_EVENT_TYPES = [
 const SARS_EVENT_TYPES = ["ranger_sars_declared"];
 
 export default function AdminCompliance() {
+  return (
+    <AdminMfaProvider>
+      <AdminComplianceInner />
+    </AdminMfaProvider>
+  );
+}
+
+function AdminComplianceInner() {
+  const { mfaProtectedFetch } = useAdminMfa();
+  const buildHeaders = async (token: string) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const h: Record<string, string> = { "Content-Type": "application/json", "X-Admin-Token": token };
+    if (session?.access_token) h.Authorization = `Bearer ${session.access_token}`;
+    return h;
+  };
+  return _AdminComplianceBody({ mfaProtectedFetch, buildHeaders });
+}
+
+function _AdminComplianceBody({ mfaProtectedFetch, buildHeaders }: { mfaProtectedFetch: (i: RequestInfo, init?: RequestInit) => Promise<Response>; buildHeaders: (t: string) => Promise<Record<string, string>> }) {
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("fica");
   const [token, setToken] = useState(() => {
@@ -196,9 +216,9 @@ export default function AdminCompliance() {
   const releaseFicaHold = async (f: FicaHold) => {
     setBusy(f.id);
     try {
-      const res = await fetch(`${API}/api/compliance/admin/fica/release`, {
+      const res = await mfaProtectedFetch(`${API}/api/compliance/admin/fica/release`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+        headers: await buildHeaders(token),
         body: JSON.stringify({ withdrawalId: f.id }),
       });
       const j = await res.json();
@@ -214,9 +234,9 @@ export default function AdminCompliance() {
   const rejectFicaHold = async (f: FicaHold) => {
     setBusy(f.id);
     try {
-      const res = await fetch(`${API}/api/compliance/admin/fica/reject`, {
+      const res = await mfaProtectedFetch(`${API}/api/compliance/admin/fica/reject`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+        headers: await buildHeaders(token),
         body: JSON.stringify({ withdrawalId: f.id, reason: "Admin rejected" }),
       });
       const j = await res.json();
@@ -232,9 +252,9 @@ export default function AdminCompliance() {
   const approveBo = async (bo: BoSubmission) => {
     setBusy(bo.id);
     try {
-      const res = await fetch(`${API}/api/compliance/admin/bo/approve`, {
+      const res = await mfaProtectedFetch(`${API}/api/compliance/admin/bo/approve`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+        headers: await buildHeaders(token),
         body: JSON.stringify({ corporateId: bo.id }),
       });
       const j = await res.json();
@@ -250,9 +270,9 @@ export default function AdminCompliance() {
   const rejectBo = async (bo: BoSubmission) => {
     setBusy(bo.id);
     try {
-      const res = await fetch(`${API}/api/compliance/admin/bo/reject`, {
+      const res = await mfaProtectedFetch(`${API}/api/compliance/admin/bo/reject`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+        headers: await buildHeaders(token),
         body: JSON.stringify({ corporateId: bo.id, reason: "Admin rejected" }),
       });
       const j = await res.json();
