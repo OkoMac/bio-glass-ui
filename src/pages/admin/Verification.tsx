@@ -664,15 +664,25 @@ function AdminVerificationInner() {
                 {pendingProviders.map((row: any) => {
                   const noLogin = (row.login_count ?? 0) === 0;
                   const docsState = row.provider_profile?.provider_status ?? "no provider profile";
+                  // Belt-and-braces: if the backend filter ever includes
+                  // a partially-verified row (e.g. provider_status=verified
+                  // but identity_verified=false), don't render a Verify
+                  // button on top of an already-good profile.
+                  const verified = row.identity_verified === true ||
+                                   row.provider_profile?.provider_status === "verified";
                   return (
                     <div key={row.id}
                       className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                           <p className="text-sm font-medium text-foreground truncate">{row.full_name ?? "(no name)"}</p>
-                          <span className="text-[9px] px-1.5 py-0.5 rounded-pill bg-amber/10 text-amber font-semibold uppercase">
-                            {docsState.replace(/_/g, " ")}
-                          </span>
+                          {verified ? (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-pill bg-teal/15 text-teal font-semibold uppercase">Verified</span>
+                          ) : (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-pill bg-amber/10 text-amber font-semibold uppercase">
+                              {docsState.replace(/_/g, " ")}
+                            </span>
+                          )}
                           {noLogin && (
                             <span className="text-[9px] px-1.5 py-0.5 rounded-pill bg-coral/10 text-coral font-medium">
                               never logged in
@@ -686,10 +696,12 @@ function AdminVerificationInner() {
                           <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{row.provider_profile.specialty}</p>
                         )}
                       </div>
-                      <button onClick={() => { setVerifyTarget(row); setVerifyReason(""); }}
-                        className="shrink-0 px-3 py-1.5 rounded-pill text-[11px] font-semibold gradient-teal text-obsidian">
-                        Verify
-                      </button>
+                      {!verified && (
+                        <button onClick={() => { setVerifyTarget(row); setVerifyReason(""); }}
+                          className="shrink-0 px-3 py-1.5 rounded-pill text-[11px] font-semibold gradient-teal text-obsidian">
+                          Verify
+                        </button>
+                      )}
                     </div>
                   );
                 })}
