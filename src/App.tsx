@@ -541,6 +541,10 @@ function AppRoutes() {
       <Route path="/routines"       element={<RequireAuth allowedRoles={["client"]}><Routines /></RequireAuth>} />
       <Route path="/progress"       element={<RequireAuth allowedRoles={["client"]}><Progress /></RequireAuth>} />
       <Route path="/quick-book"     element={<RequireAuth allowedRoles={["client"]}><QuickBook /></RequireAuth>} />
+      {/* Mistake 17 (2026-04-29): bottom nav says "Book" so users
+          (and copy-pasters) try /book in the URL bar. Redirect
+          to the canonical route. */}
+      <Route path="/book"           element={<Navigate to="/quick-book" replace />} />
       <Route path="/challenges"     element={<RequireAuth allowedRoles={["client"]}><Challenges /></RequireAuth>} />
       <Route path="/health-profile" element={<RequireAuth allowedRoles={["client"]}><HealthProfile /></RequireAuth>} />
       <Route path="/wallet"         element={<RequireAuth allowedRoles={["client"]}><Wallet /></RequireAuth>} />
