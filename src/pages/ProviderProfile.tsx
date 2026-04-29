@@ -406,6 +406,38 @@ export default function ProviderProfile() {
       return;
     }
 
+    // Gate 2.6 — registered provider has no priced services yet. Walking
+    // the booking flow yesterday found that a verified provider with zero
+    // services (Skin Nourishers' state) would let the client through to a
+    // R0 Paystack checkout. Block + nudge the provider to finish setup.
+    const hasAnyPricedService = bookingServiceChoices.some(c => (c.priceRand ?? 0) > 0);
+    if (!hasAnyPricedService) {
+      setBookingBusy(true);
+      try {
+        // Fire a "provider setup needed" notification so the provider
+        // knows there's demand. Best-effort; the lead route handles
+        // this for unregistered providers, registered ones get a softer
+        // ping via /api/providers/setup-needed.
+        const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+        await fetch(`${API}/api/providers/setup-needed`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            providerId: provider.id,
+            requestedBy: { profileId: user.profileId, name: user.name, email: user.email },
+            requestedFor: { date: bookingDate, time: bookingTime, service: provider.specialty },
+          }),
+        }).catch(() => { /* best-effort */ });
+      } finally {
+        setBookingBusy(false);
+      }
+      setBookingError(
+        `${provider.name} is on BION but hasn't set their session prices yet. ` +
+        `We've let them know you're interested — they'll usually update within 24-48 hours and we'll ping you the moment they do.`,
+      );
+      return;
+    }
+
     // Gate 3 — registered provider, create a real booking via the backend API.
     // The backend creates a pending booking row AND initiates a Paystack
     // checkout session. We redirect to Paystack; on success, the booking
