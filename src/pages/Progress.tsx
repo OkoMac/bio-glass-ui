@@ -79,11 +79,17 @@ export default function Progress() {
       fallback: typeof metrics[number],
     ) => {
       const series = seriesFor(key);
-      if (series.length < 2) return fallback;
+      // 2026-04-29: was `series.length < 2 → fallback (zeros)`, which
+      // meant after a single sleep / weight log the card stayed at 0.
+      // Now: empty → fallback, single entry → show it (current=prev),
+      // multi → show last two for trend math.
+      if (series.length === 0) return fallback;
+      const current = series[series.length - 1];
+      const prev = series.length >= 2 ? series[series.length - 2] : current;
       return {
         ...fallback,
-        current: series[series.length - 1],
-        prev: series[Math.max(0, series.length - 2)],
+        current,
+        prev,
         data: series.length >= 7 ? series : [...fallback.data.slice(0, 7 - series.length), ...series],
       };
     };
@@ -96,8 +102,10 @@ export default function Progress() {
       // steps stored as raw int; convert to k for display
       (() => {
         const series = seriesFor("steps").map(v => v / 1000);
-        if (series.length < 2) return metrics[4];
-        return { ...metrics[4], current: series[series.length - 1], prev: series[Math.max(0, series.length - 2)],
+        if (series.length === 0) return metrics[4];
+        const current = series[series.length - 1];
+        const prev = series.length >= 2 ? series[series.length - 2] : current;
+        return { ...metrics[4], current, prev,
           data: series.length >= 7 ? series : [...metrics[4].data.slice(0, 7 - series.length), ...series] };
       })(),
       buildMetric("Sleep",      "h",   "sleep_hours",  metrics[5]),
