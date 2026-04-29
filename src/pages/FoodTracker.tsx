@@ -138,7 +138,13 @@ const FOOD_FAQ_DATA = [
 export default function FoodTracker() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  // Two refs so we can render two inputs — one with `capture="environment"`
+  // (forces camera on mobile) and one without (opens photo library / file
+  // picker). Single ref + dynamic-attribute mutation works in dev but
+  // browsers cache the input's capture-mode after the first click in some
+  // cases.
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const libraryInputRef = useRef<HTMLInputElement>(null);
 
   // Sync with Supabase for authenticated users
   const { entries, todayEntries, monthly, yearly, goals, addEntry: syncAddEntry, deleteEntry: syncDeleteEntry, saveGoals: syncSaveGoals } = useFoodSync();
@@ -529,20 +535,36 @@ export default function FoodTracker() {
                 </button>
               </div>
 
-              {/* Photo capture */}
-              <div className="flex gap-3 mb-4">
-                <motion.button whileTap={{ scale: 0.95 }} onClick={() => fileInputRef.current?.click()}
-                  className="flex-1 py-4 glass-1 rounded-2xl flex flex-col items-center gap-2 border border-dashed border-white/10 hover:border-teal/30 transition-colors">
-                  <Camera className="w-6 h-6 text-teal" />
+              {/* Photo capture — two buttons: camera and upload-from-library.
+                  Mobile users couldn't pick an existing photo before because
+                  capture="environment" on a single input forces the camera
+                  app. Now: Take Photo (camera) + Upload (library / files).
+                  Counter applies to both since they hit the same backend
+                  estimator.
+              */}
+              <div className="flex gap-2 mb-4">
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => cameraInputRef.current?.click()}
+                  className="flex-1 py-4 glass-1 rounded-2xl flex flex-col items-center gap-1.5 border border-dashed border-white/10 hover:border-teal/30 transition-colors">
+                  <Camera className="w-5 h-5 text-teal" />
                   <span className="text-xs text-muted-foreground">Take Photo</span>
                   <span className={`text-[9px] ${photosRemaining > 0 ? "text-teal" : "text-coral"}`}>
-                    {photosRemaining > 0 ? `${photosRemaining} scans left today` : "Limit reached — use text"}
+                    {photosRemaining > 0 ? `${photosRemaining} left today` : "Limit reached"}
                   </span>
                 </motion.button>
-                <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handlePhoto} className="hidden" />
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => libraryInputRef.current?.click()}
+                  className="flex-1 py-4 glass-1 rounded-2xl flex flex-col items-center gap-1.5 border border-dashed border-white/10 hover:border-indigo/30 transition-colors">
+                  <Image className="w-5 h-5 text-indigo" />
+                  <span className="text-xs text-muted-foreground">Upload</span>
+                  <span className="text-[9px] text-muted-foreground">From your library</span>
+                </motion.button>
+
+                {/* Camera-only input (mobile: opens camera; desktop: file picker) */}
+                <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handlePhoto} className="hidden" />
+                {/* Library / file-picker input (no capture attr) */}
+                <input ref={libraryInputRef} type="file" accept="image/*" onChange={handlePhoto} className="hidden" />
 
                 {photoPreview && (
-                  <div className="relative w-24 h-24 rounded-xl overflow-hidden shrink-0">
+                  <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0">
                     <img src={photoPreview} alt="Food" className="w-full h-full object-cover" />
                     <button onClick={() => setPhotoPreview(null)}
                       className="absolute top-1 right-1 w-5 h-5 rounded-full bg-obsidian/80 flex items-center justify-center">
