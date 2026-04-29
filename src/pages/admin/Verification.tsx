@@ -330,8 +330,24 @@ function AdminVerificationInner() {
       // "qualifications" — types KYC never produces — so the
       // auto-promote-to-verified branch never fired in prod even after
       // admin approved everything. Aligned with kyc.ts.
-      const REQUIRED = ["id_document", "proof_of_address", "regulator_certificate"];
-      const allDone = REQUIRED.every(r => verified.has(r));
+      // 2026-04-29 (Mistake 23): two paths submit docs with different
+      // doc_type values:
+      //   • /pages/provider/Verification.tsx (in-app, the path Skin
+      //     Nourishers and every active provider uses) — writes
+      //     'sa_id', 'professional_reg', 'qualifications', plus optional
+      //     'insurance' / 'business_reg' / 'proof_address'.
+      //   • /api/kyc/provider/submit-documents (legacy signup wizard
+      //     path, less commonly hit) — writes 'id_document',
+      //     'proof_of_address', 'regulator_certificate'.
+      // Mistake 12's fix aligned to the legacy path, so the in-app
+      // provider UI's uploads never tripped the auto-promote. Now we
+      // treat either naming scheme as valid — provider auto-promotes
+      // when EITHER set of three is fully verified.
+      const REQUIRED_PROVIDER_UI = ["sa_id", "professional_reg", "qualifications"];
+      const REQUIRED_KYC_API     = ["id_document", "proof_of_address", "regulator_certificate"];
+      const allDone =
+        REQUIRED_PROVIDER_UI.every(r => verified.has(r)) ||
+        REQUIRED_KYC_API.every(r => verified.has(r));
       if (allDone) {
         // 2026-04-29 (Mistake 20): the original dual-write targeted
         // profiles.provider_status / .provider_status_at, but those

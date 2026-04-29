@@ -48,6 +48,10 @@ const SCAN_DIRS = [
   // path wasn't in scope. Now it is.
   "src/lib/subscription.ts",
   "src/config/pricing.ts",
+  // 2026-04-29 follow-up (Mistake 22): provider Billing page hardcoded
+  // R299/R699 in JSX strings, drift detector didn't see it because the
+  // /pages/provider/ tree wasn't scanned. Now scoped in.
+  "src/pages/provider",
 ];
 
 const SKIP_PATTERNS = [/node_modules/, /\.git\//, /dist\//, /build\//];

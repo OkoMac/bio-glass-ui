@@ -6,6 +6,7 @@ import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
+import { PROVIDER_TIER_PRICING } from "@/lib/subscription";
 import {
   CreditCard, TrendingUp, CheckCircle, Download,
   Building2, Zap, Shield, Clock, Check, Loader2, ArrowLeft,
@@ -445,9 +446,12 @@ export default function ProviderBilling() {
                 ],
               },
               {
+                // 2026-04-29 (Mistake 22): was hardcoded with the
+                // pre-2026-04-28 legacy prices. Canonical config is in
+                // lib/subscription.ts; pulling from there avoids drift.
                 id: "pro" as const,
                 name: "Pro",
-                price: "R299",
+                price: `R${PROVIDER_TIER_PRICING.pro.monthly}`,
                 period: "/mo",
                 Icon: Zap,
                 features: [
@@ -462,7 +466,7 @@ export default function ProviderBilling() {
               {
                 id: "elite" as const,
                 name: "Elite",
-                price: "R699",
+                price: `R${PROVIDER_TIER_PRICING.elite.monthly}`,
                 period: "/mo",
                 Icon: Crown,
                 features: [
