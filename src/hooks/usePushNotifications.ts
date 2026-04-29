@@ -191,7 +191,8 @@ export function usePushNotifications(): UsePushNotifications {
       const keyRes = await fetch(`${API}/api/notifications/push/vapid-public-key`);
       const keyJson = await keyRes.json();
       if (!keyJson?.ok || !keyJson?.publicKey) {
-        if (import.meta.env.DEV) console.warn("[push] VAPID key not available from server");
+        // Real config issue — server is missing VAPID. Surface loud.
+        console.error("[push] VAPID key not available from server");
         return false;
       }
 
@@ -224,13 +225,13 @@ export function usePushNotifications(): UsePushNotifications {
       });
       const json = await res.json();
       if (!json?.ok) {
-        if (import.meta.env.DEV) console.warn("[push] server rejected subscription:", json?.error);
+        console.error("[push] server rejected subscription:", json?.error);
         return false;
       }
       setSubscribed(true);
       return true;
     } catch (err: any) {
-      if (import.meta.env.DEV) console.warn("[push] subscribe failed:", err?.message);
+      console.error("[push] subscribe failed:", err?.message);
       return false;
     } finally {
       setLoading(false);
@@ -260,12 +261,12 @@ export function usePushNotifications(): UsePushNotifications {
           });
         }
       } catch (err: any) {
-        if (import.meta.env.DEV) console.warn("[push] backend unsubscribe failed:", err?.message);
+        console.error("[push] backend unsubscribe failed:", err?.message);
       }
       setSubscribed(false);
       return true;
     } catch (err: any) {
-      if (import.meta.env.DEV) console.warn("[push] unsubscribe failed:", err?.message);
+      console.error("[push] unsubscribe failed:", err?.message);
       return false;
     } finally {
       setLoading(false);

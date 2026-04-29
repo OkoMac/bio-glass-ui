@@ -391,7 +391,10 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
           bookingRef,
         }),
       }).catch((err) => {
-        if (import.meta.env.DEV) console.warn("[booking] email confirmation failed:", err);
+        // Loud — booking confirmation email is a real user expectation;
+        // silent failure means the client thinks they got a receipt
+        // when nothing was sent.
+        console.error("[booking] email confirmation failed:", err);
       });
     }
 

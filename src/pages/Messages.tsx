@@ -341,14 +341,24 @@ export default function Messages() {
             }
           });
 
-          // Fetch the most recent message for each conversation that has a profile ID
+          // Fetch the most recent message for each conversation that has a profile ID.
+          // Bug fix 2026-04-29: previous filter `sender_id.in.(...)|receiver_id.in.(...)`
+          // matched ANY message touching ANY partner — including messages
+          // between two partners that don't involve the current user, which
+          // could show a stranger's text as your conversation's last message.
+          // Tightened to "(I sent → them) OR (they sent → me)".
           const conversationsWithProfiles = list.filter(c => c.supabaseId);
-          if (conversationsWithProfiles.length > 0) {
+          if (conversationsWithProfiles.length > 0 && user.profileId) {
             const partnerIds = conversationsWithProfiles.map(c => c.supabaseId!);
+            const partners = partnerIds.join(",");
+            const me = user.profileId;
             const { data: recentMsgs } = await supabase
               .from("messages")
               .select("sender_id, receiver_id, content, created_at, is_read")
-              .or(`sender_id.in.(${partnerIds.join(",")}),receiver_id.in.(${partnerIds.join(",")})`)
+              .or(
+                `and(sender_id.eq.${me},receiver_id.in.(${partners})),` +
+                `and(sender_id.in.(${partners}),receiver_id.eq.${me})`,
+              )
               .order("created_at", { ascending: false })
               .limit(100);
 
@@ -365,7 +375,7 @@ export default function Messages() {
             });
           }
         } catch (err) {
-          if (import.meta.env.DEV) console.warn("[messages] Supabase enrichment failed:", err);
+          console.error("[messages] Supabase enrichment failed:", err);
         }
       }
 

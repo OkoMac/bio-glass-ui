@@ -65,7 +65,11 @@ function calculateScore(answers: Record<string, unknown>, steps: OnboardingStep[
       if (!q.isKnowledgeCheck || !q.options) continue;
       const correctOptions = q.options.filter((o) => o.isCorrect).map((o) => o.id);
       if (!correctOptions.length) {
-        if (import.meta.env.DEV) console.warn(`[useOnboarding] Quiz question "${q.id}" has no correct option marked — skipped from score.`);
+        // Was dev-only — but if a misconfigured quiz lands in prod the
+        // user gets graded against fewer questions than intended (or a
+        // 100% gimme if all are bad). Surface loud so content rot is
+        // visible in browser console.
+        console.warn(`[useOnboarding] Quiz question "${q.id}" has no correct option marked — skipped from score.`);
         continue;
       }
       total++;
