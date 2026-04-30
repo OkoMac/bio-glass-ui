@@ -446,9 +446,9 @@ export default function Directory() {
         item: {
           "@type": "LocalBusiness",
           name: p.name,
-          description: `${p.service} in ${p.location}`,
-          address: { "@type": "PostalAddress", addressLocality: p.location, addressCountry: "ZA" },
-          aggregateRating: p.rating > 0 ? { "@type": "AggregateRating", ratingValue: p.rating, ratingCount: p.reviewCount || 1, bestRating: 5 } : undefined,
+          description: `${p.specialty} in ${p.location}`,
+          address: { "@type": "PostalAddress", addressLocality: p.city || p.location, addressCountry: "ZA" },
+          aggregateRating: p.rating > 0 ? { "@type": "AggregateRating", ratingValue: p.rating, ratingCount: p.reviews || 1, bestRating: 5 } : undefined,
           url: `https://bionhealth.co.za/provider/${p.id}`,
         },
       })),
