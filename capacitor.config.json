@@ -16,7 +16,11 @@
       "api.paystack.co",
       "checkout.paystack.com",
       "*.paystack.co",
-      "graph.facebook.com"
+      "graph.facebook.com",
+      "api.stripe.com",
+      "*.stripe.com",
+      "m.stripe.network",
+      "*.stripe.network"
     ]
   },
   "ios": {
