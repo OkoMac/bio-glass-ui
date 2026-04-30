@@ -211,12 +211,10 @@ export default function SeoCategoryCity() {
     };
   }, [city, category, providers, fallback]);
 
-  if (!city || !category) return null;
-
-  const hasLocal = providers.length > 0;
-
-  // Related searches — 6 cross-links for internal link juice
+  // Related searches — 6 cross-links for internal link juice.
+  // Hook must run unconditionally (rules-of-hooks); guarded inside.
   const relatedSearches = useMemo(() => {
+    if (!city || !category) return [];
     const other = SEO_CATEGORIES.filter(c => c.slug !== category.slug).slice(0, 3);
     const otherCities = SEO_CITIES.filter(c => c.slug !== city.slug).slice(0, 3);
     return [
@@ -224,6 +222,10 @@ export default function SeoCategoryCity() {
       ...otherCities.map(cc => ({ label: `${category.label} in ${cc.label}`, to: `/s/${cc.slug}/${category.slug}` })),
     ];
   }, [city, category]);
+
+  if (!city || !category) return null;
+
+  const hasLocal = providers.length > 0;
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow relative">

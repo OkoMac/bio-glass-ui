@@ -32,50 +32,15 @@ import { getProviderShareUrl, getBookingShareUrl, openWhatsApp } from "@/lib/wha
 import { trackEvent } from "@/lib/habits";
 import { usePageView } from "@/hooks/usePageView";
 import ProviderShopSection from "@/components/ProviderShopSection";
-import realData from "@/data/bion_pretoria_data.json";
-import jhbData from "@/data/bion_johannesburg_data.json";
+import { useProviderData } from "@/data/useProviderData";
 import { useProviderSlots, parseDuration } from "@/hooks/useProviderSlots";
 import { useAcquisitionVouchers } from "@/hooks/useAcquisitionVouchers";
 import { useProviderReviews } from "@/hooks/useReviews";
 import { Gift } from "lucide-react";
 
-// ── Build lookup from ALL scraped providers (Pretoria + Johannesburg) ─────────
-const PROVIDERS: Record<string, any> = {};
+// Vertical accent colors are picked deterministically from index — kept here
+// because the lookup is built lazily inside the component via useProviderData.
 const verticals = ["teal", "indigo", "coral", "amber"] as const;
-
-[...realData.providers, ...(jhbData as any).providers].forEach((p: any, i: number) => {
-  PROVIDERS[p.id] = {
-    id: p.id,
-    name: p.name,
-    specialty: p.service,
-    specialization: p.specialization,
-    vertical: verticals[i % verticals.length],
-    rating: typeof p.rating === "string" ? parseFloat(p.rating) || 0 : p.rating,
-    reviews: p.reviewCount,
-    location: p.location,
-    address: p.address,
-    experience: p.experienceYears ? `${p.experienceYears} years` : "Experienced",
-    image: getProviderImage(p.id, p.name),
-    coverImage: getProviderCover(p.id),
-    bio: p.description || `Professional ${p.service} provider based in ${p.location}.`,
-    price: p.price,
-    duration: p.duration || "60 min",
-    availability: p.availability,
-    qualifications: p.qualifications || [],
-    languages: p.languages || [],
-    servicesOffered: p.servicesOffered || [p.service],
-    contact: {
-      email: (p as any).email ?? p.contact?.email,
-      phone: (p as any).phone ?? p.contact?.phone,
-      website: (p as any).website ?? p.contact?.website,
-    },
-    specialization: (p as any).specialization,
-    openingHours: (p as any).opening_hours ?? [],
-    googlePlaceId: (p as any).google_place_id,
-    businessStatus: (p as any).business_status,
-    callout: !!p.callout,
-  };
-});
 
 export default function ProviderProfile() {
   const { id } = useParams();
@@ -110,7 +75,47 @@ export default function ProviderProfile() {
   const [recurringFrequency, setRecurringFrequency] = useState<"weekly" | "biweekly" | "monthly">("weekly");
   const [recurringSessions, setRecurringSessions] = useState<number>(4);
 
-  const provider = PROVIDERS[id ?? ""];
+  // Lazy-load all scraped providers (~3.8MB JHB + 0.6MB PTA chunks) instead of
+  // pulling them in via static imports. Page renders a skeleton while the
+  // provider JSON downloads on first visit; subsequent navigations are instant
+  // because useProviderData caches at module level.
+  const { providers: scrapedProviders, loading: providersLoading } = useProviderData("all");
+  const provider = useMemo(() => {
+    if (!id) return undefined;
+    const p = scrapedProviders.find((sp) => sp.id === id);
+    if (!p) return undefined;
+    const idx = scrapedProviders.indexOf(p);
+    return {
+      id: p.id,
+      name: p.name,
+      specialty: p.service,
+      specialization: (p as any).specialization,
+      vertical: verticals[idx % verticals.length],
+      rating: typeof p.rating === "string" ? parseFloat(p.rating) || 0 : p.rating,
+      reviews: p.reviewCount,
+      location: p.location,
+      address: (p as any).address,
+      experience: (p as any).experienceYears ? `${(p as any).experienceYears} years` : "Experienced",
+      image: getProviderImage(p.id, p.name),
+      coverImage: getProviderCover(p.id),
+      bio: (p as any).description || `Professional ${p.service} provider based in ${p.location}.`,
+      price: p.price,
+      duration: (p as any).duration || "60 min",
+      availability: p.availability,
+      qualifications: (p as any).qualifications || [],
+      languages: (p as any).languages || [],
+      servicesOffered: (p as any).servicesOffered || [p.service],
+      contact: {
+        email: (p as any).email ?? (p as any).contact?.email,
+        phone: (p as any).phone ?? (p as any).contact?.phone,
+        website: (p as any).website ?? (p as any).contact?.website,
+      },
+      openingHours: (p as any).opening_hours ?? [],
+      googlePlaceId: (p as any).google_place_id,
+      businessStatus: (p as any).business_status,
+      callout: !!(p as any).callout,
+    };
+  }, [id, scrapedProviders]);
   const isSignedIn = !!user;
 
   // Ask the booking hook for only the slots that (a) fall inside the
@@ -687,6 +692,14 @@ export default function ProviderProfile() {
   };
 
   if (!provider) {
+    if (providersLoading) {
+      return (
+        <div className="min-h-screen bg-obsidian flex flex-col items-center justify-center text-foreground gap-3">
+          <Loader2 className="w-6 h-6 animate-spin text-indigo" />
+          <p className="text-sm text-muted-foreground">Loading provider…</p>
+        </div>
+      );
+    }
     return (
       <div className="min-h-screen bg-obsidian flex flex-col items-center justify-center text-foreground gap-4">
         <p className="text-lg font-semibold">Provider not found</p>

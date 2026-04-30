@@ -14,8 +14,7 @@ import { useHabitProfile } from "@/hooks/useHabits";
 import { usePageView } from "@/hooks/usePageView";
 import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
-import realData from "@/data/bion_pretoria_data.json";
-import jhbData from "@/data/bion_johannesburg_data.json";
+import { useProviderData } from "@/data/useProviderData";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -61,10 +60,29 @@ function categorize(service: string, name?: string): string {
   return "wellness";
 }
 
-// ── Build provider list from real scraped data (all cities) ──────
-const mergedProviders = [...realData.providers, ...(jhbData as any).providers];
-const ALL_PROVIDERS = mergedProviders
-  .map((p: any) => ({
+const FILTER_TABS = ["All", "Top Rated", "Nearby", "Callouts", "Available Now"];
+
+interface DirectoryProvider {
+  id: string;
+  name: string;
+  specialty: string;
+  category: string;
+  rating: number;
+  reviews: number;
+  location: string;
+  suburb: string;
+  city: string;
+  price: string;
+  availability: string[];
+  avatar: string;
+  hasLogo: boolean;
+  lat: number | null;
+  lng: number | null;
+  callout: boolean;
+}
+
+function shapeProvider(p: any): DirectoryProvider {
+  return {
     id: p.id,
     name: p.name,
     specialty: p.service,
@@ -76,25 +94,13 @@ const ALL_PROVIDERS = mergedProviders
     city: p.city || p.enhanced_city || "",
     price: p.price,
     availability: p.availability,
-    avatar: (p as any).imageUrl || getProviderImage(p.id, p.name),
-    hasLogo: !!(p as any).imageUrl || hasCustomImage(p.id),
+    avatar: p.imageUrl || getProviderImage(p.id, p.name),
+    hasLogo: !!p.imageUrl || hasCustomImage(p.id),
     lat: p.lat ?? null,
     lng: p.lng ?? null,
-    callout: !!(p as any).callout,
-  }));
-
-// ── Add counts to categories ────────────────────────
-const catCounts = ALL_PROVIDERS.reduce<Record<string, number>>((acc, p) => {
-  acc[p.category] = (acc[p.category] ?? 0) + 1;
-  return acc;
-}, {});
-
-const CATEGORIES_WITH_COUNTS = SERVICE_CATEGORIES.map((c) => ({
-  ...c,
-  count: catCounts[c.id] ?? 0,
-}));
-
-const FILTER_TABS = ["All", "Top Rated", "Nearby", "Callouts", "Available Now"];
+    callout: !!p.callout,
+  };
+}
 
 /** Haversine distance in km between two GPS points. */
 function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -104,10 +110,6 @@ function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): num
   const a = Math.sin(dLat / 2) ** 2 + Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
-
-/** Get unique suburbs sorted alphabetically. */
-const ALL_SUBURBS = [...new Set(ALL_PROVIDERS.map(p => p.suburb).filter(Boolean))].sort();
-const ALL_CITIES = [...new Set(ALL_PROVIDERS.map(p => p.city).filter(Boolean))].sort();
 
 /** Reverse geocode GPS coordinates via OpenStreetMap Nominatim (free). */
 function useReverseGeo(lat: number | null, lng: number | null) {
@@ -139,6 +141,30 @@ export default function Directory() {
   const { user } = useAuth();
   const geo = useGeolocation();
   const userSuburb = useReverseGeo(geo.latitude, geo.longitude);
+
+  // Lazy-load provider JSON (Pretoria 0.6MB + Johannesburg 3MB) instead of
+  // pulling them in via static imports. Cuts ~3.8MB off the unauthenticated
+  // landing page first-load cost; data populates progressively.
+  const { providers: rawProviders, loading: providersLoading } = useProviderData("all");
+  const ALL_PROVIDERS = useMemo<DirectoryProvider[]>(
+    () => rawProviders.map(shapeProvider),
+    [rawProviders],
+  );
+  const CATEGORIES_WITH_COUNTS = useMemo(() => {
+    const counts = ALL_PROVIDERS.reduce<Record<string, number>>((acc, p) => {
+      acc[p.category] = (acc[p.category] ?? 0) + 1;
+      return acc;
+    }, {});
+    return SERVICE_CATEGORIES.map((c) => ({ ...c, count: counts[c.id] ?? 0 }));
+  }, [ALL_PROVIDERS]);
+  const ALL_SUBURBS = useMemo(
+    () => [...new Set(ALL_PROVIDERS.map((p) => p.suburb).filter(Boolean))].sort(),
+    [ALL_PROVIDERS],
+  );
+  const ALL_CITIES = useMemo(
+    () => [...new Set(ALL_PROVIDERS.map((p) => p.city).filter(Boolean))].sort(),
+    [ALL_PROVIDERS],
+  );
 
   // Auto-snap to suburb center when GPS resolves
   const hasSnapped = useRef(false);
@@ -194,7 +220,7 @@ export default function Directory() {
     if (!search.trim()) return withProviders;
     const q = search.toLowerCase();
     return withProviders.filter(c => c.name.toLowerCase().includes(q));
-  }, [search]);
+  }, [search, CATEGORIES_WITH_COUNTS]);
 
   // City filter — ONLY when user explicitly chose via filter or manual location picker.
   // Do NOT auto-detect from GPS — it's unreliable and frustrating.
@@ -212,7 +238,7 @@ export default function Directory() {
       if (suburbMatch?.city) return suburbMatch.city;
     }
     return null; // No city filter — show all, sorted by distance
-  }, [selectedCity, manualLocation]);
+  }, [selectedCity, manualLocation, ALL_CITIES, ALL_PROVIDERS]);
 
   // Filter + sort providers based on selected category, filter tab, suburb, city
   const filteredProviders = useMemo(() => {
@@ -314,7 +340,7 @@ export default function Directory() {
     }
 
     return list;
-  }, [selectedCategoryId, search, activeFilter, habitProfile, selectedSuburb, selectedCity, geo.latitude, geo.longitude, manualLocation]);
+  }, [selectedCategoryId, search, activeFilter, habitProfile, selectedSuburb, selectedCity, geo.latitude, geo.longitude, manualLocation, userCity, ALL_PROVIDERS]);
 
   const displayProviders = useMemo(() => filteredProviders.slice(0, visibleCount), [filteredProviders, visibleCount]);
   const hasMore = visibleCount < filteredProviders.length;
