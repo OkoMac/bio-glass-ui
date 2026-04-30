@@ -1,5 +1,14 @@
 // BION Service Worker — offline shell + caching + push notifications
-const CACHE_NAME = "bion-v5";
+//
+// CACHE_NAME contains a build placeholder (__BION_BUILD__) that the
+// postbuild script (scripts/inject-sw-version.mjs) replaces with a
+// per-deploy hash. The byte change makes the browser detect this as a
+// new SW on every deploy, which triggers reg.update() in main.tsx and
+// auto-reloads the page on the user's next visit — even when no other
+// SW logic changed. Without this, deploys that only touched app code
+// (not /sw.js itself) would leave users on the previous version
+// indefinitely because the SW byte-comparison would say "no change".
+const CACHE_NAME = "bion-__BION_BUILD__";
 const SHELL_ASSETS = [
   "/",
   "/manifest.json",

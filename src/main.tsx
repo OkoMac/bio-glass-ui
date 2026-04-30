@@ -41,23 +41,56 @@ if (SENTRY_DSN) {
 createRoot(document.getElementById("root")!).render(<App />);
 
 // ── Service Worker registration ──
+//
+// Auto-update strategy:
+//   1. /sw.js is byte-stamped per deploy by scripts/inject-sw-version.mjs
+//      (replaces __BION_BUILD__ in CACHE_NAME with version-shortsha). Every
+//      deploy guarantees a different SW file even if no SW logic changed.
+//   2. reg.update() runs on every page load AND every 30 minutes for
+//      long-lived tabs (someone leaving BION open all day still picks up
+//      updates within the half-hour).
+//   3. When a new SW activates we don't yank the page mid-interaction — we
+//      defer the reload until the tab is hidden (the user switched apps or
+//      closed the tab). They never witness a sudden refresh, and on the
+//      very next visit they're on fresh code with all their localStorage
+//      data still intact.
+//
+// Data preservation: localStorage and IndexedDB are NEVER cleared by the
+// app or the SW. Caches are scoped (bion-<build>) and reset cleanly on
+// activate via clients.claim — but caches only hold app shell + asset
+// bundles, not user data.
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
     try {
       const reg = await navigator.serviceWorker.register("/sw.js");
-      // Force check for updates on every page load
-      reg.update().catch(() => {});
-      // Auto-reload when new SW is installed (user gets latest version)
+
+      const reloadWhenHidden = () => {
+        if (document.visibilityState === "hidden") {
+          window.location.reload();
+          return;
+        }
+        const onVis = () => {
+          if (document.visibilityState === "hidden") {
+            document.removeEventListener("visibilitychange", onVis);
+            window.location.reload();
+          }
+        };
+        document.addEventListener("visibilitychange", onVis);
+      };
+
       reg.addEventListener("updatefound", () => {
         const newSW = reg.installing;
         if (!newSW) return;
         newSW.addEventListener("statechange", () => {
           if (newSW.state === "activated" && navigator.serviceWorker.controller) {
-            // New SW active — reload to use fresh assets
-            window.location.reload();
+            reloadWhenHidden();
           }
         });
       });
+
+      // Initial check + recurring poll for long-open tabs.
+      reg.update().catch(() => {});
+      setInterval(() => reg.update().catch(() => {}), 30 * 60 * 1000);
     } catch (err: any) {
       console.warn("[SW] registration failed:", err?.message ?? err);
     }
