@@ -143,6 +143,7 @@ export default function WaterTracker() {
   const [data, setData] = useState(() => getStoredData(todayKey()));
   const [streak, setStreak] = useState(getStreak);
   const [milestone, setMilestone] = useState<string | null>(null);
+  const [history, setHistory] = useState<Array<{ date: string; count: number; goal: number }>>([]);
   const { awardPoints } = useActivityPoints();
   const native = useNativeHealth();
   usePageView();
@@ -153,6 +154,46 @@ export default function WaterTracker() {
   }, [showTip]);
 
   useEffect(() => { document.title = "Free Daily Water Intake Tracker | BION"; }, []);
+
+  // Load last 7 days of history. Authenticated users pull from water_log
+  // (durable across devices); unauth users fall back to the localStorage
+  // bin we already write to. Both paths produce the same { date, count, goal }
+  // shape so the chart below doesn't care which source filled it.
+  useEffect(() => {
+    const days: string[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      days.push(d.toISOString().slice(0, 10));
+    }
+    const localGoal = data.goal || 8;
+
+    const fromLocal = () => days.map((date) => {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const all = raw ? JSON.parse(raw) : {};
+        const flat = parseInt(localStorage.getItem(`bion_water_${date}`) ?? "0") || 0;
+        const dayBucket = all[date] ?? {};
+        return { date, count: Math.max(flat, dayBucket.glasses ?? 0), goal: dayBucket.goal ?? localGoal };
+      } catch { return { date, count: 0, goal: localGoal }; }
+    });
+
+    if (user?.profileId && !user.id?.startsWith("demo_")) {
+      supabase.from("water_log" as any)
+        .select("date, count")
+        .eq("user_id", user.profileId)
+        .gte("date", days[0])
+        .lte("date", days[6])
+        .then(({ data: rows, error }) => {
+          if (error || !rows) { setHistory(fromLocal()); return; }
+          const byDate = new Map<string, number>();
+          for (const r of rows as any[]) byDate.set(r.date, r.count ?? 0);
+          setHistory(days.map((date) => ({ date, count: byDate.get(date) ?? 0, goal: localGoal })));
+        });
+    } else {
+      setHistory(fromLocal());
+    }
+  }, [user?.profileId, data.glasses, data.goal]);
 
   useEffect(() => {
     const schema = {
@@ -331,6 +372,42 @@ export default function WaterTracker() {
             </div>
           </div>
         </GlassCard>
+
+        {/* Last 7 days history */}
+        {history.length > 0 && (
+          <GlassCard variant="glass-1" className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Droplets className="w-4 h-4 text-teal-400" />
+                <span className="text-sm font-semibold text-foreground">Last 7 days</span>
+              </div>
+              <span className="text-xs text-muted-foreground">
+                {history.filter(h => h.count >= h.goal).length}/7 days hit goal
+              </span>
+            </div>
+            <div className="flex items-end gap-2 h-24">
+              {history.map((h) => {
+                const ratio = Math.min(h.count / Math.max(h.goal, 1), 1);
+                const hitGoal = h.count >= h.goal;
+                const isToday = h.date === dateKey;
+                const dayLabel = new Date(h.date + "T12:00:00").toLocaleDateString("en", { weekday: "short" }).slice(0, 1);
+                return (
+                  <div key={h.date} className="flex-1 flex flex-col items-center gap-1">
+                    <div className="w-full h-16 flex items-end">
+                      <div
+                        className={`w-full rounded-t-md transition-all ${hitGoal ? "gradient-teal" : "bg-white/10"} ${isToday ? "ring-2 ring-teal-400/40" : ""}`}
+                        style={{ height: `${Math.max(ratio * 100, 6)}%` }}
+                        title={`${h.date}: ${h.count}/${h.goal} glasses`}
+                      />
+                    </div>
+                    <span className={`text-[10px] ${isToday ? "text-foreground font-semibold" : "text-muted-foreground"}`}>{dayLabel}</span>
+                    <span className="text-[10px] text-muted-foreground">{h.count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </GlassCard>
+        )}
 
         {/* Today's log */}
         <GlassCard variant="glass-1" className="p-4">

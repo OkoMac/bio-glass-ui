@@ -5,7 +5,7 @@ import { useLocation } from "react-router-dom";
 import { shouldShowFloatingChrome } from "@/lib/floatingChrome";
 import Tooltip from "./Tooltip";
 
-const APP_VERSION = "2.4.0";
+const APP_VERSION = "2.5.0";
 
 // Detect device type
 function getDeviceType(): "android" | "ios" | "desktop" | "other" {
