@@ -82,6 +82,40 @@ export default function SleepTracker() {
 
   useEffect(() => { document.title = "Free Sleep Quality Tracker | BION"; }, []);
 
+  // Hydrate entries from Supabase health_logs on mount for signed-in users.
+  // Writes already go server-side (logSleep), but reads only came from
+  // localStorage — so users who signed in on a different device saw an
+  // empty chart even with data in the cloud. Pull the last 14 days,
+  // merge with localStorage (server wins on collision since it's the
+  // authoritative store), persist back so the rest of the page works
+  // unchanged.
+  useEffect(() => {
+    if (!user?.profileId || user.id?.startsWith("demo_")) return;
+    const since = new Date();
+    since.setDate(since.getDate() - 14);
+    supabase.from("health_logs")
+      .select("log_date, sleep_hours, notes")
+      .eq("user_id", user.profileId)
+      .gte("log_date", since.toISOString().slice(0, 10))
+      .order("log_date", { ascending: true })
+      .then(({ data: rows, error }) => {
+        if (error || !rows?.length) return;
+        const byDate = new Map<string, SleepEntry>();
+        for (const e of getEntries()) byDate.set(e.date, e);
+        for (const r of rows as any[]) {
+          if (!r.sleep_hours) continue;
+          const notes = String(r.notes ?? "");
+          const q = parseInt(notes.match(/Quality:\s*(\d)/)?.[1] ?? "3", 10);
+          const bed = notes.match(/Bed:\s*(\d{1,2}:\d{2})/)?.[1] ?? "23:00";
+          const wake = notes.match(/Wake:\s*(\d{1,2}:\d{2})/)?.[1] ?? "07:00";
+          byDate.set(r.log_date, { date: r.log_date, bedtime: bed, wakeTime: wake, duration: r.sleep_hours, quality: q });
+        }
+        const merged = Array.from(byDate.values()).sort((a, b) => a.date.localeCompare(b.date));
+        setEntries(merged);
+        saveEntries(merged);
+      });
+  }, [user?.profileId, user?.id]);
+
   useEffect(() => {
     const schema = {
       "@context": "https://schema.org",
@@ -101,13 +135,27 @@ export default function SleepTracker() {
 
   const todayLogged = entries.some((e) => e.date === todayKey());
 
-  // Last 7 entries for chart
-  const weekData = entries.slice(-7);
-  const avgSleep = weekData.length > 0
-    ? Math.round((weekData.reduce((s, e) => s + e.duration, 0) / weekData.length) * 10) / 10
+  // Calendar-aligned last-7-days window. Walk from 6 days ago → today and
+  // stitch in the matching entry per day (or null for missed days). Fixes
+  // the previous chart bug where `entries.slice(-7)` could pick up old
+  // scattered entries and mis-align them with the Mon-Sun day labels.
+  const weekDays = (() => {
+    const days: Array<{ date: string; entry: SleepEntry | null; dayLabel: string }> = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const date = d.toISOString().slice(0, 10);
+      const dayLabel = d.toLocaleDateString("en", { weekday: "short" }).slice(0, 1);
+      days.push({ date, entry: entries.find((e) => e.date === date) ?? null, dayLabel });
+    }
+    return days;
+  })();
+  const filledDays = weekDays.filter((d) => d.entry);
+  const avgSleep = filledDays.length > 0
+    ? Math.round((filledDays.reduce((s, d) => s + d.entry!.duration, 0) / filledDays.length) * 10) / 10
     : 0;
-  const avgQuality = weekData.length > 0
-    ? Math.round((weekData.reduce((s, e) => s + e.quality, 0) / weekData.length) * 10) / 10
+  const avgQuality = filledDays.length > 0
+    ? Math.round((filledDays.reduce((s, d) => s + d.entry!.quality, 0) / filledDays.length) * 10) / 10
     : 0;
 
   const logSleep = () => {
@@ -138,9 +186,7 @@ export default function SleepTracker() {
     }
   };
 
-  const maxDuration = Math.max(...weekData.map((e) => e.duration), 10);
-
-  const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const maxDuration = Math.max(...filledDays.map((d) => d.entry!.duration), 10);
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
@@ -239,23 +285,24 @@ export default function SleepTracker() {
             <span className="text-sm font-semibold text-foreground">This Week</span>
           </div>
           <div className="flex items-end justify-between gap-1.5 h-32">
-            {Array.from({ length: 7 }).map((_, i) => {
-              const entry = weekData[i];
-              const h = entry ? (entry.duration / maxDuration) * 100 : 0;
+            {weekDays.map((d, i) => {
+              const entry = d.entry;
+              const h = entry ? (entry.duration / maxDuration) * 100 : 6;
+              const isToday = d.date === todayKey();
               const qualityColor = entry
                 ? entry.quality >= 4 ? "from-teal-500 to-teal-400"
                 : entry.quality >= 3 ? "from-indigo-500 to-indigo-400"
                 : "from-coral to-orange-400"
                 : "from-white/10 to-white/5";
               return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                <div key={d.date} className="flex-1 flex flex-col items-center gap-1">
                   <motion.div
                     initial={{ height: 0 }} animate={{ height: `${h}%` }}
                     transition={{ duration: 0.5, delay: i * 0.05 }}
-                    className={`w-full rounded-t-lg bg-gradient-to-t ${qualityColor}`}
+                    className={`w-full rounded-t-lg bg-gradient-to-t ${qualityColor} ${isToday ? "ring-2 ring-indigo-400/40" : ""}`}
                   />
-                  <span className="text-[10px] text-muted-foreground">{dayLabels[i]}</span>
-                  {entry && <span className="text-[10px] text-muted-foreground">{entry.duration}h</span>}
+                  <span className={`text-[10px] ${isToday ? "text-foreground font-semibold" : "text-muted-foreground"}`}>{d.dayLabel}</span>
+                  {entry ? <span className="text-[10px] text-muted-foreground">{entry.duration}h</span> : <span className="text-[10px] text-muted-foreground">—</span>}
                 </div>
               );
             })}
