@@ -83,6 +83,7 @@ const Schedule = () => {
   const [cancelSuccess, setCancelSuccess] = useState<{
     providerName: string | null;
     voucherRestored: boolean;
+    refundInstructions?: string;
   } | null>(null);
   const [cancelling, setCancelling] = useState(false);
   const [retryingPayment, setRetryingPayment] = useState<string | null>(null);
@@ -152,10 +153,12 @@ const Schedule = () => {
       return;
     }
     const provider = cancelIntent.providerName ?? null;
+    const refundDest = res.refund_instructions;
     setCancelIntent(null);
     setCancelSuccess({
       providerName: provider,
       voucherRestored: !!res.voucher_restored,
+      refundInstructions: refundDest,
     });
   };
 
@@ -624,7 +627,10 @@ const Schedule = () => {
                 </button>
                 {!cancelSuccess.voucherRestored && (
                   <p className="text-[11px] text-muted-foreground pt-2 border-t border-white/5">
-                    Your refund has been credited to your BION Wallet. For disputes, email <strong className="text-foreground">disputes@bionhealth.co.za</strong>
+                    {cancelSuccess.refundInstructions
+                      ? cancelSuccess.refundInstructions + " For disputes, email "
+                      : "Your refund has been credited to your BION Wallet. For disputes, email "}
+                    <strong className="text-foreground">disputes@bionhealth.co.za</strong>
                   </p>
                 )}
               </div>

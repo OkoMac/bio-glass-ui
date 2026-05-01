@@ -7,8 +7,14 @@ import {
   LayoutDashboard, CalendarDays, BookOpen, Users,
   MessageSquare, BarChart3, Clock, Settings, Shield,
   LogOut, Tag, ChevronRight, Banknote, ClipboardList, Store, ShoppingBag,
-  Book, UserPlus, MapPin, ListOrdered,
+  Book, UserPlus, MapPin, ListOrdered, Menu,
 } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 
 const navItems = [
   { to: "/pro/dashboard",     label: "Dashboard",   icon: LayoutDashboard },
@@ -156,6 +162,43 @@ export default function ProviderNav() {
             )}
           </NavLink>
         ))}
+        <Sheet>
+          <SheetTrigger asChild>
+            <button
+              aria-label="Open navigation menu"
+              className="flex-1 flex flex-col items-center gap-1 py-1 rounded-2xl text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Menu className="w-5 h-5" />
+              <span className="text-[9px] font-medium">More</span>
+            </button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-72 p-0 border-r border-white/5"
+            style={{ background: "rgba(10,10,15,0.95)", backdropFilter: "blur(40px)" }}>
+            <div className="flex items-center gap-2 px-5 py-6 border-b border-white/5">
+              <img src="/bion-logo-white-sm.png" alt="BION" className="h-16 w-auto" />
+              <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Provider</span>
+            </div>
+            <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto max-h-[calc(100vh-80px)]">
+              {navItems.filter(item => !mobileNav.some(m => m.to === item.to)).map(({ to, label, icon: Icon }) => (
+                <SheetClose key={to} asChild>
+                  <NavLink to={to}
+                    aria-label={label}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                        isActive
+                          ? "glass-accent-indigo text-indigo"
+                          : "text-muted-foreground hover:text-foreground hover:bg-white/[0.04]"
+                      }`
+                    }
+                  >
+                    <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />
+                    <span className="text-sm font-medium">{label}</span>
+                  </NavLink>
+                </SheetClose>
+              ))}
+            </nav>
+          </SheetContent>
+        </Sheet>
       </nav>
     </>
   );

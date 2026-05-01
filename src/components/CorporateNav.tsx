@@ -1,6 +1,12 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, Users, BarChart2, Wallet, Settings, Building2, LogOut, Briefcase, Shield, ClipboardList } from "lucide-react";
+import { LayoutDashboard, Users, BarChart2, Wallet, Settings, Building2, LogOut, Briefcase, Shield, ClipboardList, Menu } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Overview",   path: "/corporate/dashboard"          },
@@ -84,6 +90,43 @@ export default function CorporateNav() {
               )}
             </NavLink>
           ))}
+          <Sheet>
+            <SheetTrigger asChild>
+              <button
+                aria-label="Open navigation menu"
+                className="p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Menu className="w-4 h-4" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-72 p-0 border-r border-white/5"
+              style={{ background: "rgba(10,10,18,0.95)", backdropFilter: "blur(40px)" }}>
+              <div className="flex items-center gap-2 px-5 py-6 border-b border-white/5">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center"
+                  style={{ background: "linear-gradient(135deg,#F59E0B,#F05A28)" }}>
+                  <Building2 className="w-4 h-4 text-white" />
+                </div>
+                <img src="/bion-logo-white-sm.png" alt="BION" className="h-16 w-auto" />
+                <span className="text-[10px] text-muted-foreground ml-1">Corporate</span>
+              </div>
+              <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto max-h-[calc(100vh-80px)]">
+                {navItems.map(item => (
+                  <SheetClose key={item.path} asChild>
+                    <NavLink to={item.path}>
+                      {({ isActive }) => (
+                        <div className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
+                          isActive ? "bg-amber/10 text-amber" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                        }`}>
+                          <item.icon className="w-4 h-4 shrink-0" />
+                          <span className="text-sm font-medium">{item.label}</span>
+                        </div>
+                      )}
+                    </NavLink>
+                  </SheetClose>
+                ))}
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </>

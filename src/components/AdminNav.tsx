@@ -5,10 +5,17 @@ import {
   Settings, ShieldCheck, LogOut, UserCog, FileCheck,
   AlertTriangle, Sparkles, BookOpen, MessageSquare, Shield, UserCheck,
   DollarSign, RotateCcw, LifeBuoy, Target, Megaphone, Radio, Send,
+  Menu,
 } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 
 const navItems = [
-  { icon: Sparkles,        label: "B_ Inbox",     path: "/admin/b-inbox"        },
+  { icon: Sparkles,        label: "Ops Inbox",    path: "/admin/b-inbox"        },
   { icon: LayoutDashboard, label: "Overview",     path: "/admin/dashboard"      },
   { icon: Briefcase,       label: "Providers",    path: "/admin/providers"      },
   { icon: FileCheck,       label: "Verification", path: "/admin/verification"   },
@@ -19,7 +26,7 @@ const navItems = [
   { icon: AlertTriangle,   label: "Disputes",     path: "/admin/disputes"       },
   { icon: RotateCcw,       label: "Refunds",      path: "/admin/refunds"        },
   { icon: LifeBuoy,        label: "Tickets",      path: "/admin/tickets"        },
-  { icon: Sparkles,        label: "B_ Queue",     path: "/admin/b-queue"        },
+  { icon: Sparkles,        label: "Review Queue", path: "/admin/b-queue"        },
   { icon: MessageSquare,   label: "WhatsApp",     path: "/admin/whatsapp"       },
   { icon: BookOpen,        label: "Catalogs",     path: "/admin/catalogs"       },
   { icon: Target,          label: "Rangers CRM",  path: "/admin/rangers"        },
@@ -133,6 +140,42 @@ export default function AdminNav() {
               )}
             </NavLink>
           ))}
+          <Sheet>
+            <SheetTrigger asChild>
+              <button
+                aria-label="Open navigation menu"
+                className="p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Menu className="w-4 h-4" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-72 p-0 border-r border-white/5"
+              style={{ background: "rgba(10,10,18,0.95)", backdropFilter: "blur(40px)" }}>
+              <div className="flex items-center gap-2 px-5 py-6 border-b border-white/5">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg,#F05A28,#FBBF24)" }}>
+                  <ShieldCheck className="w-4 h-4 text-white" />
+                </div>
+                <img src="/bion-logo-white-sm.png" alt="BION" className="h-16 w-auto" />
+                <span className="text-[10px] text-muted-foreground ml-1">Admin</span>
+              </div>
+              <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto max-h-[calc(100vh-80px)]">
+                {navItems.map(item => (
+                  <SheetClose key={item.path} asChild>
+                    <NavLink to={item.path} aria-label={item.label}>
+                      {({ isActive }) => (
+                        <div className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
+                          isActive ? "bg-orange-500/15 text-coral" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                        }`} aria-current={isActive ? "page" : undefined}>
+                          <item.icon className="w-4 h-4 shrink-0" aria-hidden="true" />
+                          <span className="text-sm font-medium">{item.label}</span>
+                        </div>
+                      )}
+                    </NavLink>
+                  </SheetClose>
+                ))}
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </>
