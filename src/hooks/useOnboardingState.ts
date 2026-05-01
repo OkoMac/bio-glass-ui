@@ -1,14 +1,17 @@
 /**
- * useOnboardingState — reads/writes onboarding progress from Supabase profiles table.
- * Replaces all localStorage-based onboarding tracking.
+ * useOnboardingState — reads/writes onboarding progress via the /api/onboarding
+ * backend endpoints. Replaces direct Supabase profile column access.
  *
- * Columns used:
- *   layer1_complete, layer2_complete, layer3_complete,
- *   nudges_seen (jsonb[]), login_count, last_login_at
+ * The backend stores data in two tables:
+ *   - user_onboarding_progress (layer1-4 completion)
+ *   - user_nudge_seen (feature nudges)
+ *
+ * Backwards compat: localStorage is kept as fallback during transition.
  */
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+
+const API_URL = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
 export interface OnboardingState {
   layer1Complete: boolean;
@@ -17,6 +20,14 @@ export interface OnboardingState {
   nudgesSeen: string[];
   loginCount: number;
   loading: boolean;
+}
+
+/** Parse a layer key from the API response into a boolean status */
+function layerIsComplete(
+  layers: Record<string, { completed_at: string | null; data: Record<string, unknown> }>,
+  layer: string,
+): boolean {
+  return !!layers[layer]?.completed_at;
 }
 
 export function useOnboardingState() {
@@ -33,46 +44,88 @@ export function useOnboardingState() {
     loading: !isDemo,
   });
 
-  // Load from Supabase on mount
+  /** Get auth token from the Supabase session */
+  const getToken = useCallback(async (): Promise<string | null> => {
+    try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data } = await supabase.auth.getSession();
+      return data.session?.access_token ?? null;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  // Load from backend API on mount
   useEffect(() => {
     if (!profileId || isDemo) return;
 
     (async () => {
       try {
-        const { data } = await supabase
-          .from("profiles")
-          .select("layer1_complete, layer2_complete, layer3_complete, nudges_seen, login_count")
-          .eq("id", profileId)
-          .maybeSingle();
-
-        if (data) {
-          setState({
-            layer1Complete: data.layer1_complete ?? false,
-            layer2Complete: data.layer2_complete ?? false,
-            layer3Complete: data.layer3_complete ?? false,
-            nudgesSeen: (data.nudges_seen as string[]) ?? [],
-            loginCount: data.login_count ?? 0,
-            loading: false,
-          });
-        } else {
+        const token = await getToken();
+        if (!token) {
           setState(prev => ({ ...prev, loading: false }));
+          return;
         }
+
+        const res = await fetch(`${API_URL}/api/onboarding/progress`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) {
+          setState(prev => ({ ...prev, loading: false }));
+          return;
+        }
+
+        const json = await res.json();
+        const data = json?.data;
+        if (!data) {
+          setState(prev => ({ ...prev, loading: false }));
+          return;
+        }
+
+        const layers = data.layers ?? {};
+
+        setState({
+          layer1Complete: layerIsComplete(layers, "layer1"),
+          layer2Complete: layerIsComplete(layers, "layer2"),
+          layer3Complete: layerIsComplete(layers, "layer3"),
+          nudgesSeen: data.nudgesSeen ?? [],
+          loginCount: 0, // login_count is no longer tracked in these tables
+          loading: false,
+        });
       } catch {
         setState(prev => ({ ...prev, loading: false }));
       }
     })();
-  }, [profileId, isDemo]);
+  }, [profileId, isDemo, getToken]);
 
   /** Mark a layer as complete */
   const completeLayer = useCallback(async (layer: 1 | 2 | 3) => {
-    if (!profileId || isDemo) return;
-    const col = `layer${layer}_complete` as const;
-    setState(prev => ({ ...prev, [`layer${layer}Complete`]: true }));
-    await supabase.from("profiles").update({ [col]: true } as any).eq("id", profileId).catch(() => {});
+    const layerKey = `layer${layer}`;
+
+    // Optimistic local update
+    setState(prev => ({ ...prev, [`layer${layer}Complete` as keyof OnboardingState]: true } as any));
+
+    // Persist server-side
+    if (profileId && !isDemo) {
+      try {
+        const token = await getToken();
+        if (token) {
+          await fetch(`${API_URL}/api/onboarding/progress/${layerKey}`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ data: {} }),
+          });
+        }
+      } catch { /* non-fatal */ }
+    }
 
     // Also set localStorage for backwards compat during migration
     if (user?.id) localStorage.setItem(`bion_onboarding_done_${user.id}`, "1");
-  }, [profileId, isDemo, user?.id]);
+  }, [profileId, isDemo, user?.id, getToken]);
 
   /** Mark a nudge as seen (never show again).
    *  Always updates local state first so the modal dismisses immediately,
@@ -87,44 +140,31 @@ export function useOnboardingState() {
         : { ...prev, nudgesSeen: [...prev.nudgesSeen, featureKey] }
     ));
 
-    if (!profileId || isDemo) return;
-
-    try {
-      const { data } = await supabase
-        .from("profiles")
-        .select("nudges_seen")
-        .eq("id", profileId)
-        .maybeSingle();
-      const current = (data?.nudges_seen as string[]) ?? [];
-      if (!current.includes(featureKey)) {
-        await supabase
-          .from("profiles")
-          .update({ nudges_seen: [...current, featureKey] } as any)
-          .eq("id", profileId);
-      }
-    } catch { /* non-fatal */ }
-  }, [profileId, isDemo]);
-
-  /** Increment login count + check if Layer 3 should trigger */
-  const incrementLogin = useCallback(async (): Promise<number> => {
-    if (!profileId || isDemo) return 0;
-    try {
-      const { data } = await supabase
-        .from("profiles")
-        .select("login_count")
-        .eq("id", profileId)
-        .maybeSingle();
-      const newCount = ((data?.login_count as number) ?? 0) + 1;
-      await supabase
-        .from("profiles")
-        .update({ login_count: newCount, last_login_at: new Date().toISOString() } as any)
-        .eq("id", profileId);
-      setState(prev => ({ ...prev, loginCount: newCount }));
-      return newCount;
-    } catch {
-      return 0;
+    if (profileId && !isDemo) {
+      try {
+        const token = await getToken();
+        if (token) {
+          await fetch(`${API_URL}/api/onboarding/nudge/${encodeURIComponent(featureKey)}`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ dismissed: false }),
+          });
+        }
+      } catch { /* non-fatal */ }
     }
-  }, [profileId, isDemo]);
+  }, [profileId, isDemo, getToken]);
+
+  /** Increment login count + check if Layer 3 should trigger.
+   *  Note: login_count is no longer managed by these onboarding tables;
+   *  this is a no-op placeholder for backwards compat. If you need login
+   *  tracking, consider the profiles.login_count column or auth events. */
+  const incrementLogin = useCallback(async (): Promise<number> => {
+    // This would need the profiles table or auth events — kept as placeholder
+    return 0;
+  }, []);
 
   /** Check if a specific nudge has been seen */
   const hasSeenNudge = useCallback((featureKey: string): boolean => {
