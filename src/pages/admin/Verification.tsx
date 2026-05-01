@@ -361,6 +361,7 @@ function AdminVerificationInner() {
         const { error: profErr } = await supabase.from("profiles").update({
           identity_verified: true,
           identity_verified_at: updateAt,
+          verified_by: user?.id,
         } as any).eq("id", providerId);
         if (profErr) console.error("[admin verification] profile identity_verified update failed:", profErr.message);
 
@@ -377,6 +378,15 @@ function AdminVerificationInner() {
         } catch (e: any) {
           console.error("[admin verification] provider_profiles dual-write error:", e?.message);
         }
+
+        // QA audit pass-2 C-5: log the provider promotion.
+        logAuditAction(
+          "provider_promoted",
+          "provider",
+          providerId,
+          { identity_verified: true, provider_status: "verified" },
+          user?.id ?? null,
+        );
 
         // Notify the provider via backend email endpoint
         try {

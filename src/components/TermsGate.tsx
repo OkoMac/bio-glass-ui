@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, type ReactNode } from "react";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
@@ -69,6 +70,10 @@ export default function TermsGate({ children }: TermsGateProps) {
     checkAcceptance();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  const location = useLocation();
+  // Bypass TermsGate for legal pages — users must be able to read terms before accepting them
+  if (location.pathname.startsWith('/legal/')) return <>{children}</>;
 
   const checkAcceptance = async () => {
     try {

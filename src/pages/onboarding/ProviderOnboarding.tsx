@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOnboardingState } from "@/hooks/useOnboardingState";
+import { supabase } from "@/integrations/supabase/client";
 import { Check, ExternalLink } from "lucide-react";
 
 const TERMS = [
@@ -32,7 +33,21 @@ export default function ProviderOnboarding() {
     await completeLayer(2);
     // Set localStorage flag for backwards compat
     if (user?.id) localStorage.setItem(`bion_onboarding_done_${user.id}`, "1");
-    navigate("/pro/dashboard", { replace: true });
+    // Check if verification documents are already submitted
+    try {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("provider_status")
+        .eq("id", user?.id)
+        .maybeSingle();
+      if ((profile as any)?.provider_status === "verified" || (profile as any)?.provider_status === "approved") {
+        navigate("/pro/dashboard", { replace: true });
+      } else {
+        navigate("/pro/verification", { replace: true });
+      }
+    } catch {
+      navigate("/pro/verification", { replace: true });
+    }
   };
 
   return (

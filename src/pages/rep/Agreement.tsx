@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { FileText, CheckCircle2, Shield, ArrowLeft } from "lucide-react";
 
 const SECTIONS = [
@@ -88,19 +90,39 @@ export default function RepAgreement() {
     year: "numeric",
   });
 
-  const handleAccept = () => {
+  const handleAccept = async () => {
     if (!agreed || !user) return;
 
-    const agreement = {
-      accepted: true,
-      date: new Date().toISOString(),
-      name: user.name,
-      email: user.email,
-    };
-    localStorage.setItem("bion_rep_agreement", JSON.stringify(agreement));
-    // Mark onboarding complete so they don't see it again
-    if (user.id) localStorage.setItem(`bion_onboarding_done_${user.id}`, "1");
-    navigate("/rep/dashboard");
+    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) {
+        toast.error("Please sign in again to accept the agreement");
+        return;
+      }
+
+      const res = await fetch(`${API}/api/rep/agreement`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ version: "1.0" }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err?.error ?? "Failed to save agreement — please try again");
+        return;
+      }
+
+      // Mark onboarding complete so they don't see it again
+      if (user.id) localStorage.setItem(`bion_onboarding_done_${user.id}`, "1");
+      navigate("/rep/dashboard");
+    } catch (err) {
+      toast.error("Network error — please check your connection and try again");
+    }
   };
 
   return (

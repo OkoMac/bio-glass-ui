@@ -60,6 +60,7 @@ export default function RepDashboard() {
   // early return.
   const [referralCode, setReferralCode] = useState<string>(() => generateReferralCode(user?.name ?? "REP"));
   const [attributionCount, setAttributionCount] = useState<number>(0);
+  const [agreementCheckDone, setAgreementCheckDone] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -95,6 +96,39 @@ export default function RepDashboard() {
     return () => { cancelled = true; };
   }, [user?.id]);
 
+  // Check whether the user has accepted the Ranger agreement via the API
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        if (!token || cancelled) return;
+
+        const res = await fetch(`${API}/api/rep/agreement`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (cancelled) return;
+
+        if (!res.ok) { setAgreementCheckDone(true); return; }
+
+        const body = await res.json();
+        if (!cancelled) {
+          if (!body.accepted) {
+            navigate("/rep/agreement");
+            return;
+          }
+          setAgreementCheckDone(true);
+        }
+      } catch {
+        if (!cancelled) setAgreementCheckDone(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id, navigate]);
+
   const shareUrl = `https://bionhealth.co.za/welcome?ref=${encodeURIComponent(referralCode)}`;
   const shareMessage = `Join BION — Africa's health, beauty and wellness platform. Sign up via my link and I'll be here to help you get onboarded. ${shareUrl}`;
 
@@ -108,9 +142,9 @@ export default function RepDashboard() {
   // hooks (useState, useEffect, useCourseCompletion) have been declared
   // so the call order stays stable on every render. Earlier this lived
   // above the hooks which violated React's rules-of-hooks.
-  const agreementRaw = localStorage.getItem("bion_rep_agreement");
-  const agreement = agreementRaw ? JSON.parse(agreementRaw) : null;
-  if (!agreement?.accepted) { navigate("/rep/agreement"); return null; }
+  // Uses API-based check via the useEffect above; while the check is
+  // pending we render nothing to avoid flashing the dashboard.
+  if (!agreementCheckDone) return null;
 
   const providers = getRepProviders();
   const commissions = getCommissionHistory();

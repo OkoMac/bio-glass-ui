@@ -74,6 +74,7 @@ export default function Notifications() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { bookings } = useBookings();
+  const role = user?.role ?? "client";
   const {
     notifications: dbNotifications,
     unreadCount: dbUnreadCount,
@@ -187,15 +188,46 @@ export default function Notifications() {
       if (bookings.length === 0 && user?.id && !user.id.startsWith("demo_")) {
         const id = `welcome_${user.id}`;
         if (!dismissedIds.has(id)) {
+          const welcomeData = {
+            client: {
+              title: "Welcome to BION! 👋",
+              body: "Browse the directory to book your first session and start your wellness journey.",
+              actionUrl: "/directory",
+            },
+            provider: {
+              title: "Welcome to BION Pro! 👋",
+              body: "Set up your services and availability to start receiving client bookings.",
+              actionUrl: "/pro/services",
+            },
+            admin: {
+              title: "Admin Dashboard 👋",
+              body: "Manage users, providers, and system settings from the admin panel.",
+              actionUrl: "/admin/dashboard",
+            },
+            sales_rep: {
+              title: "Sales Rep Portal 👋",
+              body: "Start adding leads and managing your provider partnerships.",
+              actionUrl: "/rep/dashboard",
+            },
+            corporate: {
+              title: "Corporate Dashboard 👋",
+              body: "Manage employees, wellness programs, and provider partnerships.",
+              actionUrl: "/corporate/dashboard",
+            },
+          }[role] ?? {
+            title: "Welcome to BION! 👋",
+            body: "Start exploring the platform to access wellness services.",
+            actionUrl: "/",
+          };
           list.push({
             id,
             category: "system",
-            title: "Welcome to BION! 👋",
-            body: "Browse the directory to book your first session and start your wellness journey.",
+            title: welcomeData.title,
+            body: welcomeData.body,
             time: "Today",
             createdAt: now - 60000,
             read: readIds.has(id),
-            actionUrl: "/directory",
+            actionUrl: welcomeData.actionUrl,
           });
         }
       }
@@ -304,7 +336,13 @@ export default function Notifications() {
             <div>
               <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
               <p className="text-sm text-muted-foreground">
-                Stay updated with your providers and activities
+                {role === "provider"
+                  ? "Stay updated with client bookings, reviews, and activity"
+                  : role === "admin"
+                    ? "System notifications and alerts"
+                    : role === "sales_rep"
+                      ? "Lead updates and referral activity"
+                      : "Stay updated with your providers and activities"}
               </p>
             </div>
           </div>
@@ -352,18 +390,28 @@ export default function Notifications() {
 
         {/* Filter bar */}
         <div className="flex gap-1.5 overflow-x-auto no-scrollbar py-1">
-          {["all", "booking", "message", "payment", "reminder", "review", "promotion", "system"].map(cat => (
-            <motion.button
-              key={cat}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setFilter(cat as any)}
-              className={`px-4 py-2 rounded-pill text-sm font-medium whitespace-nowrap ${
-                filter === cat ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
-              }`}
-            >
-              {cat === "all" ? "All" : cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </motion.button>
-          ))}
+          {(() => {
+            // Role-specific filter categories
+            const roleCategories: Record<string, string[]> = {
+              client:     ["all", "booking", "message", "payment", "reminder", "review", "promotion", "system"],
+              provider:   ["all", "booking", "message", "payment", "review", "system"],
+              admin:      ["all", "system", "payment", "message"],
+              sales_rep:  ["all", "message", "system", "promotion"],
+              corporate:  ["all", "system", "payment", "message"],
+            };
+            return (roleCategories[role] ?? roleCategories.client).map(cat => (
+              <motion.button
+                key={cat}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setFilter(cat as any)}
+                className={`px-4 py-2 rounded-pill text-sm font-medium whitespace-nowrap ${
+                  filter === cat ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
+                }`}
+              >
+                {cat === "all" ? "All" : cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </motion.button>
+            ));
+          })()}
         </div>
 
         {/* Notifications list */}
@@ -379,7 +427,13 @@ export default function Notifications() {
               <h3 className="font-semibold text-foreground mb-2">No notifications yet</h3>
               <p className="text-sm text-muted-foreground">
                 {filter === "all"
-                  ? "Notifications from bookings, reminders, and messages will appear here."
+                  ? role === "provider"
+                    ? "Client bookings, reviews, and messages will appear here once you start receiving them."
+                    : role === "admin"
+                      ? "System alerts and admin notifications will appear here."
+                      : role === "sales_rep"
+                        ? "Lead updates and referral notifications will appear here."
+                        : "Notifications from bookings, reminders, and messages will appear here."
                   : `No ${filter} notifications`}
               </p>
             </GlassCard>

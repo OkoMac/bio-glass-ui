@@ -214,13 +214,27 @@ async function fetchSignals(role: ChecklistRole, profileId: string, authUserId?:
     }
 
     else if (role === "sales_rep") {
-      // Rep signals live in localStorage + ranger_attribution_summary view.
-      // Keep the DB query narrow (`total_referred` only) so it's cheap.
+      // Rep signals live in API + ranger_attribution_summary view.
+      // Fetch agreement status from the backend API.
       const providersLS   = readLocalJsonArray("bion_rep_providers");
-      const agreementRaw  = (() => { try { return localStorage.getItem("bion_rep_agreement"); } catch { return null; } })();
-      const agreement     = agreementRaw ? safeParse(agreementRaw) : null;
       const sharedAt      = (() => { try { return localStorage.getItem("bion_rep_shared_at"); } catch { return null; } })();
       const bankLinked    = (() => { try { return localStorage.getItem("bion_rep_bank_linked") === "1"; } catch { return false; } })();
+
+      let agreementAccepted = false;
+      try {
+        const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        if (token) {
+          const res = await fetch(`${API}/api/rep/agreement`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            const body = await res.json();
+            agreementAccepted = Boolean(body.accepted);
+          }
+        }
+      } catch { /* non-fatal — fall back to false */ }
 
       let attributedCount = 0;
       try {
@@ -232,7 +246,7 @@ async function fetchSignals(role: ChecklistRole, profileId: string, authUserId?:
         if (data && (data as any).total_referred != null) attributedCount = Number((data as any).total_referred);
       } catch { /* view may not exist in dev */ }
 
-      out.sarsAccepted           = Boolean(agreement?.accepted);
+      out.sarsAccepted           = agreementAccepted;
       out.repBankConnected       = bankLinked;
       out.hasSharedLink          = Boolean(sharedAt);
       out.hasFirstProviderSignup = providersLS.length > 0 || attributedCount > 0;
