@@ -564,8 +564,21 @@ export default function Routines() {
         ...prev,
         ...items.map(i => ({ name: i.name, sets: i.sets, done: false })),
       ]);
+      // Auto-fill the create-routine form fields from inferred metadata
+      // so the user doesn't have to retype what's already on the photo
+      // they just snapped. They can still edit any field before saving.
+      const inferredTitle = String(json.data?.title ?? "").trim();
+      const inferredType  = String(json.data?.type ?? "").trim();
+      const inferredSched = String(json.data?.schedule ?? "").trim();
+      const inferredDays  = Number(json.data?.totalDays);
+      setNewRoutine(prev => ({
+        title:     prev.title.trim() ? prev.title : inferredTitle,
+        type:      (["workout","rehab","meal","skincare","medication","wellness","beauty","custom"].includes(inferredType) ? inferredType : prev.type) as Routine["type"],
+        schedule:  prev.schedule.trim() ? prev.schedule : inferredSched,
+        totalDays: Number.isFinite(inferredDays) && inferredDays >= 7 && inferredDays <= 365 ? inferredDays : prev.totalDays,
+      }));
       const { toast } = await import("sonner");
-      toast.success(`Imported ${items.length} item${items.length === 1 ? "" : "s"}. Review before saving.`);
+      toast.success(`Imported ${items.length} item${items.length === 1 ? "" : "s"}${inferredTitle ? ` for "${inferredTitle}"` : ""}. Review before saving.`);
       setShowImport(false);
       setImportText("");
     } catch (err: any) {
