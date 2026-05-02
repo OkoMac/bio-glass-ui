@@ -278,6 +278,8 @@ export default function ProviderProfile() {
   const [chosenScopes, setChosenScopes] = useState<Set<string>>(new Set());
   const [scopesLoaded, setScopesLoaded] = useState(false);
   const [showAllScopes, setShowAllScopes] = useState(false);
+  // Phase 5: friendlier copy for chemical/allergen-relevant services
+  const [contextualPrompt, setContextualPrompt] = useState<{ applies: boolean; reason?: string; scope_label?: string }>({ applies: false });
 
   // ── "Claim this business" self-service flow ──────────────────────────
   // Two paths: (1) OTP-verified self-claim, (2) request a meeting with
@@ -406,6 +408,7 @@ export default function ProviderProfile() {
           setAllScopes(all);
           setDefaultScopes(def);
           setChosenScopes(new Set(def));
+          setContextualPrompt(json.data.contextual_prompt ?? { applies: false });
           setScopesLoaded(true);
         }
       } catch {
@@ -1903,11 +1906,17 @@ export default function ProviderProfile() {
                     <div className="flex items-start gap-2">
                       <Shield className="w-4 h-4 text-indigo shrink-0 mt-0.5" />
                       <div className="flex-1">
-                        <p className="text-sm font-semibold text-foreground">Share data with {provider.name}?</p>
+                        <p className="text-sm font-semibold text-foreground">
+                          {contextualPrompt.applies
+                            ? `Share ${contextualPrompt.scope_label ?? "your allergy info"} with ${provider.name}?`
+                            : `Share data with ${provider.name}?`}
+                        </p>
                         <p className="text-[11px] text-muted-foreground leading-relaxed">
-                          {defaultScopes.length > 0
-                            ? `Pre-selected based on what a ${provider.specialty?.toLowerCase() ?? "provider in this field"} typically needs. Adjust below.`
-                            : "Tap to share specific data with this provider."}
+                          {contextualPrompt.applies
+                            ? `${contextualPrompt.reason ?? ""} We've pre-selected what's relevant.`
+                            : (defaultScopes.length > 0
+                                ? `Pre-selected based on what a ${provider.specialty?.toLowerCase() ?? "provider in this field"} typically needs. Adjust below.`
+                                : "Tap to share specific data with this provider.")}
                           {" "}Choices apply to all future bookings with them and can be changed anytime in Settings.
                         </p>
                       </div>
