@@ -646,6 +646,7 @@ const MEDICAL_AID_API = import.meta.env.VITE_API_URL ?? "https://bion-backend.on
 
 function BookingMedicalAid({ clientId }: { clientId: string | null }) {
   const [medAid, setMedAid] = useState<{ scheme: string; plan_name: string; member_number: string } | null>(null);
+  const [hiddenByClient, setHiddenByClient] = useState(false);
   const [claimRef, setClaimRef] = useState("");
 
   useEffect(() => {
@@ -657,11 +658,29 @@ function BookingMedicalAid({ clientId }: { clientId: string | null }) {
         const res = await fetch(`${MEDICAL_AID_API}/api/profiles/medical-aid/for-booking/${clientId}`, {
           headers: { Authorization: `Bearer ${session.access_token}` },
         });
+        // B1-0 phase 6: 403 with code=scope_not_granted means the client
+        // hasn't granted us this scope. Render the generic "hidden by
+        // client" placeholder per spec §6.5.
+        if (res.status === 403) {
+          setHiddenByClient(true);
+          return;
+        }
         const json = await res.json();
         if (json.ok && json.data) setMedAid(json.data);
       } catch {}
     })();
   }, [clientId]);
+
+  if (hiddenByClient) {
+    return (
+      <div className="border-t border-white/5 pt-3">
+        <div className="text-sm text-muted-foreground">Medical Aid</div>
+        <p className="text-[11px] text-muted-foreground mt-1 italic">
+          Hidden by client. Ask them at the session if relevant.
+        </p>
+      </div>
+    );
+  }
 
   if (!medAid) return null;
 
