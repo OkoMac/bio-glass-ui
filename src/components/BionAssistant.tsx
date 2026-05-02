@@ -343,7 +343,12 @@ export default function BionAssistant() {
           message: text.trim(),
           userName: user?.name,
           role,
-          userId: user?.profileId ?? user?.id,
+          // B2-7: send profileId + userId as separate keys so the backend
+          // can route the request through the agent runner. Without both
+          // present the backend falls back to the legacy chat path and
+          // tools never fire.
+          profileId: user?.profileId,
+          userId: user?.id,
           userData: {
             calories: data.totalCal,
             calGoal: data.calGoal,
