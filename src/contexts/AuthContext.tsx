@@ -14,7 +14,8 @@ interface AuthContextType {
   login: (user: BioUser) => void;           // demo / direct set
   logout: () => void;
   switchRole: (role: UserRole) => void | Promise<void>;  // switches active role via backend
-  updateAvatar: (url: string) => void;      // profile photo update
+  updateAvatar: (url: string) => Promise<void>;      // profile photo update — writes to profiles.avatar_url
+  updateCoverImage: (url: string) => Promise<void>;  // profile banner — writes to profiles.cover_image_url
   availableRoles: UserRole[];               // all roles the user holds
   isClient:    boolean;
   isProvider:  boolean;
@@ -205,12 +206,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch { /* non-blocking */ }
   }, [user]);
 
-  // ── Avatar update — persists to localStorage (+ Supabase in prod) ──
-  const updateAvatar = useCallback((url: string) => {
+  // ── Avatar update — server-side persistence ───────────────────────
+  // Bug fix 2026-05-01: previous version wrote ONLY to localStorage + React
+  // state. The next TOKEN_REFRESHED event re-fetched the profile from the
+  // server (where avatar_url was null) and clobbered the local update.
+  // Now writes to profiles.avatar_url so the source-of-truth survives
+  // token refreshes, uninstall, and cross-device sign-in.
+  const updateAvatar = useCallback(async (url: string) => {
     if (!user) return;
     const updated = { ...user, avatar: url };
     storeUser(updated);
     setUser(updated);
+    if (user.profileId && !user.id?.startsWith("demo_")) {
+      try {
+        await supabase.from("profiles")
+          .update({ avatar_url: url } as any)
+          .eq("id", user.profileId);
+      } catch (err) {
+        console.error("[auth] avatar persist failed:", err);
+      }
+    }
+  }, [user]);
+
+  // ── Cover image update — server-side persistence ──────────────────
+  // Companion to updateAvatar. Cover banner was previously localStorage-only
+  // (in Profile.tsx state) so uninstall = data loss. Now durable.
+  const updateCoverImage = useCallback(async (url: string) => {
+    if (!user) return;
+    const updated = { ...user, coverImage: url };
+    storeUser(updated);
+    setUser(updated);
+    if (user.profileId && !user.id?.startsWith("demo_")) {
+      try {
+        await supabase.from("profiles")
+          .update({ cover_image_url: url } as any)
+          .eq("id", user.profileId);
+      } catch (err) {
+        console.error("[auth] cover persist failed:", err);
+      }
+    }
   }, [user]);
 
   return (
@@ -221,6 +255,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout,
       switchRole,
       updateAvatar,
+      updateCoverImage,
       availableRoles,
       isClient:    user?.role === "client",
       isProvider:  user?.role === "provider",

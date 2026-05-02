@@ -10,6 +10,12 @@ export interface BioUser {
   email: string;
   role: UserRole;
   avatar?: string;
+  /**
+   * Profile cover banner. Stored server-side at profiles.cover_image_url so
+   * it survives uninstall + cross-device sign-in. localStorage is only a
+   * hot cache.
+   */
+  coverImage?: string;
   socialLinks?: {
     website?: string;
     linkedin?: string;
@@ -45,7 +51,7 @@ export function removeUser(): void {
 export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser | null> {
   try {
     const [{ data: profile }, { data: roleRows }, { data: authData }] = await Promise.all([
-      supabase.from("profiles").select("id, full_name, email, avatar_url").eq("user_id", supabaseUserId).maybeSingle(),
+      supabase.from("profiles").select("id, full_name, email, avatar_url, cover_image_url" as any).eq("user_id", supabaseUserId).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", supabaseUserId),
       supabase.auth.getUser(),
     ]);
@@ -72,6 +78,7 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
     let profileName = profile?.full_name;
     let profileEmail = profile?.email;
     let profileAvatar = profile?.avatar_url;
+    let profileCover = (profile as any)?.cover_image_url ?? undefined;
 
     if (!profile && authData.user) {
       const fallbackName = (authData.user.user_metadata?.full_name as string | undefined)
@@ -109,12 +116,13 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
     }
 
     const user: BioUser = {
-      id:        supabaseUserId,
-      profileId: profileId ?? undefined,
-      name:      profileName ?? authData.user?.email?.split("@")[0] ?? "User",
-      email:     profileEmail ?? authData.user?.email ?? "",
+      id:         supabaseUserId,
+      profileId:  profileId ?? undefined,
+      name:       profileName ?? authData.user?.email?.split("@")[0] ?? "User",
+      email:      profileEmail ?? authData.user?.email ?? "",
       role,
-      avatar:    profileAvatar ?? undefined,
+      avatar:     profileAvatar ?? undefined,
+      coverImage: profileCover ?? undefined,
     };
     
     // Add subscription based on user role

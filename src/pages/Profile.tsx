@@ -115,7 +115,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState<"dashboard" | "rewards">("dashboard");
   const [referralCopied, setReferralCopied] = useState(false);
   const navigate = useNavigate();
-  const { user, logout, switchRole, updateAvatar, availableRoles } = useAuth();
+  const { user, logout, switchRole, updateAvatar, updateCoverImage, availableRoles } = useAuth();
   const { bookings } = useBookings();
   const { balance: bioPoints } = useBioPoints();
   const { streak } = useStreaks("booking");
@@ -168,7 +168,11 @@ const Profile = () => {
   const profilePhone = profileData.phone;
   const profileLocation = profileData.location;
   const profileAge = profileData.age;
-  const profileCover = profileData.cover;
+  // Cover image: read from AuthContext (which mirrors profiles.cover_image_url)
+  // so it survives uninstall + cross-device sign-in. Fall back to legacy
+  // localStorage value during migration so existing users don't see a flash
+  // of empty banner before the AuthContext field hydrates.
+  const profileCover = user?.coverImage ?? profileData.cover;
 
   const saveProfileData = (data: typeof profileData) => {
     setProfileData(data);
@@ -180,7 +184,11 @@ const Profile = () => {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      saveProfileData({ ...profileData, cover: reader.result as string });
+      const dataUrl = reader.result as string;
+      // Write server-side via AuthContext (durable). Keep localStorage as
+      // hot cache for immediate render on next mount.
+      updateCoverImage(dataUrl).catch(() => {});
+      saveProfileData({ ...profileData, cover: dataUrl });
     };
     reader.readAsDataURL(file);
   };

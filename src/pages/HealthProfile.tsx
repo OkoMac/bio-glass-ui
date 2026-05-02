@@ -1,5 +1,28 @@
 import { useState, useEffect, useCallback } from "react";
-import { useHealthLogs } from "@/hooks/useHealth";
+import { useHealthLogs, useHealthProfile } from "@/hooks/useHealth";
+
+// One-line explainers shown below each metric input. Helps users
+// understand what each measurement contributes (Lee feedback 2026-05-01:
+// "more intuition, less effort").
+const METRIC_HELP: Record<string, string> = {
+  "Weight":      "Body mass. Combined with height (from your profile) to compute BMI live below.",
+  "Body Fat":    "% body fat — sharper signal than BMI. Athletes can be heavy yet lean; this captures that.",
+  "Lean Mass":   "Muscle + bone + organs. Helps distinguish 'gained 2kg of muscle' from 'gained 2kg of fat'.",
+  "Resting HR":  "Resting heart rate, measured first thing in the morning. Lower = better cardio fitness.",
+  "Daily Steps": "Activity level. ~8,000 steps/day is a strong floor for general health.",
+  "Sleep Avg":   "Hours of sleep last night. 7-9h is the healthy adult range.",
+};
+
+function computeBMI(weightKg: number, heightCm: number | null | undefined): { value: number; band: string; color: string } | null {
+  if (!weightKg || !heightCm || heightCm <= 0) return null;
+  const m = heightCm / 100;
+  const bmi = weightKg / (m * m);
+  // WHO bands (adult). South African public-health guidance follows the same.
+  if (bmi < 18.5) return { value: bmi, band: "Underweight", color: "text-amber-400" };
+  if (bmi < 25)   return { value: bmi, band: "Healthy",     color: "text-teal-400" };
+  if (bmi < 30)   return { value: bmi, band: "Overweight",  color: "text-amber-400" };
+  return { value: bmi, band: "Obese", color: "text-coral" };
+}
 import { useAuth } from "@/contexts/AuthContext";
 import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
 import { toast } from "sonner";
@@ -74,6 +97,8 @@ const VERT_COLOR: Record<string, string> = {
 export default function HealthProfile() {
   const navigate = useNavigate();
   const { logs, logToday } = useHealthLogs(30);
+  const { profile: healthProfile } = useHealthProfile();
+  const heightCm = healthProfile?.height_cm ?? null;
   const { showTip } = useFeatureDiscovery();
   const [tab, setTab]   = useState<Tab>("metrics");
 
@@ -401,10 +426,13 @@ export default function HealthProfile() {
                       </button>
                     </div>
                     <div className="space-y-3 max-h-[50vh] overflow-y-auto">
-                      {METRICS.map(m => (
-                        <div key={m.label} className="flex items-center gap-3">
-                          <div className="flex-1">
-                            <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">{m.label} ({m.unit})</label>
+                      {METRICS.map(m => {
+                        const isWeight = m.label === "Weight";
+                        const wtParsed = isWeight ? parseFloat(metricInputs["Weight"] ?? "") : NaN;
+                        const liveBmi = isWeight && !isNaN(wtParsed) ? computeBMI(wtParsed, heightCm) : null;
+                        return (
+                          <div key={m.label} className="flex flex-col gap-1">
+                            <label className="text-[10px] text-muted-foreground uppercase tracking-wider block">{m.label} ({m.unit})</label>
                             <input
                               type="number"
                               placeholder={m.value}
@@ -412,9 +440,23 @@ export default function HealthProfile() {
                               onChange={e => setMetricInputs(prev => ({ ...prev, [m.label]: e.target.value }))}
                               className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors"
                             />
+                            {METRIC_HELP[m.label] && (
+                              <p className="text-[10px] text-muted-foreground/80 leading-snug">{METRIC_HELP[m.label]}</p>
+                            )}
+                            {isWeight && liveBmi && (
+                              <p className={`text-[11px] font-medium ${liveBmi.color}`}>
+                                BMI: {liveBmi.value.toFixed(1)} · {liveBmi.band}
+                                <span className="text-muted-foreground font-normal"> (height {heightCm}cm from profile)</span>
+                              </p>
+                            )}
+                            {isWeight && !liveBmi && !heightCm && (
+                              <p className="text-[10px] text-amber-400/80">
+                                Add your height in your health profile to see BMI live.
+                              </p>
+                            )}
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                     <motion.button whileTap={{ scale: 0.97 }}
                       onClick={async () => {
