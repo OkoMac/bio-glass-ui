@@ -10,7 +10,9 @@ import { usePageView } from "@/hooks/usePageView";
 import AdBanner from "@/components/AdBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { useVisibilityRefetch } from "@/hooks/useVisibilityRefetch";
-import { ArrowLeft, Moon, Sun, Star, Clock, TrendingUp, Lightbulb } from "lucide-react";
+import { useSleepSchedule } from "@/hooks/useSleepSchedule";
+import { toast } from "sonner";
+import { ArrowLeft, Moon, Sun, Star, Clock, TrendingUp, Lightbulb, Bell, ChevronDown } from "lucide-react";
 
 const STORAGE_KEY = "bion_sleep_tracker";
 
@@ -123,6 +125,22 @@ export default function SleepTracker() {
   // (Lee bug 2026-05-01: PWA + browser don't update each other).
   useVisibilityRefetch(() => { hydrateFromServer(); }, [user?.profileId]);
 
+  // B2-1: schedule (Lee's redesign — set bedtime + wake once, BION reminds)
+  const { schedule, save: saveSchedule } = useSleepSchedule();
+  const [scheduleExpanded, setScheduleExpanded] = useState(false);
+  const [scheduleDraft, setScheduleDraft] = useState(schedule);
+  useEffect(() => { setScheduleDraft(schedule); }, [schedule]);
+
+  const handleSaveSchedule = async () => {
+    try {
+      await saveSchedule({ ...scheduleDraft, enabled: true });
+      toast.success("Sleep schedule saved — you'll get a bedtime nudge 30 min before lights-out.");
+      setScheduleExpanded(false);
+    } catch (err: any) {
+      toast.error(err?.message ?? "Couldn't save schedule");
+    }
+  };
+
   useEffect(() => {
     const schema = {
       "@context": "https://schema.org",
@@ -218,6 +236,83 @@ export default function SleepTracker() {
         )}
 
         <AdBanner slot="utilities-top" format="horizontal" />
+
+        {/* B2-1: Sleep schedule setup — Lee's redesign (more intuition, less effort) */}
+        <GlassCard variant="glass-1" className="p-4 space-y-3">
+          <button
+            onClick={() => setScheduleExpanded(!scheduleExpanded)}
+            className="w-full flex items-center justify-between"
+          >
+            <div className="flex items-center gap-2">
+              <Bell className="w-4 h-4 text-indigo-400" />
+              <div className="text-left">
+                <p className="text-sm font-semibold text-foreground">
+                  {schedule.enabled ? "Sleep schedule" : "Set up sleep reminders"}
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  {schedule.enabled
+                    ? `Weekday ${schedule.weekday_bedtime} → ${schedule.weekday_wake} · Weekend ${schedule.weekend_bedtime} → ${schedule.weekend_wake}`
+                    : "BION will nudge you 30 min before bedtime, then ask how you slept in the morning."}
+                </p>
+              </div>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${scheduleExpanded ? "rotate-180" : ""}`} />
+          </button>
+
+          {scheduleExpanded && (
+            <div className="pt-2 space-y-3 border-t border-white/[0.06]">
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Weekday (Mon–Fri)</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] text-muted-foreground mb-1 block">Bedtime</label>
+                    <input type="time" value={scheduleDraft.weekday_bedtime}
+                      onChange={(e) => setScheduleDraft({ ...scheduleDraft, weekday_bedtime: e.target.value })}
+                      className="w-full glass-1 rounded-xl px-3 py-2 text-sm text-foreground bg-transparent border-0 outline-none" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground mb-1 block">Wake</label>
+                    <input type="time" value={scheduleDraft.weekday_wake}
+                      onChange={(e) => setScheduleDraft({ ...scheduleDraft, weekday_wake: e.target.value })}
+                      className="w-full glass-1 rounded-xl px-3 py-2 text-sm text-foreground bg-transparent border-0 outline-none" />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Weekend (Sat–Sun)</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] text-muted-foreground mb-1 block">Bedtime</label>
+                    <input type="time" value={scheduleDraft.weekend_bedtime}
+                      onChange={(e) => setScheduleDraft({ ...scheduleDraft, weekend_bedtime: e.target.value })}
+                      className="w-full glass-1 rounded-xl px-3 py-2 text-sm text-foreground bg-transparent border-0 outline-none" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground mb-1 block">Wake</label>
+                    <input type="time" value={scheduleDraft.weekend_wake}
+                      onChange={(e) => setScheduleDraft({ ...scheduleDraft, weekend_wake: e.target.value })}
+                      className="w-full glass-1 rounded-xl px-3 py-2 text-sm text-foreground bg-transparent border-0 outline-none" />
+                  </div>
+                </div>
+              </div>
+              <motion.button whileTap={{ scale: 0.97 }} onClick={handleSaveSchedule}
+                className="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-indigo-500 to-violet-500">
+                {schedule.enabled ? "Update schedule" : "Enable reminders"}
+              </motion.button>
+              {schedule.enabled && (
+                <button
+                  onClick={async () => {
+                    await saveSchedule({ enabled: false });
+                    toast.success("Reminders paused");
+                  }}
+                  className="w-full text-[11px] text-muted-foreground/80 hover:text-muted-foreground"
+                >
+                  Pause reminders
+                </button>
+              )}
+            </div>
+          )}
+        </GlassCard>
 
         {/* Log sleep */}
         <GlassCard variant="glass-2" className="p-5 space-y-4">
