@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   BioUser, UserRole,
@@ -43,6 +43,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return stored;
   });
   const [loading, setLoading] = useState(true);
+
+  // Tracks the timestamp of the most recent local write (avatar / cover).
+  // Prevents the visibility-change refetch from clobbering a fresh upload
+  // before the Supabase write has propagated. Set by updateAvatar /
+  // updateCoverImage; checked by the visibilitychange handler.
+  const lastLocalWriteAt = useRef<number>(0);
 
   // ── Sync with Supabase session ──────────────────────────────────
   useEffect(() => {
@@ -148,6 +154,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Only refetch if hidden for >5s (skip transient focus loss)
       if (!lastHidden || Date.now() - lastHidden < 5000) return;
       lastHidden = null;
+      // Skip refetch if the user just made a local write (avatar / cover).
+      // iOS file picker briefly hides the tab; without this guard, the
+      // refetch fires on return and overwrites the fresh upload before
+      // the supabase write has had time to propagate.
+      const sinceWrite = Date.now() - lastLocalWriteAt.current;
+      if (sinceWrite < 8000) return;
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user || !mounted) return;
@@ -237,43 +249,67 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch { /* non-blocking */ }
   }, [user]);
 
-  // ── Avatar update — server-side persistence ───────────────────────
+  // ── Avatar update — server-side persistence with race protection ──
   // Bug fix 2026-05-01: previous version wrote ONLY to localStorage + React
   // state. The next TOKEN_REFRESHED event re-fetched the profile from the
   // server (where avatar_url was null) and clobbered the local update.
   // Now writes to profiles.avatar_url so the source-of-truth survives
   // token refreshes, uninstall, and cross-device sign-in.
+  //
+  // Race protection (2026-05-01 follow-up): on iOS the file picker briefly
+  // hides the tab, which can fire visibilitychange. The refetch on return
+  // could overwrite the local update before the supabase write completes.
+  // Solution: stamp lastLocalWriteAt BEFORE the optimistic local set; the
+  // visibility handler checks this and skips refetch within 5s of any
+  // write. Plus: rollback local state if the supabase write fails.
   const updateAvatar = useCallback(async (url: string) => {
     if (!user) return;
+    const previousAvatar = user.avatar;
+    lastLocalWriteAt.current = Date.now();
     const updated = { ...user, avatar: url };
     storeUser(updated);
     setUser(updated);
     if (user.profileId && !user.id?.startsWith("demo_")) {
       try {
-        await supabase.from("profiles")
+        const { error } = await supabase.from("profiles")
           .update({ avatar_url: url } as any)
           .eq("id", user.profileId);
+        if (error) throw error;
+        // Refresh write-stamp after success — covers slow links where the
+        // initial 5s buffer would have elapsed already.
+        lastLocalWriteAt.current = Date.now();
       } catch (err) {
-        console.error("[auth] avatar persist failed:", err);
+        // Rollback so local state matches the server (which still has the
+        // old value). Without rollback, user sees the new image briefly
+        // and is confused when it reverts after the next session refresh.
+        console.error("[auth] avatar persist failed — rolling back:", err);
+        const rolled = { ...user, avatar: previousAvatar };
+        storeUser(rolled);
+        setUser(rolled);
       }
     }
   }, [user]);
 
-  // ── Cover image update — server-side persistence ──────────────────
-  // Companion to updateAvatar. Cover banner was previously localStorage-only
-  // (in Profile.tsx state) so uninstall = data loss. Now durable.
+  // ── Cover image update — same shape as updateAvatar ─────────────
   const updateCoverImage = useCallback(async (url: string) => {
     if (!user) return;
+    const previousCover = user.coverImage;
+    lastLocalWriteAt.current = Date.now();
     const updated = { ...user, coverImage: url };
     storeUser(updated);
     setUser(updated);
     if (user.profileId && !user.id?.startsWith("demo_")) {
       try {
-        await supabase.from("profiles")
+        const { error } = await supabase.from("profiles")
           .update({ cover_image_url: url } as any)
           .eq("id", user.profileId);
+        if (error) throw error;
+        lastLocalWriteAt.current = Date.now();
       } catch (err) {
-        console.error("[auth] cover persist failed:", err);
+        console.error("[auth] cover persist failed — rolling back:", err);
+        const rolled = { ...user, coverImage: previousCover };
+        storeUser(rolled);
+        setUser(rolled);
       }
     }
   }, [user]);
