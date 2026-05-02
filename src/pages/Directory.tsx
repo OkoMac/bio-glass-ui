@@ -1,7 +1,8 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
-import { Search, MapPin, SlidersHorizontal, Navigation, Star, Clock, ChevronRight, X, Plus, Lock, Phone, ArrowLeft, Globe, ExternalLink, Send } from "lucide-react";
+import { Search, MapPin, SlidersHorizontal, Navigation, Star, Clock, ChevronRight, ChevronDown, X, Plus, Lock, Phone, ArrowLeft, Globe, ExternalLink, Send, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 import BookingRequestForm from "@/components/BookingRequestForm";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import ServiceCategoryBlock, { SERVICE_CATEGORIES, type ServiceCategory } from "@/components/ServiceCategoryBlock";
@@ -193,6 +194,11 @@ export default function Directory() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedSuburb, setSelectedSuburb] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  // Which city row in the filter accordion is currently expanded.
+  // Null = collapsed; only one open at a time so the panel stays compact.
+  const [expandedCity, setExpandedCity] = useState<string | null>(null);
+  // Light/dark theme toggle via next-themes
+  const { theme, setTheme } = useTheme();
   const [manualLocation, setManualLocation] = useState<{lat:number;lng:number;name:string}|null>(() => {
     try {
       const saved = localStorage.getItem("bion_user_location");
@@ -605,53 +611,124 @@ export default function Directory() {
                 className="overflow-hidden"
               >
                 <div className="glass-1 rounded-2xl p-4 space-y-3 mt-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold text-foreground">Filter by location</p>
+                  {/* Header: title · light-mode toggle · clear */}
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs font-semibold text-foreground flex-1">Filter by location</p>
+                    <button
+                      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                      aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+                      className="flex items-center gap-1 px-2 py-1 rounded-pill border border-white/[0.08] bg-white/[0.02] text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {theme === "light" ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />}
+                      <span className="capitalize">{theme === "light" ? "Dark" : "Light"} mode</span>
+                    </button>
                     {(selectedSuburb || selectedCity) && (
-                      <button onClick={() => { setSelectedSuburb(null); setSelectedCity(null); }} className="text-[10px] text-indigo">
+                      <button onClick={() => { setSelectedSuburb(null); setSelectedCity(null); setExpandedCity(null); }} className="text-[10px] text-indigo whitespace-nowrap">
                         Clear filters
                       </button>
                     )}
                   </div>
 
-                  {/* City filter */}
-                  <div>
-                    <p className="text-[10px] text-muted-foreground mb-1.5 uppercase tracking-wider">City</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {ALL_CITIES.map(city => (
-                        <button
-                          key={city}
-                          onClick={() => { setSelectedCity(selectedCity === city ? null : city); setSelectedSuburb(null); setVisibleCount(12); }}
-                          className={`rounded-pill px-3 py-1 text-[11px] font-medium border transition-colors ${
-                            selectedCity === city ? "border-indigo/40 bg-indigo/20 text-indigo" : "border-white/[0.08] bg-white/[0.02] text-muted-foreground"
-                          }`}
-                        >
-                          {city}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Suburb filter — shows suburbs for selected city, or all */}
-                  <div>
-                    <p className="text-[10px] text-muted-foreground mb-1.5 uppercase tracking-wider">
-                      Suburb {selectedCity ? `in ${selectedCity}` : ""}
-                    </p>
-                    <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto scrollbar-none">
-                      {ALL_SUBURBS
-                        .filter(s => !selectedCity || ALL_PROVIDERS.some(p => p.suburb === s && p.city === selectedCity))
-                        .map(suburb => (
+                  {/* Alphabet-ordered city accordion. Each row expands to its
+                      suburbs underneath. Single open at a time so the panel
+                      stays compact. */}
+                  <div className="rounded-xl border border-white/[0.06] divide-y divide-white/[0.04] overflow-hidden">
+                    {ALL_CITIES.map(city => {
+                      const isExpanded = expandedCity === city;
+                      const isSelectedCity = selectedCity === city;
+                      const cityProviderCount = ALL_PROVIDERS.filter(p => p.city === city).length;
+                      const citySuburbs = ALL_SUBURBS.filter(s =>
+                        ALL_PROVIDERS.some(p => p.suburb === s && p.city === city)
+                      );
+                      return (
+                        <div key={city}>
                           <button
-                            key={suburb}
-                            onClick={() => { setSelectedSuburb(selectedSuburb === suburb ? null : suburb); setVisibleCount(12); }}
-                            className={`rounded-pill px-2.5 py-0.5 text-[10px] font-medium border transition-colors ${
-                              selectedSuburb === suburb ? "border-teal/40 bg-teal/20 text-teal" : "border-white/[0.06] bg-white/[0.02] text-muted-foreground"
+                            onClick={() => {
+                              if (isExpanded) {
+                                // Collapsing: also clear "all suburbs in city" if user had it as the city filter
+                                setExpandedCity(null);
+                              } else {
+                                setExpandedCity(city);
+                              }
+                            }}
+                            className={`w-full flex items-center justify-between px-3 py-2 text-left transition-colors ${
+                              isSelectedCity ? "bg-indigo/10" : "hover:bg-white/[0.03]"
                             }`}
                           >
-                            {suburb}
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className={`text-xs font-medium truncate ${isSelectedCity ? "text-indigo" : "text-foreground"}`}>
+                                {city}
+                              </span>
+                              <span className="text-[10px] text-muted-foreground">{cityProviderCount}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {isSelectedCity && !selectedSuburb && (
+                                <span className="text-[9px] uppercase tracking-wider text-indigo">All</span>
+                              )}
+                              {isExpanded
+                                ? <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                                : <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+                              }
+                            </div>
                           </button>
-                        ))}
-                    </div>
+
+                          <AnimatePresence initial={false}>
+                            {isExpanded && (
+                              <motion.div
+                                initial={{ height: 0 }}
+                                animate={{ height: "auto" }}
+                                exit={{ height: 0 }}
+                                className="overflow-hidden bg-white/[0.02]"
+                              >
+                                <div className="px-3 pb-3 pt-1 space-y-1.5">
+                                  {/* "All <City>" pill — selects city, no suburb */}
+                                  <button
+                                    onClick={() => {
+                                      setSelectedCity(isSelectedCity && !selectedSuburb ? null : city);
+                                      setSelectedSuburb(null);
+                                      setVisibleCount(12);
+                                    }}
+                                    className={`w-full text-left rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-colors ${
+                                      isSelectedCity && !selectedSuburb
+                                        ? "bg-indigo/20 text-indigo"
+                                        : "bg-white/[0.02] text-muted-foreground hover:text-foreground"
+                                    }`}
+                                  >
+                                    All of {city}
+                                  </button>
+
+                                  {/* Suburbs in this city */}
+                                  {citySuburbs.length > 0 && (
+                                    <div className="flex flex-wrap gap-1">
+                                      {citySuburbs.map(suburb => {
+                                        const isSelectedSub = selectedSuburb === suburb && selectedCity === city;
+                                        return (
+                                          <button
+                                            key={suburb}
+                                            onClick={() => {
+                                              setSelectedCity(city);
+                                              setSelectedSuburb(isSelectedSub ? null : suburb);
+                                              setVisibleCount(12);
+                                            }}
+                                            className={`rounded-pill px-2.5 py-0.5 text-[10px] font-medium border transition-colors ${
+                                              isSelectedSub
+                                                ? "border-teal/40 bg-teal/20 text-teal"
+                                                : "border-white/[0.06] bg-white/[0.02] text-muted-foreground hover:text-foreground"
+                                            }`}
+                                          >
+                                            {suburb}
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {geo.latitude && (
