@@ -16,6 +16,7 @@ interface AuthContextType {
   switchRole: (role: UserRole) => void | Promise<void>;  // switches active role via backend
   updateAvatar: (url: string) => Promise<void>;      // profile photo update — writes to profiles.avatar_url
   updateCoverImage: (url: string) => Promise<void>;  // profile banner — writes to profiles.cover_image_url
+  updateProfileFields: (fields: { bio?: string; phone?: string; location?: string; name?: string }) => Promise<void>;
   availableRoles: UserRole[];               // all roles the user holds
   isClient:    boolean;
   isProvider:  boolean;
@@ -290,6 +291,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
+  // ── Profile field batch update (bio, phone, location, name) ─────
+  // Same race-protection + rollback pattern as updateAvatar/updateCoverImage.
+  // Lets the Profile.tsx edit modal save several fields in one round-trip
+  // and have them all persist to profiles. localStorage is hot cache.
+  const updateProfileFields = useCallback(async (fields: { bio?: string; phone?: string; location?: string; name?: string }) => {
+    if (!user) return;
+    const previous = { bio: user.bio, phone: user.phone, location: user.location, name: user.name };
+    lastLocalWriteAt.current = Date.now();
+    const updated: BioUser = {
+      ...user,
+      ...(fields.bio !== undefined ? { bio: fields.bio } : {}),
+      ...(fields.phone !== undefined ? { phone: fields.phone } : {}),
+      ...(fields.location !== undefined ? { location: fields.location } : {}),
+      ...(fields.name !== undefined ? { name: fields.name } : {}),
+    };
+    storeUser(updated);
+    setUser(updated);
+    if (user.profileId && !user.id?.startsWith("demo_")) {
+      try {
+        const dbPatch: Record<string, unknown> = {};
+        if (fields.bio !== undefined)      dbPatch.bio = fields.bio;
+        if (fields.phone !== undefined)    dbPatch.phone = fields.phone;
+        if (fields.location !== undefined) dbPatch.location = fields.location;
+        if (fields.name !== undefined)     dbPatch.full_name = fields.name;
+        if (Object.keys(dbPatch).length === 0) return;
+        const { error } = await supabase.from("profiles").update(dbPatch as any).eq("id", user.profileId);
+        if (error) throw error;
+        lastLocalWriteAt.current = Date.now();
+      } catch (err) {
+        console.error("[auth] profile fields persist failed — rolling back:", err);
+        const rolled: BioUser = { ...user, ...previous };
+        storeUser(rolled);
+        setUser(rolled);
+      }
+    }
+  }, [user]);
+
   // ── Cover image update — same shape as updateAvatar ─────────────
   const updateCoverImage = useCallback(async (url: string) => {
     if (!user) return;
@@ -323,6 +361,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       switchRole,
       updateAvatar,
       updateCoverImage,
+      updateProfileFields,
       availableRoles,
       isClient:    user?.role === "client",
       isProvider:  user?.role === "provider",

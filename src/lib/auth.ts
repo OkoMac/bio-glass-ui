@@ -16,6 +16,12 @@ export interface BioUser {
    * hot cache.
    */
   coverImage?: string;
+  /** Stored at profiles.bio. Free-text user bio shown on their profile. */
+  bio?: string;
+  /** Stored at profiles.phone. */
+  phone?: string;
+  /** Stored at profiles.location (free text). */
+  location?: string;
   socialLinks?: {
     website?: string;
     linkedin?: string;
@@ -51,7 +57,7 @@ export function removeUser(): void {
 export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser | null> {
   try {
     const [{ data: profile }, { data: roleRows }, { data: authData }] = await Promise.all([
-      supabase.from("profiles").select("id, full_name, email, avatar_url, cover_image_url" as any).eq("user_id", supabaseUserId).maybeSingle(),
+      supabase.from("profiles").select("id, full_name, email, avatar_url, cover_image_url, bio, phone, location" as any).eq("user_id", supabaseUserId).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", supabaseUserId),
       supabase.auth.getUser(),
     ]);
@@ -123,6 +129,9 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
       role,
       avatar:     profileAvatar ?? undefined,
       coverImage: profileCover ?? undefined,
+      bio:        (profile as any)?.bio ?? undefined,
+      phone:      (profile as any)?.phone ?? undefined,
+      location:   (profile as any)?.location ?? undefined,
     };
     
     // Add subscription based on user role

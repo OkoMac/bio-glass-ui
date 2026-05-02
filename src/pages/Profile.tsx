@@ -115,7 +115,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState<"dashboard" | "rewards">("dashboard");
   const [referralCopied, setReferralCopied] = useState(false);
   const navigate = useNavigate();
-  const { user, logout, switchRole, updateAvatar, updateCoverImage, availableRoles } = useAuth();
+  const { user, logout, switchRole, updateAvatar, updateCoverImage, updateProfileFields, availableRoles } = useAuth();
   const { bookings } = useBookings();
   const { balance: bioPoints } = useBioPoints();
   const { streak } = useStreaks("booking");
@@ -163,10 +163,13 @@ const Profile = () => {
   const [editOpen, setEditOpen] = useState(false);
   const [editForm, setEditForm] = useState(profileData);
 
-  const profileBio = profileData.bio;
+  // B1-5: bio/phone/location now read from AuthContext (which mirrors the
+  // profiles table). localStorage value is a fallback during the brief
+  // hydration window or for offline-first edits. Server is source of truth.
+  const profileBio = user?.bio ?? profileData.bio;
   const profileEmail = profileData.email;
-  const profilePhone = profileData.phone;
-  const profileLocation = profileData.location;
+  const profilePhone = user?.phone ?? profileData.phone;
+  const profileLocation = user?.location ?? profileData.location;
   const profileAge = profileData.age;
   // Cover image: read from AuthContext (which mirrors profiles.cover_image_url)
   // so it survives uninstall + cross-device sign-in. Fall back to legacy
@@ -204,7 +207,16 @@ const Profile = () => {
   };
 
   const handleSaveProfile = () => {
+    // Hot-cache to localStorage (instant for next mount), then persist
+    // bio/phone/location to profiles via AuthContext. The 'age' field
+    // stays local-only for now — it should live on health_profiles.
+    // date_of_birth (DOB) — handled by HealthProfile page already.
     saveProfileData(editForm);
+    updateProfileFields({
+      bio: editForm.bio,
+      phone: editForm.phone,
+      location: editForm.location,
+    }).catch(() => {});
     setEditOpen(false);
   };
 
