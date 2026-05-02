@@ -22,6 +22,12 @@ export interface BioUser {
   phone?: string;
   /** Stored at profiles.location (free text). */
   location?: string;
+  /**
+   * B1-9: system-wide pseudonym (e.g. B-STNV6S). Used as the default
+   * identifier in official artefacts. Always defined for real users
+   * (assigned by Postgres trigger on profile insert).
+   */
+  bionId?: string;
   socialLinks?: {
     website?: string;
     linkedin?: string;
@@ -57,7 +63,7 @@ export function removeUser(): void {
 export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser | null> {
   try {
     const [{ data: profile }, { data: roleRows }, { data: authData }] = await Promise.all([
-      supabase.from("profiles").select("id, full_name, email, avatar_url, cover_image_url, bio, phone, location" as any).eq("user_id", supabaseUserId).maybeSingle(),
+      supabase.from("profiles").select("id, full_name, email, avatar_url, cover_image_url, bio, phone, location, bion_id" as any).eq("user_id", supabaseUserId).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", supabaseUserId),
       supabase.auth.getUser(),
     ]);
@@ -132,6 +138,7 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
       bio:        (profile as any)?.bio ?? undefined,
       phone:      (profile as any)?.phone ?? undefined,
       location:   (profile as any)?.location ?? undefined,
+      bionId:     (profile as any)?.bion_id ?? undefined,
     };
     
     // Add subscription based on user role

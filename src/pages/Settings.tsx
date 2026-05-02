@@ -476,6 +476,115 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
   );
 }
 
+// ── B1-9: BION ID display + master "show name on artefacts" toggle ──
+function BionIdCard({ userBionId }: { userBionId?: string }) {
+  const [showName, setShowName] = useState<boolean>(false);
+  const [loaded, setLoaded] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { setLoaded(true); return; }
+        const res = await fetch(`${API}/api/notification-preferences`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        const json = await res.json();
+        if (json.ok) {
+          setShowName(!!json.preferences?.show_name_on_artefacts);
+        }
+      } catch { /* default off */ }
+      setLoaded(true);
+    })();
+  }, []);
+
+  const persist = async (v: boolean) => {
+    setShowName(v);
+    setSaving(true);
+    try {
+      const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch(`${API}/api/notification-preferences`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ show_name_on_artefacts: v }),
+      });
+      const json = await res.json();
+      if (!json.ok) {
+        // Revert on failure
+        setShowName(!v);
+      }
+    } catch {
+      setShowName(!v);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const copyId = async () => {
+    if (!userBionId) return;
+    try {
+      await navigator.clipboard.writeText(userBionId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { /* */ }
+  };
+
+  return (
+    <GlassCard className="p-5 space-y-4">
+      <div className="flex items-center gap-2">
+        <Shield className="w-4 h-4 text-indigo" />
+        <h2 className="text-sm font-semibold text-foreground">Your BION ID & official documents</h2>
+      </div>
+
+      {/* BION ID display */}
+      <div className="flex items-center gap-3">
+        <div className="flex-1">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Your BION ID</p>
+          <p className="text-base font-mono font-semibold text-foreground mt-0.5">
+            {userBionId ?? "—"}
+          </p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">
+            Used as your default identifier on receipts, exports, and dispute records. Keep it for support.
+          </p>
+        </div>
+        {userBionId && (
+          <button
+            onClick={copyId}
+            className="px-3 py-1.5 rounded-pill text-[11px] font-medium glass-1 text-foreground"
+          >
+            {copied ? "Copied!" : "Copy"}
+          </button>
+        )}
+      </div>
+
+      {/* Master toggle */}
+      <div className="pt-3 border-t border-white/[0.05]">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1">
+            <p className="text-sm text-foreground font-medium">Use my name on official documents</p>
+            <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
+              Use my name on receipts, invoices, data exports and dispute records.
+              When off, your BION ID ({userBionId ?? "B-XXXXXX"}) is used instead.
+            </p>
+          </div>
+          {loaded && (
+            <div className={saving ? "opacity-50 pointer-events-none" : ""}>
+              <Toggle value={showName} onChange={persist} />
+            </div>
+          )}
+        </div>
+      </div>
+    </GlassCard>
+  );
+}
+
 const TABS: { id: Tab; label: string; icon: typeof Bell }[] = [
   { id: "notifications", label: "Alerts",   icon: Bell       },
   { id: "payment",       label: "Payment",  icon: CreditCard },
@@ -835,6 +944,9 @@ export default function Settings() {
                 </div>
               ))}
             </GlassCard>
+
+            {/* B1-9: BION ID + name-on-artefacts master toggle */}
+            <BionIdCard userBionId={user?.bionId} />
 
             {/* B1-0: per-provider data-sharing (replaces the old binary
                 "Share progress with providers" toggle above for any
