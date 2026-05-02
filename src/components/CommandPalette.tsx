@@ -130,8 +130,7 @@ export default function CommandPalette() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="fixed top-[15vh] left-1/2 -translate-x-1/2 w-[90vw] max-w-lg z-[101] rounded-2xl overflow-hidden"
-            style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", border: "1px solid rgba(255,255,255,0.08)" }}
+            className="glass-popover fixed top-[15vh] left-1/2 -translate-x-1/2 w-[90vw] max-w-lg z-[101] rounded-2xl overflow-hidden"
           >
             {/* Search input */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.06]">

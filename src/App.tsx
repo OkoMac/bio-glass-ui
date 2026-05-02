@@ -100,7 +100,7 @@ class ErrorBoundary extends React.Component<
     if (this.state.hasError && !this.state.showError) {
       return (
         <div style={{
-          minHeight: "100vh", background: "#0a0a0f",
+          minHeight: "100vh", background: "hsl(var(--background))",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
           <div style={{
@@ -117,12 +117,12 @@ class ErrorBoundary extends React.Component<
     // Persistent error after the grace period
     if (this.state.hasError && this.state.showError) {
       return (
-        <div style={{ padding: 40, fontFamily: "'DM Sans', system-ui", color: "#fff", background: "#0a0a0f", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+        <div style={{ padding: 40, fontFamily: "'DM Sans', system-ui", color: "hsl(var(--foreground))", background: "hsl(var(--background))", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>{this.state.isChunkError ? "🔄" : "⚠️"}</div>
           <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
             {this.state.isChunkError ? "BION just updated" : "Something went wrong"}
           </h1>
-          <p style={{ color: "#9ca3af", fontSize: 14, marginBottom: 24, maxWidth: 400 }}>
+          <p style={{ color: "hsl(var(--muted-foreground))", fontSize: 14, marginBottom: 24, maxWidth: 400 }}>
             {this.state.isChunkError
               ? "A new version was deployed. Tap reload to get the latest."
               : "An unexpected error occurred. Reloading usually fixes it."}
@@ -137,7 +137,7 @@ class ErrorBoundary extends React.Component<
             Reload BION
           </button>
           {import.meta.env.DEV && this.state.error && (
-            <pre style={{ background: "#1e1e2e", padding: 16, borderRadius: 8, overflow: "auto", fontSize: 11, marginTop: 24, maxWidth: "90vw", textAlign: "left" }}>
+            <pre style={{ background: "hsl(var(--muted))", color: "hsl(var(--foreground))", padding: 16, borderRadius: 8, overflow: "auto", fontSize: 11, marginTop: 24, maxWidth: "90vw", textAlign: "left" }}>
               {this.state.error.message}{"\n"}{this.state.error.stack}
             </pre>
           )}

@@ -56,12 +56,7 @@ export default function Tooltip({ text, children, side = "bottom", delay = 400 }
             transition={{ duration: 0.12 }}
             className={`absolute ${sideClasses[side]} z-[100] pointer-events-none whitespace-nowrap`}
           >
-            <span className="block px-2.5 py-1.5 rounded-lg text-[11px] text-foreground font-medium border border-white/[0.12]"
-              style={{
-                background: "rgba(12,12,20,0.96)",
-                backdropFilter: "blur(20px)",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)",
-              }}>
+            <span className="glass-popover block px-2.5 py-1.5 rounded-lg text-[11px] text-foreground font-medium shadow-card">
               {text}
             </span>
           </motion.span>

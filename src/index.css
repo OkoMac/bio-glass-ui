@@ -294,7 +294,19 @@
 
   /* Radial glow background */
   .bg-obsidian-glow {
-    background: radial-gradient(ellipse at 50% 30%, rgba(99,102,241,0.08) 0%, transparent 60%), #0A0A0F;
+    background: radial-gradient(ellipse at 50% 30%, rgba(99,102,241,0.08) 0%, transparent 60%), hsl(var(--bg-obsidian));
+  }
+
+  .light .bg-obsidian-glow {
+    background: radial-gradient(ellipse at 50% 30%, rgba(99,102,241,0.10) 0%, transparent 60%), hsl(var(--bg-obsidian));
+  }
+
+  /* Popover surface — auto-flips with theme. Replaces inline rgba(12,12,20,0.97) usage. */
+  .glass-popover {
+    background: hsl(var(--card) / 0.97);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid hsl(var(--border-glass));
   }
 }
 

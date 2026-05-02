@@ -260,8 +260,7 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-full left-0 right-0 mt-2 rounded-2xl overflow-hidden z-50"
-            style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", border: "1px solid rgba(255,255,255,0.08)" }}
+            className="glass-popover absolute top-full left-0 right-0 mt-2 rounded-2xl overflow-hidden z-50"
           >
             <div className="px-4 py-2 flex items-center justify-between border-b border-white/[0.06]">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Recent searches</p>
@@ -306,8 +305,7 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: "100%", opacity: 0 }}
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="fixed bottom-0 left-0 right-0 z-[70] rounded-t-[2rem] p-5 max-h-[80vh] overflow-y-auto"
-              style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", borderTop: "1px solid rgba(255,255,255,0.06)" }}
+              className="glass-popover fixed bottom-0 left-0 right-0 z-[70] rounded-t-[2rem] p-5 max-h-[80vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-foreground">Filters</h3>

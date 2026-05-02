@@ -70,7 +70,7 @@ export default {
           DEFAULT: "#A78BFA",
           light: "#C4B5FD",
         },
-        obsidian: "#0A0A0F",
+        obsidian: "hsl(var(--bg-obsidian))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
