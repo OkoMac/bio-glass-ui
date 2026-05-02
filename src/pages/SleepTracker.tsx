@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePageView } from "@/hooks/usePageView";
 import AdBanner from "@/components/AdBanner";
 import { supabase } from "@/integrations/supabase/client";
+import { useVisibilityRefetch } from "@/hooks/useVisibilityRefetch";
 import { ArrowLeft, Moon, Sun, Star, Clock, TrendingUp, Lightbulb } from "lucide-react";
 
 const STORAGE_KEY = "bion_sleep_tracker";
@@ -89,7 +90,8 @@ export default function SleepTracker() {
   // merge with localStorage (server wins on collision since it's the
   // authoritative store), persist back so the rest of the page works
   // unchanged.
-  useEffect(() => {
+  // Hydrate from server. Extracted so we can call on visibilitychange too.
+  const hydrateFromServer = () => {
     if (!user?.profileId || user.id?.startsWith("demo_")) return;
     const since = new Date();
     since.setDate(since.getDate() - 14);
@@ -114,7 +116,12 @@ export default function SleepTracker() {
         setEntries(merged);
         saveEntries(merged);
       });
-  }, [user?.profileId, user?.id]);
+  };
+  useEffect(() => { hydrateFromServer(); }, [user?.profileId, user?.id]);
+
+  // Refetch when tab returns to visibility — closes the cross-instance desync
+  // (Lee bug 2026-05-01: PWA + browser don't update each other).
+  useVisibilityRefetch(() => { hydrateFromServer(); }, [user?.profileId]);
 
   useEffect(() => {
     const schema = {

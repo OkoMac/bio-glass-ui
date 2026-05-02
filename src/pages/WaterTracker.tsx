@@ -14,6 +14,7 @@ import { usePageView } from "@/hooks/usePageView";
 import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
 import { trackEvent } from "@/lib/habits";
 import { supabase } from "@/integrations/supabase/client";
+import { useVisibilityRefetch } from "@/hooks/useVisibilityRefetch";
 
 const STORAGE_KEY = "bion_water_tracker";
 const STREAK_KEY = "bion_water_streak";
@@ -189,11 +190,41 @@ export default function WaterTracker() {
           const byDate = new Map<string, number>();
           for (const r of rows as any[]) byDate.set(r.date, r.count ?? 0);
           setHistory(days.map((date) => ({ date, count: byDate.get(date) ?? 0, goal: localGoal })));
+          // Also reconcile TODAY's glass count from server in case another
+          // instance (PWA vs browser) updated it. Server wins on collision.
+          const todayCount = byDate.get(dateKey);
+          if (typeof todayCount === "number" && todayCount > data.glasses) {
+            setData((prev: any) => ({ ...prev, glasses: todayCount, log: prev.log }));
+          }
         });
     } else {
       setHistory(fromLocal());
     }
-  }, [user?.profileId, data.glasses, data.goal]);
+  }, [user?.profileId, data.glasses, data.goal, dateKey]);
+
+  // Refetch water_log when the tab becomes visible — Lee's bug
+  // (2026-05-01): "I updated water on app and it's not updating in browser."
+  useVisibilityRefetch(() => {
+    if (!user?.profileId || user.id?.startsWith("demo_")) return;
+    supabase.from("water_log" as any)
+      .select("date, count")
+      .eq("user_id", user.profileId)
+      .eq("date", dateKey)
+      .maybeSingle()
+      .then(({ data: row }: any) => {
+        const serverGlasses = (row?.count as number | undefined) ?? 0;
+        if (serverGlasses > data.glasses) {
+          setData((prev: any) => ({
+            ...prev,
+            glasses: serverGlasses,
+            log: [
+              ...prev.log,
+              ...Array.from({ length: serverGlasses - prev.log.length }, () => ({ time: "—", amount: "250ml" })),
+            ],
+          }));
+        }
+      });
+  }, [user?.profileId, dateKey]);
 
   useEffect(() => {
     const schema = {

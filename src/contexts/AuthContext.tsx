@@ -134,7 +134,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    return () => { mounted = false; clearTimeout(timeout); subscription.unsubscribe(); };
+    // Cross-instance sync: when the tab returns to visibility, refetch the
+    // profile from the server. Closes Lee's bug (2026-05-01): "I am logged
+    // in via app and browser. They don't update each other." If another
+    // instance updated avatar_url or cover_image_url server-side, this
+    // instance picks it up the moment the user comes back to the tab.
+    let lastHidden: number | null = null;
+    const onVisibilityChange = async () => {
+      if (document.visibilityState === "hidden") {
+        lastHidden = Date.now();
+        return;
+      }
+      // Only refetch if hidden for >5s (skip transient focus loss)
+      if (!lastHidden || Date.now() - lastHidden < 5000) return;
+      lastHidden = null;
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user || !mounted) return;
+        const fresh = await fetchUserProfile(session.user.id);
+        if (mounted && fresh) {
+          storeUser(fresh);
+          setUser(fresh);
+        }
+      } catch { /* network blip — ignore, next visibility tick will retry */ }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      mounted = false;
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
   }, []);
 
   // ── Fetch available roles when user is set ──────────────────────
