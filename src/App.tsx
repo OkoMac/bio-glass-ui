@@ -174,6 +174,7 @@ const Schedule        = lazy(() => import("./pages/Schedule"));
 const Messages        = lazy(() => import("./pages/Messages"));
 const Profile         = lazy(() => import("./pages/Profile"));
 const ClientSettings  = lazy(() => import("./pages/Settings"));
+const DataSharing     = lazy(() => import("./pages/DataSharing"));
 const Routines        = lazy(() => import("./pages/Routines"));
 const Progress        = lazy(() => import("./pages/Progress"));
 const QuickBook       = lazy(() => import("./pages/QuickBook"));
@@ -539,6 +540,7 @@ function AppRoutes() {
       <Route path="/messages"    element={<RequireAuth allowedRoles={["client"]}><Messages /></RequireAuth>} />
       <Route path="/profile"     element={<RequireAuth allowedRoles={["client"]}><Profile /></RequireAuth>} />
       <Route path="/settings"    element={<RequireAuth allowedRoles={["client"]}><ClientSettings /></RequireAuth>} />
+      <Route path="/settings/data-sharing" element={<RequireAuth allowedRoles={["client"]}><DataSharing /></RequireAuth>} />
       <Route path="/routines"       element={<RequireAuth allowedRoles={["client"]}><Routines /></RequireAuth>} />
       <Route path="/progress"       element={<RequireAuth allowedRoles={["client"]}><Progress /></RequireAuth>} />
       <Route path="/quick-book"     element={<RequireAuth allowedRoles={["client"]}><QuickBook /></RequireAuth>} />

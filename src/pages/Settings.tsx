@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Bell, CreditCard, Eye, User, ChevronLeft, Save, Check,
   Smartphone, Mail, Shield, Trash2, Plus, Loader2, Download,
-  AlertTriangle, FileText, X, Cookie,
+  AlertTriangle, FileText, X, Cookie, ArrowRight,
 } from "lucide-react";
 import CookieConsent, { openCookieBanner } from "@/components/CookieConsent";
 import NotificationSettings from "@/components/NotificationSettings";
@@ -834,6 +834,24 @@ export default function Settings() {
                   <Toggle value={row.val} onChange={row.set} />
                 </div>
               ))}
+            </GlassCard>
+
+            {/* B1-0: per-provider data-sharing (replaces the old binary
+                "Share progress with providers" toggle above for any
+                user who's used the new flow at least once) */}
+            <GlassCard className="p-4 cursor-pointer" onClick={() => navigate("/settings/data-sharing")}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-indigo/15 flex items-center justify-center shrink-0">
+                  <Shield className="w-4 h-4 text-indigo" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-foreground">Per-provider data sharing</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                    Choose what each provider can see. Adjust anytime.
+                  </p>
+                </div>
+                <ArrowRight className="w-4 h-4 text-muted-foreground" />
+              </div>
             </GlassCard>
 
             <CookiePreferencesCard />
