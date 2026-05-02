@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useHealthLogs, useHealthProfile } from "@/hooks/useHealth";
+import { useNativeHealth } from "@/hooks/useNativeHealth";
 
 // One-line explainers shown below each metric input. Helps users
 // understand what each measurement contributes (Lee feedback 2026-05-01:
@@ -99,6 +100,36 @@ export default function HealthProfile() {
   const { logs, logToday } = useHealthLogs(30);
   const { profile: healthProfile } = useHealthProfile();
   const heightCm = healthProfile?.height_cm ?? null;
+
+  // B2-2: passive step + sleep + weight auto-sync from HealthKit /
+  // Health Connect. Lee feedback 2026-05-01: "logging steps is a pain
+  // in the ass." When running inside the Capacitor wrapper and the user
+  // has granted health-data permissions, BION pulls today's steps and
+  // writes them to health_logs.steps automatically — no manual entry.
+  // Same path picks up most-recent weight + last night's sleep.
+  // Web (non-native) is a no-op; the manual modal still works.
+  const native = useNativeHealth();
+  useEffect(() => {
+    if (!native.isNative || !native.authorized) return;
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayLog = logs.find((l: any) => l.log_date === todayStr) ?? {};
+    const patch: Record<string, number> = {};
+    if (typeof native.steps === "number" && native.steps > ((todayLog as any).steps ?? 0)) {
+      patch.steps = Math.round(native.steps);
+    }
+    if (typeof native.weight === "number" && !(todayLog as any).weight_kg) {
+      patch.weight_kg = Math.round(native.weight * 10) / 10;
+    }
+    if (typeof native.sleep === "number" && !(todayLog as any).sleep_hours) {
+      patch.sleep_hours = Math.round(native.sleep * 10) / 10;
+    }
+    if (Object.keys(patch).length > 0) {
+      logToday(patch).catch(() => { /* network blip — next refresh tick will retry */ });
+    }
+    // Re-run when native counters change. logs is stable enough — using
+    // the timestamp of the latest log keeps the deps lean.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [native.isNative, native.authorized, native.steps, native.weight, native.sleep]);
   const { showTip } = useFeatureDiscovery();
   const [tab, setTab]   = useState<Tab>("metrics");
 
@@ -397,6 +428,34 @@ export default function HealthProfile() {
                 );
               })}
             </div>
+            {/* B2-2: native-app users get a one-tap Connect Health flow.
+                Once authorised, today's steps + weight + sleep auto-fill
+                from HealthKit / Health Connect — no manual entry. */}
+            {native.isNative && !native.authorized && (
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => native.requestAuth().catch(() => {})}
+                className="w-full mt-3"
+              >
+                <GlassCard className="p-3.5 flex items-center justify-between cursor-pointer border border-teal/30 hover:border-teal/60 transition-colors bg-teal/5">
+                  <div className="flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-teal" />
+                    <div className="text-left">
+                      <p className="text-sm text-foreground font-medium">Connect Apple Health</p>
+                      <p className="text-[10px] text-muted-foreground">Steps, weight, sleep auto-sync — no manual entry</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-teal" />
+                </GlassCard>
+              </motion.button>
+            )}
+            {native.isNative && native.authorized && typeof native.steps === "number" && (
+              <p className="text-[10px] text-teal/80 mt-2 text-center">
+                ✓ Apple Health connected — today: {native.steps.toLocaleString()} steps
+                {typeof native.weight === "number" ? ` · ${native.weight.toFixed(1)}kg` : ""}
+                {typeof native.sleep === "number" ? ` · ${native.sleep.toFixed(1)}h sleep` : ""}
+              </p>
+            )}
             <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowLogMetrics(true)}
               className="w-full mt-3">
               <GlassCard className="p-3.5 flex items-center justify-between cursor-pointer hover:border-white/16 transition-colors">
