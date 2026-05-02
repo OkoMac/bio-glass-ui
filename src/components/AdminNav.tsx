@@ -5,7 +5,7 @@ import {
   Settings, ShieldCheck, LogOut, UserCog, FileCheck,
   AlertTriangle, Sparkles, BookOpen, MessageSquare, Shield, UserCheck,
   DollarSign, RotateCcw, LifeBuoy, Target, Megaphone, Radio, Send,
-  Menu,
+  Menu, Mailbox,
 } from "lucide-react";
 import {
   Sheet,
@@ -33,6 +33,7 @@ const navItems = [
   { icon: Send,            label: "Outreach",     path: "/admin/outreach"       },
   { icon: Megaphone,       label: "Campaigns",    path: "/admin/campaigns"      },
   { icon: Radio,           label: "Broadcasts",   path: "/admin/broadcasts"     },
+  { icon: Mailbox,         label: "Comms Console",path: "/admin/comms"          },
   { icon: BarChart2,       label: "Analytics",    path: "/admin/analytics"      },
   { icon: DollarSign,      label: "Subscriptions", path: "/admin/subscriptions" },
   { icon: Settings,        label: "Settings",     path: "/admin/settings"       },
