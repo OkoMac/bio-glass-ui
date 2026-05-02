@@ -249,6 +249,36 @@ export default function ProviderProfile() {
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [bookingBusy, setBookingBusy] = useState(false);
 
+  // ── B1-0 Phase 3: per-provider data-sharing consent ───────────────
+  // Fetched from /api/data-grants/resolve-defaults when the booking
+  // dialog opens. Defaults are pre-checked; the user can tighten or
+  // loosen before confirming. On confirm, we call /seed-defaults to
+  // create relationship grants before kicking off Paystack.
+  const SCOPE_LABELS: Record<string, string> = {
+    meals: "Meals & nutrition",
+    routines: "Workout / coaching routines",
+    sleep: "Sleep",
+    hydration: "Hydration",
+    steps_activity: "Steps & activity",
+    body_composition: "Body composition",
+    vitals: "Vitals (BP, HR, glucose)",
+    pain_logs: "Pain & injury logs",
+    allergies: "Allergies",
+    conditions: "Conditions & injuries",
+    family_history: "Family medical history",
+    medications: "Medications",
+    mental_health: "Mental health",
+    reproductive_health: "Reproductive & sexual health",
+    prior_treatments: "Prior aesthetic / surgical treatments",
+    medical_aid_card: "Medical aid card",
+    kyc_id: "Government ID",
+  };
+  const [allScopes, setAllScopes] = useState<string[]>([]);
+  const [defaultScopes, setDefaultScopes] = useState<string[]>([]);
+  const [chosenScopes, setChosenScopes] = useState<Set<string>>(new Set());
+  const [scopesLoaded, setScopesLoaded] = useState(false);
+  const [showAllScopes, setShowAllScopes] = useState(false);
+
   // ── "Claim this business" self-service flow ──────────────────────────
   // Two paths: (1) OTP-verified self-claim, (2) request a meeting with
   // a BION sales rep. Both submit to dedicated backend endpoints.
@@ -354,6 +384,54 @@ export default function ProviderProfile() {
       } catch {}
     })();
   }, [user?.profileId]);
+
+  // B1-0 Phase 3: fetch the default scope set for this provider's
+  // specialty when the booking dialog opens. Pre-selects the
+  // specialty defaults; user can tighten / loosen before confirming.
+  useEffect(() => {
+    if (!showBooking || !provider || !user?.profileId) return;
+    if (scopesLoaded) return;
+    (async () => {
+      try {
+        const { data: { session } } = await (await import("@/integrations/supabase/client")).supabase.auth.getSession();
+        if (!session) return;
+        const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+        const specialty = (provider.specialty ?? "").trim();
+        const url = `${API}/api/data-grants/resolve-defaults?specialty=${encodeURIComponent(specialty)}`;
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${session.access_token}` } });
+        const json = await res.json();
+        if (json.ok && json.data) {
+          const all = (json.data.all_scopes as string[]) ?? [];
+          const def = (json.data.scopes as string[]) ?? [];
+          setAllScopes(all);
+          setDefaultScopes(def);
+          setChosenScopes(new Set(def));
+          setScopesLoaded(true);
+        }
+      } catch {
+        // If resolve fails, fall back to no defaults — user can still
+        // confirm the booking; we'll just create no scope grants.
+        setAllScopes([
+          "meals","routines","sleep","hydration","steps_activity",
+          "body_composition","vitals","pain_logs","allergies","conditions",
+          "family_history","medications","mental_health","reproductive_health",
+          "prior_treatments","medical_aid_card","kyc_id",
+        ]);
+        setDefaultScopes([]);
+        setChosenScopes(new Set());
+        setScopesLoaded(true);
+      }
+    })();
+  }, [showBooking, provider, user?.profileId, scopesLoaded]);
+
+  const toggleScope = (scope: string) => {
+    setChosenScopes(prev => {
+      const next = new Set(prev);
+      if (next.has(scope)) next.delete(scope);
+      else next.add(scope);
+      return next;
+    });
+  };
 
   // Acquisition voucher this user has already claimed for this provider.
   // When present, the user can apply it at checkout to skip Paystack entirely
@@ -467,6 +545,34 @@ export default function ProviderProfile() {
         metadata: { provider_id: provider.id, service: serviceLabel, date: bookingDate, time: bookingTime },
       });
       const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+
+      // B1-0 Phase 3: seed per-relationship data-sharing grants from
+      // the user's scope choices BEFORE we kick off Paystack. These
+      // grants are sticky (booking_id=NULL) so they survive payment
+      // failures — if the user comes back later, their consent is
+      // still recorded. Best-effort: a failure here doesn't block
+      // the booking. The /seed-defaults endpoint dedupes against
+      // existing active grants automatically.
+      if (chosenScopes.size > 0) {
+        try {
+          const { data: { session } } = await (await import("@/integrations/supabase/client")).supabase.auth.getSession();
+          if (session) {
+            await fetch(`${API}/api/data-grants/seed-defaults`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify({
+                provider_id: provider.id,
+                scopes: Array.from(chosenScopes),
+                grant_type: "relationship",
+                granted_via: "booking_consent",
+              }),
+            }).catch(() => { /* best-effort */ });
+          }
+        } catch { /* best-effort — never block the booking on grant write */ }
+      }
 
       // Voucher path — skip Paystack entirely. The backend validates the
       // voucher is still claimed + unexpired + for this provider, marks it
@@ -1784,6 +1890,77 @@ export default function ProviderProfile() {
                     <p className="text-[11px] text-muted-foreground">
                       Medical aid: <span className="text-foreground font-medium">{clientMedicalAid.scheme}{clientMedicalAid.plan_name ? ` — ${clientMedicalAid.plan_name}` : ""}</span>
                     </p>
+                  </div>
+                )}
+
+                {/* B1-0 Phase 3 — per-provider data-sharing consent. Defaults
+                     pre-checked from the provider's specialty; user can
+                     tighten or loosen before confirming. Choices apply to
+                     ALL future bookings with this provider until revoked
+                     in Settings → Data sharing. */}
+                {scopesLoaded && allScopes.length > 0 && user?.profileId && (
+                  <div className="glass-1 rounded-2xl p-4 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Shield className="w-4 h-4 text-indigo shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-foreground">Share data with {provider.name}?</p>
+                        <p className="text-[11px] text-muted-foreground leading-relaxed">
+                          {defaultScopes.length > 0
+                            ? `Pre-selected based on what a ${provider.specialty?.toLowerCase() ?? "provider in this field"} typically needs. Adjust below.`
+                            : "Tap to share specific data with this provider."}
+                          {" "}Choices apply to all future bookings with them and can be changed anytime in Settings.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Default-on scopes (always visible) */}
+                    {defaultScopes.length > 0 && (
+                      <div className="space-y-1.5">
+                        {defaultScopes.map(scope => (
+                          <label key={scope} className="flex items-center gap-2.5 cursor-pointer py-1">
+                            <div
+                              className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
+                                chosenScopes.has(scope) ? "bg-indigo border-indigo" : "border-white/30"
+                              }`}
+                              onClick={(e) => { e.preventDefault(); toggleScope(scope); }}
+                            >
+                              {chosenScopes.has(scope) && <Check className="w-3 h-3 text-white" />}
+                            </div>
+                            <span className="text-xs text-foreground">{SCOPE_LABELS[scope] ?? scope}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Other scopes (collapsed by default) */}
+                    {allScopes.filter(s => !defaultScopes.includes(s)).length > 0 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setShowAllScopes(v => !v)}
+                          className="text-[11px] text-indigo font-medium hover:underline"
+                        >
+                          {showAllScopes ? "Hide other domains" : `Other domains — tap to share (${allScopes.filter(s => !defaultScopes.includes(s)).length})`}
+                        </button>
+                        {showAllScopes && (
+                          <div className="space-y-1.5 pl-1">
+                            {allScopes.filter(s => !defaultScopes.includes(s)).map(scope => (
+                              <label key={scope} className="flex items-center gap-2.5 cursor-pointer py-1">
+                                <div
+                                  className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
+                                    chosenScopes.has(scope) ? "bg-indigo border-indigo" : "border-white/30"
+                                  }`}
+                                  onClick={(e) => { e.preventDefault(); toggleScope(scope); }}
+                                >
+                                  {chosenScopes.has(scope) && <Check className="w-3 h-3 text-white" />}
+                                </div>
+                                <span className="text-xs text-muted-foreground">{SCOPE_LABELS[scope] ?? scope}</span>
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                 )}
 
