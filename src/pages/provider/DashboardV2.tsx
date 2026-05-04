@@ -60,13 +60,19 @@ export default function DashboardV2() {
           </p>
         </div>
         
-        {/* Stats Overview */}
+        {/* Stats Overview — TODO STUB: wire to real sources before
+            enabling the providerDashboardV2 feature flag.
+              activeClients → useProviderClients() length
+              thisWeek      → useBookings() filtered to current ISO week
+              revenue       → /api/wallet/provider summary YTD
+              avgRating     → useProviderRatings() average
+            See provider/Dashboard.tsx for the live wiring. */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <GlassCard className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground">Active Clients</p>
-                <p className="text-xl font-bold text-foreground">24</p>
+                <p className="text-xl font-bold text-foreground">—</p>
               </div>
               <Users className="w-8 h-8 text-indigo/50" />
             </div>
@@ -76,7 +82,7 @@ export default function DashboardV2() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground">This Week</p>
-                <p className="text-xl font-bold text-foreground">18</p>
+                <p className="text-xl font-bold text-foreground">—</p>
               </div>
               <Calendar className="w-8 h-8 text-teal/50" />
             </div>
@@ -86,7 +92,7 @@ export default function DashboardV2() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground">Revenue</p>
-                <p className="text-xl font-bold text-foreground">R8,450</p>
+                <p className="text-xl font-bold text-foreground">—</p>
               </div>
               <TrendingUp className="w-8 h-8 text-amber/50" />
             </div>
@@ -96,7 +102,7 @@ export default function DashboardV2() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground">Avg Rating</p>
-                <p className="text-xl font-bold text-foreground">4.8</p>
+                <p className="text-xl font-bold text-foreground">—</p>
               </div>
               <Sparkles className="w-8 h-8 text-purple/50" />
             </div>
