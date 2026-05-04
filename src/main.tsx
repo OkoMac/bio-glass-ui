@@ -102,19 +102,43 @@ if ("serviceWorker" in navigator) {
         document.addEventListener("visibilitychange", onVis);
       };
 
+      // Show a one-tap "new version available" toast when a new SW
+      // activates, so users on long-open tabs aren't left stuck on
+      // stale code waiting for the tab-hidden reload trigger.
+      const showUpdateToast = () => {
+        if (document.getElementById("bion-update-toast")) return;
+        const t = document.createElement("div");
+        t.id = "bion-update-toast";
+        t.setAttribute("role", "alert");
+        t.style.cssText = "position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom,24px));transform:translateX(-50%);z-index:99999;background:hsl(239 84% 67%);color:#fff;padding:10px 16px;border-radius:999px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;font-weight:600;box-shadow:0 8px 32px rgba(99,102,241,0.45);cursor:pointer;display:flex;align-items:center;gap:8px";
+        t.innerHTML = '<span>New BION version</span><span style="opacity:0.85;font-weight:400">— tap to update</span>';
+        t.onclick = () => window.location.reload();
+        document.body.appendChild(t);
+        // Auto-reload after 90s if the user doesn't tap — long enough
+        // not to interrupt active interaction, short enough to actually
+        // ship the update on a hands-off tab.
+        setTimeout(() => { if (document.getElementById("bion-update-toast")) window.location.reload(); }, 90_000);
+      };
+
       reg.addEventListener("updatefound", () => {
         const newSW = reg.installing;
         if (!newSW) return;
         newSW.addEventListener("statechange", () => {
           if (newSW.state === "activated" && navigator.serviceWorker.controller) {
-            reloadWhenHidden();
+            // If the tab is hidden, just reload silently. If visible,
+            // show the toast so the user can tap to update OR auto-reload
+            // after 90s. Replaces the previous hidden-only behaviour
+            // that left visible tabs stuck on stale code indefinitely.
+            if (document.visibilityState === "hidden") window.location.reload();
+            else showUpdateToast();
           }
         });
       });
 
-      // Initial check + recurring poll for long-open tabs.
+      // Initial check + 5-min poll (was 30 min — too slow for users
+      // hopping in and out of the PWA on iOS who'd have aged-out tabs).
       reg.update().catch(() => {});
-      setInterval(() => reg.update().catch(() => {}), 30 * 60 * 1000);
+      setInterval(() => reg.update().catch(() => {}), 5 * 60 * 1000);
     } catch (err: any) {
       console.warn("[SW] registration failed:", err?.message ?? err);
     }
