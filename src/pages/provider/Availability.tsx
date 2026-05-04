@@ -201,14 +201,18 @@ export default function ProviderAvailability() {
     if (!newExDate) return;
     const label = newExLabel || "Blocked";
     setLocalExceptions(e => [...e, { date: newExDate, label }]);
-    // Persist to Supabase
+    // Persist to Supabase. Loud-on-error per BION_WIKI Mistake 10 — a
+    // previous version of this code silently failed and left the user
+    // believing their blocked dates were saved when they weren't.
     if (supabaseId) {
       supabase.from("provider_availability_override" as any).upsert({
         provider_id: supabaseId,
         date: newExDate,
         label,
         is_available: false,
-      }, { onConflict: "provider_id,date" }).then(() => {});
+      }, { onConflict: "provider_id,date" }).then(({ error }) => {
+        if (error) console.error("[availability] add-exception failed:", error.message);
+      });
     }
     setNewExDate("");
     setNewExLabel("");
@@ -218,13 +222,17 @@ export default function ProviderAvailability() {
   const removeException = (idx: number) => {
     const ex = localExceptions[idx];
     setLocalExceptions(e => e.filter((_, i) => i !== idx));
-    // Remove from Supabase
+    // Remove from Supabase — loud-on-error so a future schema rename
+    // doesn't silently leave the user thinking they un-blocked a date
+    // that's still blocked server-side.
     if (supabaseId && ex) {
       supabase.from("provider_availability_override" as any)
         .delete()
         .eq("provider_id", supabaseId)
         .eq("date", ex.date)
-        .then(() => {});
+        .then(({ error }) => {
+          if (error) console.error("[availability] remove-exception failed:", error.message);
+        });
     }
   };
 
