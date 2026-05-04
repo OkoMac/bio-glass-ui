@@ -11,9 +11,25 @@ import AdBanner from "@/components/AdBanner";
 import {
   ArrowLeft, Heart, QrCode, Shield, Phone, User, Pill,
   AlertTriangle, X, Share2, Plus, Trash2, Edit3, Save, Camera, Loader2,
+  BookOpen, Sparkles,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const STORAGE_KEY = "bion_medical_card";
+const JOURNAL_STORAGE_KEY = "bion_medical_journal";
+
+interface JournalEntry {
+  id: string;
+  date: string;            // YYYY-MM-DD
+  feeling: string;         // user's text — "How are you feeling today?"
+  bObservation: string | null;  // B_'s two-line comment, null while loading
+  createdAt: number;
+}
+
+function todayKeyJournal(): string {
+  return new Date().toISOString().slice(0, 10);
+}
 
 interface MedicalData {
   name: string;
@@ -191,6 +207,118 @@ export default function MedicalCard() {
   }, [bookings]);
   usePageView();
 
+  // ── Medical Journal state ─────────────────────────────
+  // User logs how they're feeling each day; B_ writes a two-line
+  // observation based on the entry plus context (recent sleep / water /
+  // food signals from localStorage). Persisted to localStorage hot
+  // cache + medical_journal_entries Supabase table when the user is
+  // signed in (table is create-if-not-exists at the migration level).
+  const [journalEntries, setJournalEntries] = useState<JournalEntry[]>(() => {
+    try {
+      const raw = localStorage.getItem(JOURNAL_STORAGE_KEY);
+      return raw ? (JSON.parse(raw) as JournalEntry[]) : [];
+    } catch { return []; }
+  });
+  const [journalDraft, setJournalDraft] = useState("");
+  const [journalSaving, setJournalSaving] = useState(false);
+
+  // Hydrate from server on mount (loud-on-error so future schema drift surfaces)
+  useEffect(() => {
+    if (!user?.profileId || user.id?.startsWith("demo_")) return;
+    (supabase as any).from("medical_journal_entries")
+      .select("id, log_date, feeling, b_observation, created_at")
+      .eq("profile_id", user.profileId)
+      .order("log_date", { ascending: false })
+      .limit(60)
+      .then(({ data, error }: any) => {
+        if (error) {
+          // Non-fatal — table may not exist yet in dev
+          if (!String(error.message).includes("does not exist")) {
+            console.error("[journal] load failed:", error.message);
+          }
+          return;
+        }
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped: JournalEntry[] = data.map((r: any) => ({
+            id: r.id,
+            date: r.log_date,
+            feeling: r.feeling,
+            bObservation: r.b_observation,
+            createdAt: new Date(r.created_at).getTime(),
+          }));
+          setJournalEntries(mapped);
+          try { localStorage.setItem(JOURNAL_STORAGE_KEY, JSON.stringify(mapped)); } catch { /* */ }
+        }
+      });
+  }, [user?.profileId, user?.id]);
+
+  const saveJournalEntry = async () => {
+    const feeling = journalDraft.trim();
+    if (!feeling || journalSaving) return;
+    setJournalSaving(true);
+    const id = crypto.randomUUID();
+    const date = todayKeyJournal();
+    // Optimistic local insert with placeholder observation while B_ thinks
+    const optimistic: JournalEntry = { id, date, feeling, bObservation: null, createdAt: Date.now() };
+    const next = [optimistic, ...journalEntries.filter(e => e.date !== date)];
+    setJournalEntries(next);
+    setJournalDraft("");
+    try { localStorage.setItem(JOURNAL_STORAGE_KEY, JSON.stringify(next)); } catch { /* */ }
+
+    // Ask B_ for a two-line observation
+    let bObservation: string | null = null;
+    try {
+      const API_URL = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+      // Pass recent context so the observation is grounded in real signals
+      let ctx: Record<string, unknown> = {};
+      try {
+        const sleep = JSON.parse(localStorage.getItem("bion_sleep_entries") ?? "[]");
+        const water = parseInt(localStorage.getItem(`bion_water_${date}`) ?? "0", 10);
+        ctx = { lastNightSleepHours: sleep[sleep.length - 1]?.duration ?? null, glassesToday: water };
+      } catch { /* */ }
+
+      const res = await fetch(`${API_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: feeling,
+          userName: user?.name,
+          role: "medical_journal",
+          profileId: user?.profileId,
+          userId: user?.id,
+          systemHint: `The user just wrote a journal entry about how they're feeling today. Recent context: ${JSON.stringify(ctx)}. Reply with EXACTLY two short lines of warm, observant commentary — what stands out about today's entry, plus a gentle nudge connected to recent context (sleep, hydration, etc.). Total <=200 chars. No bullet points. No markdown. Plain text. Speak directly to the user as 'you'.`,
+        }),
+        signal: AbortSignal.timeout(20_000),
+      });
+      const result = await res.json();
+      if (result?.reply) bObservation = String(result.reply).slice(0, 280);
+    } catch {
+      // Network fail → no observation today; entry still saves
+    }
+
+    const finalEntry: JournalEntry = { ...optimistic, bObservation };
+    const finalList = [finalEntry, ...journalEntries.filter(e => e.date !== date)];
+    setJournalEntries(finalList);
+    try { localStorage.setItem(JOURNAL_STORAGE_KEY, JSON.stringify(finalList)); } catch { /* */ }
+
+    // Persist server-side (loud-on-error per BION_WIKI)
+    if (user?.profileId && !user.id?.startsWith("demo_")) {
+      const { error } = await (supabase as any).from("medical_journal_entries").upsert({
+        id, profile_id: user.profileId, log_date: date,
+        feeling, b_observation: bObservation,
+      }, { onConflict: "profile_id,log_date" });
+      if (error && !String(error.message).includes("does not exist")) {
+        console.error("[journal] save failed:", error.message);
+        toast.error("Saved locally — couldn't sync to server");
+      }
+    }
+
+    setJournalSaving(false);
+    toast.success(bObservation ? "Journal entry saved" : "Saved (B_ couldn't reach the model right now)");
+  };
+
+  const todayJournalEntry = journalEntries.find(e => e.date === todayKeyJournal()) ?? null;
+
   useEffect(() => { document.title = "Free Digital Medical Card | BION"; }, []);
 
   useEffect(() => {
@@ -321,6 +449,75 @@ export default function MedicalCard() {
           <Field label="Relationship" value={data.emergencyContact.relationship}
             onChange={(v) => update({ emergencyContact: { ...data.emergencyContact, relationship: v } })}
             editing={editing} icon={Heart} placeholder="e.g. Spouse, Parent" />
+        </GlassCard>
+
+        {/* ── Medical Journal ─────────────────────────────
+            Daily "how are you feeling?" entry + B_'s two-line
+            observation grounded in recent sleep / water / food
+            signals from the local hot-cache. Added 2026-05-04. */}
+        <GlassCard variant="glass-1" className="p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <BookOpen className="w-4 h-4 text-indigo-400" />
+            <h3 className="text-sm font-semibold text-foreground">Medical Journal</h3>
+          </div>
+
+          {/* Today's entry — input or saved card */}
+          {todayJournalEntry ? (
+            <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3 space-y-2">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Today · {todayJournalEntry.date}</p>
+              <p className="text-sm text-foreground leading-relaxed">{todayJournalEntry.feeling}</p>
+              {todayJournalEntry.bObservation ? (
+                <div className="rounded-lg bg-indigo/10 border border-indigo/20 p-2.5 flex items-start gap-2">
+                  <div className="w-6 h-6 rounded-full bg-indigo/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <Sparkles className="w-3 h-3 text-indigo" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] uppercase tracking-widest text-indigo/70 mb-1">B_ observed</p>
+                    <p className="text-xs text-foreground leading-relaxed whitespace-pre-line">{todayJournalEntry.bObservation}</p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-[11px] text-muted-foreground italic flex items-center gap-1.5">
+                  <Loader2 className="w-3 h-3 animate-spin" /> B_ is reflecting…
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <textarea
+                value={journalDraft}
+                onChange={(e) => setJournalDraft(e.target.value)}
+                placeholder="How are you feeling today? Anything to note about your body, mood, or energy?"
+                rows={3}
+                disabled={journalSaving}
+                className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-indigo/40 resize-none disabled:opacity-50"
+                aria-label="How are you feeling today"
+              />
+              <button
+                onClick={saveJournalEntry}
+                disabled={!journalDraft.trim() || journalSaving}
+                className="w-full py-2.5 rounded-pill text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+              >
+                {journalSaving ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving…</> : <>Save today's entry</>}
+              </button>
+            </div>
+          )}
+
+          {/* Recent entries (last 7) */}
+          {journalEntries.filter(e => e.date !== todayKeyJournal()).slice(0, 7).length > 0 && (
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Recent</p>
+              {journalEntries.filter(e => e.date !== todayKeyJournal()).slice(0, 7).map(e => (
+                <div key={e.id} className="rounded-lg bg-white/[0.02] border border-white/[0.04] p-2.5 space-y-1.5">
+                  <p className="text-[10px] text-muted-foreground">{e.date}</p>
+                  <p className="text-xs text-foreground leading-relaxed">{e.feeling}</p>
+                  {e.bObservation && (
+                    <p className="text-[11px] text-indigo/80 leading-relaxed italic">{e.bObservation}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </GlassCard>
 
         {/* Medical Aid / Insurance — syncs with backend */}
