@@ -536,8 +536,19 @@ export default function Routines() {
   // append the extracted items into customExercises so the user can
   // review + edit before saving the routine. Best-effort; failures
   // don't break the dialog.
+  // AbortController so the user can Cancel mid-extraction. Without
+  // this the user was locked in the modal indefinitely if the backend
+  // (or its OpenAI upstream) hung — Cancel was also disabled while
+  // importing=true. Reported 2026-05-04 — a "Parkrun every Saturday
+  // 5km" import got stuck on "Reading… / Extracting…" forever.
+  const importAbortRef = useRef<AbortController | null>(null);
   const runImport = async (opts: { text?: string; imageDataUrl?: string }) => {
     setImporting(true);
+    importAbortRef.current = new AbortController();
+    // Hard 60-second cap — if the backend hasn't responded by then the
+    // call is dead. Better to fail fast than nag the user with a
+    // never-ending spinner.
+    const timeoutId = setTimeout(() => importAbortRef.current?.abort(), 60_000);
     try {
       const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
       const { supabase } = await import("@/integrations/supabase/client");
@@ -551,6 +562,7 @@ export default function Routines() {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
         body: JSON.stringify({ ...opts, routineType: newRoutine.type }),
+        signal: importAbortRef.current.signal,
       });
       const json = await res.json();
       if (!json.ok) throw new Error(json.error ?? "Extraction failed");
@@ -583,11 +595,25 @@ export default function Routines() {
       setImportText("");
     } catch (err: any) {
       const { toast } = await import("sonner");
-      toast.error(err?.message ?? "Import failed");
+      if (err?.name === "AbortError") {
+        toast.error("Import cancelled");
+      } else {
+        toast.error(err?.message ?? "Import failed");
+      }
     } finally {
+      clearTimeout(timeoutId);
+      importAbortRef.current = null;
       setImporting(false);
     }
   };
+
+  /** Abort an in-flight import — wired to the Cancel button so the
+   *  user is never locked in a hung extraction. */
+  const cancelImport = useCallback(() => {
+    importAbortRef.current?.abort();
+    setImporting(false);
+    setShowImport(false);
+  }, []);
 
   const importPhoto = async (file: File) => {
     if (!file.type.startsWith("image/")) return;
@@ -1030,18 +1056,17 @@ export default function Routines() {
         {showImport && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => !importing && setShowImport(false)}
+              onClick={() => importing ? cancelImport() : setShowImport(false)}
               className="fixed inset-0 bg-obsidian/70 z-[80]" />
             <motion.div initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "100%", opacity: 0 }}
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="fixed bottom-0 left-0 right-0 z-[90] rounded-t-[2rem] p-5 max-h-[85vh] overflow-y-auto"
-              style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              className="glass-popover fixed bottom-0 left-0 right-0 z-[90] rounded-t-[2rem] p-5 max-h-[85vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-indigo" />
                   <h3 className="text-lg font-bold text-foreground">Import routine</h3>
                 </div>
-                <button onClick={() => !importing && setShowImport(false)}
+                <button onClick={() => importing ? cancelImport() : setShowImport(false)}
                   className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
                   <X className="w-4 h-4" />
                 </button>
@@ -1083,8 +1108,7 @@ export default function Routines() {
 
               <div className="flex gap-2 mt-3">
                 <button
-                  onClick={() => !importing && setShowImport(false)}
-                  disabled={importing}
+                  onClick={() => importing ? cancelImport() : setShowImport(false)}
                   className="flex-1 rounded-pill py-2.5 text-xs font-semibold glass-1 text-muted-foreground"
                 >
                   Cancel
