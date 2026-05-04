@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
@@ -441,13 +441,35 @@ export default function Routines() {
   const [importText, setImportText] = useState("");
   const [importing, setImporting] = useState(false);
 
+  // Honour ?create=<type> from the URL so deep-links from other tiles
+  // (e.g. Hub → Medication tile points at /routines?create=medication)
+  // arrive on the Create modal pre-set to the right type instead of
+  // dumping the user on the Workout default. Reported 2026-05-04 — Lee
+  // tapped Medication and ended up filling out a fitness routine form.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const createIntent = searchParams.get("create") as Routine["type"] | null;
+  const VALID_TYPES: Routine["type"][] = ["workout","rehab","meal","skincare","medication","wellness","beauty","custom"];
+  const initialType: Routine["type"] = createIntent && VALID_TYPES.includes(createIntent) ? createIntent : "workout";
+
   // New routine form
   const [newRoutine, setNewRoutine] = useState({
     title: "",
-    type: "workout" as Routine["type"],
+    type: initialType,
     schedule: "",
     totalDays: 28,
   });
+
+  // Auto-open the Create modal when arriving with ?create=… , then strip
+  // the param so a back-navigation doesn't re-open it.
+  useEffect(() => {
+    if (createIntent && VALID_TYPES.includes(createIntent)) {
+      setShowCreate(true);
+      const next = new URLSearchParams(searchParams);
+      next.delete("create");
+      setSearchParams(next, { replace: true });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [customExercises, setCustomExercises] = useState<Exercise[]>([]);
   const [newExName, setNewExName] = useState("");
   const [newExSets, setNewExSets] = useState("");

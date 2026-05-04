@@ -32,7 +32,7 @@ const ALL_TOOLS = [
   { id: "challenges", icon: Trophy,    label: "Challenges",      path: "/challenges",      color: "text-amber" },
   { id: "notifs",   icon: Bell,        label: "Notifications",   path: "/notifications",   color: "text-coral" },
   { id: "schedule", icon: CalendarDays,label: "My Schedule",     path: "/schedule",        color: "text-indigo" },
-  { id: "meds",     icon: Pill,        label: "Medication",      path: "/routines",        color: "text-indigo" },
+  { id: "meds",     icon: Pill,        label: "Medication",      path: "/routines?create=medication", color: "text-indigo" },
 ];
 
 /* ── Default pinned tools (shown until user customizes) ── */
