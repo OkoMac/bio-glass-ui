@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client";
+import { useState } from "react";
 import App from "./App.tsx";
 import "./index.css";
 import * as Sentry from "@sentry/react";
@@ -38,7 +39,30 @@ if (SENTRY_DSN) {
   });
 }
 
-createRoot(document.getElementById("root")!).render(<App />);
+function SentryTestButton() {
+  const [show, setShow] = useState(false);
+  if (!show) return <button onClick={() => setShow(true)} style={{ display: "none" }}>Sentry test</button>;
+  return (
+    <button
+      onClick={() => { throw new Error("Sentry test: BION error tracking works!"); }}
+      style={{
+        position: "fixed", bottom: 8, right: 8, zIndex: 99999,
+        background: "#e53e3e", color: "white", border: "none",
+        borderRadius: 8, padding: "8px 16px", fontSize: 12, cursor: "pointer",
+        fontFamily: "monospace",
+      }}
+    >
+      Break the world (Sentry test)
+    </button>
+  );
+}
+
+createRoot(document.getElementById("root")!).render(
+  <>
+    <App />
+    <SentryTestButton />
+  </>
+);
 
 // ── Service Worker registration ──
 //
