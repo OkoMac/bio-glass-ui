@@ -12,6 +12,7 @@ import CampaignBanner from "@/components/CampaignBanner";
 import SpotlightSection from "@/components/SpotlightSection";
 import BionTips from "@/components/BionTips";
 import { useHabitProfile } from "@/hooks/useHabits";
+import { trackEvent } from "@/lib/habits";
 import { usePageView } from "@/hooks/usePageView";
 import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
@@ -211,11 +212,46 @@ export default function Directory() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedSuburb, setSelectedSuburb] = useState<string | null>(null);
-  const [selectedCity, setSelectedCity] = useState<string | null>(null);
-  // Which city row in the filter accordion is currently expanded.
-  // Null = collapsed; only one open at a time so the panel stays compact.
-  const [expandedCity, setExpandedCity] = useState<string | null>(null);
+  // Multi-select location filter — array of (city, suburb) tuples where
+  // suburb=null means "all of this city". Empty = no location filter.
+  // Older selectedCity/selectedSuburb are derived from selected[0] for
+  // backward compatibility with the rest of the page (GPS auto-snap,
+  // SEO, etc. — they only need a single primary city for context).
+  type Sel = { city: string; suburb: string | null };
+  const [selected, setSelected] = useState<Sel[]>([]);
+  const selectedCity = selected[0]?.city ?? null;
+  const selectedSuburb = selected[0]?.suburb ?? null;
+
+  // Multiple cities can be expanded at once (Set-backed).
+  const [expandedCities, setExpandedCities] = useState<Set<string>>(new Set());
+
+  // In-filter live search — narrows the city + suburb accordion.
+  const [filterSearch, setFilterSearch] = useState("");
+
+  const selKey = (s: Sel) => `${s.city}|${s.suburb ?? "*"}`;
+  const isSelected = useCallback((city: string, suburb: string | null) =>
+    selected.some(s => s.city === city && s.suburb === suburb),
+  [selected]);
+  const toggleSelected = useCallback((city: string, suburb: string | null) => {
+    setSelected(prev => {
+      const k = `${city}|${suburb ?? "*"}`;
+      const exists = prev.some(s => selKey(s) === k);
+      const next = exists ? prev.filter(s => selKey(s) !== k) : [...prev, { city, suburb }];
+      // Telemetry: every toggle is a directory-filter event
+      void trackEvent("search", {
+        category: "directory_filter",
+        metadata: { action: exists ? "remove" : "add", city, suburb, total_after: next.length },
+      });
+      return next;
+    });
+    setVisibleCount(12);
+  }, []);
+  const clearAll = useCallback(() => {
+    setSelected([]);
+    setExpandedCities(new Set());
+    setVisibleCount(12);
+    void trackEvent("search", { category: "directory_filter", metadata: { action: "clear_all" } });
+  }, []);
   // Light/dark theme toggle via next-themes
   const { theme, setTheme } = useTheme();
   const [manualLocation, setManualLocation] = useState<{lat:number;lng:number;name:string}|null>(() => {
@@ -271,15 +307,16 @@ export default function Directory() {
       ? ALL_PROVIDERS.filter((p) => p.category === selectedCategoryId)
       : ALL_PROVIDERS;
 
-    // Suburb filter
-    if (selectedSuburb) {
-      list = list.filter((p) => p.suburb === selectedSuburb);
-    }
-    // City filter — auto-apply user's detected city unless searching
-    if (selectedCity) {
-      list = list.filter((p) => p.city === selectedCity);
+    // Multi-select location filter — match if provider falls into ANY of the
+    // selected (city, suburb) tuples (suburb=null = all of city).
+    if (selected.length > 0) {
+      list = list.filter(p =>
+        selected.some(s =>
+          p.city === s.city && (s.suburb === null || p.suburb === s.suburb),
+        ),
+      );
     } else if (userCity && !search.trim()) {
-      // Auto-filter to user's city when not searching
+      // Auto-filter to user's city when not searching and no manual filter
       list = list.filter((p) => p.city === userCity);
     }
 
@@ -365,7 +402,19 @@ export default function Directory() {
     }
 
     return list;
-  }, [selectedCategoryId, search, activeFilter, habitProfile, selectedSuburb, selectedCity, geo.latitude, geo.longitude, manualLocation, userCity, ALL_PROVIDERS]);
+  }, [selectedCategoryId, search, activeFilter, habitProfile, selected, geo.latitude, geo.longitude, manualLocation, userCity, ALL_PROVIDERS]);
+
+  // Zero-results telemetry — fires once when an active filter combination
+  // returns nothing. This is the most useful filter signal: it tells us
+  // which (city, suburb) selections the data doesn't yet support.
+  useEffect(() => {
+    if (selected.length > 0 && filteredProviders.length === 0) {
+      void trackEvent("search", {
+        category: "directory_filter_zero_results",
+        metadata: { selected, search: search || undefined },
+      });
+    }
+  }, [selected, filteredProviders.length, search]);
 
   const displayProviders = useMemo(() => filteredProviders.slice(0, visibleCount), [filteredProviders, visibleCount]);
   const hasMore = visibleCount < filteredProviders.length;
@@ -630,7 +679,7 @@ export default function Directory() {
                 className="overflow-hidden"
               >
                 <div className="glass-1 rounded-2xl p-4 space-y-3 mt-2">
-                  {/* Header: title · light-mode toggle · clear */}
+                  {/* Header: title · light-mode toggle · clear-all */}
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-xs font-semibold text-foreground flex-1">Filter by location</p>
                     <button
@@ -641,50 +690,96 @@ export default function Directory() {
                       {theme === "light" ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />}
                       <span className="capitalize">{theme === "light" ? "Dark" : "Light"} mode</span>
                     </button>
-                    {(selectedSuburb || selectedCity) && (
-                      <button onClick={() => { setSelectedSuburb(null); setSelectedCity(null); setExpandedCity(null); }} className="text-[10px] text-indigo whitespace-nowrap">
-                        Clear filters
+                    {selected.length > 0 && (
+                      <button onClick={clearAll} className="text-[10px] text-indigo whitespace-nowrap">
+                        Clear all ({selected.length})
                       </button>
                     )}
                   </div>
 
-                  {/* Alphabet-ordered city accordion. Each row expands to its
-                      suburbs underneath. Single open at a time so the panel
-                      stays compact. */}
-                  <div className="rounded-xl border border-white/[0.06] divide-y divide-white/[0.04] overflow-hidden">
-                    {ALL_CITIES.map(city => {
-                      const isExpanded = expandedCity === city;
-                      const isSelectedCity = selectedCity === city;
+                  {/* Selected chips row — each chip removable via × */}
+                  {selected.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pb-1 border-b border-white/[0.06]">
+                      {selected.map(s => (
+                        <button
+                          key={selKey(s)}
+                          onClick={() => toggleSelected(s.city, s.suburb)}
+                          className="rounded-pill px-2.5 py-1 text-[10px] font-medium bg-teal/20 text-teal border border-teal/40 flex items-center gap-1.5"
+                          aria-label={`Remove ${s.suburb ?? s.city} filter`}
+                        >
+                          <span>{s.suburb ?? s.city}</span>
+                          {!s.suburb && <span className="text-[9px] uppercase tracking-wider opacity-70">all</span>}
+                          <X className="w-3 h-3 opacity-70" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* In-filter live search — narrows the accordion below */}
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={filterSearch}
+                      onChange={e => setFilterSearch(e.target.value)}
+                      placeholder="Search suburb or city…"
+                      className="w-full pl-7 pr-2 py-1.5 rounded-lg text-[11px] bg-white/[0.04] border border-white/[0.06] text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-indigo/40"
+                      aria-label="Search suburb or city"
+                    />
+                  </div>
+
+                  {/* Alphabet-ordered city accordion (multi-expand allowed) */}
+                  <div className="rounded-xl border border-white/[0.06] divide-y divide-white/[0.04] overflow-hidden max-h-[60vh] overflow-y-auto">
+                    {ALL_CITIES.filter(city => {
+                      // Hide cities with 0 verified providers (per the original spec)
+                      if (!ALL_PROVIDERS.some(p => p.city === city)) return false;
+                      // Apply in-filter search — keep city if its name OR any of its suburbs matches
+                      if (filterSearch.trim()) {
+                        const q = filterSearch.toLowerCase();
+                        if (city.toLowerCase().includes(q)) return true;
+                        return ALL_SUBURBS.some(s =>
+                          s.toLowerCase().includes(q) &&
+                          ALL_PROVIDERS.some(p => p.suburb === s && p.city === city),
+                        );
+                      }
+                      return true;
+                    }).map(city => {
+                      const isExpanded = expandedCities.has(city);
+                      const allOfCitySelected = isSelected(city, null);
                       const cityProviderCount = ALL_PROVIDERS.filter(p => p.city === city).length;
+                      const q = filterSearch.toLowerCase().trim();
                       const citySuburbs = ALL_SUBURBS.filter(s =>
-                        ALL_PROVIDERS.some(p => p.suburb === s && p.city === city)
+                        ALL_PROVIDERS.some(p => p.suburb === s && p.city === city) &&
+                        (!q || s.toLowerCase().includes(q) || city.toLowerCase().includes(q)),
                       );
+                      // Auto-expand cities whose suburbs match the search
+                      const shouldAutoExpand = q && citySuburbs.length > 0 && !city.toLowerCase().includes(q);
+                      const effectivelyExpanded = isExpanded || shouldAutoExpand;
                       return (
                         <div key={city}>
                           <button
                             onClick={() => {
-                              if (isExpanded) {
-                                // Collapsing: also clear "all suburbs in city" if user had it as the city filter
-                                setExpandedCity(null);
-                              } else {
-                                setExpandedCity(city);
-                              }
+                              setExpandedCities(prev => {
+                                const next = new Set(prev);
+                                if (next.has(city)) next.delete(city); else next.add(city);
+                                return next;
+                              });
                             }}
                             className={`w-full flex items-center justify-between px-3 py-2 text-left transition-colors ${
-                              isSelectedCity ? "bg-indigo/10" : "hover:bg-white/[0.03]"
+                              allOfCitySelected ? "bg-indigo/10" : "hover:bg-white/[0.03]"
                             }`}
                           >
                             <div className="flex items-center gap-2 min-w-0">
-                              <span className={`text-xs font-medium truncate ${isSelectedCity ? "text-indigo" : "text-foreground"}`}>
+                              <span className={`text-xs font-medium truncate ${allOfCitySelected ? "text-indigo" : "text-foreground"}`}>
                                 {city}
                               </span>
                               <span className="text-[10px] text-muted-foreground">{cityProviderCount}</span>
                             </div>
                             <div className="flex items-center gap-1.5 shrink-0">
-                              {isSelectedCity && !selectedSuburb && (
+                              {allOfCitySelected && (
                                 <span className="text-[9px] uppercase tracking-wider text-indigo">All</span>
                               )}
-                              {isExpanded
+                              {effectivelyExpanded
                                 ? <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
                                 : <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
                               }
@@ -692,7 +787,7 @@ export default function Directory() {
                           </button>
 
                           <AnimatePresence initial={false}>
-                            {isExpanded && (
+                            {effectivelyExpanded && (
                               <motion.div
                                 initial={{ height: 0 }}
                                 animate={{ height: "auto" }}
@@ -700,15 +795,11 @@ export default function Directory() {
                                 className="overflow-hidden bg-white/[0.02]"
                               >
                                 <div className="px-3 pb-3 pt-1 space-y-1.5">
-                                  {/* "All <City>" pill — selects city, no suburb */}
+                                  {/* "All <City>" — toggles the city-only selection */}
                                   <button
-                                    onClick={() => {
-                                      setSelectedCity(isSelectedCity && !selectedSuburb ? null : city);
-                                      setSelectedSuburb(null);
-                                      setVisibleCount(12);
-                                    }}
+                                    onClick={() => toggleSelected(city, null)}
                                     className={`w-full text-left rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-colors ${
-                                      isSelectedCity && !selectedSuburb
+                                      allOfCitySelected
                                         ? "bg-indigo/20 text-indigo"
                                         : "bg-white/[0.02] text-muted-foreground hover:text-foreground"
                                     }`}
@@ -716,27 +807,23 @@ export default function Directory() {
                                     All of {city}
                                   </button>
 
-                                  {/* Suburbs in this city */}
+                                  {/* Suburbs in this city — multi-select toggle */}
                                   {citySuburbs.length > 0 && (
                                     <div className="flex flex-wrap gap-1">
                                       {citySuburbs.map(suburb => {
-                                        const isSelectedSub = selectedSuburb === suburb && selectedCity === city;
+                                        const subSelected = isSelected(city, suburb);
                                         return (
                                           <button
                                             key={suburb}
-                                            onClick={() => {
-                                              setSelectedCity(city);
-                                              setSelectedSuburb(isSelectedSub ? null : suburb);
-                                              setVisibleCount(12);
-                                            }}
+                                            onClick={() => toggleSelected(city, suburb)}
                                             className={`rounded-pill px-2.5 py-0.5 text-[10px] font-medium border transition-colors flex items-center gap-1 ${
-                                              isSelectedSub
+                                              subSelected
                                                 ? "border-teal/40 bg-teal/20 text-teal"
                                                 : "border-white/[0.06] bg-white/[0.02] text-muted-foreground hover:text-foreground"
                                             }`}
                                           >
                                             <span>{suburb}</span>
-                                            <span className={`text-[9px] tabular-nums ${isSelectedSub ? "text-teal/70" : "text-muted-foreground/60"}`}>
+                                            <span className={`text-[9px] tabular-nums ${subSelected ? "text-teal/70" : "text-muted-foreground/60"}`}>
                                               {SUBURB_COUNTS.get(`${city}|${suburb}`) ?? 0}
                                             </span>
                                           </button>
