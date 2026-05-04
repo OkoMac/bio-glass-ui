@@ -1,8 +1,31 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+
+// Build-time version stamp shown in the in-app pill. The runtime constant
+// previously hard-coded "2.5.0" so every deploy looked identical even
+// though the bundle changed — users saw the update toast fire and "Update"
+// but the pill stayed v2.5.0, making it look like nothing happened.
+function buildVersionStamp(): string {
+  const pkg = JSON.parse(readFileSync(path.resolve(__dirname, "package.json"), "utf8")) as { version?: string };
+  const v = pkg.version ?? "0.0.0";
+  let sha = "";
+  try {
+    sha = execSync("git rev-parse --short HEAD", { stdio: ["ignore", "pipe", "ignore"] })
+      .toString()
+      .trim();
+  } catch {
+    sha = String(Math.floor(Date.now() / 60_000));
+  }
+  return `${v}-${sha}`;
+}
 
 export default defineConfig(() => ({
+  define: {
+    __BION_BUILD_ID__: JSON.stringify(buildVersionStamp()),
+  },
   server: {
     host: "::",
     port: 8080,

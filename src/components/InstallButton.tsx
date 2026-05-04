@@ -5,7 +5,10 @@ import { useLocation } from "react-router-dom";
 import { shouldShowFloatingChrome } from "@/lib/floatingChrome";
 import Tooltip from "./Tooltip";
 
-const APP_VERSION = "2.5.0";
+// Injected by vite.config.ts as `${pkg.version}-${shortSha}` — every deploy
+// produces a different string so the in-app pill visibly changes after an
+// update, instead of staying frozen on a hard-coded value.
+const APP_VERSION = typeof __BION_BUILD_ID__ !== "undefined" ? __BION_BUILD_ID__ : "2.5.0-dev";
 
 // Detect device type
 function getDeviceType(): "android" | "ios" | "desktop" | "other" {
