@@ -141,6 +141,15 @@
     max-width: 100vw;
   }
 
+  /* Tells the browser the app's default colour scheme is dark, so
+     native form controls — iOS / Safari time / date / select pickers,
+     scrollbars, autofill highlights — render in dark too. Without this,
+     a tap on <input type="time"> on iOS PWA opens a bright-white wheel
+     picker that looks foreign against the obsidian theme.
+     The .light class below flips it to light when the user toggles. */
+  html { color-scheme: dark; }
+  html.light { color-scheme: light; }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;
