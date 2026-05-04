@@ -371,7 +371,7 @@ export default function ViralFeatures() {
                     <Share2 className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-foreground">328</p>
+                    <p className="text-2xl font-bold text-foreground">—</p>
                     <p className="text-xs text-muted-foreground">Shares This Week</p>
                   </div>
                 </div>
@@ -384,7 +384,7 @@ export default function ViralFeatures() {
                     <Users className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-foreground">+18%</p>
+                    <p className="text-2xl font-bold text-foreground">—</p>
                     <p className="text-xs text-muted-foreground">User Growth</p>
                   </div>
                 </div>
@@ -397,7 +397,7 @@ export default function ViralFeatures() {
                     <Zap className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-foreground">4.2x</p>
+                    <p className="text-2xl font-bold text-foreground">—</p>
                     <p className="text-xs text-muted-foreground">Engagement</p>
                   </div>
                 </div>

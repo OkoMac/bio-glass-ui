@@ -380,7 +380,10 @@ export default function BeautyDashboard() {
                     <Scissors className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-foreground">28</p>
+                    {/* TODO STUB: services/month was hardcoded "28" — wire to
+                        useBookings() count for the current calendar month
+                        once the beauty dashboard ships. */}
+                    <p className="text-2xl font-bold text-foreground">—</p>
                     <p className="text-xs text-muted-foreground">Services/Month</p>
                   </div>
                 </div>
@@ -406,7 +409,9 @@ export default function BeautyDashboard() {
                     <Star className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-foreground">4.9</p>
+                    {/* TODO STUB: avg rating was hardcoded "4.9" — wire to
+                        useProviderRatings() once beauty dashboard ships. */}
+                    <p className="text-2xl font-bold text-foreground">—</p>
                     <p className="text-xs text-muted-foreground">Avg Rating</p>
                   </div>
                 </div>

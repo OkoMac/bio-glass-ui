@@ -384,7 +384,8 @@ export default function MedicalDashboard() {
                     <Stethoscope className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-foreground">42</p>
+                    {/* TODO STUB: hardcoded "42" — wire to useBookings() count for current month when medical dashboard ships */}
+                    <p className="text-2xl font-bold text-foreground">—</p>
                     <p className="text-xs text-muted-foreground">Consultations/Month</p>
                   </div>
                 </div>
@@ -397,7 +398,8 @@ export default function MedicalDashboard() {
                     <TrendingUp className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-foreground">R18,500</p>
+                    {/* TODO STUB: hardcoded "R18,500" — wire to medical_claims aggregate when dashboard ships */}
+                    <p className="text-2xl font-bold text-foreground">—</p>
                     <p className="text-xs text-muted-foreground">Monthly Claims</p>
                   </div>
                 </div>
@@ -410,7 +412,8 @@ export default function MedicalDashboard() {
                     <CheckCircle className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-foreground">94%</p>
+                    {/* TODO STUB: hardcoded "94%" — wire to claims approval ratio when dashboard ships */}
+                    <p className="text-2xl font-bold text-foreground">—</p>
                     <p className="text-xs text-muted-foreground">Claim Success</p>
                   </div>
                 </div>
