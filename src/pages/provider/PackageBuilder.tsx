@@ -471,7 +471,10 @@ export default function PackageBuilder() {
                     <TrendingUp className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-foreground">42%</p>
+                    {/* TODO STUB: was hardcoded "42%" — wire to a real
+                        conversion-rate computation when package view tracking
+                        ships. Conversion = sales / views over a window. */}
+                    <p className="text-2xl font-bold text-foreground">—</p>
                     <p className="text-xs text-muted-foreground">Conversion Rate</p>
                   </div>
                 </div>
