@@ -63,11 +63,18 @@ export default function QuickBook() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(pinnedTools));
   }, [pinnedTools]);
 
-  /* ── Compute "My Providers" from booking history ── */
+  /* ── Compute "Your Providers" from booking history + favorites ──
+     Reported 2026-05-04 — Oko's home dashboard had a "Suggested for You"
+     section with a confused empty state ("Book your first session to
+     start building your favorites list") and a "+ Add" button that just
+     pushed users to /directory with no explanation. The section ignored
+     useFavorites entirely, so even a favorited provider didn't show up.
+     This rebuild merges booking history AND favorites, dedupes by id,
+     sorts favorites first then by recency. */
   const myProviders = useMemo(() => {
-    // Get unique providers from past bookings
-    const providerMap = new Map<string, { id: string; name: string; image: string; lastBooked: string; count: number; vertical: string }>();
+    const providerMap = new Map<string, { id: string; name: string; image: string; lastBooked: string; count: number; vertical: string; isFavorite: boolean }>();
 
+    // 1. Booking history
     bookings.forEach(b => {
       const name = b.providerName ?? b.clientName ?? "Unknown";
       const id = b.providerId ?? name.replace(/\s/g, "_").toLowerCase();
@@ -76,7 +83,6 @@ export default function QuickBook() {
         existing.count++;
         if (b.date > existing.lastBooked) existing.lastBooked = b.date;
       } else {
-        // Try to find provider in real data for image
         const realProvider = realData.providers.find(p => p.name === name || p.id === id);
         providerMap.set(id, {
           id: realProvider?.id ?? id,
@@ -85,12 +91,38 @@ export default function QuickBook() {
           lastBooked: b.date,
           count: 1,
           vertical: "teal",
+          isFavorite: isFavorite(realProvider?.id ?? id),
         });
       }
     });
 
-    return Array.from(providerMap.values()).sort((a, b) => b.count - a.count).slice(0, 8);
-  }, [bookings]);
+    // 2. Favorites that aren't already in the booking-history map
+    favorites.forEach(favId => {
+      if (providerMap.has(favId)) {
+        providerMap.get(favId)!.isFavorite = true;
+        return;
+      }
+      const realProvider = realData.providers.find(p => p.id === favId);
+      if (!realProvider) return;
+      providerMap.set(favId, {
+        id: favId,
+        name: realProvider.name,
+        image: getProviderImage(favId, realProvider.name),
+        lastBooked: "—",
+        count: 0,
+        vertical: "teal",
+        isFavorite: true,
+      });
+    });
+
+    // Favorites first, then by booking count (descending)
+    return Array.from(providerMap.values())
+      .sort((a, b) => {
+        if (a.isFavorite !== b.isFavorite) return a.isFavorite ? -1 : 1;
+        return b.count - a.count;
+      })
+      .slice(0, 8);
+  }, [bookings, favorites, isFavorite]);
 
   /* ── Suggested providers (for users with no history) ── */
   const suggestedProviders = useMemo(() => {
@@ -277,14 +309,16 @@ export default function QuickBook() {
           </section>
         )}
 
-        {/* ── My Providers ───────────────────────────── */}
+        {/* ── Your Providers (favorites + booking history) ─────── */}
         <section>
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs text-muted-foreground uppercase tracking-widest">
-              {myProviders.length > 0 ? "My Providers" : "Suggested for You"}
+              Your providers
             </p>
             <button onClick={() => navigate("/directory", { state: { from: "/book" } })}
-              className="text-xs text-teal font-medium">+ Add</button>
+              className="text-xs text-teal font-medium">
+              {myProviders.length > 0 ? "+ Find more" : "Browse directory"}
+            </button>
           </div>
 
           {/* Search providers */}
@@ -328,7 +362,15 @@ export default function QuickBook() {
               <GlassCard className="p-4 text-center">
                 <Sparkles className="w-8 h-8 text-violet/60 mx-auto mb-2" />
                 <p className="text-sm text-foreground font-medium mb-1">No providers yet</p>
-                <p className="text-xs text-muted-foreground mb-3">Book your first session to start building your favorites list</p>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Tap a heart on any provider in the directory to favorite them, or book a session to add them here.
+                </p>
+                <button
+                  onClick={() => navigate("/directory", { state: { from: "/book" } })}
+                  className="rounded-pill px-4 py-1.5 text-xs font-semibold gradient-indigo text-primary-foreground"
+                >
+                  Browse directory
+                </button>
               </GlassCard>
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2 px-1">Top rated near you</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
