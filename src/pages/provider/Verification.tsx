@@ -385,8 +385,18 @@ export default function ProviderVerification() {
                  : requiredDone ? "Ready to submit" : "Upload required documents"}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {totalUploaded} of {REQUIRED_DOCS.length} documents uploaded
-                {verifiedCount > 0 && ` · ${verifiedCount} verified`}
+                {/* When the account is already verified (e.g. admin override or
+                    pre-existing trust), don't surface a "0 of 6 uploaded" count
+                    that contradicts the verified state. The status banner above
+                    is the authoritative signal. */}
+                {providerStatus === "verified"
+                  ? (totalUploaded > 0
+                      ? `All documents on file · ${verifiedCount} of ${totalUploaded} verified`
+                      : "All set — bookings are enabled")
+                  : <>
+                      {totalUploaded} of {REQUIRED_DOCS.length} documents uploaded
+                      {verifiedCount > 0 && ` · ${verifiedCount} verified`}
+                    </>}
               </p>
               <div className="h-1.5 rounded-full bg-white/5 mt-2">
                 <div className={`h-full rounded-full transition-all ${
