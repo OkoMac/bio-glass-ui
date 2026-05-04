@@ -9,7 +9,7 @@ const tabs = [
   { icon: Dumbbell,      label: "Routines",  path: "/routines" },
   { label: "BION",       path: "/profile",   isFab: true },
   { icon: MessageCircle, label: "Messages",  path: "/messages" },
-  { icon: Zap,           label: "Book",      path: "/quick-book" },
+  { icon: Zap,           label: "Hub",       path: "/quick-book" },
 ];
 
 const BottomNav = () => {
