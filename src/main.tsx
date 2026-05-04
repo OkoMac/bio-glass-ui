@@ -102,18 +102,38 @@ if ("serviceWorker" in navigator) {
         document.addEventListener("visibilitychange", onVis);
       };
 
-      // Show a one-tap "new version available" toast when a new SW
-      // activates, so users on long-open tabs aren't left stuck on
-      // stale code waiting for the tab-hidden reload trigger.
+      // Show a one-tap "new version available" banner when a new SW
+      // activates. Placed at the TOP of the screen — the bottom band
+      // has the tab bar plus Medical Card / Routines tiles, and a
+      // narrow pill there caused ghost-taps to fall through to the
+      // tile below the toast (user tapped "update" → Medical Card
+      // opened). Top is empty on every BION route, so taps are safe.
       const showUpdateToast = () => {
         if (document.getElementById("bion-update-toast")) return;
-        const t = document.createElement("div");
-        t.id = "bion-update-toast";
-        t.setAttribute("role", "alert");
-        t.style.cssText = "position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom,24px));transform:translateX(-50%);z-index:99999;background:hsl(239 84% 67%);color:#fff;padding:10px 16px;border-radius:999px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;font-weight:600;box-shadow:0 8px 32px rgba(99,102,241,0.45);cursor:pointer;display:flex;align-items:center;gap:8px";
-        t.innerHTML = '<span>New BION version</span><span style="opacity:0.85;font-weight:400">— tap to update</span>';
-        t.onclick = () => window.location.reload();
-        document.body.appendChild(t);
+        const wrap = document.createElement("div");
+        wrap.id = "bion-update-toast";
+        wrap.setAttribute("role", "alert");
+        wrap.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:2147483647;padding:max(8px,env(safe-area-inset-top,0px)) 12px 8px;pointer-events:none;font-family:-apple-system,BlinkMacSystemFont,sans-serif";
+        const bar = document.createElement("div");
+        bar.style.cssText = "pointer-events:auto;margin:0 auto;max-width:520px;background:hsl(239 84% 67%);color:#fff;padding:12px 14px;border-radius:14px;font-size:14px;font-weight:600;box-shadow:0 12px 36px rgba(99,102,241,0.5);display:flex;align-items:center;justify-content:space-between;gap:12px";
+        const label = document.createElement("span");
+        label.textContent = "New BION version available";
+        label.style.cssText = "flex:1;min-width:0";
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = "Update";
+        btn.style.cssText = "flex:0 0 auto;background:#fff;color:hsl(239 84% 50%);border:0;border-radius:999px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent";
+        const doReload = (ev?: Event) => {
+          if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+          window.location.reload();
+        };
+        btn.addEventListener("click", doReload);
+        // Stop stray taps inside the bar from reaching anything under it.
+        bar.addEventListener("click", (ev) => ev.stopPropagation());
+        bar.appendChild(label);
+        bar.appendChild(btn);
+        wrap.appendChild(bar);
+        document.body.appendChild(wrap);
         // Auto-reload after 90s if the user doesn't tap — long enough
         // not to interrupt active interaction, short enough to actually
         // ship the update on a hands-off tab.
