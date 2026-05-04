@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Elements,
   CardElement,
@@ -7,17 +7,17 @@ import {
 } from '@stripe/react-stripe-js';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { Button } from './ui/button';
-import { Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 
 // Load Stripe with publishable key
 let stripePromise: Promise<Stripe | null>;
 const getStripe = () => {
   if (!stripePromise) {
-    // In production, this should come from environment variable
-    stripePromise = loadStripe(
-      process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 
-      'pk_test_51QABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    );
+    const key = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+    if (!key) {
+      throw new Error('VITE_STRIPE_PUBLISHABLE_KEY environment variable is not set');
+    }
+    stripePromise = loadStripe(key);
   }
   return stripePromise;
 };
@@ -37,14 +37,13 @@ interface StripePaymentFormProps {
   onCancel?: () => void;
 }
 
-const PaymentForm: React.FC<StripePaymentFormProps & { stripe: Stripe | null }> = ({
+const PaymentForm: React.FC<StripePaymentFormProps> = ({
   amount,
   currency = 'zar',
   bookingDetails,
   onSuccess,
   onError,
   onCancel,
-  stripe,
 }) => {
   const stripeHook = useStripe();
   const elements = useElements();
@@ -96,11 +95,6 @@ const PaymentForm: React.FC<StripePaymentFormProps & { stripe: Stripe | null }> 
       const { error, paymentIntent } = await stripeHook.confirmCardPayment(clientSecret, {
         payment_method: {
           card: cardElement,
-          billing_details: {
-            // In production, collect this from user
-            name: 'Customer Name',
-            email: 'customer@example.com',
-          },
         },
       });
 
@@ -171,18 +165,12 @@ const PaymentForm: React.FC<StripePaymentFormProps & { stripe: Stripe | null }> 
           <div className="border rounded-lg p-3 bg-white">
             <CardElement options={cardElementOptions} />
           </div>
-          <p className="text-xs text-gray-500 mt-2">
-            Test card: 4242 4242 4242 4242 | Exp: Any future date | CVC: Any 3 digits
-          </p>
         </div>
 
         <div className="bg-gray-50 p-4 rounded-lg">
           <div className="flex justify-between mb-2">
             <span className="text-gray-600">Amount:</span>
             <span className="font-semibold">R{amount.toFixed(2)}</span>
-          </div>
-          <div className="text-xs text-gray-500">
-            This is a test payment. No real money will be charged.
           </div>
         </div>
       </div>
@@ -226,9 +214,57 @@ const PaymentForm: React.FC<StripePaymentFormProps & { stripe: Stripe | null }> 
 };
 
 const StripePaymentForm: React.FC<StripePaymentFormProps> = (props) => {
+  const [stripeLoadError, setStripeLoadError] = useState<string | null>(null);
+  const [stripe, setStripe] = useState<Stripe | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const instance = await getStripe();
+        if (!cancelled) {
+          if (!instance) {
+            setStripeLoadError('Stripe failed to initialize. Please check your internet connection and try again.');
+          } else {
+            setStripe(instance);
+          }
+        }
+      } catch (err: any) {
+        if (!cancelled) {
+          setStripeLoadError(err.message || 'Stripe failed to initialize.');
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  if (stripeLoadError) {
+    return (
+      <div className="flex flex-col items-center justify-center p-6 text-center">
+        <AlertTriangle className="h-16 w-16 text-red-500 mb-4" />
+        <h3 className="text-xl font-semibold mb-2">Payment unavailable</h3>
+        <p className="text-gray-600 mb-4">{stripeLoadError}</p>
+        {props.onCancel && (
+          <Button variant="outline" onClick={props.onCancel}>
+            Go Back
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  if (!stripe) {
+    return (
+      <div className="flex flex-col items-center justify-center p-6 text-center">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-400 mb-4" />
+        <p className="text-gray-500">Loading payment form...</p>
+      </div>
+    );
+  }
+
   return (
-    <Elements stripe={getStripe()}>
-      <PaymentForm stripe={null} {...props} />
+    <Elements stripe={stripe}>
+      <PaymentForm {...props} />
     </Elements>
   );
 };
