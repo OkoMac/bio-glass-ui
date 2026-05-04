@@ -333,6 +333,29 @@ const typeLabel: Record<string, string> = {
   workout: "Workout", rehab: "Rehab", meal: "Meal Plan", skincare: "Skincare", medication: "Medication", wellness: "Wellness", beauty: "Beauty", custom: "Custom",
 };
 
+// Per-type vocabulary so the Create Routine form copy matches the
+// selected type. Without this, a Meal Plan was shown next to "Customise
+// exercises →" and the placeholder said "e.g. Morning Strength, Evening
+// Yoga" — both wrong context (reported 2026-05-04 by Lee).
+const typeVocab: Record<string, { placeholder: string; itemNoun: string }> = {
+  workout:    { placeholder: "e.g. Morning Strength, Evening Yoga, Parkrun, 5km Run, Cycling Plan",
+                itemNoun: "exercises" },
+  rehab:      { placeholder: "e.g. Knee Recovery, Post-op Shoulder, Lower Back Programme",
+                itemNoun: "movements" },
+  meal:       { placeholder: "e.g. High-Protein Week, Mediterranean Plan, Vegan 28-Day",
+                itemNoun: "meals" },
+  skincare:   { placeholder: "e.g. AM Routine, Evening Glow, Acne Care",
+                itemNoun: "steps" },
+  medication: { placeholder: "e.g. Morning Pills, Antibiotic Course, Vitamin Stack",
+                itemNoun: "medications" },
+  wellness:   { placeholder: "e.g. 21-Day Mindfulness, Breathwork, Meditation",
+                itemNoun: "practices" },
+  beauty:     { placeholder: "e.g. Hair Care, Spa Routine, Self-Care Sunday",
+                itemNoun: "rituals" },
+  custom:     { placeholder: "e.g. My Routine — anything you do regularly",
+                itemNoun: "items" },
+};
+
 const STORAGE_KEY = "bion_routines";
 
 /* ── Component ──────────────────────────────────────── */
@@ -910,7 +933,7 @@ export default function Routines() {
                       setNewRoutine(prev => ({ ...prev, title: e.target.value }));
                       if (createErrors.title) setCreateErrors(prev => ({ ...prev, title: undefined }));
                     }}
-                    placeholder="e.g. Morning Strength, Evening Yoga"
+                    placeholder={typeVocab[newRoutine.type]?.placeholder ?? "e.g. Morning Strength, Evening Yoga, 5km Run, Parkrun, Cycling Plan, Hike"}
                     className={`w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border transition-colors ${
                       createErrors.title ? "border-coral/60 focus:border-coral" : "border-white/08 focus:border-teal/40"
                     }`} />
@@ -989,7 +1012,7 @@ export default function Routines() {
                           <span className="text-[10px] text-muted-foreground">{ex.sets}</span>
                         </div>
                       ))}
-                      <p className="text-[9px] text-muted-foreground mt-2">You can customise exercises after creating.</p>
+                      <p className="text-[9px] text-muted-foreground mt-2">You can customise {typeVocab[newRoutine.type]?.itemNoun ?? "items"} after creating.</p>
                     </div>
                   )}
 
@@ -1007,11 +1030,26 @@ export default function Routines() {
                       ))}
                       <div className="flex gap-2">
                         <input value={newExName} onChange={e => setNewExName(e.target.value)}
-                          placeholder="Exercise name"
+                          placeholder={
+                            newRoutine.type === "meal" ? "Meal name (e.g. Breakfast)"
+                            : newRoutine.type === "medication" ? "Medication name"
+                            : newRoutine.type === "skincare" ? "Step name (e.g. Cleanser)"
+                            : newRoutine.type === "wellness" ? "Practice name (e.g. Meditation)"
+                            : newRoutine.type === "beauty" ? "Ritual name"
+                            : newRoutine.type === "rehab" ? "Movement name"
+                            : "Exercise name"
+                          }
                           onKeyDown={e => e.key === "Enter" && addCustomExercise()}
                           className="flex-1 px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/08" />
                         <input value={newExSets} onChange={e => setNewExSets(e.target.value)}
-                          placeholder="Sets"
+                          placeholder={
+                            newRoutine.type === "meal" ? "kcal"
+                            : newRoutine.type === "medication" ? "Dose"
+                            : newRoutine.type === "skincare" || newRoutine.type === "beauty" ? "Freq"
+                            : newRoutine.type === "wellness" ? "Min"
+                            : newRoutine.type === "workout" ? "Sets"
+                            : "Reps"
+                          }
                           onKeyDown={e => e.key === "Enter" && addCustomExercise()}
                           className="w-20 px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/08" />
                         <button onClick={addCustomExercise}
@@ -1028,7 +1066,7 @@ export default function Routines() {
                   {newRoutine.type !== "custom" && customExercises.length === 0 && (
                     <button onClick={() => setCustomExercises(EXERCISE_TEMPLATES[newRoutine.type] ?? [])}
                       className="mt-2 text-[10px] text-teal font-medium">
-                      Customise exercises →
+                      Customise {typeVocab[newRoutine.type]?.itemNoun ?? "items"} →
                     </button>
                   )}
                 </div>
