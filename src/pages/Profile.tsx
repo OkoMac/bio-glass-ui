@@ -14,7 +14,7 @@ import {
   Copy, Share2, CheckCircle, MessageCircle, Camera,
   Mail, Phone, MapPin, Cake, Plus, Edit3, X, Save,
   Droplets, Moon, HeartPulse, Brain, Utensils, CalendarDays,
-  BarChart3, Dumbbell, FileText, Wallet, LifeBuoy, ArrowLeft,
+  BarChart3, Dumbbell, FileText, Wallet, LifeBuoy, ArrowLeft, Pill,
 } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import { getReferralShareUrl, openWhatsApp } from "@/lib/whatsapp";
@@ -368,19 +368,26 @@ const Profile = () => {
         {activeTab === "dashboard" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
 
-            {/* ── Wellness Tools ─────────────────────── */}
+            {/* ── Wellness Tools ───────────────────────
+                Reported 2026-05-04: web /profile was missing tiles
+                that exist on mobile /me hub (Medication, My Schedule).
+                Both surfaces should hold the same features in
+                different formats — this brings web to parity with
+                mobile. The mobile QuickBook page mirrors this list. */}
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Wellness Tools</p>
               <div className="grid grid-cols-4 gap-2.5">
-                <Tile icon={<Utensils className="w-5 h-5" />}     label="Food"     color="text-teal"      onClick={() => navigate("/food-tracker")} />
-                <Tile icon={<CalendarDays className="w-5 h-5" />} label="Calendar" color="text-indigo"    onClick={() => navigate("/calendar")} />
-                <Tile icon={<BarChart3 className="w-5 h-5" />}    label="Insights" color="text-violet"    onClick={() => navigate("/health-insights")} />
-                <Tile icon={<Dumbbell className="w-5 h-5" />}     label="Routines" color="text-teal"      onClick={() => navigate("/routines")} />
-                <Tile icon={<FileText className="w-5 h-5" />}     label="Programs" color="text-indigo"    onClick={() => navigate("/my-programs")} />
-                <Tile icon={<Droplets className="w-5 h-5" />}     label="Water"    color="text-blue-400"  onClick={() => navigate("/water-tracker")} />
-                <Tile icon={<Moon className="w-5 h-5" />}          label="Sleep"    color="text-violet"    onClick={() => navigate("/sleep-tracker")} />
-                <Tile icon={<HeartPulse className="w-5 h-5" />}   label="Med Card" color="text-coral"     onClick={() => navigate("/medical-card")} />
-                <Tile icon={<Brain className="w-5 h-5" />}         label="Coach"    color="text-indigo"    onClick={() => navigate("/life-coach")} />
+                <Tile icon={<Utensils className="w-5 h-5" />}     label="Food"        color="text-teal"      onClick={() => navigate("/food-tracker")} />
+                <Tile icon={<Droplets className="w-5 h-5" />}     label="Water"       color="text-blue-400"  onClick={() => navigate("/water-tracker")} />
+                <Tile icon={<Moon className="w-5 h-5" />}          label="Sleep"       color="text-violet"    onClick={() => navigate("/sleep-tracker")} />
+                <Tile icon={<HeartPulse className="w-5 h-5" />}   label="Med Card"    color="text-coral"     onClick={() => navigate("/medical-card")} />
+                <Tile icon={<Pill className="w-5 h-5" />}         label="Medication"  color="text-indigo"    onClick={() => navigate("/routines?create=medication")} />
+                <Tile icon={<Brain className="w-5 h-5" />}         label="Coach"       color="text-indigo"    onClick={() => navigate("/life-coach")} />
+                <Tile icon={<CalendarDays className="w-5 h-5" />} label="Calendar"    color="text-indigo"    onClick={() => navigate("/calendar")} />
+                <Tile icon={<CalendarDays className="w-5 h-5" />} label="Schedule"    color="text-indigo"    onClick={() => navigate("/schedule")} />
+                <Tile icon={<BarChart3 className="w-5 h-5" />}    label="Insights"    color="text-violet"    onClick={() => navigate("/health-insights")} />
+                <Tile icon={<Dumbbell className="w-5 h-5" />}     label="Routines"    color="text-teal"      onClick={() => navigate("/routines")} />
+                <Tile icon={<FileText className="w-5 h-5" />}     label="Programs"    color="text-indigo"    onClick={() => navigate("/my-programs")} />
               </div>
             </div>
 

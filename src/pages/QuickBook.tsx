@@ -5,6 +5,7 @@ import {
   X, Zap, Search, Plus, Settings, ChevronRight, Sparkles,
   Utensils, Droplets, Moon, HeartPulse, Brain, Activity, Dumbbell,
   CalendarDays, BarChart3, Trophy, Wallet, Bell, Heart, Pill, ArrowLeft,
+  FileText,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
@@ -33,6 +34,7 @@ const ALL_TOOLS = [
   { id: "notifs",   icon: Bell,        label: "Notifications",   path: "/notifications",   color: "text-coral" },
   { id: "schedule", icon: CalendarDays,label: "My Schedule",     path: "/schedule",        color: "text-indigo" },
   { id: "meds",     icon: Pill,        label: "Medication",      path: "/routines?create=medication", color: "text-indigo" },
+  { id: "programs", icon: FileText,    label: "Programs",        path: "/my-programs",     color: "text-indigo" },
 ];
 
 /* ── Default pinned tools (shown until user customizes) ── */
