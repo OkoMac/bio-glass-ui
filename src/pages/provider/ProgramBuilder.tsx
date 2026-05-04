@@ -520,7 +520,7 @@ export default function ProgramBuilder() {
   if (needsUpgrade) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28">
-        <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-12 space-y-5">
+        <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-20 space-y-5">
           <div className="flex items-center gap-3">
             <motion.button
               whileTap={{ scale: 0.9 }}
@@ -560,7 +560,7 @@ export default function ProgramBuilder() {
   if (editingProgram) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28">
-        <div className="mx-auto max-w-2xl xl:max-w-3xl px-4 pt-12">
+        <div className="mx-auto max-w-2xl xl:max-w-3xl px-4 pt-20">
           <ProgramEditor
             program={editingProgram}
             onClose={() => setEditingId(null)}
@@ -575,7 +575,7 @@ export default function ProgramBuilder() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28">
-      <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-12 space-y-5">
+      <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-20 space-y-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <motion.button

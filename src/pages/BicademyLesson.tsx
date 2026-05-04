@@ -71,7 +71,7 @@ export default function BicademyLesson() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-2xl mx-auto px-4 md:px-8 pt-8 md:pt-12 space-y-6">
+      <div className="max-w-2xl mx-auto px-4 md:px-8 pt-8 md:pt-20 space-y-6">
         <button
           onClick={() => navigate(`/bicademy/${code}`)}
           className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"

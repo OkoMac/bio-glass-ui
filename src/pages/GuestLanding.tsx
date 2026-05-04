@@ -101,7 +101,7 @@ export default function GuestLanding() {
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-violet/30 via-indigo-900/40 to-obsidian" />
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMDAiIHI9IjgwIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMTM5LDkyLDI0NiwwLjA4KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMDAiIHI9IjQwIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMTM5LDkyLDI0NiwwLjA1KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48L3N2Zz4=')] opacity-40" />
-        <div className="relative px-5 pt-12 pb-8">
+        <div className="relative px-5 pt-20 pb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

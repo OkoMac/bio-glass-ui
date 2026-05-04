@@ -208,7 +208,7 @@ export default function InstallButton() {
   // ── Installed: show version badge ──
   if (installed) {
     return (
-      <div className="fixed top-4 right-16 z-[45]">
+      <div className="fixed right-16 z-[45]" style={{ top: "max(1rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))" }}>
         <Tooltip text={updateAvailable ? "New version available — tap to update" : `BION app v${APP_VERSION}`} side="bottom">
           <motion.button
             initial={{ opacity: 0, scale: 0.8 }}
@@ -243,7 +243,7 @@ export default function InstallButton() {
   // ── Not installed: show install button ──
   return (
     <>
-      <div className="fixed top-4 right-16 z-[45]">
+      <div className="fixed right-16 z-[45]" style={{ top: "max(1rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))" }}>
         <Tooltip text="Install BION as an app on your device" side="bottom">
           <motion.button
             initial={{ opacity: 0, scale: 0.8 }}

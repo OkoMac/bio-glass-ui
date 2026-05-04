@@ -67,7 +67,7 @@ export default function ClientBilling() {
         <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <div className="mx-auto max-w-2xl px-4 pt-12 pb-28 space-y-5">
+        <div className="mx-auto max-w-2xl px-4 pt-20 pb-28 space-y-5">
           <GlassCard className="p-6 text-center">
             <h1 className="text-xl font-bold text-foreground mb-2">Client Billing</h1>
             <p className="text-sm text-muted-foreground">
@@ -87,7 +87,7 @@ export default function ClientBilling() {
   
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow">
-      <div className="mx-auto max-w-4xl px-4 pt-12 pb-28 space-y-5">
+      <div className="mx-auto max-w-4xl px-4 pt-20 pb-28 space-y-5">
         
         {/* Header */}
         <div className="text-center">

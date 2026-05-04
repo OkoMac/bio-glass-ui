@@ -172,7 +172,7 @@ export default function ClientDetail() {
   if (!client) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
-        <div className="mx-auto max-w-3xl xl:max-w-7xl px-4 pt-12 pb-28 md:pb-8 md:pt-8">
+        <div className="mx-auto max-w-3xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8">
           <GlassCard className="p-8 text-center">
             <Users className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
             <h1 className="text-lg font-bold text-foreground mb-2">Client not found</h1>
@@ -247,7 +247,7 @@ export default function ClientDetail() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56">
-      <div className="mx-auto max-w-5xl xl:max-w-7xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-6">
+      <div className="mx-auto max-w-5xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

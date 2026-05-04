@@ -67,7 +67,7 @@ export default function VideoCall() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-24">
-      <div className="w-full px-4 md:px-8 xl:px-12 pt-12 space-y-5">
+      <div className="w-full px-4 md:px-8 xl:px-12 pt-20 space-y-5">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
             <ArrowLeft className="w-4 h-4" />

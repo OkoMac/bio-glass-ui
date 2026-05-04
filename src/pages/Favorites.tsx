@@ -28,7 +28,7 @@ export default function Favorites() {
 
   return (
     <div className="min-h-screen bg-obsidian pb-32">
-      <div className="max-w-3xl xl:max-w-7xl mx-auto px-4 md:px-8 pt-12 space-y-5">
+      <div className="max-w-3xl xl:max-w-7xl mx-auto px-4 md:px-8 pt-20 space-y-5">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate(-1)} className="glass-2 rounded-full w-10 h-10 flex items-center justify-center">
             <ArrowLeft className="w-5 h-5 text-foreground" />

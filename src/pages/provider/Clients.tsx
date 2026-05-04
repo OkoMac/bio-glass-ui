@@ -50,7 +50,7 @@ export default function ProviderClients() {
         <ArrowLeft className="w-5 h-5" />
       </button>
       <SubscriptionGate feature="clientNotifications" featureName="Client Management" description="View client profiles, track session history, and manage your client relationships. Upgrade to Pro to unlock.">
-      <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-12 pb-28 md:pb-8 md:pt-8 space-y-5">
+      <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
 
         {/* Header */}
         <div className="flex items-start justify-between">

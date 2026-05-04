@@ -152,7 +152,7 @@ export default function LifeCoach() {
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow flex flex-col">
       {/* Header */}
-      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl w-full px-4 pt-12 pb-3">
+      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl w-full px-4 pt-20 pb-3">
         <div className="flex items-center gap-3">
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => navigate(-1)}
             className="w-9 h-9 glass-1 rounded-full flex items-center justify-center">

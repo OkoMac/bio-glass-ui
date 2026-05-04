@@ -154,7 +154,7 @@ export default function MyPrograms() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28">
-      <div className="mx-auto max-w-2xl xl:max-w-3xl px-4 pt-12 space-y-5">
+      <div className="mx-auto max-w-2xl xl:max-w-3xl px-4 pt-20 space-y-5">
         <div className="flex items-center gap-3">
           <motion.button
             whileTap={{ scale: 0.9 }}
@@ -328,7 +328,7 @@ function MyProgramDay({ enrollmentId }: { enrollmentId: string }) {
 
   return (
     <div className="min-h-screen bg-obsidian pb-28">
-      <div className="mx-auto max-w-2xl xl:max-w-3xl px-4 pt-12 space-y-5">
+      <div className="mx-auto max-w-2xl xl:max-w-3xl px-4 pt-20 space-y-5">
         <div className="flex items-center gap-3">
           <motion.button
             whileTap={{ scale: 0.9 }}

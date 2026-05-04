@@ -28,7 +28,7 @@ export default function NotificationBell() {
   const totalCount = reminderCount + dbUnread;
 
   return (
-    <div className="fixed top-4 right-4 z-[45]">
+    <div className="fixed right-4 z-[45]" style={{ top: "max(1rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))" }}>
       <Tooltip text={totalCount > 0 ? `Notifications · ${totalCount} unread` : "Notifications"} side="bottom">
         <motion.button
           initial={{ opacity: 0, scale: 0.8 }}

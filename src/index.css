@@ -146,6 +146,13 @@
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* iOS PWA: apple-mobile-web-app-status-bar-style is black-translucent,
+       so the web view extends behind the status bar. Push body content
+       below the status bar — matches Capacitor's native behaviour where
+       the bar is non-overlaying. Combined with pt-20 on interior pages,
+       this keeps page titles clear of the floating chrome (calendar /
+       version badge / notification bell) and the system clock. */
+    padding-top: env(safe-area-inset-top, 0px);
   }
 }
 

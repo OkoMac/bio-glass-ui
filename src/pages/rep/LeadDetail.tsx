@@ -239,7 +239,7 @@ export default function LeadDetail() {
   if (!lead) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow">
-        <div className="mx-auto max-w-3xl px-4 pt-12 pb-28">
+        <div className="mx-auto max-w-3xl px-4 pt-20 pb-28">
           <GlassCard className="p-8 text-center">
             <p className="text-foreground font-semibold">Lead not found</p>
             <motion.button
@@ -262,7 +262,7 @@ export default function LeadDetail() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow">
-      <div className="mx-auto max-w-3xl px-4 pt-12 pb-28 space-y-5">
+      <div className="mx-auto max-w-3xl px-4 pt-20 pb-28 space-y-5">
 
         {/* Header */}
         <div className="flex items-center gap-3">

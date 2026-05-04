@@ -26,7 +26,7 @@ export default function Bicademy() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-4xl mx-auto px-4 md:px-8 pt-8 md:pt-12 space-y-6">
+      <div className="max-w-4xl mx-auto px-4 md:px-8 pt-8 md:pt-20 space-y-6">
         {/* Hero */}
         <header className="space-y-2">
           <div className="flex items-center gap-3">

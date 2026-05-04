@@ -88,7 +88,7 @@ export default function AddLead() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow">
-      <div className="mx-auto max-w-3xl px-4 pt-12 pb-28 space-y-5">
+      <div className="mx-auto max-w-3xl px-4 pt-20 pb-28 space-y-5">
 
         {/* Header */}
         <div className="flex items-center gap-3">

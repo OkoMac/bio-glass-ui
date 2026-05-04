@@ -93,7 +93,7 @@ function Inner() {
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
       <AdminNav />
-      <div className="md:ml-56 mx-auto max-w-5xl px-4 pt-12 space-y-5">
+      <div className="md:ml-56 mx-auto max-w-5xl px-4 pt-20 space-y-5">
         {/* Header */}
         <div className="flex items-center gap-3">
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => navigate(-1)}

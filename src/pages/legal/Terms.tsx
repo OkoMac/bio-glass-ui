@@ -10,7 +10,7 @@ export default function Terms() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-20">
-      <div className="mx-auto max-w-2xl px-4 pt-12 space-y-6">
+      <div className="mx-auto max-w-2xl px-4 pt-20 space-y-6">
         <div className="flex items-center gap-3">
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => navigate(-1)}
             aria-label="Go back"

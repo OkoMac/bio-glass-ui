@@ -36,7 +36,7 @@ export default function CalendarButton() {
                       "/calendar";
 
   return (
-    <div className="fixed top-4 left-4 z-[45]">
+    <div className="fixed left-4 z-[45]" style={{ top: "max(1rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))" }}>
       <Tooltip text={upcomingCount > 0 ? `Calendar · ${upcomingCount} upcoming` : "Calendar"} side="bottom">
         <motion.button
           initial={{ opacity: 0, scale: 0.8 }}

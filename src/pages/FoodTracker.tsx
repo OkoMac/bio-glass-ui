@@ -320,7 +320,7 @@ export default function FoodTracker() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40">
-      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl px-4 pt-12 space-y-5">
+      <div className="mx-auto max-w-lg md:max-w-3xl xl:max-w-7xl px-4 pt-20 space-y-5">
 
         {/* Header */}
         <div className="flex items-center gap-3">
