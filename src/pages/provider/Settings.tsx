@@ -147,8 +147,14 @@ export default function ProviderSettings() {
                   <p className="text-sm font-semibold text-foreground">{displayName}</p>
                   <p className="text-[11px] text-muted-foreground truncate">{tagline}</p>
                   <div className="flex gap-1.5 mt-1.5">
-                    <span className="text-[9px] px-2 py-0.5 glass-accent-teal text-teal rounded-pill">NASM Certified</span>
-                    <span className="text-[9px] px-2 py-0.5 glass-1 text-muted-foreground rounded-pill">Verified</span>
+                    {/* Hardcoded "NASM Certified" + "Verified" pills were stubs.
+                        Verified renders only when the auth context says the
+                        provider is actually verified. The certification badge
+                        is parked until we have a real provider_certifications
+                        source — better to show nothing than fake credentials. */}
+                    {(user?.providerStatus === "verified" || (user as any)?.provider_status === "verified") && (
+                      <span className="text-[9px] px-2 py-0.5 glass-accent-teal text-teal rounded-pill">Verified</span>
+                    )}
                   </div>
                 </div>
               </GlassCard>
