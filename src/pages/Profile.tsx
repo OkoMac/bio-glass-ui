@@ -21,6 +21,8 @@ import { getReferralShareUrl, openWhatsApp } from "@/lib/whatsapp";
 import { ImagePickerOverlay } from "@/components/ImagePickerOverlay";
 import { getProviderImage } from "@/lib/providerImages";
 import { validateSaPhone } from "@/lib/saPhoneValidator";
+import { useImageUpload } from "@/hooks/useUpload";
+import { toast } from "sonner";
 
 const VERTICAL_PALETTE = ["teal", "indigo", "coral", "amber"] as const;
 
@@ -182,28 +184,37 @@ const Profile = () => {
     localStorage.setItem(PROFILE_KEY, JSON.stringify(data));
   };
 
-  const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Upload to Supabase Storage and store the URL — never store base64
+  // dataURLs in the avatar_url/cover_image_url columns. The previous
+  // FileReader → updateAvatar(dataUrl) flow shoved a multi-100KB string
+  // into the DB column; the write rolled back silently and the user's
+  // photo "disappeared" after a few seconds (reported 2026-05-04).
+  const avatarUploader = useImageUpload({ folder: "avatars", maxMB: 5 });
+  const coverUploader = useImageUpload({ folder: "covers", maxMB: 8 });
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      // Write server-side via AuthContext (durable). Keep localStorage as
-      // hot cache for immediate render on next mount.
-      updateCoverImage(dataUrl).catch(() => {});
-      saveProfileData({ ...profileData, cover: dataUrl });
-    };
-    reader.readAsDataURL(file);
+    try {
+      const url = await coverUploader.upload(file);
+      await updateCoverImage(url);
+      saveProfileData({ ...profileData, cover: url });
+      toast.success("Cover photo updated");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Cover upload failed");
+    }
   };
 
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      updateAvatar(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    try {
+      const url = await avatarUploader.upload(file);
+      await updateAvatar(url);
+      toast.success("Profile photo updated");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Avatar upload failed");
+    }
   };
 
   const handleSaveProfile = () => {
