@@ -122,21 +122,58 @@ export default function LifeCoach() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, typing]);
 
-  const sendMessage = (text: string, category?: string) => {
+  // Real LLM call via /api/chat — the same endpoint BionAssistant uses.
+  // Reported 2026-05-04: Life Coach was a keyword-matcher with hardcoded
+  // random tips ("Help me sleep" → bedroom temp; "Not working" → motivation
+  // tip — totally off-topic). Fake AI disguised as conversational. Now
+  // routes to gpt-4o-mini via the chat endpoint, with the keyword path
+  // kept ONLY as a network-failure fallback so the page stays usable
+  // offline.
+  const API_URL = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+
+  const sendMessage = async (text: string, category?: string) => {
     const userMsg: Message = { id: nextId(), role: "user", text, time: timeNow() };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setTyping(true);
 
-    const cat = category || matchCategory(text);
-    const response = pickRandom(RESPONSES[cat] || RESPONSES.motivation);
-
-    // Simulate typing delay
-    setTimeout(() => {
+    try {
+      const res = await fetch(`${API_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: text,
+          userName: user?.name,
+          role: "lifecoach",
+          profileId: user?.profileId,
+          userId: user?.id,
+          // Convey the user's recent conversation so the model has
+          // context — without this every message looks first-turn
+          // and replies feel disconnected.
+          history: messages.slice(-10).map(m => ({
+            role: m.role === "coach" ? "assistant" : "user",
+            text: m.text,
+          })),
+          systemHint: category
+            ? `User tapped a quick prompt for the '${category}' topic. Lean into that area.`
+            : "Respond conversationally, directly addressing what the user just said. If they say 'not working' or push back on a previous answer, acknowledge it and offer different concrete advice — never ignore the context.",
+        }),
+        signal: AbortSignal.timeout(30_000),
+      });
+      const result = await res.json();
       setTyping(false);
+      const replyText = result?.reply || pickRandom(RESPONSES[category || matchCategory(text)] || RESPONSES.motivation);
+      const coachMsg: Message = { id: nextId(), role: "coach", text: replyText, time: timeNow() };
+      setMessages((prev) => [...prev, coachMsg]);
+    } catch {
+      // Network fail → degrade to keyword matcher so the page is still
+      // useful offline. Tagged so we know it's a fallback in dev.
+      setTyping(false);
+      const cat = category || matchCategory(text);
+      const response = pickRandom(RESPONSES[cat] || RESPONSES.motivation);
       const coachMsg: Message = { id: nextId(), role: "coach", text: response, time: timeNow() };
       setMessages((prev) => [...prev, coachMsg]);
-    }, 1200 + Math.random() * 800);
+    }
   };
 
   const handleQuickPrompt = (prompt: typeof QUICK_PROMPTS[0]) => {
