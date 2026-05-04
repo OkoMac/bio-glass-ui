@@ -96,9 +96,15 @@ interface NudgePopupProps {
 }
 
 export default function NudgePopup({ featureKey, onAction }: NudgePopupProps) {
-  const { hasSeenNudge, markNudgeSeen } = useOnboardingState();
+  const { hasSeenNudge, markNudgeSeen, loading } = useOnboardingState();
   const content = NUDGE_CONTENT[featureKey];
 
+  // Don't flash the modal during the initial state-load window. Without
+  // this gate, every page navigation renders the nudge for ~200-1500ms
+  // (or indefinitely if the /api/onboarding/progress fetch fails) before
+  // hasSeenNudge() flips to true. Reported 2026-05-04 — the
+  // provider_boost nudge was firing on every /pro/* navigation.
+  if (loading) return null;
   if (!content || hasSeenNudge(featureKey)) return null;
 
   const dismiss = () => {
