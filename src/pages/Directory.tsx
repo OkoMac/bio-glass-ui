@@ -158,6 +158,13 @@ export default function Directory() {
     }, {});
     return SERVICE_CATEGORIES.map((c) => ({ ...c, count: counts[c.id] ?? 0 }));
   }, [ALL_PROVIDERS]);
+  // ── Suburb / city filter data ─────────────────────────────────────
+  // NOTE: counts and the city → suburb tree are computed client-side from
+  // the bundled JSON. When the directory migrates to DB-backed search,
+  // move this to a /api/locations endpoint with cron-cached counts.
+  // Triggering criteria for that move: (1) provider count >50k, (2) need
+  // for sub-second cold-cache filter, or (3) per-user personalised
+  // ranking. Until then, client-side is correct. See B1-LOC plan.
   const ALL_SUBURBS = useMemo(
     () => [...new Set(ALL_PROVIDERS.map((p) => p.suburb).filter(Boolean))].sort(),
     [ALL_PROVIDERS],
@@ -166,6 +173,18 @@ export default function Directory() {
     () => [...new Set(ALL_PROVIDERS.map((p) => p.city).filter(Boolean))].sort(),
     [ALL_PROVIDERS],
   );
+
+  // Provider count per (city, suburb) — used for the count badge on each
+  // suburb pill. Memoised so the loop runs once per provider-set change.
+  const SUBURB_COUNTS = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const p of ALL_PROVIDERS) {
+      if (!p.city || !p.suburb) continue;
+      const k = `${p.city}|${p.suburb}`;
+      m.set(k, (m.get(k) ?? 0) + 1);
+    }
+    return m;
+  }, [ALL_PROVIDERS]);
 
   // Auto-snap to suburb center when GPS resolves
   const hasSnapped = useRef(false);
@@ -444,7 +463,7 @@ export default function Directory() {
       "@context": "https://schema.org",
       "@type": "ItemList",
       name: "Health, Wellness & Beauty Providers in South Africa",
-      description: "Browse 853+ verified providers on BION — Africa's Beauty, Health & Wellness Ecosystem.",
+      description: "Browse 13,000+ verified providers on BION — Africa's Beauty, Health & Wellness Ecosystem.",
       numberOfItems: ALL_PROVIDERS.length,
       itemListElement: ALL_PROVIDERS.slice(0, 10).map((p, i) => ({
         "@type": "ListItem",
@@ -710,13 +729,16 @@ export default function Directory() {
                                               setSelectedSuburb(isSelectedSub ? null : suburb);
                                               setVisibleCount(12);
                                             }}
-                                            className={`rounded-pill px-2.5 py-0.5 text-[10px] font-medium border transition-colors ${
+                                            className={`rounded-pill px-2.5 py-0.5 text-[10px] font-medium border transition-colors flex items-center gap-1 ${
                                               isSelectedSub
                                                 ? "border-teal/40 bg-teal/20 text-teal"
                                                 : "border-white/[0.06] bg-white/[0.02] text-muted-foreground hover:text-foreground"
                                             }`}
                                           >
-                                            {suburb}
+                                            <span>{suburb}</span>
+                                            <span className={`text-[9px] tabular-nums ${isSelectedSub ? "text-teal/70" : "text-muted-foreground/60"}`}>
+                                              {SUBURB_COUNTS.get(`${city}|${suburb}`) ?? 0}
+                                            </span>
                                           </button>
                                         );
                                       })}
