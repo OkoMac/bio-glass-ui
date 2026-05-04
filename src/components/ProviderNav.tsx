@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useUnreadCount } from "@/hooks/useMessages";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard, CalendarDays, BookOpen, Users,
@@ -26,7 +27,7 @@ const navItems = [
   { to: "/pro/orders",        label: "Orders",      icon: ShoppingBag },
   { to: "/pro/catalogs",      label: "Catalogs",    icon: Book },
   { to: "/pro/programs",      label: "Programs",    icon: ClipboardList },
-  { to: "/pro/messages",      label: "Messages",    icon: MessageSquare,  badge: 3 },
+  { to: "/pro/messages",      label: "Messages",    icon: MessageSquare },
   { to: "/pro/analytics",     label: "Analytics",   icon: BarChart3  },
   { to: "/pro/queue",         label: "Queue",       icon: ListOrdered },
   { to: "/pro/referrals",    label: "Referrals",   icon: UserPlus   },
@@ -42,7 +43,7 @@ const mobileNav = [
   { to: "/pro/bookings",   label: "Bookings", icon: BookOpen },
   { to: "/pro/schedule",   label: "Schedule", icon: CalendarDays },
   { to: "/pro/clients",    label: "Clients",  icon: Users },
-  { to: "/pro/messages",   label: "Messages", icon: MessageSquare, badge: 3 },
+  { to: "/pro/messages",   label: "Messages", icon: MessageSquare },
 ];
 
 export default function ProviderNav() {
@@ -50,6 +51,12 @@ export default function ProviderNav() {
   const { user, logout, switchRole, availableRoles } = useAuth();
   const { pendingCount } = useBookings();
   const { tierDisplayName, isActive } = useSubscription();
+  // Real unread-message count for the Messages badge — replaces the
+  // previously-hardcoded `badge: 3` stub. Uses the realtime hook so the
+  // count updates live as messages arrive / are marked read.
+  const unreadMessages = useUnreadCount();
+  const badgeFor = (to: string): number | undefined =>
+    to === "/pro/messages" && unreadMessages > 0 ? unreadMessages : undefined;
 
   return (
     <>
@@ -134,34 +141,37 @@ export default function ProviderNav() {
       <nav className="md:hidden fixed bottom-4 left-4 right-4 z-50 glass-2 rounded-[28px] px-2 py-2 flex items-center justify-around"
         role="navigation"
         aria-label="Provider mobile navigation">
-        {mobileNav.map(({ to, label, icon: Icon, badge }) => (
-          <NavLink key={to} to={to} className="flex-1" aria-label={label}>
-            {({ isActive }) => (
-              <motion.div
-                whileTap={{ scale: 0.9 }}
-                className={`relative flex flex-col items-center gap-1 py-1 rounded-2xl transition-all ${
-                  isActive ? "text-indigo" : "text-muted-foreground"
-                }`}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="pro-nav-bg"
-                    className="absolute inset-0 glass-accent-indigo rounded-2xl"
-                  />
-                )}
-                <div className="relative">
-                  <Icon className="w-5 h-5 relative z-10" />
-                  {badge && !isActive && (
-                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full gradient-indigo flex items-center justify-center text-[8px] font-bold text-primary-foreground">
-                      {badge}
-                    </span>
+        {mobileNav.map(({ to, label, icon: Icon }) => {
+          const badge = badgeFor(to) ?? (to === "/pro/bookings" && pendingCount > 0 ? pendingCount : undefined);
+          return (
+            <NavLink key={to} to={to} className="flex-1" aria-label={label}>
+              {({ isActive }) => (
+                <motion.div
+                  whileTap={{ scale: 0.9 }}
+                  className={`relative flex flex-col items-center gap-1 py-1 rounded-2xl transition-all ${
+                    isActive ? "text-indigo" : "text-muted-foreground"
+                  }`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="pro-nav-bg"
+                      className="absolute inset-0 glass-accent-indigo rounded-2xl"
+                    />
                   )}
-                </div>
-                <span className="text-[9px] font-medium relative z-10">{label}</span>
-              </motion.div>
-            )}
-          </NavLink>
-        ))}
+                  <div className="relative">
+                    <Icon className="w-5 h-5 relative z-10" />
+                    {badge && !isActive && (
+                      <span className="absolute -top-1 -right-1 min-w-[14px] h-[14px] px-0.5 rounded-full gradient-indigo flex items-center justify-center text-[8px] font-bold text-primary-foreground">
+                        {badge > 9 ? "9+" : badge}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[9px] font-medium relative z-10">{label}</span>
+                </motion.div>
+              )}
+            </NavLink>
+          );
+        })}
         <Sheet>
           <SheetTrigger asChild>
             <button
