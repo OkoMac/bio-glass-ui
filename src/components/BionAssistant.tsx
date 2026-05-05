@@ -349,6 +349,13 @@ export default function BionAssistant() {
           // tools never fire.
           profileId: user?.profileId,
           userId: user?.id,
+          // Pass conversation context so multi-turn flows ("I'm stressed"
+          // → B_ asks "want help finding someone?" → user "yes") don't
+          // look first-turn to the model. Without this every reply
+          // greeted the user fresh ("Hi Betchaza! How can I assist?").
+          // Slice excludes the message being sent (not yet in state).
+          history: messages.slice(-10).map(m => ({ role: m.role, text: m.text })),
+          systemHint: "Respond directly to the user's last message. If they say 'yes', 'no', 'not working' or otherwise refer back to your previous turn, treat that as continuation — do NOT start a fresh greeting.",
           userData: {
             calories: data.totalCal,
             calGoal: data.calGoal,
