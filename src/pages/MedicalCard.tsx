@@ -196,62 +196,6 @@ export default function MedicalCard() {
   const [editing, setEditing] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [shareTarget, setShareTarget] = useState<string>("in_person");
-
-  // ── Profile data & medication routines sync (bugs #14, #15) ─────
-  const [profileData, setProfileData] = useState<{ phone?: string; email?: string; address?: string } | null>(null);
-  const [medicationRoutines, setMedicationRoutines] = useState<string[]>([]);
-  const [syncLoading, setSyncLoading] = useState(true);
-
-  useEffect(() => {
-    if (!user?.profileId || user.id?.startsWith("demo_")) {
-      setSyncLoading(false);
-      return;
-    }
-    const fetchSync = async () => {
-      try {
-        // 1. Profile data (phone, email, address)
-        const { data: prof } = await supabase
-          .from("profiles")
-          .select("phone, email, address")
-          .eq("id", user.profileId)
-          .maybeSingle();
-        if (prof) {
-          setProfileData(prof);
-        }
-
-        // 2. Routines with medication-type entries
-        const { data: routines } = await supabase
-          .from("routines")
-          .select("title, entries")
-          .eq("profile_id", user.profileId);
-        if (Array.isArray(routines)) {
-          const meds: string[] = [];
-          for (const r of routines) {
-            const entries = (r.entries as any[]) ?? [];
-            for (const e of entries) {
-              if (String(e.type ?? "").toLowerCase().includes("medication") ||
-                  String(e.type ?? "").toLowerCase().includes("med")) {
-                if (e.name) meds.push(e.name);
-              }
-            }
-          }
-          if (meds.length > 0) {
-            // Merge with existing medications, avoid duplicates
-            setData((prev) => {
-              const combined = [...new Set([...prev.medications, ...meds])];
-              return { ...prev, medications: combined };
-            });
-          }
-          setMedicationRoutines(meds);
-        }
-      } catch (err) {
-        console.warn("[MedicalCard] profile/routine sync failed:", err);
-      } finally {
-        setSyncLoading(false);
-      }
-    };
-    fetchSync();
-  }, [user?.profileId, user?.id]);
   // Upcoming bookings = future-dated, not cancelled. The share modal
   // uses these so the user can pick a specific provider as the audience
   // instead of "share with anyone" being implied.
@@ -508,56 +452,10 @@ export default function MedicalCard() {
             editing={editing} icon={Heart} placeholder="e.g. Spouse, Parent" />
         </GlassCard>
 
-        {/* ── Synced Profile Data ── */}
-        {profileData && !syncLoading && (
-          <GlassCard variant="glass-1" className="p-4 space-y-3">
-            <div className="flex items-center gap-2 mb-2">
-              <User className="w-4 h-4 text-teal-400" />
-              <span className="text-sm font-semibold text-foreground">Synced Profile</span>
-              <span className="text-[9px] px-2 py-0.5 bg-teal/10 text-teal rounded-pill ml-auto">From account</span>
-            </div>
-            <div className="grid grid-cols-1 gap-2">
-              {profileData.email && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground w-16">Email</span>
-                  <span className="text-xs text-foreground">{profileData.email}</span>
-                </div>
-              )}
-              {profileData.phone && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground w-16">Phone</span>
-                  <span className="text-xs text-foreground">{profileData.phone}</span>
-                </div>
-              )}
-              {profileData.address && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground w-16">Address</span>
-                  <span className="text-xs text-foreground">{profileData.address}</span>
-                </div>
-              )}
-            </div>
-          </GlassCard>
-        )}
-
-        {/* ── Medication Routines ── */}
-        {medicationRoutines.length > 0 && (
-          <GlassCard variant="glass-1" className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Pill className="w-4 h-4 text-coral" />
-              <span className="text-sm font-semibold text-foreground">Medication Routines</span>
-              <span className="text-[9px] px-2 py-0.5 bg-coral/10 text-coral rounded-pill ml-auto">From routines</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {medicationRoutines.map((med, i) => (
-                <span key={i} className="inline-flex items-center gap-1 glass-2 rounded-pill px-3 py-1 text-xs text-foreground">
-                  {med}
-                </span>
-              ))}
-            </div>
-          </GlassCard>
-        )}
-
-        {/* Medical Journal */}
+        {/* ── Medical Journal ─────────────────────────────
+            Daily "how are you feeling?" entry + B_'s two-line
+            observation grounded in recent sleep / water / food
+            signals from the local hot-cache. Added 2026-05-04. */}
         <GlassCard variant="glass-1" className="p-4 space-y-3">
           <div className="flex items-center gap-2">
             <BookOpen className="w-4 h-4 text-indigo-400" />

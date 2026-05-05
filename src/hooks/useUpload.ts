@@ -26,9 +26,7 @@ export function useImageUpload(opts: UploadOptions = {}) {
   const upload = useCallback(
     async (file: File): Promise<string> => {
       if (!user?.profileId) throw new Error("Not signed in");
-      const isHeic = /\.(heic|heif)$/i.test(file.name);
-      if (!isHeic && !file.type.startsWith("image/")) throw new Error("File must be an image");
-      // Also add HEIC/HEIF to Supabase bion-media bucket allowed_mime_types in dashboard.
+      if (!file.type.startsWith("image/")) throw new Error("File must be an image");
       if (file.size > maxMB * 1024 * 1024) throw new Error(`Max ${maxMB} MB`);
 
       setUploading(true);

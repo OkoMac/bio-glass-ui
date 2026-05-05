@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useHealthLogs, useHealthProfile } from "@/hooks/useHealth";
 import { useNativeHealth } from "@/hooks/useNativeHealth";
 
@@ -35,7 +35,6 @@ import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import { getProviderImage } from "@/lib/providerImages";
-import { authFetchJson } from "@/lib/authFetch";
 // Connected providers loaded dynamically from user's bookings
 import {
   ArrowLeft, Heart, Activity, Shield, Pill, AlertTriangle,
@@ -103,47 +102,6 @@ export default function HealthProfile() {
   const { logs, logToday } = useHealthLogs(30);
   const { profile: healthProfile } = useHealthProfile();
   const heightCm = healthProfile?.height_cm ?? null;
-
-  // ── BMI state: fetch latest from bmi_log via the API ──
-  const [bmiData, setBmiData] = useState<{ value: number; band: string; color: string } | null>(null);
-  const [bmiLoading, setBmiLoading] = useState(true);
-  useEffect(() => {
-    if (!user?.profileId || user.id?.startsWith("demo_")) {
-      // For demo/guest users, compute from health_logs weight if available
-      setBmiLoading(false);
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await authFetchJson<{ ok: boolean; data: Array<{ created_at: string; bmi: number }> }>(
-          "/api/health-profile/bmi/history",
-        );
-        if (!cancelled && res?.data && res.data.length > 0) {
-          const latest = res.data[res.data.length - 1];
-          const bmi = latest.bmi;
-          const band = bmi < 18.5 ? "Underweight" : bmi < 25 ? "Healthy" : bmi < 30 ? "Overweight" : "Obese";
-          const color = bmi < 18.5 ? "text-amber-400" : bmi < 25 ? "text-teal-400" : bmi < 30 ? "text-amber-400" : "text-coral";
-          setBmiData({ value: Math.round(bmi * 10) / 10, band, color });
-        }
-      } catch {
-        // Not signed in, no history, or API unreachable — fall back to computed BMI below
-      } finally {
-        if (!cancelled) setBmiLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [user?.profileId, user?.id]);
-
-  // Compute BMI from health_logs + health_profile as fallback when no bmi_log entry exists
-  const computedBmi = useMemo(() => {
-    const latestLog = [...logs].reverse().find(l => l.weight_kg != null);
-    if (!latestLog?.weight_kg) return null;
-    return computeBMI(latestLog.weight_kg, heightCm);
-  }, [logs, heightCm]);
-
-  // Resolve display BMI: prefer API bmi_log, fall back to computed
-  const displayBmi = bmiData ?? computedBmi;
 
   // B2-2: passive step + sleep + weight auto-sync from HealthKit /
   // Health Connect. Lee feedback 2026-05-01: "logging steps is a pain
@@ -435,67 +393,6 @@ export default function HealthProfile() {
                 </p>
               </div>
             </div>
-          </GlassCard>
-        )}
-
-        {/* ── BMI Card ── */}
-        {!bmiLoading && (
-          <GlassCard className="p-4 relative">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wide">BMI</p>
-                {displayBmi ? (
-                  <>
-                    <p className={`text-4xl font-bold mt-1 ${displayBmi.color}`}>
-                      {displayBmi.value.toFixed(1)}
-                    </p>
-                    <p className={`text-sm font-semibold mt-0.5 ${displayBmi.color}`}>
-                      {displayBmi.band}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">
-                      {bmiData ? "From latest measurement" : "Computed from weight log + profile height"}
-                    </p>
-                  </>
-                ) : (
-                  <div className="mt-1 space-y-1">
-                    <p className="text-4xl font-bold text-muted-foreground/40">—</p>
-                    <p className="text-xs text-muted-foreground">
-                      {heightCm
-                        ? "Log your weight to see BMI"
-                        : "Add your height in profile to enable BMI"}
-                    </p>
-                  </div>
-                )}
-              </div>
-              <div className="flex-shrink-0">
-                <Scale className={`w-6 h-6 ${displayBmi?.color ?? "text-muted-foreground/40"}`} />
-              </div>
-            </div>
-            {/* WHO band indicator bar */}
-            <div className="mt-3 h-1.5 rounded-full bg-white/05 overflow-hidden flex">
-              <div className="h-full bg-amber-400/60" style={{ width: "18.5%" }} />
-              <div className="h-full bg-teal-400/60" style={{ width: "25%" }} />
-              <div className="h-full bg-amber-400/60" style={{ width: "25%" }} />
-              <div className="h-full bg-coral/60" style={{ width: "31.5%" }} />
-            </div>
-            <div className="flex justify-between text-[9px] text-muted-foreground/50 mt-0.5">
-              <span>18.5</span>
-              <span>25</span>
-              <span>30</span>
-            </div>
-            {displayBmi && (
-              <>
-                {/* Position dot on the band bar */}
-                <div
-                  className="absolute left-0 mt-[-14px] transition-all duration-300"
-                  style={{
-                    marginLeft: `calc(2rem + ${Math.min(displayBmi.value, 40) / 40 * (100 - 4)}% - 6px)`,
-                  }}
-                >
-                  <div className={`w-3 h-3 rounded-full border-2 border-obsidian ${displayBmi.color.replace("text", "bg")}`} />
-                </div>
-              </>
-            )}
           </GlassCard>
         )}
 
