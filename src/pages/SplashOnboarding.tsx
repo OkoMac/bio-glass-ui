@@ -238,8 +238,8 @@ export default function SplashOnboarding() {
 
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [authMode, setAuthMode]         = useState<AuthMode>("signin");
-  const [name,  setName]  = useState("");
-  const [lastName, setLastName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName]   = useState("");
   const [email,    setEmail]            = useState("");
   const [password, setPassword]         = useState("");
   const [referralCode, setReferralCode] = useState(() => capturePendingReferralCode() ?? "");
@@ -294,12 +294,8 @@ export default function SplashOnboarding() {
   const startSignup = async () => {
     setError("");
     if (!selectedRole) { setError("Please go back and select how you'll use BION."); return; }
-    if (!name.trim())     { setError("Please enter your full name."); return; }
-    // Reject email-prefix names that make users look like "omacanda"
-    if (/^[a-z0-9._-]+\d{2,}$/i.test(name.trim()) || name.trim().includes("@")) {
-      setError("Please enter your real full name (e.g. 'Oko Macanda'), not your email address.");
-      return;
-    }
+    if (!firstName.trim() || firstName.trim().length < 2)  { setError("Please enter your first name (at least 2 characters)."); return; }
+    if (!lastName.trim() || lastName.trim().length < 2)   { setError("Please enter your last name (at least 2 characters)."); return; }
     if (!email.trim())    { setError("Please enter your email."); return; }
     if (!password.trim() || password.length < 8) { setError("Password must be at least 8 characters."); return; }
     if (!phone.trim())    { setError("Please enter your mobile number — we'll send a verification code."); return; }
@@ -355,7 +351,7 @@ export default function SplashOnboarding() {
       if (!v.ok) { setError(v.error ?? "Invalid code."); setBusy(false); return; }
 
       // OTP verified — NOW create the Supabase account (email pre-confirmed via backend)
-      const { user, error: err } = await signUpWithEmail(email.trim(), password, name.trim(), selectedRole, phone.trim(), ageVerified);
+      const { user, error: err } = await signUpWithEmail(email.trim(), password, `${firstName.trim()} ${lastName.trim()}`.trim(), selectedRole, phone.trim(), ageVerified);
       if (err || !user) { setError(err ?? "Signup failed"); setBusy(false); return; }
 
       // Attach the verified phone to the profile
@@ -888,8 +884,12 @@ export default function SplashOnboarding() {
         <div className="space-y-3">
           {authMode === "signup" && otpStep === "idle" && (
             <>
-              <input value={name} onChange={e => setName(e.target.value)} placeholder="Full name" type="text"
-                className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
+              <div className="flex gap-3">
+                <input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="First name" type="text"
+                  className="flex-1 glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
+                <input value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Last name" type="text"
+                  className="flex-1 glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
+              </div>
               <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" type="email"
                 className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
               <div className="relative">
@@ -1025,7 +1025,7 @@ export default function SplashOnboarding() {
           </label>
         )}
 
-        <motion.button whileTap={{ scale: 0.97 }} onClick={handleAuth} disabled={busy || (authMode === "signup" && (!acceptedTerms || !ageVerified || !name.trim() || !email.trim() || password.length < 8 || !phone.trim())) || (authMode === "login" && (!email.trim() || !password.trim()))}
+        <motion.button whileTap={{ scale: 0.97 }} onClick={handleAuth} disabled={busy || (authMode === "signup" && (!acceptedTerms || !ageVerified || !firstName.trim() || firstName.trim().length < 2 || !lastName.trim() || lastName.trim().length < 2 || !email.trim() || password.length < 8 || !phone.trim())) || (authMode === "login" && (!email.trim() || !password.trim()))}
           className="w-full rounded-pill py-4 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta flex items-center justify-center gap-2 disabled:opacity-60">
           {busy
             ? <><Loader2 className="w-4 h-4 animate-spin" /> {
