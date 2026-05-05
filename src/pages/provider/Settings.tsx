@@ -8,6 +8,8 @@ import BankConnectSection from "@/components/provider/BankConnectSection";
 import { ImagePickerOverlay } from "@/components/ImagePickerOverlay";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProviderAvailability, type AvailabilitySlot } from "@/hooks/useProviderAvailability";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   User, Bell, CreditCard, Shield, ChevronRight,
   CheckCircle, Globe, Clock, Percent, MessageSquare, Sparkles,
@@ -19,10 +21,25 @@ import { getProviderImage } from "@/lib/providerImages";
 type Tab = "profile" | "billing" | "notifications" | "privacy";
 
 const VERTICALS = ["Fitness", "Medical", "Beauty", "Wellness", "Professional", "Vet"];
-const CANCEL_POLICIES = [
-  { id: "flexible", label: "Standard (BION default)", desc: "Client cancels 24h+ before: full refund to wallet. <24h: 50% fee, 50% refund." },
-  { id: "moderate", label: "Moderate", desc: "Client cancels 48h+ before: full refund to wallet. <48h: 50% fee, 50% refund." },
-  { id: "strict",   label: "Strict",   desc: "Client cancels 72h+ before: full refund to wallet. <72h: 50% fee, 50% refund." },
+
+// §4.3 cancellation-notice presets. Internally these are hours; null
+// means "use the platform tier default for the booking value":
+//   <R500=24h, R500-R2k=48h, R2k-R5k=72h, ≥R5k=168h.
+// A non-null value is a provider-set MINIMUM that applies on TOP of
+// the tier default — providers can tighten but never loosen below
+// the platform tier minimum. Backend enforces both the floor (tier
+// minimum) and the ceiling (336h / 14 days) regardless.
+const CANCEL_POLICY_PRESETS: Array<{ id: string; hours: number | null; label: string; desc: string }> = [
+  { id: "platform", hours: null, label: "Standard (BION default)",
+    desc: "Notice scales by booking value: <R500=24h, R500-R2k=48h, R2k-R5k=72h, ≥R5k=168h. Fee structure: 10% if cancelled in time / 50% if late." },
+  { id: "48h", hours: 48,  label: "48 hours minimum",
+    desc: "Require 48 hours notice on every booking, regardless of value. Above the platform minimum for low-value bookings." },
+  { id: "72h", hours: 72,  label: "72 hours minimum",
+    desc: "Require 72 hours notice on every booking. Common for booked-out medical, beauty, fitness sessions." },
+  { id: "168h", hours: 168, label: "1 week minimum",
+    desc: "Require 7 days notice on every booking. Recommended for high-value services (>R5k bookings)." },
+  { id: "custom", hours: -1,  label: "Custom hours",
+    desc: "Set your own minimum notice in hours (24–336). Capped at 14 days." },
 ];
 
 export default function ProviderSettings() {
@@ -49,7 +66,10 @@ export default function ProviderSettings() {
   const [vertical, setVertical]       = useState("Fitness");
   const [location, setLocation]       = useState("");
   const [sessionLength, setSessionLength] = useState("60");
-  const [cancelPolicy, setCancelPolicy]   = useState("moderate");
+  // §4.3 — provider's cancellation_policy_min_notice_hours (or null = use platform tier defaults)
+  const [cancelPolicyHours, setCancelPolicyHours] = useState<number | null>(null);
+  const [cancelPolicyPreset, setCancelPolicyPreset] = useState<string>("platform");
+  const [cancelPolicyCustomHours, setCancelPolicyCustomHours] = useState<number>(48);
   const [miniSiteUrl, setMiniSiteUrl]     = useState(
     user?.name ? `bion.app/${slugify(user.name)}` : "bion.app/",
   );
@@ -75,7 +95,59 @@ export default function ProviderSettings() {
   const toggleNotif = (key: keyof typeof notifs) =>
     setNotifs(n => ({ ...n, [key]: !n[key] }));
 
-  const save = () => {
+  // §4.3 — load existing cancellation_policy_min_notice_hours from profile
+  // and seed the UI. NULL in DB → "platform" preset; matching preset value
+  // → that preset; otherwise → "custom" with the value.
+  useEffect(() => {
+    if (!user?.profileId) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("cancellation_policy_min_notice_hours")
+        .eq("id", user.profileId!)
+        .maybeSingle();
+      if (cancelled) return;
+      const h = ((data as { cancellation_policy_min_notice_hours?: number | null } | null)?.cancellation_policy_min_notice_hours) ?? null;
+      setCancelPolicyHours(h);
+      if (h == null)        setCancelPolicyPreset("platform");
+      else if (h === 48)    setCancelPolicyPreset("48h");
+      else if (h === 72)    setCancelPolicyPreset("72h");
+      else if (h === 168)   setCancelPolicyPreset("168h");
+      else { setCancelPolicyPreset("custom"); setCancelPolicyCustomHours(h); }
+    })();
+    return () => { cancelled = true; };
+  }, [user?.profileId]);
+
+  // §4.3 — persist cancellation policy. NULL means "use platform tier
+  // defaults"; backend bounds the value to [24, 336] regardless.
+  async function saveCancellationPolicy(): Promise<void> {
+    if (!user?.profileId) return;
+    let target: number | null;
+    if (cancelPolicyPreset === "platform") target = null;
+    else if (cancelPolicyPreset === "custom") {
+      target = Math.max(24, Math.min(336, Math.round(cancelPolicyCustomHours)));
+    } else if (cancelPolicyPreset === "48h")  target = 48;
+    else if (cancelPolicyPreset === "72h")  target = 72;
+    else if (cancelPolicyPreset === "168h") target = 168;
+    else target = null;
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ cancellation_policy_min_notice_hours: target } as never)
+      .eq("id", user.profileId);
+    if (error) {
+      toast.error(`Couldn't save cancellation policy: ${error.message}`);
+      return;
+    }
+    setCancelPolicyHours(target);
+    toast.success(target == null
+      ? "Cancellation policy reset to BION defaults"
+      : `Cancellation policy: ${target} hours minimum notice`);
+  }
+
+  const save = async () => {
+    await saveCancellationPolicy();
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
@@ -261,19 +333,41 @@ export default function ProviderSettings() {
                 <div>
                   <p className="text-[11px] text-muted-foreground mb-1.5 flex items-center gap-1"><Percent className="w-3 h-3" /> Cancellation policy</p>
                   <div className="space-y-2">
-                    {CANCEL_POLICIES.map(p => (
+                    {CANCEL_POLICY_PRESETS.map(p => (
                       <button
                         key={p.id}
-                        onClick={() => setCancelPolicy(p.id)}
+                        onClick={() => setCancelPolicyPreset(p.id)}
                         className={`w-full text-left p-3 rounded-xl border transition-all ${
-                          cancelPolicy === p.id ? "border-indigo/40 glass-accent-indigo" : "border-white/5 glass-1"
+                          cancelPolicyPreset === p.id ? "border-indigo/40 glass-accent-indigo" : "border-white/5 glass-1"
                         }`}
                       >
                         <p className="text-sm font-medium text-foreground">{p.label}</p>
                         <p className="text-[11px] text-muted-foreground">{p.desc}</p>
                       </button>
                     ))}
+                    {cancelPolicyPreset === "custom" && (
+                      <div className="p-3 rounded-xl border border-white/5 glass-1 space-y-2">
+                        <label className="text-[11px] text-muted-foreground">Hours notice required (24–336)</label>
+                        <input
+                          type="number"
+                          min={24}
+                          max={336}
+                          step={1}
+                          value={cancelPolicyCustomHours}
+                          onChange={e => {
+                            const n = Number(e.target.value);
+                            if (!Number.isFinite(n)) return;
+                            setCancelPolicyCustomHours(Math.max(24, Math.min(336, Math.round(n))));
+                          }}
+                          className="w-full bg-transparent border border-white/10 rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-indigo"
+                        />
+                        <p className="text-[10px] text-muted-foreground">Provider override is bounded to the platform tier minimum (lower) and 14 days (upper). Out-of-range values are clamped on save.</p>
+                      </div>
+                    )}
                   </div>
+                  <p className="text-[10px] text-muted-foreground mt-2">
+                    Per-service overrides available on each service in Services. Service rule wins when set; otherwise this default applies.
+                  </p>
                 </div>
               </GlassCard>
 
