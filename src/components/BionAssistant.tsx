@@ -10,6 +10,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useHabitProfile } from "@/hooks/useHabits";
 import { trackEvent } from "@/lib/habits";
 import { supabase } from "@/integrations/supabase/client";
+import { localDateKey } from "@/lib/relativeTime";
 
 interface Message {
   id: string;
@@ -57,7 +58,7 @@ const PROVIDER_QUICK: { label: string; icon: typeof Target; prompt: string }[] =
 
 /* ── Read real user data from localStorage ──────────── */
 function getUserData() {
-  const today = new Date().toISOString().split("T")[0];
+  const today = localDateKey();
   let foodEntries: any[] = [];
   let routines: any[] = [];
   let waterCount = 0;
@@ -87,7 +88,7 @@ function getSmartResponse(input: string, role: string, userName?: string): strin
   // Provider-specific responses — use real booking data when available
   if (role === "provider") {
     const providerBookings = JSON.parse(localStorage.getItem("bion_calendar_events") ?? "[]");
-    const todayEvents = providerBookings.filter((e: any) => e.date === new Date().toISOString().split("T")[0]);
+    const todayEvents = providerBookings.filter((e: any) => e.date === getSASTDateKey());
 
     if (/churn|risk|at.risk|losing|inactive/i.test(key))
       return `I'd need to analyse your client booking patterns to identify churn risk. Head to your **Dashboard** to see the churn risk section, or ask me about specific clients.\n\n💡 **Tip:** Clients who haven't booked in 14+ days are flagged automatically on your dashboard.`;
@@ -331,7 +332,7 @@ export default function BionAssistant() {
 
     // Build user data context for the AI
     const data = getUserData();
-    const today = new Date().toISOString().split("T")[0];
+    const today = localDateKey();
     let calendarEvents: any[] = [];
     try { calendarEvents = JSON.parse(localStorage.getItem("bion_calendar_events") ?? "[]").filter((e: any) => e.date === today); } catch {}
 

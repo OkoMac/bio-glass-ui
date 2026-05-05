@@ -8,6 +8,7 @@ import { Capacitor } from "@capacitor/core";
 import { useHealthLogs } from "@/hooks/useHealth";
 import { useNativeHealth } from "@/hooks/useNativeHealth";
 import { useNavigate } from "react-router-dom";
+import { localDateKey } from "@/lib/relativeTime";
 
 interface Biometric {
   id: string;
@@ -211,7 +212,9 @@ export default function BiometricsDashboard({ compact = false }: { compact?: boo
   const { logs, loading } = useHealthLogs(30);
   const native = useNativeHealth();
 
-  const today = new Date().toISOString().slice(0, 10);
+  // Local civil date so the daily reset matches the user's clock, not UTC.
+  // Pre-fix the home tile said "8 glasses" three minutes after midnight.
+  const today = localDateKey();
   const todayLog = logs.find(l => l.log_date === today);
   const latestWithWeight = [...logs].reverse().find(l => l.weight_kg != null);
   const latestWithBodyFat = [...logs].reverse().find(l => l.body_fat_pct != null);

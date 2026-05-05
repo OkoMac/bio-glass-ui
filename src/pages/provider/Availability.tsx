@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Clock, Plus, X, ChevronDown, CheckCircle, Calendar, AlertTriangle, Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { getSASTDateKey } from "../../utils/sastDate";
 
 type Day = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
 
@@ -110,7 +111,7 @@ export default function ProviderAvailability() {
     supabase.from("provider_availability_override" as any)
       .select("date, label")
       .eq("provider_id", supabaseId)
-      .gte("date", new Date().toISOString().split("T")[0])
+      .gte("date", getSASTDateKey())
       .order("date", { ascending: true })
       .then(({ data: overrides }) => {
         if (overrides && (overrides as any[]).length > 0) {

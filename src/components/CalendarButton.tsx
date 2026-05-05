@@ -12,6 +12,8 @@ import Tooltip from "./Tooltip";
  * Tap to open the user's calendar/schedule.
  * Shows a badge with upcoming booking count.
  */
+import { getSASTDateKey } from "../utils/sastDate";
+
 export default function CalendarButton() {
   const { user } = useAuth();
   const location = useLocation();
@@ -24,7 +26,7 @@ export default function CalendarButton() {
   if (!shouldShowFloatingChrome(location.pathname)) return null;
 
   // Count upcoming bookings (today + future)
-  const today = new Date().toISOString().split("T")[0];
+  const today = getSASTDateKey();
   const upcomingCount = bookings.filter(b =>
     (b.status === "pending" || b.status === "confirmed") &&
     b.date >= today

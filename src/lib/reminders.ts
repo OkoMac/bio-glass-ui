@@ -17,18 +17,20 @@ export interface Reminder {
   dismissed: boolean;
 }
 
+import { getSASTDateKey } from "../utils/sastDate";
+
 const STORAGE_KEY = "bion_reminders_dismissed";
 
 function getDismissed(): Set<string> {
   try {
-    const today = new Date().toISOString().split("T")[0];
+    const today = getSASTDateKey();
     const raw = localStorage.getItem(`${STORAGE_KEY}_${today}`);
     return raw ? new Set(JSON.parse(raw)) : new Set();
   } catch { return new Set(); }
 }
 
 export function dismissReminder(id: string): void {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getSASTDateKey();
   const dismissed = getDismissed();
   dismissed.add(id);
   localStorage.setItem(`${STORAGE_KEY}_${today}`, JSON.stringify([...dismissed]));
@@ -61,7 +63,7 @@ function isPeakHour(hour: number): boolean {
 export function generateReminders(): Reminder[] {
   const now = new Date();
   const hour = now.getHours();
-  const today = now.toISOString().split("T")[0];
+  const today = getSASTDateKey(now);
   const dismissed = getDismissed();
   const reminders: Reminder[] = [];
   const softAllowed = isPeakHour(hour);
@@ -360,7 +362,7 @@ export function showNotification(title: string, body: string, options?: { icon?:
 const NOTIFIED_KEY = "bion_notified_reminders";
 
 function getNotifiedToday(): Set<string> {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getSASTDateKey();
   try {
     const raw = localStorage.getItem(`${NOTIFIED_KEY}_${today}`);
     return raw ? new Set(JSON.parse(raw)) : new Set();
@@ -368,7 +370,7 @@ function getNotifiedToday(): Set<string> {
 }
 
 function markNotified(id: string): void {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getSASTDateKey();
   const set = getNotifiedToday();
   set.add(id);
   localStorage.setItem(`${NOTIFIED_KEY}_${today}`, JSON.stringify([...set]));

@@ -28,8 +28,10 @@ const CLEAR_PREFIX: string[] = [
 
 // Date-scoped reminder dismissals — the date in the suffix keeps them bounded,
 // but let's proactively drop older-than-today entries.
+import { getSASTDateKey } from "@/utils/sastDate";
+
 function purgeStaleDatedKeys(): void {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getSASTDateKey();
   try {
     for (let i = localStorage.length - 1; i >= 0; i--) {
       const k = localStorage.key(i);

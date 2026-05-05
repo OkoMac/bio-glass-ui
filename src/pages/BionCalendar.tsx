@@ -7,6 +7,7 @@ import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCalendarSync } from "@/hooks/useCalendarSync";
 import { useProviderData } from "@/data/useProviderData";
+import { getSASTDateKey } from "@/utils/sastDate";
 import {
   ArrowLeft, ChevronLeft, ChevronRight, Plus, X, Calendar,
   Dumbbell, Apple, Pill, Heart, Stethoscope, Sparkles, Eye,
@@ -49,7 +50,7 @@ function getMonthDays(year: number, month: number): Date[] {
   return days;
 }
 
-function fmt(d: Date): string { return d.toISOString().split("T")[0]; }
+function fmt(d: Date): string { return getSASTDateKey(d); }
 
 function buildSampleEvents(): CalendarEvent[] {
   const today = new Date();

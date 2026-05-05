@@ -7,6 +7,7 @@ import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
 import { usePageView } from "@/hooks/usePageView";
+import { getSASTDateKey } from "@/utils/sastDate";
 import AdBanner from "@/components/AdBanner";
 import {
   ArrowLeft, Heart, QrCode, Shield, Phone, User, Pill,
@@ -28,7 +29,7 @@ interface JournalEntry {
 }
 
 function todayKeyJournal(): string {
-  return new Date().toISOString().slice(0, 10);
+  return getSASTDateKey();
 }
 
 interface MedicalData {
@@ -199,7 +200,7 @@ export default function MedicalCard() {
   // uses these so the user can pick a specific provider as the audience
   // instead of "share with anyone" being implied.
   const upcomingBookings = useMemo(() => {
-    const todayStr = new Date().toISOString().split("T")[0];
+    const todayStr = getSASTDateKey();
     return bookings
       .filter(b => (b.status === "pending" || b.status === "confirmed") && b.date >= todayStr)
       .sort((a, b) => a.date.localeCompare(b.date))

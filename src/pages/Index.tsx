@@ -8,6 +8,7 @@ import BionAssistant from "@/components/BionAssistant";
 import EnablePushCard from "@/components/EnablePushCard";
 import OnboardingChecklistCard from "@/components/OnboardingChecklistCard";
 import BionTips from "@/components/BionTips";
+import { getSASTDateKey } from "@/utils/sastDate";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
@@ -28,6 +29,7 @@ import TodaySummaryCard from "@/components/TodaySummaryCard";
 import PendingRatingsBanner from "@/components/PendingRatingsBanner";
 import ExpenditureRewardsStrip from "@/components/ExpenditureRewardsStrip";
 import realData from "@/data/bion_pretoria_data.json";
+import { getSASTDateKey } from "@/utils/sastDate";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 import { getSastGreeting } from "@/lib/greeting";
 import CampaignBanner from "@/components/CampaignBanner";
@@ -357,7 +359,7 @@ const Index = () => {
             </div>
             <div className="flex items-center gap-1.5 text-xs">
               <Droplets className="w-3.5 h-3.5 text-blue-400" style={{ filter: "drop-shadow(0 0 4px #60A5FA)" }} />
-              <span className="text-foreground font-data">{(() => { try { return localStorage.getItem(`bion_water_${new Date().toISOString().split("T")[0]}`) ?? "0"; } catch { return "0"; } })()} glasses</span>
+              <span className="text-foreground font-data">{(() => { try { return localStorage.getItem(`bion_water_${getSASTDateKey()}`) ?? "0"; } catch { return "0"; } })()} glasses</span>
             </div>
           </div>
         </motion.div>
@@ -483,7 +485,7 @@ const Index = () => {
             {(() => {
               try {
                 const events = JSON.parse(localStorage.getItem("bion_calendar_events") ?? "[]");
-                const today = new Date().toISOString().split("T")[0];
+                const today = getSASTDateKey();
                 const todayEvents = events.filter((e: any) => e.date === today && !e.completed).slice(0, 4);
                 if (todayEvents.length === 0) return (
                   <div className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 text-center">

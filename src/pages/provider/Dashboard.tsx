@@ -19,6 +19,8 @@ import {
 
 // No longer hardcoded — computed from bookings context below
 
+import { getSASTDateKey } from "../../utils/sastDate";
+
 export default function ProviderDashboard() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -54,7 +56,7 @@ export default function ProviderDashboard() {
   const activeClientCount = uniqueClients.size;
 
   // Today's sessions = confirmed bookings for today
-  const today = new Date().toISOString().split("T")[0];
+  const today = getSASTDateKey();
   const todaySessions = upcoming.filter(b => b.date === today);
 
   // Churn risk — clients who haven't booked recently (computed from completed bookings)

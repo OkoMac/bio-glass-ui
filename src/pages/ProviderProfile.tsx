@@ -36,6 +36,7 @@ import { useProviderData } from "@/data/useProviderData";
 import { useProviderSlots, parseDuration } from "@/hooks/useProviderSlots";
 import { useAcquisitionVouchers } from "@/hooks/useAcquisitionVouchers";
 import { useProviderReviews } from "@/hooks/useReviews";
+import { getSASTDateKey } from "@/utils/sastDate";
 import { Gift } from "lucide-react";
 
 // Vertical accent colors are picked deterministically from index — kept here
@@ -61,7 +62,7 @@ export default function ProviderProfile() {
   const walletNudge = useNudge("bionwallet_book");
   const [bookingDate, setBookingDate] = useState(() => {
     const d = new Date(); d.setDate(d.getDate() + 1);
-    return d.toISOString().split("T")[0];
+    return getSASTDateKey(d);
   });
   const [bookingTime, setBookingTime] = useState<string>("");
   const [selectedService, setSelectedService] = useState(0);
@@ -1648,7 +1649,7 @@ export default function ProviderProfile() {
                   <input
                     type="date"
                     value={bookingDate}
-                    min={new Date().toISOString().split("T")[0]}
+                    min={getSASTDateKey()}
                     onChange={e => setBookingDate(e.target.value)}
                     className="w-full px-4 py-3 glass-1 rounded-xl text-sm text-foreground outline-none border border-white/[0.08] focus:border-indigo/40"
                   />

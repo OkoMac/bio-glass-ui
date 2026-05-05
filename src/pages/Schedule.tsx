@@ -481,7 +481,7 @@ const Schedule = () => {
                 <input
                   type="date"
                   value={newDate}
-                  min={new Date().toISOString().split("T")[0]}
+                  min={getSASTDateKey()}
                   onChange={e => setNewDate(e.target.value)}
                   className="w-full px-4 py-3 glass-1 rounded-xl text-sm text-foreground outline-none border border-white/[0.08] focus:border-indigo/40"
                 />

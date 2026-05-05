@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { getSASTDateKey } from "../utils/sastDate";
 
 export interface Streak {
   id: string;
@@ -66,7 +67,7 @@ function computeBookingStreak(): { current: number; longest: number; lastDate: s
     if (!currentFound) current = streak;
     longest = Math.max(longest, streak);
 
-    const lastDate = dates[dates.length - 1].toISOString().split("T")[0];
+    const lastDate = getSASTDateKey(dates[dates.length - 1]);
     return { current, longest, lastDate };
   } catch {
     return { current: 0, longest: 0, lastDate: null };
@@ -112,7 +113,7 @@ export function useStreaks(streakType = "booking") {
 
   const checkIn = useCallback(async () => {
     if (!profileId) return;
-    const today = new Date().toISOString().split("T")[0];
+    const today = getSASTDateKey();
     if (streak.lastActivityDate === today) return;
 
     const newStreak = streak.currentStreak + 1;

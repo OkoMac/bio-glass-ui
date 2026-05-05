@@ -24,7 +24,9 @@ export interface TodaySummary {
   sessions: { count: number; minutes: number };
 }
 
-const todayKey = () => new Date().toISOString().slice(0, 10);
+// Local civil date — UTC reset was happening at 02:00 SAST.
+import { localDateKey } from "@/lib/relativeTime";
+const todayKey = () => localDateKey();
 
 export function useTodaySummary(): TodaySummary {
   const { user } = useAuth();

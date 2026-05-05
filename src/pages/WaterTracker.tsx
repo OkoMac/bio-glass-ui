@@ -19,8 +19,12 @@ import { useVisibilityRefetch } from "@/hooks/useVisibilityRefetch";
 const STORAGE_KEY = "bion_water_tracker";
 const STREAK_KEY = "bion_water_streak";
 
+// Local civil date — UTC (toISOString) made the water tracker reset at
+// 02:00 SAST instead of 00:00 (user reported "it's past 12 and my thing
+// still says 8 glasses of water" 2026-05-05 00:03).
+import { localDateKey } from "@/lib/relativeTime";
 function todayKey() {
-  return new Date().toISOString().slice(0, 10);
+  return localDateKey();
 }
 
 function getStoredData(dateKey: string) {
@@ -68,7 +72,7 @@ function getStreak(): number {
     const { count, lastDate } = JSON.parse(raw);
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayKey = yesterday.toISOString().slice(0, 10);
+    const yesterdayKey = localDateKey(yesterday);
     if (lastDate === todayKey() || lastDate === yesterdayKey) return count;
     return 0;
   } catch { return 0; }
@@ -165,7 +169,7 @@ export default function WaterTracker() {
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
-      days.push(d.toISOString().slice(0, 10));
+      days.push(localDateKey(d));
     }
     const localGoal = data.goal || 8;
 

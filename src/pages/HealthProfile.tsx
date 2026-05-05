@@ -24,14 +24,16 @@ function computeBMI(weightKg: number, heightCm: number | null | undefined): { va
   if (bmi < 30)   return { value: bmi, band: "Overweight",  color: "text-amber-400" };
   return { value: bmi, band: "Obese", color: "text-coral" };
 }
+import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
+import { usePageView } from "@/hooks/usePageView";
+import { getSASTDateKey } from "@/utils/sastDate";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
-import BionAssistant from "@/components/BionAssistant";
 import { getProviderImage } from "@/lib/providerImages";
 // Connected providers loaded dynamically from user's bookings
 import {
@@ -111,7 +113,7 @@ export default function HealthProfile() {
   const native = useNativeHealth();
   useEffect(() => {
     if (!native.isNative || !native.authorized) return;
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = getSASTDateKey();
     const todayLog = logs.find((l: any) => l.log_date === todayStr) ?? {};
     const patch: Record<string, number> = {};
     if (typeof native.steps === "number" && native.steps > ((todayLog as any).steps ?? 0)) {

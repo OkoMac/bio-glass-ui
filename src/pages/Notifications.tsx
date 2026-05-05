@@ -6,6 +6,8 @@ import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
+import { usePageView } from "@/hooks/usePageView";
+import { getSASTDateKey } from "@/utils/sastDate";
 import { useNotifications as useDbNotifications, type DbNotification } from "@/hooks/useNotifications";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -110,7 +112,7 @@ export default function Notifications() {
     const build = async () => {
       const list: Notification[] = [];
       const now = Date.now();
-      const today = new Date().toISOString().split("T")[0];
+      const today = getSASTDateKey();
 
       // 1) B_ reminders (today's pending tasks)
       const reminders = getActiveReminders();

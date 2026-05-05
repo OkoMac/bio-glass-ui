@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useVisibilityRefetch } from "./useVisibilityRefetch.js";
 import { useAuth } from "@/contexts/AuthContext";
+import { getSASTDateKey } from "../utils/sastDate";
 
 interface FoodEntry {
   id: string;
@@ -70,7 +71,7 @@ function safeSetEntries(entries: FoodEntry[]): void {
 }
 
 function getToday(): string {
-  return new Date().toISOString().split("T")[0];
+  return getSASTDateKey();
 }
 
 /**
@@ -106,7 +107,7 @@ export function useFoodSync() {
       // Load the last 30 days of food entries so the history view has
       // something to show. Capped to bound payload — older data lives
       // in localStorage if the user wants further back on this device.
-      const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+    const cutoff = getSASTDateKey(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
       const { data } = await supabase
         .from("food_entries" as any)
         .select("*")

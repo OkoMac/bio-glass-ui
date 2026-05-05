@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Bot, X, ChevronRight } from "lucide-react";
 import GlassCard from "@/components/GlassCard";
 import { useNavigate } from "react-router-dom";
+import { localDateKey } from "@/lib/relativeTime";
 
 /* ─── Tip definition ─────────────────────────────────────────────── */
 
@@ -53,7 +54,7 @@ function readLSJson(key: string): any {
 /** Check which conditions are met (i.e. user has NOT done the thing) */
 function evaluateConditions(): Set<string> {
   const met = new Set<string>();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDateKey();
 
   // Food
   const foodEntries = readLSJson("bion_food_entries");

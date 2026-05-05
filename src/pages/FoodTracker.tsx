@@ -9,6 +9,7 @@ import AdBanner from "@/components/AdBanner";
 import { useFoodSync } from "@/hooks/useFoodSync";
 import { useActivityPoints } from "@/hooks/useActivityPoints";
 import { usePageView } from "@/hooks/usePageView";
+import { getSASTDateKey } from "@/utils/sastDate";
 import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
 import { trackEvent } from "@/lib/habits";
 import {
@@ -124,7 +125,7 @@ const STORAGE_KEY = "bion_food_tracker";
 const GOALS_KEY = "bion_food_goals";
 
 function getToday(): string {
-  return new Date().toISOString().split("T")[0];
+  return getSASTDateKey();
 }
 
 const FOOD_FAQ_DATA = [

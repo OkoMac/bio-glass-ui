@@ -11,6 +11,7 @@ import AdBanner from "@/components/AdBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { useVisibilityRefetch } from "@/hooks/useVisibilityRefetch";
 import { useSleepSchedule } from "@/hooks/useSleepSchedule";
+import { getSASTDateKey } from "@/utils/sastDate";
 import { toast } from "sonner";
 import { ArrowLeft, Moon, Sun, Star, Clock, TrendingUp, Lightbulb, Bell, ChevronDown } from "lucide-react";
 
@@ -45,7 +46,7 @@ function calcDuration(bed: string, wake: string): number {
 }
 
 function todayKey() {
-  return new Date().toISOString().slice(0, 10);
+  return getSASTDateKey();
 }
 
 const SLEEP_TIPS = [
@@ -169,7 +170,7 @@ export default function SleepTracker() {
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
-      const date = d.toISOString().slice(0, 10);
+      const date = getSASTDateKey(d);
       const dayLabel = d.toLocaleDateString("en", { weekday: "short" }).slice(0, 1);
       days.push({ date, entry: entries.find((e) => e.date === date) ?? null, dayLabel });
     }

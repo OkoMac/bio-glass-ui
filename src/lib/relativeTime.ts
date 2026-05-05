@@ -1,4 +1,26 @@
 /**
+ * Local-time YYYY-MM-DD for daily-bucket localStorage keys
+ * (`bion_water_${localDateKey()}`, `bion_food_${localDateKey()}`, etc).
+ *
+ * Why not toISOString().slice(0, 10)?
+ *   ISO is UTC. In SAST (UTC+2), the user's "today" rolls over at 00:00
+ *   local but ISO doesn't roll over until 02:00 SAST. Reported by user
+ *   2026-05-05 00:03: water tile still showed 8/8 glasses three minutes
+ *   into the new day because the read was using the previous-UTC-day key.
+ *
+ * Returns the user's local civil date — the right granularity for "have
+ * I drunk water today / eaten today" questions.
+ */
+import { getSASTDateKey } from "@/utils/sastDate";
+
+export function localDateKey(d: Date = new Date()): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+/**
  * formatRelativeTime — short human-readable "time ago" helper used in
  * audit logs, activity feeds, and other timeline UIs.
  *
@@ -25,5 +47,5 @@ export function formatRelativeTime(iso: string): string {
   const days = Math.floor(hours / 24);
   if (days <= 7) return `${days}d ago`;
   // > 7 days — show absolute date in YYYY-MM-DD
-  return then.toISOString().slice(0, 10);
+  return getSASTDateKey(then);
 }
