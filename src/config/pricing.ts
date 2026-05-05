@@ -52,12 +52,12 @@ export const WALLET = {
 // separate peer-to-peer programme (CLIENT_REFERRAL below) — every BION
 // client gets a unique referral code and earns R5.80/mo per Premium
 // referee, regardless of whether they're a Ranger.
-// 2026-05-05 (architecture review §3.2): per-transaction commission
-// dropped. Subscription residual (20% perpetual) is the only
-// remaining Ranger commission stream. Field kept at 0 for shape
-// stability — see backend/src/config/pricing.ts.
+// 2026-05-05 — Per-transaction Ranger commission set to 0.5% flat
+// per architecture review §1.3. §3.2's drop-entirely recommendation
+// considered and rejected by Oko. See backend/src/config/pricing.ts
+// for full reasoning.
 export const RANGER = {
-  bookingPercent: 0,             // §3.2 dropped (was 0.02)
+  bookingPercent: 0.005,         // 0.5% flat per §1.3
   subscriptionPercent: 0.20,
   payoutDayOfMonth: 3,
   withdrawalMinRand: 200,
