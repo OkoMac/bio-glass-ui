@@ -11,8 +11,9 @@ import { getSASTDateKey } from "@/utils/sastDate";
 import { useNotifications as useDbNotifications, type DbNotification } from "@/hooks/useNotifications";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  ArrowLeft, Bell, Calendar, MessageSquare, Flame,
+  ArrowLeft, Bell, BellRing, Calendar, MessageSquare, Flame,
   Gift, Zap, CheckCheck, Trash2, Settings, BellOff, DollarSign, Clock, Star, Loader2,
+  ExternalLink,
 } from "lucide-react";
 import { getActiveReminders, dismissReminder, type Reminder } from "@/lib/reminders";
 
@@ -554,26 +555,30 @@ export default function Notifications() {
                       }`} />
                     </button>
                   </div>
-                  <div className="pt-4 border-t border-white/5">
+
+                  <div className="pt-4 border-t border-white/5 space-y-3">
                     <p className="text-sm text-muted-foreground">
-                      Manage how you receive notifications from your connected providers.
+                      Choose which channels (WhatsApp, Email, Push) and categories you receive notifications for.
                     </p>
+                    <button
+                      onClick={() => {
+                        setShowSettings(false);
+                        navigate("/settings?tab=notifications");
+                      }}
+                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl gradient-indigo text-primary-foreground text-sm font-semibold"
+                    >
+                      <BellRing className="w-4 h-4" />
+                      Manage notification channels
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
-                <div className="flex gap-3 mt-6">
+                <div className="flex mt-6">
                   <button
                     onClick={() => setShowSettings(false)}
-                    className="flex-1 py-2.5 glass-1 rounded-xl text-sm font-medium"
+                    className="w-full py-2.5 glass-1 rounded-xl text-sm font-medium"
                   >
                     Close
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowSettings(false);
-                    }}
-                    className="flex-1 py-2.5 gradient-indigo rounded-xl text-sm font-medium"
-                  >
-                    Save
                   </button>
                 </div>
               </motion.div>
