@@ -15,6 +15,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
+import { useUserPref } from "@/hooks/useUserPref";
 import realData from "@/data/bion_pretoria_data.json";
 import { getProviderImage } from "@/lib/providerImages";
 
@@ -40,6 +41,10 @@ const ALL_TOOLS = [
 /* ── Default pinned tools (shown until user customizes) ── */
 const DEFAULT_PINS = ["food", "water", "medcard", "coach", "calendar", "routines"];
 
+// Legacy localStorage key — useUserPref reads it once during the first
+// server fetch and migrates the value up so users who customised before
+// this change don't start over. Safe to keep referenced; the hook
+// rewrites it on every change so old code paths still see the value.
 const STORAGE_KEY = "bion_quick_menu_tools";
 
 export default function QuickBook() {
@@ -53,17 +58,13 @@ export default function QuickBook() {
   const [search, setSearch] = useState("");
   const [showCustomize, setShowCustomize] = useState(false);
 
-  // User's pinned tools (loaded from localStorage)
-  const [pinnedTools, setPinnedTools] = useState<string[]>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : DEFAULT_PINS;
-    } catch { return DEFAULT_PINS; }
-  });
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(pinnedTools));
-  }, [pinnedTools]);
+  // User's pinned tools — server-persisted via user_preferences. The hook
+  // reads localStorage for instant first paint, then syncs from server,
+  // and pushes any local-only value up on first read so existing users
+  // (whose tools were localStorage-only) don't lose their list when
+  // this rolls out. Survives PWA reinstall, cross-device sign-in, and
+  // tab clears.
+  const [pinnedTools, setPinnedTools] = useUserPref<string[]>("hub_pinned_tools", DEFAULT_PINS, { lsKey: STORAGE_KEY });
 
   /* ── Compute "Your Providers" from booking history + favorites ──
      Reported 2026-05-04 — Oko's home dashboard had a "Suggested for You"
