@@ -5,6 +5,7 @@ import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBookings } from "@/contexts/BookingsContext";
 import { useRoutinesSync } from "@/hooks/useRoutinesSync";
 import { useMyPrograms } from "@/hooks/useMyPrograms";
 import { getProviderImage } from "@/lib/providerImages";
@@ -362,7 +363,26 @@ const STORAGE_KEY = "bion_routines";
 export default function Routines() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { bookings } = useBookings();
   const firstName = user?.name?.split(" ")[0] ?? "there";
+
+  // Providers the user has actually booked with — the only providers it
+  // makes sense to share routine data with. Pre-fix this dropdown was
+  // dumping the first 6 entries of the global directory, which surfaced
+  // random gyms and salons the user had never interacted with as
+  // share targets — confusing and a privacy footgun.
+  const myProviders = useMemo(() => {
+    const seen = new Map<string, { id: string; name: string; image: string }>();
+    for (const b of bookings) {
+      if (!b.providerId || seen.has(b.providerId)) continue;
+      seen.set(b.providerId, {
+        id: b.providerId,
+        name: b.providerName ?? "Provider",
+        image: b.providerImage ?? getProviderImage(b.providerId, b.providerName ?? "Provider"),
+      });
+    }
+    return Array.from(seen.values());
+  }, [bookings]);
 
   const isDemo = user?.id?.startsWith("demo_") ?? false;
 
@@ -871,22 +891,33 @@ export default function Routines() {
                                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">
                                   <Shield className="w-3 h-3 inline mr-1" /> Who can see this routine
                                 </p>
-                                {ALL_PROVIDERS.slice(0, 6).map(prov => {
-                                  const isShared = r.sharedWith.includes(prov.id);
-                                  return (
-                                    <button key={prov.id} onClick={() => toggleShare(r.id, prov.id)}
-                                      className="w-full flex items-center gap-2.5 py-1.5 text-left">
-                                      <img src={prov.image} alt={prov.name} className="w-7 h-7 rounded-lg object-cover shrink-0" />
-                                      <span className="flex-1 text-xs text-foreground truncate">{prov.name}</span>
-                                      {isShared
-                                        ? <Eye className="w-3.5 h-3.5 text-teal shrink-0" />
-                                        : <EyeOff className="w-3.5 h-3.5 text-muted-foreground shrink-0" />}
+                                {myProviders.length === 0 ? (
+                                  <div className="text-xs text-muted-foreground py-2">
+                                    No providers yet. Book a session and that provider will appear here so you can share routine progress with them.
+                                    <button onClick={() => navigate("/directory")} className="block mt-2 text-teal underline-offset-2 hover:underline">
+                                      Browse the directory →
                                     </button>
-                                  );
-                                })}
-                                <p className="text-[9px] text-muted-foreground mt-1">
-                                  Shared providers can view your progress. Tap to toggle.
-                                </p>
+                                  </div>
+                                ) : (
+                                  <>
+                                    {myProviders.map(prov => {
+                                      const isShared = r.sharedWith.includes(prov.id);
+                                      return (
+                                        <button key={prov.id} onClick={() => toggleShare(r.id, prov.id)}
+                                          className="w-full flex items-center gap-2.5 py-1.5 text-left">
+                                          <img src={prov.image} alt={prov.name} className="w-7 h-7 rounded-lg object-cover shrink-0" />
+                                          <span className="flex-1 text-xs text-foreground truncate">{prov.name}</span>
+                                          {isShared
+                                            ? <Eye className="w-3.5 h-3.5 text-teal shrink-0" />
+                                            : <EyeOff className="w-3.5 h-3.5 text-muted-foreground shrink-0" />}
+                                        </button>
+                                      );
+                                    })}
+                                    <p className="text-[9px] text-muted-foreground mt-1">
+                                      Only providers you've booked with appear here. Tap to toggle sharing.
+                                    </p>
+                                  </>
+                                )}
                               </div>
                             </motion.div>
                           )}
