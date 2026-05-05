@@ -311,8 +311,14 @@ export default function BiometricsDashboard({ compact = false }: { compact?: boo
 
   return (
     <div className="space-y-5">
-      {/* Native health sync prompt — ask for auth on device, or nudge to install */}
-      {!native.isNative && !compact && (
+      {/* Native health sync prompt — only when there's actually a native
+          shell to install. Hidden for now: the Capacitor iOS/Android
+          build hasn't shipped to the App Store / Play Store, and PWA
+          users (already "installed" via Add-to-Home-Screen) were being
+          told to "install the BION app" they already had open, which
+          read as "the app you're using doesn't exist". Re-enable when
+          native ships. */}
+      {false && !native.isNative && !compact && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
           className="rounded-2xl border border-indigo/20 bg-indigo/5 p-4 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-indigo/15 flex items-center justify-center shrink-0">
