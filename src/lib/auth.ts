@@ -72,16 +72,37 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
     const dbRoles = (roleRows ?? []).map((r: any) => r.role as string);
     const roleRow = { role: rolePriority.find(r => dbRoles.includes(r)) ?? dbRoles[0] };
 
-    // Role priority:
-    // 1) Stored switched role (user explicitly chose this via role switcher)
-    // 2) user_roles table (source of truth for assigned roles)
-    // 3) user_metadata.bio_role (set at signup — may be stale)
-    // 4) fallback to client
+    // Role priority — DATABASE FIRST.
+    // Per architecture review §3.6 (2026-05-05): localStorage is editable
+    // by anyone with browser access. While the API rejects unauthorised
+    // actions server-side, UI rendering decisions made on localStorage
+    // role can reveal admin UI components, enable phishing surfaces, and
+    // hint at internal feature architecture. Reversed priority:
+    //   1) user_roles table — server source of truth
+    //   2) user_metadata.bio_role — signup-time hint, may be stale
+    //   3) Stored switched role — UI convenience for known-good roles ONLY,
+    //      and only when it's a non-elevated downgrade (e.g. provider-as-
+    //      client view). Elevation via localStorage is rejected.
+    //   4) fallback to client
     const storedUser = getStoredUser();
     const switchedRole = storedUser?.id === supabaseUserId ? storedUser?.role : undefined;
     const dbRole = roleRow?.role as UserRole | undefined;
     const metaRole = authData.user?.user_metadata?.bio_role as UserRole | undefined;
-    const role: UserRole = switchedRole ?? dbRole ?? metaRole ?? "client";
+    // Only honour a switched role if the DB role permits it (i.e. it's a
+    // non-elevation). Otherwise the DB role wins. This prevents a user
+    // editing localStorage to "promote" themselves to admin / provider
+    // UI surfaces. Server-side checks already block actions, but this
+    // closes the visual phishing surface.
+    const ROLE_RANK: Record<UserRole, number> = {
+      client:    0,
+      sales_rep: 1,
+      corporate: 2,
+      provider:  3,
+      admin:     4,
+    };
+    const baseRole: UserRole = dbRole ?? metaRole ?? "client";
+    const switchedAllowed = switchedRole && ROLE_RANK[switchedRole] <= ROLE_RANK[baseRole];
+    const role: UserRole = switchedAllowed ? switchedRole : baseRole;
 
     // First-time OAuth users (Google / etc.) have no profile row yet — create
     // one on the fly so hooks that depend on profileId don't crash and so we
