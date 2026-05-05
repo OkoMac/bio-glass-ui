@@ -91,47 +91,81 @@ export function useImageUpload(opts: UploadOptions = {}) {
       setProgress(10);
 
       try {
+        // §4.4 (2026-05-05): UUID-based storage paths. Reserve a media
+        // row server-side first; backend returns a one-shot signed
+        // upload URL pointing at <media_id>/<filename>. The path no
+        // longer exposes profile_id, so a leaked or scraped URL can't
+        // be used to enumerate users. Profile_id is preserved in
+        // public.media for ownership checks.
         const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
         const safeSlug = (file.name.split(".")[0] ?? "img")
           .toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40);
-        const path = `${profileId}/${folder}/${Date.now()}-${safeSlug}.${ext}`;
+        const filename = `${Date.now()}-${safeSlug}.${ext}`;
 
-        setProgress(40);
-        const { error: upErr } = await supabase.storage.from(bucket).upload(path, file, {
-          cacheControl: "3600",
-          upsert: false,
-          contentType: file.type,
+        setProgress(25);
+
+        const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "https://bion-backend.onrender.com";
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) throw new Error("Sign-in expired. Please sign in again.");
+
+        const reserveRes = await fetch(`${API_URL}/api/media/reserve`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+          body: JSON.stringify({ bucket, folder, filename, contentType: file.type, sizeBytes: file.size }),
         });
-        if (upErr) {
-          // Translate Supabase storage errors into something the user can act on.
-          const msg = (upErr.message ?? "").toLowerCase();
-          if (msg.includes("mime type") || msg.includes("not supported")) {
-            throw new Error(`This file type isn't allowed. Please pick a JPEG, PNG, or HEIC image.`);
+        const reserveJson = await reserveRes.json().catch(() => ({}));
+        if (!reserveRes.ok || !reserveJson?.ok || !reserveJson?.signedUploadUrl || !reserveJson?.storagePath) {
+          throw new Error(reserveJson?.error ?? `Couldn't reserve upload slot (HTTP ${reserveRes.status})`);
+        }
+
+        const { mediaId, storagePath, signedUploadUrl } = reserveJson as {
+          mediaId: string; storagePath: string; signedUploadUrl: string;
+        };
+
+        setProgress(50);
+
+        // PUT to the signed upload URL — Supabase signed URLs accept the
+        // file body directly. Content-Type matters for the bucket's MIME
+        // allowlist.
+        const putRes = await fetch(signedUploadUrl, {
+          method: "PUT",
+          headers: { "Content-Type": file.type, "x-upsert": "false" },
+          body: file,
+        });
+        if (!putRes.ok) {
+          const errorText = await putRes.text().catch(() => "");
+          const lower = errorText.toLowerCase();
+          if (lower.includes("mime") || lower.includes("not supported")) {
+            throw new Error("This file type isn't allowed. Please pick a JPEG, PNG, WEBP, or HEIC image.");
           }
-          if (msg.includes("payload too large") || msg.includes("size") || msg.includes("exceeds")) {
+          if (lower.includes("size") || lower.includes("payload too large") || lower.includes("exceeds")) {
             throw new Error(`File too big — please pick one under ${maxMB} MB.`);
           }
-          if (msg.includes("bucket") && msg.includes("not found")) {
-            throw new Error("Storage isn't configured yet. Please contact support@bionhealth.co.za.");
-          }
-          if (msg.includes("row-level security") || msg.includes("permission") || msg.includes("policy")) {
-            throw new Error("Permission denied uploading photo — try signing out and back in.");
-          }
-          // Last resort — surface the raw message so it's diagnosable from a screenshot.
-          throw new Error(`Upload failed: ${upErr.message ?? "unknown error"}`);
+          throw new Error(`Upload failed (HTTP ${putRes.status}). ${errorText.slice(0, 120)}`);
         }
 
         setProgress(80);
 
+        // Mark the media row as uploaded — best-effort. If finalize
+        // fails the file's still up; the row just stays pending and a
+        // backfill cron can reconcile.
+        try {
+          await fetch(`${API_URL}/api/media/${mediaId}/finalize`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+            body: JSON.stringify({ sizeBytes: file.size }),
+          });
+        } catch { /* */ }
+
         if (bucket === "bion-media") {
-          // Public URL
-          const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+          // Public URL — uses the same storage_path the signed URL targeted.
+          const { data } = supabase.storage.from(bucket).getPublicUrl(storagePath);
           setProgress(100);
           return data.publicUrl;
         } else {
-          // Private — signed URL valid for 1 year
+          // Private — signed read URL valid for 1 year.
           const { data, error: sErr } = await supabase.storage
-            .from(bucket).createSignedUrl(path, 60 * 60 * 24 * 365);
+            .from(bucket).createSignedUrl(storagePath, 60 * 60 * 24 * 365);
           if (sErr) throw sErr;
           setProgress(100);
           return data.signedUrl;
