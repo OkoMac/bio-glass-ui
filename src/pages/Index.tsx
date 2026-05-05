@@ -20,6 +20,8 @@ import {
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useHabitProfile } from "@/hooks/useHabits";
 import { useVerifiedProviders } from "@/hooks/useVerifiedProviders";
+import { useImageUpload } from "@/hooks/useUpload";
+import { toast } from "sonner";
 import { distanceToSuburb } from "@/lib/pretoriaSuburbs";
 import BiometricsDashboard from "@/components/BiometricsDashboard";
 import TodaySummaryCard from "@/components/TodaySummaryCard";
@@ -134,7 +136,7 @@ const Index = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterVersion, setFilterVersion] = useState(0); // bumped when filters change
-  const { user, updateAvatar } = useAuth();
+  const { user, updateAvatar, updateCoverImage } = useAuth();
   const navigate = useNavigate();
   const geo = useGeolocation();
   const verifiedProviders = useVerifiedProviders();
@@ -245,31 +247,40 @@ const Index = () => {
 
   const getGreeting = getSastGreeting;
 
-  // Cover banner image (uploadable)
-  const coverImage = (() => {
-    try { return localStorage.getItem(`bion_cover_${user?.id ?? "guest"}`); }
-    catch { return null; }
-  })();
+  // Cover banner image — single source of truth: profiles.cover_image_url,
+  // exposed by AuthContext as user.coverImage. Same source as Profile.tsx
+  // so the two pages can never disagree.
+  // Pre-fix: Index read from localStorage["bion_cover_<id>"] while Profile
+  // wrote to profiles.cover_image_url — the food / smartwatch ghost-photo
+  // mystery on /me was a stale base64 from the old upload code that
+  // never made it past the legacy localStorage key.
+  const coverImage = user?.coverImage ?? null;
 
-  const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const avatarUploader = useImageUpload({ folder: "avatars", maxMB: 5 });
+  const coverUploader = useImageUpload({ folder: "covers", maxMB: 8 });
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user?.id) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      localStorage.setItem(`bion_cover_${user.id}`, reader.result as string);
-      window.location.reload();
-    };
-    reader.readAsDataURL(file);
+    try {
+      const url = await coverUploader.upload(file);
+      await updateCoverImage(url);
+      toast.success("Cover photo updated");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Cover upload failed", { duration: 8000 });
+    }
   };
 
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      updateAvatar(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    try {
+      const url = await avatarUploader.upload(file);
+      await updateAvatar(url);
+      toast.success("Profile photo updated");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Avatar upload failed", { duration: 8000 });
+    }
   };
 
   return (
