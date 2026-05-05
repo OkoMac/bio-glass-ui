@@ -320,20 +320,47 @@ export function InstallModal({
               <div className="space-y-3">
                 <p className="text-xs text-muted-foreground">Install BION as a desktop app:</p>
 
-                {!deferredPrompt && (
-                  <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-3 mb-2">
-                    <p className="text-[11px] text-amber leading-relaxed">
-                      Your browser doesn't support app installation.{" "}
-                      <a href="https://www.google.com/chrome/" target="_blank" rel="noopener noreferrer"
-                        className="underline font-medium">Install Chrome</a> or open BION in Chrome/Edge and look for the install icon in the address bar.
-                    </p>
-                  </div>
-                )}
+                {!deferredPrompt && (() => {
+                  // Detect Brave — it supports PWA but blocks beforeinstallprompt
+                  const isBrave = (navigator as any).brave?.isBrave;
+                  // Detect Firefox — no PWA support at all
+                  const isFirefox = navigator.userAgent.includes("Firefox");
+                  if (isBrave) {
+                    return (
+                      <div className="rounded-xl border border-teal/20 bg-teal/5 p-3 mb-2">
+                        <p className="text-[11px] text-teal leading-relaxed">
+                          Brave supports app installation. Click the Brave menu (☰ top-right) → <strong>"Install BION…"</strong>
+                        </p>
+                      </div>
+                    );
+                  }
+                  if (isFirefox) {
+                    return (
+                      <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-3 mb-2">
+                        <p className="text-[11px] text-amber leading-relaxed">
+                          Firefox doesn't support app installation.{" "}
+                          <a href="https://www.google.com/chrome/" target="_blank" rel="noopener noreferrer"
+                            className="underline font-medium">Open in Chrome</a> to install.
+                        </p>
+                      </div>
+                    );
+                  }
+                  // Other browser (Safari desktop, Edge without event, etc.)
+                  return (
+                    <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-3 mb-2">
+                      <p className="text-[11px] text-amber leading-relaxed">
+                        Look for the install icon in your address bar, or{" "}
+                        <a href="https://www.google.com/chrome/" target="_blank" rel="noopener noreferrer"
+                          className="underline font-medium">open in Chrome</a> for the best experience.
+                      </p>
+                    </div>
+                  );
+                })()}
 
                 <ol className="space-y-2.5 text-xs text-foreground">
                   <li className="flex gap-2">
                     <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">1</span>
-                    <span>Look for the <Download className="w-3.5 h-3.5 inline" /> install icon in your address bar (Chrome/Edge)</span>
+                    <span>Look for the <Download className="w-3.5 h-3.5 inline" /> install icon in your address bar, or use the browser menu → Install BION</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">2</span>
@@ -348,7 +375,7 @@ export function InstallModal({
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText("https://bionhealth.co.za");
-                    toast.success("Link copied — paste in Chrome/Edge to install");
+                    toast.success("Link copied — open in your browser to install");
                   }}
                   className="w-full py-2.5 rounded-xl border border-indigo/20 bg-indigo/5 text-xs font-medium text-indigo flex items-center justify-center gap-1.5 hover:bg-indigo/10 transition-colors"
                 >
