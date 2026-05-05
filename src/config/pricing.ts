@@ -67,15 +67,20 @@ export function getCashOutFeeRate(subscriptionPlan: string | null | undefined): 
 // §3.5 velocity caps with subscription dimension.
 export interface VelocityCap { dailyRand: number; monthlyRand: number; }
 
+// 2026-05-05 — caps raised after Oko's "no limits" pushback.
+// Phone-only kept at FICA/fraud floor (R5k/R25k); ID-verified
+// significantly higher. See backend/src/config/pricing.ts comment
+// block for rationale. Earlier values: Free 50k/200k, Pro 75k/300k,
+// Elite 150k/600k.
 export const VELOCITY_CAPS_BY_TIER: {
   phoneVerified: VelocityCap;
   identityVerified: Record<"free" | "pro" | "elite", VelocityCap>;
 } = {
   phoneVerified: { dailyRand: 5_000, monthlyRand: 25_000 },
   identityVerified: {
-    free:  { dailyRand:  50_000, monthlyRand: 200_000 },
-    pro:   { dailyRand:  75_000, monthlyRand: 300_000 },
-    elite: { dailyRand: 150_000, monthlyRand: 600_000 },
+    free:  { dailyRand:  50_000, monthlyRand:   500_000 },
+    pro:   { dailyRand: 100_000, monthlyRand: 1_000_000 },
+    elite: { dailyRand: 300_000, monthlyRand: 3_000_000 },
   },
 };
 
