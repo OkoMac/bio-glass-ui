@@ -93,12 +93,12 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
     let profileCover = (profile as any)?.cover_image_url ?? undefined;
 
     if (!profile && authData.user) {
-      // Google/Apple OAuth provides full_name in user_metadata. If absent,
-      // use "BION User" as a placeholder — the user will be prompted to
-      // set their real first + last name on first login (see Index.tsx).
+      // Google/Apple OAuth provides full_name in user_metadata.
+      // If Google doesn't send a name, leave it as an empty string —
+      // the Index.tsx banner will prompt them to set it.
       const oauthName = (authData.user.user_metadata?.full_name as string | undefined)
         ?? (authData.user.user_metadata?.name as string | undefined)
-        ?? "BION User";
+        ?? "";
       const fallbackAvatar = (authData.user.user_metadata?.avatar_url as string | undefined)
         ?? (authData.user.user_metadata?.picture as string | undefined);
       try {
@@ -132,7 +132,7 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
     const user: BioUser = {
       id:         supabaseUserId,
       profileId:  profileId ?? undefined,
-      name:       profileName ?? "BION User",
+      name:       profileName ?? "",
       email:      profileEmail ?? authData.user?.email ?? "",
       role,
       avatar:     profileAvatar ?? undefined,

@@ -354,7 +354,7 @@ const Index = () => {
           <p className="text-xs text-muted-foreground mt-1">Commit to yourself. You've got this.</p>
 
           {/* Name prompt for Google OAuth users who landed with a fallback name */}
-          {user?.name === "BION User" && (
+          {(!user?.name || user.name === "BION User") && (
             <div className="mt-3 p-3 rounded-xl border border-amber-400/20 bg-amber-400/5">
               <p className="text-[11px] text-amber leading-relaxed">
                 Your display name isn't set yet.{" "}
