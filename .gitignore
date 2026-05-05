@@ -40,3 +40,7 @@ bun.lockb
 # committed (they only contain bundle-id-scoped public identifiers).
 *-firebase-adminsdk-*.json
 fcm-service-account.json
+
+# Icon migration backups (kept locally for revert; not deployable)
+public/*.pre-pad.bak
+public/*.pre-newlogo.bak
