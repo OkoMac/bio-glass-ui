@@ -93,12 +93,12 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
     let profileCover = (profile as any)?.cover_image_url ?? undefined;
 
     if (!profile && authData.user) {
-      const googleName = authData.user.user_metadata?.full_name as string | undefined
-        ?? authData.user.user_metadata?.name as string | undefined;
-      // Reject email prefixes — use safeDisplayName's rules
-      const fallbackName = safeDisplayName(googleName) !== "there"
-        ? googleName!
-        : "BION User";
+      // Google/Apple OAuth provides full_name in user_metadata. If absent,
+      // use "BION User" as a placeholder — the user will be prompted to
+      // set their real first + last name on first login (see Index.tsx).
+      const oauthName = (authData.user.user_metadata?.full_name as string | undefined)
+        ?? (authData.user.user_metadata?.name as string | undefined)
+        ?? "BION User";
       const fallbackAvatar = (authData.user.user_metadata?.avatar_url as string | undefined)
         ?? (authData.user.user_metadata?.picture as string | undefined);
       try {
@@ -109,7 +109,7 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
           .from("profiles")
           .upsert({
             user_id: supabaseUserId,
-            full_name: fallbackName,
+            full_name: oauthName,
             email: authData.user.email,
             avatar_url: fallbackAvatar,
             provider_status: providerStatus,
@@ -132,9 +132,7 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
     const user: BioUser = {
       id:         supabaseUserId,
       profileId:  profileId ?? undefined,
-      name:       profileName && safeDisplayName(profileName) !== "there"
-        ? profileName
-        : safeDisplayName(authData.user?.user_metadata?.full_name as string | undefined ?? authData.user?.user_metadata?.name as string | undefined) ?? "BION User",
+      name:       profileName ?? "BION User",
       email:      profileEmail ?? authData.user?.email ?? "",
       role,
       avatar:     profileAvatar ?? undefined,
@@ -144,19 +142,6 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
       location:   (profile as any)?.location ?? undefined,
       bionId:     (profile as any)?.bion_id ?? undefined,
     };
-    
-    // Silent upgrade: if the DB stored an email-prefix name, fix it in the
-    // background so the user sees their real name next time. Only overwrite
-    // if the stored value looks like an email prefix.
-    if (profileName && safeDisplayName(profileName) === "there" && profile?.id) {
-      const betterName = safeDisplayName(authData.user?.user_metadata?.full_name as string | undefined ?? authData.user?.user_metadata?.name as string | undefined);
-      if (betterName !== "there") {
-        supabase.from("profiles").update({ full_name: betterName }).eq("id", profile.id).then().catch(() => {});
-        user.name = betterName;
-      } else if (user.name === "BION User" && profile?.id) {
-        // Already at fallback — leave the nudge banner to handle it
-      }
-    }
     
     // Add subscription based on user role
     if (role === 'provider') {

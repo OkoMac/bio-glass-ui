@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Download, Smartphone, Share, X, Check, RefreshCw, Plus } from "lucide-react";
+import { Download, Smartphone, Share, X, Check, RefreshCw, Plus, Copy } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { shouldShowFloatingChrome } from "@/lib/floatingChrome";
+import { toast } from "sonner";
 import Tooltip from "./Tooltip";
 
 // Injected by vite.config.ts as `${pkg.version}-${shortSha}` — every deploy
@@ -196,7 +197,8 @@ export default function InstallButton() {
       setDeferredPrompt(null);
       return;
     }
-    // iOS / fallback: show instructions (Safari Add to Home Screen)
+    // No native prompt available (Brave, Firefox, Safari, or already dismissed).
+    // Open a direct install modal with the actual browser steps.
     setShowInstructions(true);
   };
 
@@ -360,10 +362,22 @@ export default function InstallButton() {
               {device === "desktop" && (
                 <div className="space-y-3">
                   <p className="text-xs text-muted-foreground">Install BION as a desktop app:</p>
+
+                  {/* Brave / Firefox: no native PWA support → redirect to Chrome */}
+                  {!deferredPrompt && (
+                    <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-3 mb-2">
+                      <p className="text-[11px] text-amber leading-relaxed">
+                        Your browser doesn't support app installation.{" "}
+                        <a href="https://www.google.com/chrome/" target="_blank" rel="noopener noreferrer"
+                          className="underline font-medium">Install Chrome</a> or open BION in Chrome/Edge and look for the install icon in the address bar.
+                      </p>
+                    </div>
+                  )}
+
                   <ol className="space-y-2.5 text-xs text-foreground">
                     <li className="flex gap-2">
                       <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">1</span>
-                      <span>Look for the <Download className="w-3.5 h-3.5 inline" /> install icon in your address bar</span>
+                      <span>Look for the <Download className="w-3.5 h-3.5 inline" /> install icon in your address bar (Chrome/Edge)</span>
                     </li>
                     <li className="flex gap-2">
                       <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">2</span>
@@ -374,7 +388,18 @@ export default function InstallButton() {
                       <span>BION opens in its own window — find it in your Start menu / Applications folder</span>
                     </li>
                   </ol>
-                  <p className="text-[10px] text-muted-foreground italic">Works in Chrome, Edge, and Brave.</p>
+
+                  {/* Copy-link fallback — works on every browser */}
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText("https://bionhealth.co.za");
+                      toast.success("Link copied — paste in Chrome/Edge to install");
+                    }}
+                    className="w-full py-2.5 rounded-xl border border-indigo/20 bg-indigo/5 text-xs font-medium text-indigo flex items-center justify-center gap-1.5 hover:bg-indigo/10 transition-colors"
+                  >
+                    <Copy className="w-3 h-3" />
+                    Copy BION link
+                  </button>
                 </div>
               )}
 

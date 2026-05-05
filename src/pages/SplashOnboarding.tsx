@@ -238,7 +238,8 @@ export default function SplashOnboarding() {
 
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [authMode, setAuthMode]         = useState<AuthMode>("signin");
-  const [name,     setName]             = useState("");
+  const [name,  setName]  = useState("");
+  const [lastName, setLastName] = useState("");
   const [email,    setEmail]            = useState("");
   const [password, setPassword]         = useState("");
   const [referralCode, setReferralCode] = useState(() => capturePendingReferralCode() ?? "");
