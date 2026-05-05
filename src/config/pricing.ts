@@ -42,11 +42,54 @@ export const CANCELLATION = {
   cutoffHours:  24,
 } as const;
 
+// 2026-05-05 (architecture review §3.5): cash-out fee tiered by
+// subscription. WALLET.cashOutFeeRate is the legacy default (Free
+// tier rate); use getCashOutFeeRate(plan) for the canonical lookup.
 export const WALLET = {
-  cashOutFeeRate:  0.10,
+  cashOutFeeRate:  0.10,         // legacy default = Free tier rate
   cashOutMinRand:  200,
   topUpMinRand:    50,
 } as const;
+
+export const CASH_OUT_FEE_BY_TIER: Record<"free" | "pro" | "elite", number> = {
+  free:  0.10,
+  pro:   0.05,
+  elite: 0.02,
+};
+
+export function getCashOutFeeRate(subscriptionPlan: string | null | undefined): number {
+  const key = (subscriptionPlan ?? "free").toLowerCase();
+  if (key === "elite") return CASH_OUT_FEE_BY_TIER.elite;
+  if (key === "pro")   return CASH_OUT_FEE_BY_TIER.pro;
+  return CASH_OUT_FEE_BY_TIER.free;
+}
+
+// §3.5 velocity caps with subscription dimension.
+export interface VelocityCap { dailyRand: number; monthlyRand: number; }
+
+export const VELOCITY_CAPS_BY_TIER: {
+  phoneVerified: VelocityCap;
+  identityVerified: Record<"free" | "pro" | "elite", VelocityCap>;
+} = {
+  phoneVerified: { dailyRand: 5_000, monthlyRand: 25_000 },
+  identityVerified: {
+    free:  { dailyRand:  50_000, monthlyRand: 200_000 },
+    pro:   { dailyRand:  75_000, monthlyRand: 300_000 },
+    elite: { dailyRand: 150_000, monthlyRand: 600_000 },
+  },
+};
+
+export function getVelocityCap(
+  verification: { phoneVerified: boolean; identityVerified: boolean },
+  subscriptionPlan: string | null | undefined,
+): VelocityCap {
+  if (!verification.phoneVerified) return { dailyRand: 0, monthlyRand: 0 };
+  if (!verification.identityVerified) return VELOCITY_CAPS_BY_TIER.phoneVerified;
+  const key = (subscriptionPlan ?? "free").toLowerCase();
+  if (key === "elite") return VELOCITY_CAPS_BY_TIER.identityVerified.elite;
+  if (key === "pro")   return VELOCITY_CAPS_BY_TIER.identityVerified.pro;
+  return VELOCITY_CAPS_BY_TIER.identityVerified.free;
+}
 
 // Rangers earn from PROVIDER acquisition only. Client referrals are a
 // separate peer-to-peer programme (CLIENT_REFERRAL below) — every BION
@@ -69,11 +112,14 @@ export const CLIENT_REFERRAL = {
   payoutDayOfMonth: 3,
 } as const;
 
+// 2026-05-05 (§4.1): monthly cap added; breakage assumption documented.
 export const REWARDS = {
-  pointsPerRand:        50,
-  yearlyPointsCap:      250000,
+  pointsPerRand:          50,
+  monthlyPointsCap:       25_000,
+  yearlyPointsCap:        250_000,
   inactivityExpiryMonths: 18,
-  expenditureRewardRate: 0.0025,
+  expenditureRewardRate:  0.0025,
+  breakageRateAssumption: 0.30,
 } as const;
 
 // ── Tier benefits (mirror of backend/src/config/pricing.ts TIER_BENEFITS) ──
