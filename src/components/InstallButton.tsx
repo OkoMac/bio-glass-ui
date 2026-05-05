@@ -162,6 +162,12 @@ export default function InstallButton() {
         if (!sw) return;
         sw.addEventListener("statechange", () => {
           if (sw.state === "installed" && navigator.serviceWorker.controller) {
+            // Only show update if this is a genuinely different build
+            if (APP_VERSION) {
+              try {
+                if (localStorage.getItem("bion_sw_build_id") === APP_VERSION) return;
+              } catch { /* */ }
+            }
             setUpdateAvailable(true);
           }
         });

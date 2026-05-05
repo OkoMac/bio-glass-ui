@@ -108,8 +108,28 @@ if ("serviceWorker" in navigator) {
       // narrow pill there caused ghost-taps to fall through to the
       // tile below the toast (user tapped "update" → Medical Card
       // opened). Top is empty on every BION route, so taps are safe.
+      //
+      // Build ID guard: we store the current __BION_BUILD_ID__ in
+      // localStorage after the first successful activation. When a new
+      // SW activates we compare — if the build ID matches what we
+      // already stored, this is the same deploy (not a genuine update),
+      // so we skip the toast. A sessionStorage guard also prevents the
+      // same toast from firing twice in one page session.
+      const BUILD_ID = typeof __BION_BUILD_ID__ !== "undefined" ? __BION_BUILD_ID__ : "";
       const showUpdateToast = () => {
         if (document.getElementById("bion-update-toast")) return;
+
+        // Session guard — don't show twice in the same session
+        try { if (sessionStorage.getItem("bion_update_toast_shown")) return; } catch { /* */ }
+
+        // Persistent build ID guard — if this build was already applied,
+        // don't show the toast again on a re-registration.
+        try {
+          if (localStorage.getItem("bion_sw_build_id") === BUILD_ID) return;
+        } catch { /* */ }
+
+        // Mark shown in this session
+        try { sessionStorage.setItem("bion_update_toast_shown", "1"); } catch { /* */ }
         const wrap = document.createElement("div");
         wrap.id = "bion-update-toast";
         wrap.setAttribute("role", "alert");
@@ -125,6 +145,8 @@ if ("serviceWorker" in navigator) {
         btn.style.cssText = "flex:0 0 auto;background:#fff;color:hsl(239 84% 50%);border:0;border-radius:999px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent";
         const doReload = (ev?: Event) => {
           if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+          // Persist build ID so the toast isn't shown again for the same build
+          try { if (BUILD_ID) localStorage.setItem("bion_sw_build_id", BUILD_ID); } catch { /* */ }
           window.location.reload();
         };
         btn.addEventListener("click", doReload);
@@ -137,7 +159,12 @@ if ("serviceWorker" in navigator) {
         // Auto-reload after 90s if the user doesn't tap — long enough
         // not to interrupt active interaction, short enough to actually
         // ship the update on a hands-off tab.
-        setTimeout(() => { if (document.getElementById("bion-update-toast")) window.location.reload(); }, 90_000);
+        setTimeout(() => {
+          if (document.getElementById("bion-update-toast")) {
+            try { if (BUILD_ID) localStorage.setItem("bion_sw_build_id", BUILD_ID); } catch { /* */ }
+            window.location.reload();
+          }
+        }, 90_000);
       };
 
       reg.addEventListener("updatefound", () => {

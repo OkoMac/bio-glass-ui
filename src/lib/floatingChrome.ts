@@ -13,6 +13,7 @@
  * the explicit "shell" homes show the floating chrome.
  */
 const FLOATING_CHROME_ALLOW = [
+  "/",              // root directory / landing
   "/home",          // client home
   "/discover",      // discover tab
   "/routines",      // routines tab
@@ -20,6 +21,8 @@ const FLOATING_CHROME_ALLOW = [
   "/feed",          // feed tab
   "/wellness",      // wellness home
   "/dashboard",     // generic dashboard landing
+  "/welcome",       // welcome / onboarding
+  "/tools",         // tools page
 ];
 
 export function shouldShowFloatingChrome(pathname: string): boolean {
