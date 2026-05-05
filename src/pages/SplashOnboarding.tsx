@@ -420,22 +420,42 @@ export default function SplashOnboarding() {
     // Sign in path — no OTP required for existing users.
     // Role selection is NOT required for sign-in — the DB has the real role.
     setError("");
-    if (!email.trim() || !password.trim()) { setError("Please enter your email and password."); return; }
+    if (!email.trim() && !password.trim()) { setError("Enter your email and password to sign in."); return; }
+    if (!email.trim())    { setError("Enter the email you signed up with."); return; }
+    if (!password.trim()) { setError("Enter your password."); return; }
     setBusy(true);
     try {
       const { user: signedInUser, error: err } = await signInWithEmail(email.trim(), password);
       if (err || !signedInUser) {
-        const friendly = err?.includes("Invalid login")
-          ? "Incorrect email or password. Please try again."
-          : err ?? "Login failed. Please check your connection and try again.";
+        // Map Supabase / backend error strings to actionable messages.
+        // Generic "Login failed" doesn't help the user fix it — they need
+        // to know specifically what's wrong AND what to do about it
+        // (verify email, reset password, sign up).
+        const raw = (err ?? "").toLowerCase();
+        let friendly = "Couldn't sign you in. Please try again or contact support@bionhealth.co.za.";
+        if (/invalid login|invalid credentials|incorrect|wrong password/.test(raw)) {
+          friendly = "Email or password is incorrect. Double-check, or tap 'Forgot password' below.";
+        } else if (/not confirmed|email not verified|email_not_confirmed|verify.*email/.test(raw)) {
+          friendly = "Your email isn't verified yet. Check your inbox for the verification link — or tap 'Resend' below.";
+        } else if (/user not found|no user|no account/.test(raw)) {
+          friendly = "We don't have an account with that email. Tap 'Sign Up' above to create one.";
+        } else if (/rate limit|too many|429/.test(raw)) {
+          friendly = "Too many attempts. Wait a minute and try again.";
+        } else if (/network|fetch|connection|timeout|offline/.test(raw)) {
+          friendly = "Connection problem. Check your internet and try again.";
+        } else if (err) {
+          // Last-resort: surface the raw message so the user can copy
+          // it into a support ticket instead of seeing a black box.
+          friendly = `Couldn't sign you in: ${err}`;
+        }
         setError(friendly);
         setBusy(false);
         return;
       }
       login(signedInUser);
       navigate(ROLE_HOME[signedInUser.role], { replace: true });
-    } catch {
-      setError("Something went wrong. Please try again.");
+    } catch (e: any) {
+      setError(`Something went wrong: ${e?.message ?? "unknown error"}. Please try again or email support@bionhealth.co.za.`);
     }
     setBusy(false);
   };

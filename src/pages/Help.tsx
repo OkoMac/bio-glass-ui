@@ -59,12 +59,30 @@ export default function Help() {
   const [priority, setPriority] = useState("normal");
   const [subject, setSubject]   = useState("");
   const [body, setBody]         = useState("");
+  // Track which required fields are missing so we can outline them in red
+  // and tell the user *which* one to fill in. Pre-fix the form just toasted
+  // "Email, subject and details are required" with no field highlighting,
+  // so users had to guess (Lee 2026-05-05: tried submitting twice before
+  // realising Subject was a separate required field above the textarea).
+  const [missing, setMissing] = useState<Set<"email" | "subject" | "body">>(new Set());
 
   const submitTicket = async () => {
-    if (!email.trim() || !subject.trim() || !body.trim()) {
-      toast.error("Email, subject and details are required");
+    const miss = new Set<"email" | "subject" | "body">();
+    if (!email.trim())   miss.add("email");
+    if (!subject.trim()) miss.add("subject");
+    if (!body.trim())    miss.add("body");
+    if (miss.size > 0) {
+      setMissing(miss);
+      const labels = {
+        email: "your email",
+        subject: "the subject (1-line summary)",
+        body: "the description",
+      } as const;
+      const which = Array.from(miss).map(k => labels[k]);
+      toast.error(`Please fill in ${which.join(" and ")}.`);
       return;
     }
+    setMissing(new Set());
     setSubmitting(true);
     try {
       // Pass the user's JWT if available so the ticket links to their profile
@@ -157,8 +175,9 @@ export default function Help() {
               <GlassCard className="p-5 space-y-3 border border-indigo/30">
                 <h2 className="text-sm font-semibold text-foreground">Raise a ticket</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Your email *"
-                    className="h-10 glass-1 rounded-xl px-3 text-sm text-foreground bg-transparent outline-none" />
+                  <input value={email} onChange={e => { setEmail(e.target.value); if (missing.has("email")) setMissing(prev => { const n = new Set(prev); n.delete("email"); return n; }); }} placeholder="Your email *"
+                    aria-invalid={missing.has("email")}
+                    className={`h-10 glass-1 rounded-xl px-3 text-sm text-foreground bg-transparent outline-none ${missing.has("email") ? "border border-coral ring-1 ring-coral/40" : ""}`} />
                   <input value={name} onChange={e => setName(e.target.value)} placeholder="Your name"
                     className="h-10 glass-1 rounded-xl px-3 text-sm text-foreground bg-transparent outline-none" />
                   <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Phone (optional)"
@@ -168,17 +187,19 @@ export default function Help() {
                     {["billing","booking","account","technical","provider","dispute","other"].map(c =>
                       <option key={c} value={c} className="bg-obsidian">{c}</option>)}
                   </select>
-                  <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Subject *"
-                    className="h-10 glass-1 rounded-xl px-3 text-sm text-foreground bg-transparent outline-none md:col-span-2" />
+                  <input value={subject} onChange={e => { setSubject(e.target.value); if (missing.has("subject")) setMissing(prev => { const n = new Set(prev); n.delete("subject"); return n; }); }} placeholder="Subject — one-line summary *"
+                    aria-invalid={missing.has("subject")}
+                    className={`h-10 glass-1 rounded-xl px-3 text-sm text-foreground bg-transparent outline-none md:col-span-2 ${missing.has("subject") ? "border border-coral ring-1 ring-coral/40" : ""}`} />
                   <select value={priority} onChange={e => setPriority(e.target.value)}
                     className="h-10 glass-1 rounded-xl px-3 text-sm text-foreground bg-transparent outline-none md:col-span-2">
                     {["low","normal","high","urgent"].map(p =>
                       <option key={p} value={p} className="bg-obsidian">{p} priority</option>)}
                   </select>
                 </div>
-                <textarea value={body} onChange={e => setBody(e.target.value)} placeholder="Describe the issue in detail… *"
+                <textarea value={body} onChange={e => { setBody(e.target.value); if (missing.has("body")) setMissing(prev => { const n = new Set(prev); n.delete("body"); return n; }); }} placeholder="Describe the issue in detail… *"
                   rows={5}
-                  className="w-full glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground bg-transparent outline-none" />
+                  aria-invalid={missing.has("body")}
+                  className={`w-full glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground bg-transparent outline-none ${missing.has("body") ? "border border-coral ring-1 ring-coral/40" : ""}`} />
                 <div className="flex gap-2">
                   <button onClick={() => setShowTicketForm(false)} disabled={submitting}
                     className="flex-1 rounded-pill py-2.5 text-xs font-medium glass-1 text-muted-foreground">
