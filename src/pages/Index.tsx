@@ -23,13 +23,11 @@ import { useHabitProfile } from "@/hooks/useHabits";
 import { useVerifiedProviders } from "@/hooks/useVerifiedProviders";
 import { useImageUpload } from "@/hooks/useUpload";
 import { toast } from "sonner";
-import { distanceToSuburb } from "@/lib/pretoriaSuburbs";
 import BiometricsDashboard from "@/components/BiometricsDashboard";
 import TodaySummaryCard from "@/components/TodaySummaryCard";
 import PendingRatingsBanner from "@/components/PendingRatingsBanner";
 import ExpenditureRewardsStrip from "@/components/ExpenditureRewardsStrip";
 import realData from "@/data/bion_pretoria_data.json";
-import { getSASTDateKey } from "@/utils/sastDate";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 import { getSastGreeting } from "@/lib/greeting";
 import CampaignBanner from "@/components/CampaignBanner";
@@ -218,9 +216,8 @@ const Index = () => {
     if (cat === "Nearby" || activeCategory === "Nearby") {
       if (geo.latitude && geo.longitude) {
         list = list
-          .map(p => ({ ...p, _dist: distanceToSuburb(geo.latitude!, geo.longitude!, p.distance) }))
-          .filter(p => p._dist !== null)
-          .sort((a, b) => (a._dist ?? 999) - (b._dist ?? 999));
+          .filter(p => p.distance != null)
+          .sort((a, b) => (a.distance ?? 999) - (b.distance ?? 999));
       }
     }
 
