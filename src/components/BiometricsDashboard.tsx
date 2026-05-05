@@ -408,18 +408,27 @@ export default function BiometricsDashboard({ compact = false }: { compact?: boo
         <div>
           <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">7-Day Trends</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {/*
+              `current` MUST come from real logs. Pre-fix this block had
+              hard-coded demo values (74.2 kg, 9200 steps, 7.4 h) so the
+              7-day-trend tile said 74.2 kg even when the user had logged
+              nothing — directly contradicting the Vitals tile two rows up
+              that correctly read 0 kg from the same data set. Now both
+              tiles read from `logs` so they can never disagree.
+            */}
             {[
-              { label: "Weight", data: weightTrend, color: "#6366F1", current: 74.2, unit: "kg" },
-              { label: "Steps",  data: stepTrend,   color: "#F59E0B", current: 9200, unit: "steps" },
-              { label: "Sleep",  data: sleepTrend,  color: "#8B5CF6", current: 7.4, unit: "h" },
+              { label: "Weight", data: weightTrend, color: "#6366F1", current: weightTrend.length ? weightTrend[weightTrend.length - 1] : null, unit: "kg" },
+              { label: "Steps",  data: stepTrend,   color: "#F59E0B", current: stepTrend.length   ? stepTrend[stepTrend.length - 1]     : null, unit: "steps" },
+              { label: "Sleep",  data: sleepTrend,  color: "#8B5CF6", current: sleepTrend.length  ? sleepTrend[sleepTrend.length - 1]   : null, unit: "h" },
             ].map(chart => (
               <div key={chart.label}
                 className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4"
                 style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
                 <div className="flex items-baseline justify-between mb-2">
                   <span className="text-[10px] text-muted-foreground uppercase tracking-widest">{chart.label}</span>
-                  <span className="text-lg font-bold font-data" style={{ color: chart.color }}>
-                    {chart.current.toLocaleString()}<span className="text-xs text-muted-foreground ml-1">{chart.unit}</span>
+                  <span className="text-lg font-bold font-data" style={{ color: chart.current == null ? "#6B7280" : chart.color }}>
+                    {chart.current == null ? "—" : chart.current.toLocaleString()}
+                    <span className="text-xs text-muted-foreground ml-1">{chart.unit}</span>
                   </span>
                 </div>
                 <div className="h-12">
