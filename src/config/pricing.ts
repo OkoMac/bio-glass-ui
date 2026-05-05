@@ -48,13 +48,21 @@ export const WALLET = {
   topUpMinRand:    50,
 } as const;
 
+// Rangers earn from PROVIDER acquisition only. Client referrals are a
+// separate peer-to-peer programme (CLIENT_REFERRAL below) — every BION
+// client gets a unique referral code and earns R5.80/mo per Premium
+// referee, regardless of whether they're a Ranger.
 export const RANGER = {
   bookingPercent: 0.02,
   subscriptionPercent: 0.20,
-  premiumClientPerpetualRand: 5.80,
   payoutDayOfMonth: 3,
   withdrawalMinRand: 200,
   withdrawalFeeRate: 0.10,
+} as const;
+
+export const CLIENT_REFERRAL = {
+  premiumPerpetualRand: 5.80,
+  payoutDayOfMonth: 3,
 } as const;
 
 export const REWARDS = {
