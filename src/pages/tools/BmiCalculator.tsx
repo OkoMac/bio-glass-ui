@@ -143,7 +143,7 @@ export default function BmiCalculator() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Free BMI Calculator</h1>
             <p className="text-xs text-muted-foreground">
-              Check your Body Mass Index — metric (kg/cm), no sign-up required
+              Check your Body Mass Index — metric (kg/cm). Sign up free to save trends.
             </p>
           </div>
         </div>

@@ -50,6 +50,18 @@ const onboardingSteps: OnboardingStep[] = [
       { icon: "📊", label: "Free health tools", desc: "BMI, calories, sleep, more" },
     ],
   },
+  {
+    type: "default",
+    headline: "Free wellness tools.\nPowered by BION.",
+    sub: "BMI calculator. Calorie tracker. Sleep & water logs. Sign up to start tracking — it's free.",
+    emoji: "🧰",
+    flow: [
+      { icon: "📐", label: "BMI Calculator", desc: "check your body mass index instantly" },
+      { icon: "🍎", label: "Calorie Tracker", desc: "log meals with AI photo recognition" },
+      { icon: "💧", label: "Water Intake", desc: "stay hydrated, build streaks" },
+      { icon: "🌙", label: "Sleep Quality", desc: "monitor patterns & improve rest" },
+    ],
+  },
 ];
 
 type Phase = "splash" | "onboarding" | "role" | "auth" | "terms" | "email-sent" | "forgot-password" | "forgot-password-sent";
@@ -595,6 +607,29 @@ export default function SplashOnboarding() {
               );
             })}
           </div>
+
+          {/* Tools preview — showcase what's behind the signup */}
+
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium mb-3">
+              Free tools included with your account
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { label: "BMI Calculator", desc: "Check your body mass index", color: "from-indigo-500/20 to-violet-500/10", icon: "📐" },
+                { label: "Calorie Tracker", desc: "Log meals with AI photos", color: "from-emerald-500/20 to-teal-500/10", icon: "🍎" },
+                { label: "Water Intake", desc: "Track hydration & streaks", color: "from-blue-500/20 to-cyan-500/10", icon: "💧" },
+                { label: "Sleep Quality", desc: "Monitor sleep patterns", color: "from-purple-500/20 to-pink-500/10", icon: "🌙" },
+              ].map((tool) => (
+                <div key={tool.label} className={`rounded-xl p-3 text-center bg-gradient-to-br ${tool.color} border border-white/5`}>
+                  <span className="text-xl block mb-1">{tool.icon}</span>
+                  <p className="text-xs font-semibold text-foreground">{tool.label}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight">{tool.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <motion.button whileTap={{ scale: 0.97 }} disabled={!selectedRole}
             onClick={() => { if (selectedRole) { trackOnboarding(`role_selected_${selectedRole}`); setPhase("auth"); } }}
             className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta disabled:opacity-40">
@@ -1018,6 +1053,25 @@ export default function SplashOnboarding() {
           </svg>
           Continue with Google
         </motion.button>
+
+        {/* WhatsApp onboarding — alternative to email signup */}
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-px bg-white/8" />
+          <span className="text-[11px] text-muted-foreground">or onboard via WhatsApp</span>
+          <div className="flex-1 h-px bg-white/8" />
+        </div>
+        <a
+          href="https://wa.me/27647432005?text=Hi%20B_%2C%20I%20want%20to%20join%20BION"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full rounded-pill py-3 text-sm font-medium glass-1 border border-emerald-400/30 text-foreground flex items-center justify-center gap-2.5 hover:border-emerald-400/60 transition-colors"
+        >
+          {/* WhatsApp icon inline */}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="currentColor"/>
+          </svg>
+          Onboard via WhatsApp
+        </a>
 
         {/* Demo shortcuts */}
         <div className="pt-1">

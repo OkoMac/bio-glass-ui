@@ -25,7 +25,31 @@ export default function ToolsIndex() {
   usePageView();
 
   useEffect(() => {
-    document.title = "Free Health & Wellness Tools | BION";
+    document.title = "Free Health & Wellness Tools — BMI, Calorie & Water Tracker | BION";
+  }, []);
+
+  // SEO schema markup
+  useEffect(() => {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Free Health & Wellness Tools",
+      description:
+        "Free online health tools: BMI calculator, calorie tracker with AI food photo recognition, water intake tracker, sleep quality monitor, digital medical card, and AI wellness coach. South Africa's free wellness tracking platform.",
+      url: "https://bionhealth.co.za/tools",
+      provider: {
+        "@type": "Organization",
+        name: "BION Health",
+        url: "https://bionhealth.co.za",
+      },
+    };
+    const s = document.createElement("script");
+    s.type = "application/ld+json";
+    s.text = JSON.stringify(schema);
+    document.head.appendChild(s);
+    return () => {
+      document.head.removeChild(s);
+    };
   }, []);
 
   return (
@@ -37,7 +61,7 @@ export default function ToolsIndex() {
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold text-foreground">Free Health & Wellness Tools</h1>
-          <p className="text-sm text-muted-foreground mt-1">No sign-up required. Use any tool instantly.</p>
+          <p className="text-sm text-muted-foreground mt-1">BMI calculator, calorie tracker, water intake, sleep monitor & more. Sign up free to track your progress.</p>
         </div>
 
         {/* Tool grid */}
