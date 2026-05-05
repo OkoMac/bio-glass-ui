@@ -294,6 +294,11 @@ export default function SplashOnboarding() {
     setError("");
     if (!selectedRole) { setError("Please go back and select how you'll use BION."); return; }
     if (!name.trim())     { setError("Please enter your full name."); return; }
+    // Reject email-prefix names that make users look like "omacanda"
+    if (/^[a-z0-9._-]+\d{2,}$/i.test(name.trim()) || name.trim().includes("@")) {
+      setError("Please enter your real full name (e.g. 'Oko Macanda'), not your email address.");
+      return;
+    }
     if (!email.trim())    { setError("Please enter your email."); return; }
     if (!password.trim() || password.length < 8) { setError("Password must be at least 8 characters."); return; }
     if (!phone.trim())    { setError("Please enter your mobile number — we'll send a verification code."); return; }

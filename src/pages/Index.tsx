@@ -352,6 +352,18 @@ const Index = () => {
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">{user?.name ?? "Welcome"}</h1>
           <p className="text-xs text-muted-foreground mt-1">Commit to yourself. You've got this.</p>
 
+          {/* Name prompt for Google OAuth users who landed with a fallback name */}
+          {user?.name === "BION User" && (
+            <div className="mt-3 p-3 rounded-xl border border-amber-400/20 bg-amber-400/5">
+              <p className="text-[11px] text-amber leading-relaxed">
+                Your display name isn't set yet.{" "}
+                <button onClick={() => navigate("/profile")} className="underline font-medium">
+                  Set your name
+                </button>
+              </p>
+            </div>
+          )}
+
           <div className="flex items-center gap-4 mt-4">
             <div className="flex items-center gap-1.5 text-xs">
               <Flame className="w-3.5 h-3.5 text-amber" style={{ filter: "drop-shadow(0 0 4px #F59E0B)" }} />

@@ -12,7 +12,7 @@ import {
   Shield, Star, Award, Flame, Gift, Lock,
   LogOut, CreditCard, Bell, Eye, Activity, Trophy, Settings,
   Copy, Share2, CheckCircle, MessageCircle, Camera,
-  Mail, Phone, MapPin, Cake, Plus, Edit3, X, Save,
+  Mail, Phone, MapPin, Cake, Plus, Edit3, X, Save, User,
   Droplets, Moon, HeartPulse, Brain, Utensils, CalendarDays,
   BarChart3, Dumbbell, FileText, Wallet, LifeBuoy, ArrowLeft, Pill,
 } from "lucide-react";
@@ -154,6 +154,7 @@ const Profile = () => {
       if (stored) return JSON.parse(stored);
     } catch { /* ignore */ }
     return {
+      name: user?.name ?? "",
       bio: "",
       email: user?.email ?? "",
       phone: "",
@@ -219,11 +220,12 @@ const Profile = () => {
 
   const handleSaveProfile = () => {
     // Hot-cache to localStorage (instant for next mount), then persist
-    // bio/phone/location to profiles via AuthContext. The 'age' field
+    // name/bio/phone/location to profiles via AuthContext. The 'age' field
     // stays local-only for now — it should live on health_profiles.
     // date_of_birth (DOB) — handled by HealthProfile page already.
     saveProfileData(editForm);
     updateProfileFields({
+      name: editForm.name,
       bio: editForm.bio,
       phone: editForm.phone,
       location: editForm.location,
@@ -695,6 +697,18 @@ const Profile = () => {
               </div>
 
               <div className="space-y-4 max-w-md mx-auto">
+                <div>
+                  <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                    <User className="w-3 h-3" /> Display Name
+                  </label>
+                  <input
+                    value={editForm.name}
+                    onChange={e => setEditForm({ ...editForm, name: e.target.value })}
+                    placeholder="Your full name"
+                    className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-teal/40 transition-colors"
+                  />
+                </div>
+
                 <div>
                   <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1 block">Bio</label>
                   <textarea
