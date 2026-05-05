@@ -33,6 +33,7 @@ import { getSASTDateKey } from "@/utils/sastDate";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 import { getSastGreeting } from "@/lib/greeting";
 import CampaignBanner from "@/components/CampaignBanner";
+import InstallButton from "@/components/InstallButton";
 import { supabase } from "@/integrations/supabase/client";
 
 const categories = ["All", "Fitness", "Medical", "Beauty", "Professional", "Free Sessions", "Available Now"];
@@ -543,6 +544,9 @@ const Index = () => {
             ))}
           </div>
         </section>
+
+        {/* Install BION as an app */}
+        <InstallButton variant="card" />
       </div>
 
       <BottomNav />

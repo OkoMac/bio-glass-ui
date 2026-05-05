@@ -155,7 +155,7 @@ import StripePaymentPage, { PaymentSuccess } from "./pages/StripePayment";
 import NotFound        from "./pages/NotFound";
 import NotificationBell from "./components/NotificationBell";
 import HabitTracker     from "./components/HabitTracker";
-import InstallButton    from "./components/InstallButton";
+// InstallButton removed — moved into BionAssistant quick actions and Index.tsx dashboard card
 import CalendarButton   from "./components/CalendarButton";
 import OfflineBanner    from "./components/OfflineBanner";
 import CookieConsent    from "./components/CookieConsent";
@@ -731,7 +731,7 @@ const App = () => (
                 <BookingReminderRunner />
                 <HabitTracker />
               </AuthGate>
-              <InstallButton />
+              {/* InstallButton moved into BionAssistant quick actions and Index.tsx dashboard card */}
               {/* POPIA / GDPR cookie-consent banner. Renders only until the
                   user has made a first-time decision, then re-openable from
                   Settings → Privacy. Must load before any analytics / ad pixel. */}

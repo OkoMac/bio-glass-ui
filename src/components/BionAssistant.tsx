@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Sparkles, Flame, Target, Calendar, TrendingUp, Brain,
   Apple, Dumbbell, Heart, Pill, Clock, ChevronRight, Bell, UserCheck, Mail, ExternalLink,
-  LifeBuoy } from "lucide-react";
+  LifeBuoy, Download } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { getReminderSummary, getActiveReminders, requestNotificationPermission, fireReminderNotifications } from "@/lib/reminders";
@@ -11,6 +11,7 @@ import { useHabitProfile } from "@/hooks/useHabits";
 import { trackEvent } from "@/lib/habits";
 import { supabase } from "@/integrations/supabase/client";
 import { localDateKey } from "@/lib/relativeTime";
+import { useInstallApp, InstallModal } from "./InstallButton";
 
 interface Message {
   id: string;
@@ -45,6 +46,7 @@ const CLIENT_QUICK: { label: string; icon: typeof Target; prompt: string }[] = [
   { label: "Medication",       icon: Pill,     prompt: "What medication do I need to take today?" },
   { label: "This week",        icon: Calendar, prompt: "Show me my calendar for this week" },
   { label: "Reminders",        icon: Bell,     prompt: "What do I need to do today?" },
+  { label: "Install app",      icon: Download, prompt: "__INSTALL_APP__" },
   { label: "I need help",      icon: LifeBuoy, prompt: "__OPEN_SUPPORT_TICKET__" },
 ];
 
@@ -54,6 +56,7 @@ const PROVIDER_QUICK: { label: string; icon: typeof Target; prompt: string }[] =
   { label: "Revenue tips",     icon: TrendingUp, prompt: "How can I increase my revenue?" },
   { label: "Client insights",  icon: Brain,     prompt: "Give me insights on my top clients" },
   { label: "My bookings",      icon: Clock,     prompt: "Show me my pending bookings" },
+  { label: "Install app",      icon: Download,  prompt: "__INSTALL_APP__" },
 ];
 
 /* ── Read real user data from localStorage ──────────── */
@@ -209,6 +212,7 @@ export default function BionAssistant() {
   const [humanChannel, setHumanChannel] = useState("support");
   const [submittingTicket, setSubmittingTicket] = useState(false);
   const reminderCount = role === "client" ? getActiveReminders().length : 0;
+  const { installApp, showInstructions, setShowInstructions, device, dismissed, handleDismiss } = useInstallApp();
 
   // Request notification permission on first render + fire pending reminders
   useEffect(() => {
@@ -276,6 +280,12 @@ export default function BionAssistant() {
       const lastUserMsg = [...messages].reverse().find(m => m.role === "user")?.text ?? "";
       setHumanReason(lastUserMsg);
       setShowHumanModal(true);
+      return;
+    }
+
+    // Magic token from the "Install app" quick action → trigger install flow
+    if (text.trim() === "__INSTALL_APP__") {
+      installApp();
       return;
     }
 
@@ -860,6 +870,15 @@ export default function BionAssistant() {
           </>
         )}
       </AnimatePresence>
+
+      {/* Install modal — triggered from quick action */}
+      <InstallModal
+        show={showInstructions}
+        onClose={() => setShowInstructions(false)}
+        device={device}
+        deferredPrompt={null}
+        onDismiss={handleDismiss}
+      />
     </>
   );
 }
