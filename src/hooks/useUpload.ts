@@ -48,8 +48,10 @@ export function useImageUpload(opts: UploadOptions = {}) {
           if (pErr) throw new Error(`Couldn't load your profile (${pErr.message}). Email support@bionhealth.co.za with this message.`);
           if (!profileRow) {
             // Auth user exists but no profile row — the auto-create at
-            // signup must have failed. Try once more to create it now.
-            const { data: created, error: cErr } = await supabase
+            // signup must have failed. Try once via the anon client; if
+            // RLS/NOT-NULL blocks it, fall through to the backend repair
+            // endpoint which uses the service-role admin client.
+            const anonAttempt = await supabase
               .from("profiles")
               .upsert(
                 { user_id: authUser.id, email: authUser.email },
@@ -57,10 +59,26 @@ export function useImageUpload(opts: UploadOptions = {}) {
               )
               .select("id")
               .single();
-            if (cErr || !created?.id) {
-              throw new Error("Your profile is missing. Tap the avatar in 'Set your name' to create it, or email support@bionhealth.co.za.");
+            if (!anonAttempt.error && anonAttempt.data?.id) {
+              profileId = anonAttempt.data.id as string;
+            } else {
+              // Backend repair — admin client bypasses RLS, supplies
+              // sensible defaults for any NOT NULL columns. Idempotent.
+              const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "https://bion-backend.onrender.com";
+              const { data: { session } } = await supabase.auth.getSession();
+              if (!session?.access_token) {
+                throw new Error("Sign-in expired. Please sign in again.");
+              }
+              const repairRes = await fetch(`${API_URL}/api/profiles/me/repair`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+              });
+              const repairJson = await repairRes.json().catch(() => ({}));
+              if (!repairRes.ok || !repairJson?.ok || !repairJson?.profileId) {
+                throw new Error(`Couldn't restore your profile (${repairJson?.error ?? `HTTP ${repairRes.status}`}). Email support@bionhealth.co.za.`);
+              }
+              profileId = repairJson.profileId as string;
             }
-            profileId = created.id as string;
           } else {
             profileId = (profileRow as { id: string }).id;
           }
