@@ -5,12 +5,14 @@ import {
   getStoredUser, storeUser, removeUser,
   fetchUserProfile, signOutSupabase,
 } from "@/lib/auth";
+import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
 interface AuthContextType {
   user: BioUser | null;
   loading: boolean;
+  authLoading: boolean;
   login: (user: BioUser) => void;           // demo / direct set
   logout: () => void;
   switchRole: (role: UserRole) => void | Promise<void>;  // switches active role via backend
@@ -27,6 +29,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  // authLoading is separate from loading (which tracks initial session resolve
+  // for route guards). authLoading stays true until the FIRST call to
+  // supabase.auth.getSession() finishes — during this window the spinner
+  // prevents a flash of the welcome screen or unauthenticated shell.
+  const [authLoading, setAuthLoading] = useState(true);
   // Synchronously read stored user, but discard a demo-mode user when the
   // Supabase SDK already has a session cached in localStorage (indicating a
   // real sign-in). This prevents the "stale demo flash" where demo role
@@ -57,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let resolved = false;
 
     const finish = () => {
-      if (mounted && !resolved) { resolved = true; setLoading(false); }
+      if (mounted && !resolved) { resolved = true; setLoading(false); setAuthLoading(false); }
     };
 
     // A real Supabase session always beats a stale demo user stored from a
@@ -352,10 +359,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
+  // ── Inactivity auto-logout (10 min) ──────────────
+  useInactivityLogout();
+
   return (
-    <AuthContext.Provider value={{
+    <>
+      {/* Full-screen spinner during initial auth loading — prevents flash
+          of welcome screen or unauthenticated shell before Supabase session
+          resolves. Once authLoading is false, the route guards take over. */}
+      {authLoading && (
+        <div className="min-h-screen bg-obsidian flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-2 border-violet/30 border-t-violet rounded-full animate-spin" />
+            <p className="text-xs text-muted-foreground">Loading...</p>
+          </div>
+        </div>
+      )}
+      <AuthContext.Provider value={{
       user,
       loading,
+      authLoading,
       login,
       logout,
       switchRole,
@@ -370,6 +393,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }}>
       {children}
     </AuthContext.Provider>
+    </>
   );
 }
 

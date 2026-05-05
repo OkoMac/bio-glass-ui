@@ -116,7 +116,7 @@ function MetricCard({ metric }: { metric: Biometric }) {
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
-      className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 backdrop-blur-sm"
+      className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 backdrop-blur-sm min-h-[180px] flex flex-col"
       style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}
     >
       <div className="flex items-start justify-between mb-3">
@@ -165,6 +165,8 @@ function MetricCard({ metric }: { metric: Biometric }) {
           }`}>{metric.trend.value}</span>
         </div>
       )}
+      {/* Spacer pushes the trend line to the bottom for consistent card height */}
+      <div className="flex-1" />
     </motion.div>
   );
 }
