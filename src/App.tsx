@@ -160,6 +160,7 @@ import CalendarButton   from "./components/CalendarButton";
 import OfflineBanner    from "./components/OfflineBanner";
 import CookieConsent    from "./components/CookieConsent";
 import TermsGate        from "./components/TermsGate";
+import ProfileCompletionGate from "./components/ProfileCompletionGate";
 
 // ── Lazy-loaded pages (split into separate chunks) ──
 import { lazy, Suspense } from "react";
@@ -737,18 +738,20 @@ const App = () => (
                   Settings → Privacy. Must load before any analytics / ad pixel. */}
               <CookieConsent />
               <TermsGate>
-                <Suspense fallback={
-                  <div className="min-h-screen bg-obsidian flex items-center justify-center">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-10 h-10 border-2 border-violet/30 border-t-violet rounded-full animate-spin" />
-                      <p className="text-xs text-muted-foreground">Loading...</p>
+                <ProfileCompletionGate>
+                  <Suspense fallback={
+                    <div className="min-h-screen bg-obsidian flex items-center justify-center">
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-10 h-10 border-2 border-violet/30 border-t-violet rounded-full animate-spin" />
+                        <p className="text-xs text-muted-foreground">Loading...</p>
+                      </div>
                     </div>
-                  </div>
-                }>
-                  <AppRoutes />
-                  {/* Layer 3 — deeper dive on second login. Renders as overlay. */}
-                  <Suspense fallback={null}><DeeperDiveGate /></Suspense>
-                </Suspense>
+                  }>
+                    <AppRoutes />
+                    {/* Layer 3 — deeper dive on second login. Renders as overlay. */}
+                    <Suspense fallback={null}><DeeperDiveGate /></Suspense>
+                  </Suspense>
+                </ProfileCompletionGate>
               </TermsGate>
             </BrowserRouter>
           </TooltipProvider>
