@@ -1,5 +1,5 @@
 {
-  "installCommand": "npm install --legacy-peer-deps --include=dev",
+  "installCommand": "PUPPETEER_SKIP_DOWNLOAD=0 npm install --legacy-peer-deps --include=dev",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
