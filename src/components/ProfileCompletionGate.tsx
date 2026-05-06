@@ -67,7 +67,7 @@ const SKIP_PATHS = [
  * gate stops firing for them.
  */
 export default function ProfileCompletionGate({ children }: Props) {
-  const { user } = useAuth();
+  const { user, updateProfileFields } = useAuth();
   const location = useLocation();
 
   const [checked, setChecked]   = useState(false);
@@ -215,6 +215,12 @@ export default function ProfileCompletionGate({ children }: Props) {
       });
       const json = await res.json();
       if (res.ok && json.ok) {
+        // Sync the AuthContext cached user.name immediately. Without
+        // this, the header / settings / dashboard kept showing the
+        // old (or empty) name until the next visibility-change refetch
+        // — which made the user think the save didn't take.
+        const fullName = `${fn} ${ln}`.trim();
+        try { await updateProfileFields({ name: fullName }); } catch { /* */ }
         setData({ complete: true, missing: [], gracesRemaining: 0, hardBlocked: false });
         setOpen(false);
       } else {
