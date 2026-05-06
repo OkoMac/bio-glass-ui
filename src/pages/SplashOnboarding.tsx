@@ -252,7 +252,12 @@ export default function SplashOnboarding() {
   const [otpStep, setOtpStep] = useState<"idle" | "sent" | "verified">("idle");
   const [otpChannel, setOtpChannel] = useState<"whatsapp" | "email">("whatsapp");
   const [otpCode, setOtpCode] = useState("");
-  const [ageVerified, setAgeVerified] = useState(false);
+  // 2026-05-06 KYC at signup — DOB + country are required so new users
+  // never hit the ProfileCompletionGate. Existing users still flow
+  // through the gate (which captures the same fields post-hoc).
+  // ageVerified is now derived from a valid 18+ DOB rather than a checkbox.
+  const [dob, setDob] = useState("");
+  const [country, setCountry] = useState("ZA");
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotBusy, setForgotBusy] = useState(false);
   const [forgotError, setForgotError] = useState("");
@@ -299,7 +304,18 @@ export default function SplashOnboarding() {
     if (!email.trim())    { setError("Please enter your email."); return; }
     if (!password.trim() || password.length < 8) { setError("Password must be at least 8 characters."); return; }
     if (!phone.trim())    { setError("Please enter your mobile number — we'll send a verification code."); return; }
-    if (!ageVerified)     { setError("Please confirm you are 18 years or older to continue."); return; }
+    // KYC at signup — DOB + country are required (2026-05-06).
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dob)) { setError("Please enter your date of birth."); return; }
+    {
+      const dobDate = new Date(dob + "T00:00:00Z");
+      const cutoff = new Date();
+      cutoff.setUTCFullYear(cutoff.getUTCFullYear() - 18);
+      if (Number.isNaN(dobDate.getTime()) || dobDate.getTime() > cutoff.getTime()) {
+        setError("You must be at least 18 years old to use BION.");
+        return;
+      }
+    }
+    if (!/^[A-Z]{2}$/.test(country)) { setError("Please pick your country."); return; }
     const normPhone = normalizePhone(phone.trim());
     if (!/^\+27[0-9]{9}$/.test(normPhone)) { setError("Enter a valid SA mobile number (e.g. 072 688 4826)."); return; }
 
@@ -351,15 +367,26 @@ export default function SplashOnboarding() {
       if (!v.ok) { setError(v.error ?? "Invalid code."); setBusy(false); return; }
 
       // OTP verified — NOW create the Supabase account (email pre-confirmed via backend)
-      const { user, error: err } = await signUpWithEmail(email.trim(), password, `${firstName.trim()} ${lastName.trim()}`.trim(), selectedRole, phone.trim(), ageVerified);
+      const { user, error: err } = await signUpWithEmail(
+        email.trim(), password,
+        `${firstName.trim()} ${lastName.trim()}`.trim(),
+        selectedRole, phone.trim(), true,  // ageVerified=true — confirmed via DOB cutoff above
+        dob, country,
+      );
       if (err || !user) { setError(err ?? "Signup failed"); setBusy(false); return; }
 
-      // Attach the verified phone to the profile
+      // Attach the verified phone + DOB + country to the profile.
+      // Server-side signup also writes DOB/country, but we run a defensive
+      // update here in case the user later changes them in Settings.
       try {
         await supabase.from("profiles").update({
           phone: normPhone,
           phone_verified: true,
           phone_verified_at: new Date().toISOString(),
+          date_of_birth: dob,
+          country,
+          age_verified: true,
+          profile_completed_at: new Date().toISOString(),
         }).eq("user_id", user.id);
       } catch {/* non-fatal */}
 
@@ -944,17 +971,50 @@ export default function SplashOnboarding() {
               <p className="text-[10px] text-muted-foreground px-1 leading-relaxed">
                 We'll send a 6-digit verification code via WhatsApp. Used for account recovery and booking confirmations.
               </p>
-              <label className="flex items-start gap-2.5 cursor-pointer px-1">
-                <input
-                  type="checkbox"
-                  checked={ageVerified}
-                  onChange={(e) => setAgeVerified(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 rounded accent-indigo"
-                />
-                <span className="text-[11px] text-muted-foreground leading-relaxed">
-                  I confirm I am <strong className="text-foreground">18 years or older</strong>. Users under 18 require parental consent.
-                </span>
-              </label>
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <label className="block text-[10px] text-muted-foreground px-1 mb-1">Date of birth</label>
+                  <input
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                    type="date"
+                    max={new Date().toISOString().split("T")[0]}
+                    className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-[10px] text-muted-foreground px-1 mb-1">Country</label>
+                  <select
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground outline-none border border-white/5"
+                  >
+                    <option value="ZA">South Africa</option>
+                    <option value="ZW">Zimbabwe</option>
+                    <option value="BW">Botswana</option>
+                    <option value="NA">Namibia</option>
+                    <option value="MZ">Mozambique</option>
+                    <option value="LS">Lesotho</option>
+                    <option value="SZ">Eswatini</option>
+                    <option value="KE">Kenya</option>
+                    <option value="NG">Nigeria</option>
+                    <option value="GH">Ghana</option>
+                    <option value="EG">Egypt</option>
+                    <option value="MA">Morocco</option>
+                    <option value="TZ">Tanzania</option>
+                    <option value="UG">Uganda</option>
+                    <option value="RW">Rwanda</option>
+                    <option value="ET">Ethiopia</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="US">United States</option>
+                    <option value="AU">Australia</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground/80 px-1 leading-relaxed">
+                You must be at least 18 years old. POPIA &amp; FICA require this for payouts and identity.
+              </p>
               {selectedRole === "client" && (
                 <div>
                   <input value={referralCode} onChange={e => setReferralCode(e.target.value.toUpperCase())}
@@ -1045,7 +1105,7 @@ export default function SplashOnboarding() {
           </label>
         )}
 
-        <motion.button whileTap={{ scale: 0.97 }} onClick={handleAuth} disabled={busy || (authMode === "signup" && (!acceptedTerms || !ageVerified || !firstName.trim() || firstName.trim().length < 2 || !lastName.trim() || lastName.trim().length < 2 || !email.trim() || password.length < 8 || !phone.trim())) || (authMode === "login" && (!email.trim() || !password.trim()))}
+        <motion.button whileTap={{ scale: 0.97 }} onClick={handleAuth} disabled={busy || (authMode === "signup" && (!acceptedTerms || !firstName.trim() || firstName.trim().length < 2 || !lastName.trim() || lastName.trim().length < 2 || !email.trim() || password.length < 8 || !phone.trim() || !/^\d{4}-\d{2}-\d{2}$/.test(dob) || !/^[A-Z]{2}$/.test(country))) || (authMode === "login" && (!email.trim() || !password.trim()))}
           className="w-full rounded-pill py-4 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta flex items-center justify-center gap-2 disabled:opacity-60">
           {busy
             ? <><Loader2 className="w-4 h-4 animate-spin" /> {

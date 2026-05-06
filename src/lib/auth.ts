@@ -222,15 +222,31 @@ export async function signUpWithEmail(
   role: UserRole,
   phone?: string,
   ageVerified?: boolean,
+  dateOfBirth?: string,        // ISO yyyy-mm-dd; required for KYC since 2026-05-06
+  country?: string,            // ISO-3166-1 alpha-2; required since 2026-05-06
 ): Promise<{ user: BioUser | null; error: string | null }> {
   const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+
+  // Split fullName so we can send firstName / lastName to the backend.
+  // Server-side schema applies nameRegex to each piece; passing a single
+  // "fullName" used to bypass that check on signup.
+  const [firstName, ...restName] = name.trim().split(/\s+/);
+  const lastName = restName.join(" ");
 
   // Create user via backend (email pre-confirmed, no confirmation email needed)
   try {
     const res = await fetch(`${API}/api/profiles/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, fullName: name, role, phone, ageVerified: ageVerified ?? true }),
+      body: JSON.stringify({
+        email, password,
+        firstName, lastName,
+        fullName: name,                // legacy field — backend ignores if firstName/lastName present
+        role, phone,
+        ageVerified: ageVerified ?? true,
+        dateOfBirth,
+        country,
+      }),
     });
     const j = await res.json();
     if (!j.ok) return { user: null, error: j.error ?? "Signup failed" };
