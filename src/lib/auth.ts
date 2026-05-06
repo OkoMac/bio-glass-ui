@@ -62,11 +62,33 @@ export function removeUser(): void {
 /** Fetch profile + role from DB and return a BioUser */
 export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser | null> {
   try {
-    const [{ data: profile }, { data: roleRows }, { data: authData }] = await Promise.all([
+    let [{ data: profile }, { data: roleRows }, { data: authData }] = await Promise.all([
       supabase.from("profiles").select("id, full_name, email, avatar_url, cover_image_url, bio, phone, location, bion_id" as any).eq("user_id", supabaseUserId).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", supabaseUserId),
       supabase.auth.getUser(),
     ]);
+
+    // Backend fallback — when the anon-client read returns no profile or
+    // a profile with an empty name, the most likely cause is RLS hiding
+    // it (or a previous-session full_name that never propagated). Hit
+    // the service-role-backed /api/profiles/me endpoint to get the
+    // authoritative row. Reported 2026-05-06 by Oko: gate save persisted
+    // server-side but the home banner kept saying "display name isn't set".
+    const needsFallback = !profile || !((profile as any)?.full_name);
+    if (needsFallback) {
+      try {
+        const session = (await supabase.auth.getSession()).data.session;
+        const tok = session?.access_token;
+        if (tok) {
+          const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+          const r = await fetch(`${API}/api/profiles/me`, { headers: { Authorization: `Bearer ${tok}` } });
+          const j = await r.json();
+          if (j.ok && j.data) {
+            profile = j.data;
+          }
+        }
+      } catch { /* network blip — fall through with whatever we had */ }
+    }
     // Get the first role from the roles table (admin > provider > client priority)
     const rolePriority = ["admin", "provider", "corporate", "sales_rep", "client"];
     const dbRoles = (roleRows ?? []).map((r: any) => r.role as string);
