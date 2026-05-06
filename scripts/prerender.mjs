@@ -12,18 +12,11 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import path from "node:path";
 import { createServer } from "node:http";
 
-// Use chrome-aws-lambda on Vercel (serverless), local puppeteer otherwise
+// Use local puppeteer for prerendering on dev machines.
+// On Vercel (CI), prerendering is skipped — prerendered files are committed.
 let launchOptions;
-if (process.env.VERCEL) {
-  // On Vercel, puppeteer downloads Chrome into /vercel/.cache/puppeteer
-  // during npm install. Use it directly.
-  const puppeteer = await import("puppeteer");
-  launchOptions = {
-    puppeteer,
-    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
-    headless: true,
-  };
-} else {
+const SHOULD_PRERENDER = !process.env.VERCEL;
+if (SHOULD_PRERENDER) {
   const puppeteer = await import("puppeteer");
   launchOptions = {
     puppeteer,
@@ -33,6 +26,7 @@ if (process.env.VERCEL) {
 }
 
 const DIST = path.resolve("dist");
+const PUBLIC = path.resolve("public");
 const PORT = 4173;
 
 const ROUTES = [
@@ -112,10 +106,15 @@ async function prerender() {
       const filePath = route === "/"
         ? path.join(DIST, "index.html")
         : path.join(DIST, route.slice(1), "index.html");
+      const publicPath = route === "/"
+        ? path.join(PUBLIC, "index.html")
+        : path.join(PUBLIC, route.slice(1), "index.html");
 
-      const dir = path.dirname(filePath);
-      if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-      writeFileSync(filePath, html, "utf8");
+      for (const p of [filePath, publicPath]) {
+        const dir = path.dirname(p);
+        if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+        writeFileSync(p, html, "utf8");
+      }
 
       const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
       const bodyLen = bodyMatch ? bodyMatch[1].length : 0;
@@ -131,7 +130,11 @@ async function prerender() {
   console.log("[prerender] done — 16 routes");
 }
 
-prerender().catch((err) => {
-  console.error("[prerender] fatal:", err);
-  process.exit(1);
-});
+if (SHOULD_PRERENDER) {
+  prerender().catch((err) => {
+    console.error("[prerender] fatal:", err);
+    process.exit(1);
+  });
+} else {
+  console.log("[prerender] skipped (Vercel — prerendered files in public/)");
+}
