@@ -35,6 +35,12 @@ const ROUTES = [
 ];
 
 async function prerender() {
+  // Skip on Vercel / CI — Puppeteer needs system libs not available there.
+  // Run locally before deploying.
+  if (process.env.VERCEL || process.env.CI) {
+    console.log("[prerender] skipping (Vercel/CI — no Chrome runtime)");
+    return;
+  }
   // Read the SPA shell once — serve it for every route
   const shell = readFileSync(path.join(DIST, "index.html"), "utf8");
 
