@@ -29,24 +29,24 @@ const DIST = path.resolve("dist");
 const PUBLIC = path.resolve("public");
 const PORT = 4173;
 
-const ROUTES = [
-  "/",
-  "/welcome",
-  "/tools",
-  "/tools/bmi-calculator",
-  "/tools/calorie-calculator",
-  "/blog",
-  "/blog/how-many-calories-should-i-eat",
-  "/blog/what-is-bmi",
-  "/blog/how-much-water-should-i-drink",
-  "/blog/how-to-improve-sleep",
-  "/blog/find-health-provider-near-me",
-  "/blog/calories-in-boerewors",
-  "/legal/privacy",
-  "/legal/terms",
-  "/for-providers",
-  "/for-corporate",
-];
+const PREROUTES = {
+  "/": "index.html",
+  "/welcome": "welcome.html",
+  "/tools": "tools.html",
+  "/tools/bmi-calculator": "tools-bmi-calculator.html",
+  "/tools/calorie-calculator": "tools-calorie-calculator.html",
+  "/blog": "blog.html",
+  "/blog/how-many-calories-should-i-eat": "blog-how-many-calories-should-i-eat.html",
+  "/blog/what-is-bmi": "blog-what-is-bmi.html",
+  "/blog/how-much-water-should-i-drink": "blog-how-much-water-should-i-drink.html",
+  "/blog/how-to-improve-sleep": "blog-how-to-improve-sleep.html",
+  "/blog/find-health-provider-near-me": "blog-find-health-provider-near-me.html",
+  "/blog/calories-in-boerewors": "blog-calories-in-boerewors.html",
+  "/legal/privacy": "legal-privacy.html",
+  "/legal/terms": "legal-terms.html",
+  "/for-providers": "for-providers.html",
+  "/for-corporate": "for-corporate.html",
+};
 
 async function prerender() {
   const shell = readFileSync(path.join(DIST, "index.html"), "utf8");
@@ -84,9 +84,9 @@ async function prerender() {
     headless: launchOptions.headless,
   });
 
-  for (const route of ROUTES) {
+  for (const [route, filename] of Object.entries(PREROUTES)) {
     const url = `http://localhost:${PORT}${route}`;
-    console.log(`[prerender] ${route}...`);
+    console.log(`[prerender] ${route} → ${filename}...`);
     try {
       const page = await browser.newPage();
       await page.setViewport({ width: 1280, height: 800 });
@@ -103,12 +103,8 @@ async function prerender() {
       await new Promise((r) => setTimeout(r, 1500));
       const html = await page.content();
 
-      const filePath = route === "/"
-        ? path.join(DIST, "index.html")
-        : path.join(DIST, route.slice(1), "index.html");
-      const publicPath = route === "/"
-        ? path.join(PUBLIC, "index.html")
-        : path.join(PUBLIC, route.slice(1), "index.html");
+      const filePath = path.join(DIST, filename);
+      const publicPath = path.join(PUBLIC, filename);
 
       for (const p of [filePath, publicPath]) {
         const dir = path.dirname(p);
