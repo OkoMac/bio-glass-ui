@@ -250,6 +250,7 @@ const AdminBQueue       = lazy(() => import("./pages/admin/BQueue"));
 const AdminCatalogs     = lazy(() => import("./pages/admin/Catalogs"));
 const AdminWhatsApp     = lazy(() => import("./pages/admin/WhatsApp"));
 const AdminCompliance   = lazy(() => import("./pages/admin/Compliance"));
+const AdminPopia        = lazy(() => import("./pages/admin/Popia"));
 const AdminProviderClaims = lazy(() => import("./pages/admin/ProviderClaims"));
 const AdminSubscriptions  = lazy(() => import("./pages/admin/Subscriptions"));
 const AdminRefunds        = lazy(() => import("./pages/admin/Refunds"));
@@ -633,6 +634,7 @@ function AppRoutes() {
       <Route path="/admin/catalogs"     element={<RequireAuth allowedRoles={["admin"]}><AdminCatalogs /></RequireAuth>} />
       <Route path="/admin/whatsapp"     element={<RequireAuth allowedRoles={["admin"]}><AdminWhatsApp /></RequireAuth>} />
       <Route path="/admin/compliance"   element={<RequireAuth allowedRoles={["admin"]}><AdminCompliance /></RequireAuth>} />
+      <Route path="/admin/popia"        element={<RequireAuth allowedRoles={["admin"]}><AdminPopia /></RequireAuth>} />
       <Route path="/admin/provider-claims" element={<RequireAuth allowedRoles={["admin"]}><AdminProviderClaims /></RequireAuth>} />
       <Route path="/admin/subscriptions"   element={<RequireAuth allowedRoles={["admin"]}><AdminSubscriptions /></RequireAuth>} />
       <Route path="/admin/refunds"         element={<RequireAuth allowedRoles={["admin"]}><AdminRefunds /></RequireAuth>} />

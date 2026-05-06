@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Users, Briefcase, BarChart2,
   Settings, ShieldCheck, LogOut, UserCog, FileCheck,
-  AlertTriangle, Sparkles, BookOpen, MessageSquare, Shield, UserCheck,
+  AlertTriangle, Sparkles, BookOpen, MessageSquare, Shield, ShieldAlert, UserCheck,
   DollarSign, RotateCcw, LifeBuoy, Target, Megaphone, Radio, Send,
   Menu, Mailbox,
 } from "lucide-react";
@@ -21,6 +21,7 @@ const navItems = [
   { icon: FileCheck,       label: "Verification", path: "/admin/verification"   },
   { icon: UserCheck,       label: "Claims",       path: "/admin/provider-claims" },
   { icon: Shield,          label: "Compliance",   path: "/admin/compliance"     },
+  { icon: ShieldAlert,     label: "POPIA Reviews",path: "/admin/popia"          },
   { icon: Users,           label: "Clients",      path: "/admin/clients"        },
   { icon: UserCog,         label: "Users",        path: "/admin/users"          },
   { icon: AlertTriangle,   label: "Disputes",     path: "/admin/disputes"       },
