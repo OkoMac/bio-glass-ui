@@ -113,13 +113,17 @@ export default function ProfileCompletionGate({ children }: Props) {
         setData(d);
         if (!d.complete) {
           // Decrement grace once per session if still in soft window.
+          // Stamp sessionStorage BEFORE the fetch — React StrictMode +
+          // dev HMR + iOS Safari background-tab can fire this effect
+          // twice in parallel, which without the pre-stamp would burn
+          // 2 grace per page load (Oko hit grace=0 in 2 visits).
           const sessionStamp = sessionStorage.getItem(SESSION_KEY);
           if (!sessionStamp && d.gracesRemaining > 0 && !d.hardBlocked) {
-            await fetch(`${API}/api/profiles/me/decrement-grace`, {
+            sessionStorage.setItem(SESSION_KEY, String(Date.now()));
+            fetch(`${API}/api/profiles/me/decrement-grace`, {
               method: "POST",
               headers: { Authorization: `Bearer ${token}` },
             }).catch(() => {/* swallow — gate still works */});
-            sessionStorage.setItem(SESSION_KEY, String(Date.now()));
           }
           setOpen(true);
         }
@@ -184,11 +188,15 @@ export default function ProfileCompletionGate({ children }: Props) {
     }
 
     setSubmitting(true);
+    // 15s safety timeout — if the iOS Safari fetch silently hangs (a
+    // known quirk on cellular + cross-origin POSTs) the user gets a
+    // real error message instead of an indefinite "Saving…".
+    const ctrl = new AbortController();
+    const timeoutHandle = setTimeout(() => ctrl.abort(), 15_000);
     try {
       const token = await getToken();
       if (!token) {
         setError("Please sign in again.");
-        setSubmitting(false);
         return;
       }
       const res = await fetch(`${API}/api/profiles/me/complete`, {
@@ -203,17 +211,32 @@ export default function ProfileCompletionGate({ children }: Props) {
           dateOfBirth: dob,
           country,
         }),
+        signal: ctrl.signal,
       });
       const json = await res.json();
-      if (json.ok) {
+      if (res.ok && json.ok) {
         setData({ complete: true, missing: [], gracesRemaining: 0, hardBlocked: false });
         setOpen(false);
       } else {
-        setError(json.error ?? "Could not save your details. Please try again.");
+        // Surface the actual server error + status code — silent
+        // "Saving…" was hiding real backend rejections (e.g. invalid
+        // payload, expired session, validation failures).
+        setError(json.error ?? `Server returned ${res.status}. Please try again.`);
       }
-    } catch {
-      setError("Network error. Please check your connection and try again.");
+    } catch (err: any) {
+      // Print to console so support can ask the user to share devtools
+      // output; show the user a concrete message rather than a generic
+      // "network error" so they know whether to retry, refresh, or
+      // contact support.
+      // eslint-disable-next-line no-console
+      console.error("[ProfileCompletionGate] save failed:", err);
+      const reason =
+        err?.name === "AbortError" ? "Request timed out after 15s. Please check your connection and try again." :
+        err?.message               ? `Network error: ${err.message}` :
+                                     "Network error. Please check your connection and try again.";
+      setError(reason);
     } finally {
+      clearTimeout(timeoutHandle);
       setSubmitting(false);
     }
   };
