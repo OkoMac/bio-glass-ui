@@ -1,10 +1,10 @@
-import { useAdminToken } from "@/hooks/useAdminToken";
+import { useAuth } from "@/contexts/AuthContext";
+import { authFetch } from "@/lib/authFetch";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import GlassCard from "@/components/GlassCard";
-import AdminTokenGate from "@/components/AdminTokenGate";
 import AdminNav from "@/components/AdminNav";
 import { MessageSquare, RefreshCw, Phone, Clock, Bot, User, AlertCircle, ArrowLeft } from "lucide-react";
 
@@ -59,7 +59,8 @@ function relative(ts: string | number | null | undefined) {
 
 export default function AdminWhatsApp() {
   const navigate = useNavigate();
-  const { token } = useAdminToken();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const [threads, setThreads] = useState<Thread[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [detail, setDetail] = useState<ThreadDetail | null>(null);
@@ -74,10 +75,10 @@ export default function AdminWhatsApp() {
   const [pendingReply, setPendingReply] = useState<{ phone: string; message: string } | null>(null);
 
   async function fetchThreads() {
-    if (!token) return;
+    if (!isAdmin) return;
     setLoading(true); setErr(null);
     try {
-      const r = await fetch(`${API}/api/whatsapp/admin/conversations`, { headers: { "X-Admin-Token": token } });
+      const r = await authFetch(`${API}/api/whatsapp/admin/conversations`);
       const d = await r.json();
       if (!r.ok || !d.ok) throw new Error(d.error ?? `HTTP ${r.status}`);
       setThreads(d.threads);
@@ -86,9 +87,9 @@ export default function AdminWhatsApp() {
   }
 
   async function fetchDetail(phone: string) {
-    if (!token) return;
+    if (!isAdmin) return;
     try {
-      const r = await fetch(`${API}/api/whatsapp/admin/conversations/${phone}`, { headers: { "X-Admin-Token": token } });
+      const r = await authFetch(`${API}/api/whatsapp/admin/conversations/${phone}`);
       const d = await r.json();
       if (!r.ok || !d.ok) throw new Error(d.error ?? `HTTP ${r.status}`);
       setDetail(d);
@@ -96,9 +97,9 @@ export default function AdminWhatsApp() {
   }
 
   async function fetchStats() {
-    if (!token) return;
+    if (!isAdmin) return;
     try {
-      const r = await fetch(`${API}/api/whatsapp/admin/stats`, { headers: { "X-Admin-Token": token } });
+      const r = await authFetch(`${API}/api/whatsapp/admin/stats`);
       const d = await r.json();
       if (d.ok) setStats({ daily_cap: d.daily_cap, active_conversations: d.active_conversations });
     } catch {}
@@ -116,9 +117,8 @@ export default function AdminWhatsApp() {
     if (!pendingReply) return;
     setSending(true);
     try {
-      const res = await fetch(`${API}/api/whatsapp/admin/reply`, {
+      const res = await authFetch(`${API}/api/whatsapp/admin/reply`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Token": token },
         body: JSON.stringify({ phone: pendingReply.phone, message: pendingReply.message }),
       });
       const j = await res.json();
@@ -135,21 +135,22 @@ export default function AdminWhatsApp() {
   };
 
   useEffect(() => {
-    if (token) { fetchThreads(); fetchStats(); }
-    const iv = setInterval(() => { if (token) { fetchThreads(); fetchStats(); } }, 30_000);
+    if (isAdmin) { fetchThreads(); fetchStats(); }
+    const iv = setInterval(() => { if (isAdmin) { fetchThreads(); fetchStats(); } }, 30_000);
     return () => clearInterval(iv);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, [isAdmin]);
 
-  useEffect(() => { if (selected) { fetchDetail(selected); } }, [selected, token]);
+  useEffect(() => { if (selected && isAdmin) { fetchDetail(selected); } }, [selected, isAdmin]);
 
   const sorted = useMemo(() =>
     [...threads].sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()),
     [threads]
   );
 
-  // ── Token entry gate ──
-  if (!token) return <AdminTokenGate tokenLoading={tokenLoading} />;
+  // Non-admins are blocked by the route's RequireAuth allowedRoles=admin
+  // already; this is just a defensive empty render.
+  if (!isAdmin) return null;
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
@@ -182,12 +183,8 @@ export default function AdminWhatsApp() {
             >
               <RefreshCw className={`w-4 h-4 text-foreground ${loading ? "animate-spin" : ""}`} />
             </button>
-            <button
-              onClick={() => { localStorage.removeItem("bion_admin_token"); location.reload(); }}
-              className="text-xs text-muted-foreground underline"
-            >
-              Clear token
-            </button>
+            {/* Clear-token escape-hatch removed — admin auth is now JWT,
+                no manual token to clear. */}
           </div>
         </div>
 
