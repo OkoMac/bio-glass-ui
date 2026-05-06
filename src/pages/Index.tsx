@@ -139,8 +139,20 @@ const Index = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterVersion, setFilterVersion] = useState(0); // bumped when filters change
-  const { user, updateAvatar, updateCoverImage } = useAuth();
+  const { user, updateAvatar, updateCoverImage, refetchUser } = useAuth();
   const navigate = useNavigate();
+
+  // Self-heal: if the cached user lands on /home with no name (the
+  // "stale-cache wipe-out" Oko hit 2026-05-06), eagerly refetch from
+  // the backend. The new fetchUserProfile path tries the service-role
+  // /api/profiles/me endpoint when the anon read returns empty, so
+  // this almost always fixes the banner without user action.
+  useEffect(() => {
+    if (user && (!user.name || user.name === "BION User")) {
+      void refetchUser();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
   const geo = useGeolocation();
   const verifiedProviders = useVerifiedProviders();
   const { profile: habitProfile } = useHabitProfile();
@@ -357,9 +369,13 @@ const Index = () => {
           {(!user?.name || user.name === "BION User") && (
             <div className="mt-3 p-3 rounded-xl border border-amber-400/20 bg-amber-400/5">
               <p className="text-[11px] text-amber leading-relaxed">
-                Your display name isn't set yet.{" "}
+                Your display name isn't loading.{" "}
+                <button onClick={() => { void refetchUser(); }} className="underline font-medium mr-2">
+                  Refresh now
+                </button>
+                or{" "}
                 <button onClick={() => navigate("/profile")} className="underline font-medium">
-                  Set your name
+                  set your name
                 </button>
               </p>
             </div>

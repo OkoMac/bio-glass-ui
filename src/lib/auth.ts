@@ -172,10 +172,28 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
       }
     }
 
+    // Name resolution — bulletproof against the "stale-cache wipe-out"
+    // bug Oko hit 2026-05-06:
+    //   1. Prefer profile.full_name (DB / backend fallback).
+    //   2. Fall back to auth user_metadata.full_name (OAuth signup hint).
+    //   3. NEVER downgrade a non-empty cached name to "" when the same
+    //      session user_id is signing in again — that's how the home
+    //      banner kept saying "set your name" even though the DB had it.
+    const metaName = (authData.user?.user_metadata?.full_name as string | undefined)
+      ?? (authData.user?.user_metadata?.name as string | undefined)
+      ?? "";
+    let resolvedName = (profileName ?? "").trim() || metaName.trim() || "";
+    if (!resolvedName && storedUser?.id === supabaseUserId && (storedUser?.name ?? "").trim()) {
+      // Last-ditch: keep the cached value rather than overwrite with empty.
+      // The eager-refetch effect in AuthContext will retry the backend
+      // shortly — until it succeeds, the user sees their real name.
+      resolvedName = storedUser.name.trim();
+    }
+
     const user: BioUser = {
       id:         supabaseUserId,
       profileId:  profileId ?? undefined,
-      name:       profileName ?? "",
+      name:       resolvedName,
       email:      profileEmail ?? authData.user?.email ?? "",
       role,
       avatar:     profileAvatar ?? undefined,

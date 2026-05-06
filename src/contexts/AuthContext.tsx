@@ -17,6 +17,10 @@ interface AuthContextType {
   updateAvatar: (url: string) => Promise<void>;      // profile photo update — writes to profiles.avatar_url
   updateCoverImage: (url: string) => Promise<void>;  // profile banner — writes to profiles.cover_image_url
   updateProfileFields: (fields: { bio?: string; phone?: string; location?: string; name?: string }) => Promise<void>;
+  /** Force-refresh the cached user from the DB (skips localStorage,
+   *  bypasses the 5s visibility-change debounce, useful when the UI
+   *  knows the cache is stale — e.g. an empty user.name on /home). */
+  refetchUser: () => Promise<void>;
   availableRoles: UserRole[];               // all roles the user holds
   isClient:    boolean;
   isProvider:  boolean;
@@ -41,6 +45,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (sbKey && localStorage.getItem(sbKey)) return null;  // real session exists → ignore demo
       } catch { /* */ }
     }
+    // Cache-coherence: if Supabase has a session for a DIFFERENT user
+    // than the cached bio_user (e.g. another account signed in on the
+    // same browser, or the cache is from a previous device sync), drop
+    // the cache rather than render somebody else's name/avatar.
+    try {
+      const sbKey = Object.keys(localStorage).find(k => k.includes("-auth-token"));
+      if (sbKey) {
+        const raw = localStorage.getItem(sbKey);
+        const sess = raw ? JSON.parse(raw) : null;
+        const sessionUserId: string | undefined = sess?.user?.id ?? sess?.currentSession?.user?.id;
+        if (sessionUserId && stored.id && sessionUserId !== stored.id) {
+          removeUser();
+          return null;
+        }
+      }
+    } catch { /* */ }
     return stored;
   });
   const [loading, setLoading] = useState(true);
@@ -352,6 +372,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
+  // Force-refresh from the DB. Bypasses the visibility-change debounce
+  // and ignores the local-write guard — used when callers KNOW the
+  // cache is stale (e.g. /home banner when user.name is empty).
+  const refetchUser = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+      const fresh = await fetchUserProfile(session.user.id);
+      if (fresh) {
+        storeUser(fresh);
+        setUser(fresh);
+      }
+    } catch {/* swallow */}
+  }, []);
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -362,6 +397,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       updateAvatar,
       updateCoverImage,
       updateProfileFields,
+      refetchUser,
       availableRoles,
       isClient:    user?.role === "client",
       isProvider:  user?.role === "provider",
