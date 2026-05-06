@@ -15,13 +15,13 @@ import { createServer } from "node:http";
 // Use chrome-aws-lambda on Vercel (serverless), local puppeteer otherwise
 let launchOptions;
 if (process.env.VERCEL) {
-  const chromeAwsLambda = await import("chrome-aws-lambda");
-  const puppeteer = await import("puppeteer-core");
+  // On Vercel, puppeteer downloads Chrome into /vercel/.cache/puppeteer
+  // during npm install. Use it directly.
+  const puppeteer = await import("puppeteer");
   launchOptions = {
     puppeteer,
-    args: chromeAwsLambda.default.args,
-    executablePath: await chromeAwsLambda.default.executablePath,
-    headless: chromeAwsLambda.default.headless,
+    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+    headless: true,
   };
 } else {
   const puppeteer = await import("puppeteer");
