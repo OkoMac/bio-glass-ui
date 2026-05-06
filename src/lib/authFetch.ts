@@ -28,13 +28,36 @@ export async function getAuthHeaders(): Promise<Record<string, string>> {
 }
 
 /**
+ * Surfaced when an authFetch call has exceeded its timeout window.
+ * Distinct from NoSessionError + the Response error path so callers
+ * can show "Request timed out — try again" instead of a generic
+ * "Network error" that leaves the user wondering whether to retry.
+ */
+export class RequestTimeoutError extends Error {
+  constructor(public readonly timeoutMs: number, public readonly path: string) {
+    super(`Request to ${path} timed out after ${timeoutMs}ms`);
+    this.name = "RequestTimeoutError";
+  }
+}
+
+interface AuthFetchOpts extends RequestInit {
+  /** Hard ceiling for the request. Cross-origin POSTs on iOS Safari /
+   *  cellular sometimes silently hang; without a timeout the calling
+   *  UI would sit on "Saving…" forever. Defaults: 15s for write
+   *  methods, 30s for reads. Pass `0` to disable. */
+  timeoutMs?: number;
+}
+
+/**
  * Authenticated fetch wrapper. If no session exists, redirects to /welcome.
- * If the backend returns 401/403, also redirects.
- * Returns the Response object on success.
+ * If the backend returns 401/403 with an auth-related body, also redirects.
+ * Wraps the fetch in an AbortController with a sensible default timeout
+ * so a hung request surfaces as a clear RequestTimeoutError instead of
+ * a never-resolving promise.
  */
 export async function authFetch(
   path: string,
-  init?: RequestInit,
+  init?: AuthFetchOpts,
 ): Promise<Response> {
   let headers: Record<string, string>;
   try {
@@ -49,10 +72,43 @@ export async function authFetch(
   }
 
   const url = path.startsWith("http") ? path : `${API}${path}`;
-  const res = await fetch(url, {
-    ...init,
-    headers: { ...headers, ...(init?.headers as Record<string, string>) },
-  });
+  const method = (init?.method ?? "GET").toUpperCase();
+  const isWrite = method !== "GET" && method !== "HEAD";
+  const timeoutMs = init?.timeoutMs ?? (isWrite ? 15_000 : 30_000);
+
+  // Build an abort signal that combines the caller's signal (if any)
+  // with our timeout. If timeoutMs === 0, skip the timeout entirely.
+  let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+  let signal: AbortSignal | undefined = init?.signal ?? undefined;
+  if (timeoutMs > 0) {
+    const ctrl = new AbortController();
+    timeoutHandle = setTimeout(() => ctrl.abort(), timeoutMs);
+    if (init?.signal) {
+      // Forward upstream aborts onto our controller so both fire as one.
+      if (init.signal.aborted) ctrl.abort();
+      else init.signal.addEventListener("abort", () => ctrl.abort(), { once: true });
+    }
+    signal = ctrl.signal;
+  }
+
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      ...init,
+      signal,
+      headers: { ...headers, ...(init?.headers as Record<string, string>) },
+    });
+  } catch (err: any) {
+    if (err?.name === "AbortError") {
+      // Distinguish "we timed out" vs "caller explicitly aborted". If the
+      // caller's signal already fired, it's their abort, re-throw plain.
+      if (init?.signal?.aborted) throw err;
+      throw new RequestTimeoutError(timeoutMs, path);
+    }
+    throw err;
+  } finally {
+    if (timeoutHandle) clearTimeout(timeoutHandle);
+  }
 
   if (res.status === 401 || res.status === 403) {
     const body = await res.clone().text();
@@ -77,7 +133,7 @@ export async function authFetch(
  */
 export async function authFetchJson<T = unknown>(
   path: string,
-  init?: RequestInit,
+  init?: AuthFetchOpts,
 ): Promise<T> {
   const res = await authFetch(path, init);
   if (!res.ok) {
