@@ -1,10 +1,12 @@
 /**
- * Live ops metrics strip for /admin/dashboard — pulls from the new
- * /api/admin/metrics endpoint and surfaces everything that needs ops action:
- * verification queue, FICA holds, BO submissions, GMV, booking pipeline.
+ * Live ops metrics strip for /admin/dashboard — pulls from the
+ * /api/admin/metrics endpoint and surfaces everything that needs ops
+ * action: verification queue, FICA holds, BO submissions, GMV,
+ * booking pipeline.
  *
- * Token is stored in localStorage as `bion_admin_token` (same key the
- * /admin/whatsapp page already writes + reads). Prompts for it once.
+ * Auth: Supabase JWT via authFetch (the metrics endpoint moved off
+ * the legacy X-Admin-Token to requireAdmin middleware months ago).
+ * No more localStorage token prompt for signed-in admins.
  */
 
 import { useEffect, useState } from "react";
@@ -15,6 +17,8 @@ import {
   Users, Briefcase, CheckCircle, Clock, AlertTriangle, ShieldCheck,
   Banknote, TrendingUp, RefreshCw,
 } from "lucide-react";
+import { authFetch } from "@/lib/authFetch";
+import { useAuth } from "@/contexts/AuthContext";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -39,18 +43,16 @@ function fmtR(n: number): string {
 
 export default function AdminOpsStrip() {
   const navigate = useNavigate();
-  const [token, setToken] = useState(() => {
-    try { return localStorage.getItem("bion_admin_token") ?? ""; } catch { return ""; }
-  });
+  const { user } = useAuth();
   const [data, setData] = useState<Metrics | null>(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   const refresh = async () => {
-    if (!token) return;
+    if (user?.role !== "admin") return;
     setLoading(true); setErr(null);
     try {
-      const res = await fetch(`${API}/api/admin/metrics`, { headers: { "X-Admin-Token": token } });
+      const res = await authFetch(`${API}/api/admin/metrics`);
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed");
       setData(j);
@@ -59,37 +61,14 @@ export default function AdminOpsStrip() {
   };
 
   useEffect(() => {
-    if (token) refresh();
-    const iv = setInterval(() => { if (token) refresh(); }, 60_000);
+    if (user?.role === "admin") refresh();
+    const iv = setInterval(() => { if (user?.role === "admin") refresh(); }, 60_000);
     return () => clearInterval(iv);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, [user?.role]);
 
-  if (!token) {
-    return (
-      <GlassCard className="p-4">
-        <div className="flex items-center gap-3">
-          <ShieldCheck className="w-5 h-5 text-indigo shrink-0" />
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-foreground">Admin token required for ops metrics</p>
-            <p className="text-xs text-muted-foreground">Paste the ADMIN_SETUP_TOKEN — stored in localStorage for this session.</p>
-          </div>
-          <input
-            type="password"
-            placeholder="ADMIN_SETUP_TOKEN"
-            className="w-64 h-9 glass-1 rounded-xl px-3 text-xs text-foreground placeholder:text-muted-foreground bg-transparent outline-none"
-            onKeyDown={e => {
-              if (e.key === "Enter") {
-                const v = (e.target as HTMLInputElement).value.trim();
-                if (v) { localStorage.setItem("bion_admin_token", v); setToken(v); }
-              }
-            }}
-            autoFocus
-          />
-        </div>
-      </GlassCard>
-    );
-  }
+  // Non-admins never see this strip.
+  if (user?.role !== "admin") return null;
 
   if (err) {
     return (
@@ -97,10 +76,6 @@ export default function AdminOpsStrip() {
         <AlertTriangle className="w-5 h-5 text-coral" />
         <p className="text-sm text-coral flex-1">{err}</p>
         <button onClick={refresh} className="text-xs text-indigo underline">Retry</button>
-        <button
-          onClick={() => { localStorage.removeItem("bion_admin_token"); setToken(""); }}
-          className="text-xs text-muted-foreground underline"
-        >Clear token</button>
       </GlassCard>
     );
   }

@@ -17,6 +17,8 @@ import {
   AlertTriangle, Clock, FileText, UserCheck, Shield, DollarSign,
   CheckCircle2, RefreshCw, ChevronRight,
 } from "lucide-react";
+import { authFetch } from "@/lib/authFetch";
+import { useAuth } from "@/contexts/AuthContext";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -74,21 +76,22 @@ function fmtAgeShort(hours: number): string {
 }
 
 export default function AdminAlertsPanel() {
-  const [token] = useState(() => {
-    try { return localStorage.getItem("bion_admin_token") ?? ""; } catch { return ""; }
-  });
+  // The metrics endpoint switched from the legacy X-Admin-Token header
+  // to the Supabase JWT (requireAdmin middleware) months ago, but this
+  // component still sent the old header — which is why every admin
+  // hit "Missing authorization header" on the dashboard. authFetch
+  // injects the right Bearer JWT automatically.
+  const { user } = useAuth();
   const [alerts, setAlerts] = useState<AdminAlert[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    if (!token) return;
+    if (user?.role !== "admin") return;
     setLoading(true);
     setErr(null);
     try {
-      const res = await fetch(`${API}/api/admin/metrics/alerts`, {
-        headers: { "X-Admin-Token": token },
-      });
+      const res = await authFetch(`${API}/api/admin/metrics/alerts`);
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed to load alerts");
       setAlerts(j.alerts as AdminAlert[]);
@@ -96,11 +99,11 @@ export default function AdminAlertsPanel() {
       setErr(e.message ?? "Failed to load alerts");
     }
     setLoading(false);
-  }, [token]);
+  }, [user?.role]);
 
   // Initial load + 60s auto-refetch (pauses when tab hidden)
   useEffect(() => {
-    if (!token) return;
+    if (user?.role !== "admin") return;
     refresh();
     const iv = setInterval(() => {
       if (document.visibilityState === "visible") refresh();
@@ -111,7 +114,7 @@ export default function AdminAlertsPanel() {
       clearInterval(iv);
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, [token, refresh]);
+  }, [user?.role, refresh]);
 
   const counts = useMemo(() => {
     const c = { critical: 0, warning: 0, info: 0 };
@@ -119,8 +122,8 @@ export default function AdminAlertsPanel() {
     return c;
   }, [alerts]);
 
-  // Component stays dormant until the Ops strip sets the token — no re-prompt.
-  if (!token) return null;
+  // Non-admins never see this panel.
+  if (user?.role !== "admin") return null;
 
   if (err) {
     return (
