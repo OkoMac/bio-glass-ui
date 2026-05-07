@@ -8,8 +8,9 @@ import {
   Scissors, Palette, Droplets, Sparkles, User,
   Calendar, Clock, TrendingUp, Package, Star,
   Filter, Search, Plus, Edit, Trash2, ChevronRight,
-  Sparkles as SparklesIcon, AlertCircle, CheckCircle
-ArrowLeft, } from "lucide-react";
+  Sparkles as SparklesIcon, AlertCircle, CheckCircle,
+  ArrowLeft,
+} from "lucide-react";
 
 // Beauty Vertical Dashboard
 // Tools for beauty service providers (hair stylists, estheticians, nail techs)

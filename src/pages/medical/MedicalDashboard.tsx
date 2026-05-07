@@ -8,8 +8,9 @@ import {
   Stethoscope, FileText, Pill, Shield, User,
   Calendar, Clock, TrendingUp, AlertCircle, CheckCircle,
   Filter, Search, Plus, Edit, Trash2, ChevronRight,
-  Sparkles as SparklesIcon, Clipboard, Heart
-ArrowLeft, } from "lucide-react";
+  Sparkles as SparklesIcon, Clipboard, Heart,
+  ArrowLeft,
+} from "lucide-react";
 
 // Medical Vertical Dashboard
 // Tools for medical and allied health providers (physiotherapists, dietitians, biokineticists)
