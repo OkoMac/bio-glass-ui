@@ -2,7 +2,16 @@
   "installCommand": "PUPPETEER_SKIP_DOWNLOAD=0 PUPPETEER_CACHE_DIR=/vercel/.cache/puppeteer npm install --legacy-peer-deps --include=dev",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "bionhealth.co.za" }],
+      "destination": "https://www.bionhealth.co.za/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
+    { "source": "/provider/:slug", "destination": "/api/ssr/provider?slug=:slug" },
     { "source": "/welcome", "destination": "/welcome.html" },
     { "source": "/tools", "destination": "/tools.html" },
     { "source": "/tools/bmi-calculator", "destination": "/tools-bmi-calculator.html" },
