@@ -49,6 +49,29 @@ function todayKey() {
   return getSASTDateKey();
 }
 
+/**
+ * The date a sleep session belongs to is the night the user GOT INTO BED,
+ * not the morning they pressed "Update". A typical overnight pattern
+ * (bed 23:00, wake 07:00) crossed midnight, so the bedtime was yesterday
+ * — and that's what the chart should show. Without this, logging at
+ * 13:00 today put 8h of sleep on today's bar even though the user
+ * hadn't slept since this morning.
+ *
+ * Naps inside the same calendar day (bed 13:00, wake 14:00) keep
+ * today's date.
+ */
+function sleepEntryDate(bedtime: string, wakeTime: string): string {
+  const [bH, bM] = bedtime.split(":").map(Number);
+  const [wH, wM] = wakeTime.split(":").map(Number);
+  const bedMin = bH * 60 + bM;
+  const wakeMin = wH * 60 + wM;
+  const overnight = wakeMin <= bedMin;
+  if (!overnight) return getSASTDateKey();
+  const yesterday = new Date();
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  return getSASTDateKey(yesterday);
+}
+
 const SLEEP_TIPS = [
   { icon: Moon, title: "Consistent Schedule", text: "Go to bed and wake up at the same time every day, even on weekends." },
   { icon: Sun, title: "Morning Light", text: "Get 10-15 minutes of sunlight within an hour of waking to regulate your circadian rhythm." },
@@ -159,7 +182,8 @@ export default function SleepTracker() {
     return () => { document.head.removeChild(script); };
   }, []);
 
-  const todayLogged = entries.some((e) => e.date === todayKey());
+  const currentEntryDate = sleepEntryDate(bedtime, wakeTime);
+  const todayLogged = entries.some((e) => e.date === currentEntryDate);
 
   // Calendar-aligned last-7-days window. Walk from 6 days ago → today and
   // stitch in the matching entry per day (or null for missed days). Fixes
@@ -186,8 +210,9 @@ export default function SleepTracker() {
 
   const logSleep = () => {
     const duration = calcDuration(bedtime, wakeTime);
-    const entry: SleepEntry = { date: todayKey(), bedtime, wakeTime, duration, quality };
-    const updated = [...entries.filter((e) => e.date !== todayKey()), entry];
+    const entryDate = sleepEntryDate(bedtime, wakeTime);
+    const entry: SleepEntry = { date: entryDate, bedtime, wakeTime, duration, quality };
+    const updated = [...entries.filter((e) => e.date !== entryDate), entry];
     setEntries(updated);
     saveEntries(updated);
     setSaved(true);
@@ -201,7 +226,7 @@ export default function SleepTracker() {
     if (user?.profileId && !user.id?.startsWith("demo_")) {
       supabase.from("health_logs").upsert({
         user_id: user.profileId,
-        log_date: todayKey(),
+        log_date: entryDate,
         sleep_hours: duration,
         notes: `Quality: ${quality}/5, Bed: ${bedtime}, Wake: ${wakeTime}`,
       } as any, { onConflict: "user_id,log_date" }).then(({ error }) => {

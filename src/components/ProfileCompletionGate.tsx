@@ -80,7 +80,16 @@ export default function ProfileCompletionGate({ children }: Props) {
   // Form state
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName]   = useState("");
-  const [dob, setDob]             = useState("");
+  // DOB stored as YYYY-MM-DD for backend compat, composed from three
+  // separate selects so the user picks a year directly instead of
+  // tapping the month-arrow 40+ times in iOS Safari's calendar picker.
+  const [dobDay, setDobDay]       = useState("");
+  const [dobMonth, setDobMonth]   = useState("");
+  const [dobYear, setDobYear]     = useState("");
+  const dob =
+    dobYear && dobMonth && dobDay
+      ? `${dobYear}-${dobMonth.padStart(2, "0")}-${dobDay.padStart(2, "0")}`
+      : "";
   const [country, setCountry]     = useState("ZA");
 
   const getToken = useCallback(async (): Promise<string | null> => {
@@ -316,16 +325,55 @@ export default function ProfileCompletionGate({ children }: Props) {
                 />
               </div>
               <div>
-                <label className="block text-xs text-muted-foreground mb-1" htmlFor="pcg-dob">Date of birth</label>
-                <input
-                  id="pcg-dob"
-                  type="date"
-                  value={dob}
-                  onChange={(e) => setDob(e.target.value)}
-                  max={new Date().toISOString().split("T")[0]}
-                  className="w-full glass-1 rounded-lg px-3 py-2 text-sm text-foreground border border-white/10 focus:border-indigo/50 outline-none"
-                  required
-                />
+                <label className="block text-xs text-muted-foreground mb-1" htmlFor="pcg-dob-day">Date of birth</label>
+                <div className="grid grid-cols-3 gap-2">
+                  <select
+                    id="pcg-dob-day"
+                    aria-label="Day"
+                    value={dobDay}
+                    onChange={(e) => setDobDay(e.target.value)}
+                    className="glass-1 rounded-lg px-2 py-2 text-sm text-foreground border border-white/10 focus:border-indigo/50 outline-none"
+                    required
+                  >
+                    <option value="">Day</option>
+                    {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                      <option key={d} value={String(d)}>{d}</option>
+                    ))}
+                  </select>
+                  <select
+                    aria-label="Month"
+                    value={dobMonth}
+                    onChange={(e) => setDobMonth(e.target.value)}
+                    className="glass-1 rounded-lg px-2 py-2 text-sm text-foreground border border-white/10 focus:border-indigo/50 outline-none"
+                    required
+                  >
+                    <option value="">Month</option>
+                    {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m, i) => (
+                      <option key={m} value={String(i + 1)}>{m}</option>
+                    ))}
+                  </select>
+                  <select
+                    aria-label="Year"
+                    value={dobYear}
+                    onChange={(e) => setDobYear(e.target.value)}
+                    className="glass-1 rounded-lg px-2 py-2 text-sm text-foreground border border-white/10 focus:border-indigo/50 outline-none"
+                    required
+                  >
+                    <option value="">Year</option>
+                    {(() => {
+                      const now = new Date().getUTCFullYear();
+                      // 18+ required (validated below); show 13+ to keep
+                      // the same control reusable if minimum age ever drops.
+                      const max = now - 13;
+                      const min = now - 100;
+                      const years: number[] = [];
+                      for (let y = max; y >= min; y--) years.push(y);
+                      return years.map((y) => (
+                        <option key={y} value={String(y)}>{y}</option>
+                      ));
+                    })()}
+                  </select>
+                </div>
               </div>
               <div>
                 <label className="block text-xs text-muted-foreground mb-1" htmlFor="pcg-country">Country</label>
