@@ -7,7 +7,7 @@
       "source": "/:path*",
       "has": [{ "type": "host", "value": "bionhealth.co.za" }],
       "destination": "https://www.bionhealth.co.za/:path*",
-      "permanent": true
+      "statusCode": 301
     }
   ],
   "rewrites": [
