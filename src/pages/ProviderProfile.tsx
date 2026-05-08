@@ -24,7 +24,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, Share2, Star, MapPin, Clock, Lock, CreditCard, Shield, Mail, Phone, Globe, Building, Check, X, CalendarDays, Heart, UserCheck, Loader2, MessageCircle, Package, Users } from "lucide-react";
 import { getProviderImage, getProviderCover } from "@/lib/providerImages";
 import { useBookings } from "@/contexts/BookingsContext";
-import { useVerifiedProviders } from "@/hooks/useVerifiedProviders";
 import { useProviderVerifiedTrainer } from "@/hooks/useBicademy";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
@@ -48,7 +47,6 @@ export default function ProviderProfile() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { addBooking } = useBookings();
-  const verifiedProviders = useVerifiedProviders();
   // BION Verified Trainer — true once this provider has finished PROVIDER-101
   // in the Bicademy. Returns false for scraped-only providers (no matching
   // enrollment row) so the badge is additive + safe.
@@ -139,12 +137,33 @@ export default function ProviderProfile() {
     }
   }, [availableSlots, bookingTime]);
 
-  // A provider is "registered on BION" if they completed document verification
-  // in Supabase. The verifiedProviders set (from useVerifiedProviders hook) is
-  // loaded once on mount from provider_documents. Directory-only providers
-  // (scraped listings with no Supabase profile) won't be in the set, so
-  // isRegisteredOnBion stays false → booking flow sends a lead instead.
-  const isRegisteredOnBion = verifiedProviders.has(id ?? "");
+  // Bridge the scraped slug (cen_lynette) → BION profile UUID via the
+  // provider_claims table. verifiedProviders.has(slug) was always false
+  // because the Set holds UUIDs, not slugs — every URL-routed provider
+  // looked unregistered, even after a real claim + verification. Now the
+  // backend resolves the slug → profile_id + is_verified, and we use the
+  // resolved profile_id for downstream calls (services, programs, slots).
+  const [registeredProfileId, setRegisteredProfileId] = useState<string | null>(null);
+  const [isRegisteredOnBion, setIsRegisteredOnBion] = useState(false);
+  useEffect(() => {
+    if (!id) { setRegisteredProfileId(null); setIsRegisteredOnBion(false); return; }
+    let cancelled = false;
+    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+    fetch(`${API}/api/providers/by-slug/${encodeURIComponent(id)}`)
+      .then(r => r.json())
+      .then(json => {
+        if (cancelled) return;
+        if (json?.ok && json.profile_id && json.is_verified) {
+          setRegisteredProfileId(json.profile_id as string);
+          setIsRegisteredOnBion(true);
+        } else {
+          setRegisteredProfileId(null);
+          setIsRegisteredOnBion(false);
+        }
+      })
+      .catch(() => { /* offline / 404 → directory-only */ });
+    return () => { cancelled = true; };
+  }, [id]);
 
   // ── Real BION services (registered providers only) ──────────────────────
   // GET /api/providers/:id/services returns the provider's active services
@@ -154,10 +173,10 @@ export default function ProviderProfile() {
   const [bionServicesLoading, setBionServicesLoading] = useState(false);
   useEffect(() => {
     let cancelled = false;
-    if (!isRegisteredOnBion || !id) { setBionServices([]); return; }
+    if (!isRegisteredOnBion || !registeredProfileId) { setBionServices([]); return; }
     setBionServicesLoading(true);
     const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
-    fetch(`${API}/api/providers/${id}/services`)
+    fetch(`${API}/api/providers/${registeredProfileId}/services`)
       .then(r => r.json())
       .then(json => {
         if (cancelled) return;
@@ -182,11 +201,11 @@ export default function ProviderProfile() {
   const [programs, setPrograms] = useState<ProgramCard[]>([]);
   const [programsLoading, setProgramsLoading] = useState(false);
   useEffect(() => {
-    if (!isRegisteredOnBion || !id) { setPrograms([]); return; }
+    if (!isRegisteredOnBion || !registeredProfileId) { setPrograms([]); return; }
     let cancelled = false;
     setProgramsLoading(true);
     const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
-    fetch(`${API}/api/programs/by-provider/${id}`)
+    fetch(`${API}/api/programs/by-provider/${registeredProfileId}`)
       .then(r => r.json())
       .then(json => {
         if (cancelled) return;
@@ -236,7 +255,7 @@ export default function ProviderProfile() {
   // real Supabase aggregate. Directory-only listings keep their seed rating so
   // unregistered providers still display sensibly in search.
   const { reviews: liveReviews, summary: ratingSummary } = useProviderReviews(
-    isRegisteredOnBion ? id : undefined,
+    isRegisteredOnBion ? registeredProfileId ?? undefined : undefined,
   );
   const displayRating = isRegisteredOnBion
     ? ratingSummary?.count
@@ -874,7 +893,7 @@ export default function ProviderProfile() {
         {/* Identity */}
         <div className="absolute bottom-6 left-4 right-4 flex items-end gap-4">
           <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
-            <BioAvatar src={provider.image} alt={provider.name} size="xl" verticalColor={provider.vertical} verified={verifiedProviders.has(provider.id)} />
+            <BioAvatar src={provider.image} alt={provider.name} size="xl" verticalColor={provider.vertical} verified={isRegisteredOnBion} />
           </motion.div>
           <div className="flex-1 min-w-0 pb-1">
             <div className="flex items-center gap-2 flex-wrap">
