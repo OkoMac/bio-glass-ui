@@ -25,6 +25,7 @@ import {
   Phone, Mail, Briefcase, ShieldCheck, Sparkles,
 ArrowLeft, } from "lucide-react";
 import { toast } from "sonner";
+import { authFetch } from "@/lib/authFetch";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -72,9 +73,9 @@ export default function AdminProviderClaims() {
     setLoading(true);
     setErr(null);
     try {
-      const res = await fetch(`${API}/api/providers/claims/admin/pending`, {
-        headers: { "X-Admin-Token": token },
-      });
+      // Backend requireAdmin reads JWT (Bearer), not the legacy X-Admin-Token.
+      // authFetch auto-injects the Supabase session token.
+      const res = await authFetch(`/api/providers/claims/admin/pending`);
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed to load claims");
       setClaims((j.claims ?? []) as Claim[]);
@@ -117,9 +118,8 @@ export default function AdminProviderClaims() {
     if (!approveModal) return;
     setBusy(approveModal.id);
     try {
-      const res = await fetch(`${API}/api/providers/claims/admin/${approveModal.id}/approve`, {
+      const res = await authFetch(`/api/providers/claims/admin/${approveModal.id}/approve`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Token": token },
         body: JSON.stringify({
           link_profile_id: approveProfileId || undefined,
           admin_note: approveNote || undefined,
@@ -146,9 +146,8 @@ export default function AdminProviderClaims() {
     }
     setBusy(rejectModal.id);
     try {
-      const res = await fetch(`${API}/api/providers/claims/admin/${rejectModal.id}/reject`, {
+      const res = await authFetch(`/api/providers/claims/admin/${rejectModal.id}/reject`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Token": token },
         body: JSON.stringify({ reason: rejectReason.trim() }),
       });
       const j = await res.json();
@@ -191,15 +190,6 @@ export default function AdminProviderClaims() {
               className="text-xs text-teal font-medium px-3 py-1.5 rounded-pill border border-teal/20 bg-teal/5 hover:bg-teal/10 transition-colors"
             >
               Refresh
-            </button>
-            <button
-              onClick={() => {
-                try { localStorage.removeItem("bion_admin_token"); } catch { /* ignore */ }
-                setToken("");
-              }}
-              className="text-xs text-muted-foreground font-medium px-3 py-1.5 rounded-pill border border-white/[0.08] hover:border-white/20 transition-colors"
-            >
-              Sign out
             </button>
           </div>
         </div>

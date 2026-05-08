@@ -10,6 +10,7 @@ import AdminNav from "@/components/AdminNav";
 import AdminTokenGate from "@/components/AdminTokenGate";
 import GlassCard from "@/components/GlassCard";
 import { supabase } from "@/integrations/supabase/client";
+import { authFetch } from "@/lib/authFetch";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -101,10 +102,7 @@ export default function AdminTickets() {
       params.set("status", tab);
       if (priorityFilter !== "all") params.set("priority", priorityFilter);
       if (sourceFilter !== "all") params.set("source", sourceFilter);
-      const res = await fetch(`${API}/api/support/tickets/admin/queue?${params}`, {
-        headers: { "X-Admin-Token": token },
-      
-      });
+      const res = await authFetch(`/api/support/tickets/admin/queue?${params}`);
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed to load queue");
       setRows(j.data ?? []);
@@ -330,16 +328,7 @@ function TicketDetail({
   const load = async () => {
     setLoading(true);
     try {
-      // /tickets/:id needs the admin user's Supabase JWT (admin has the role);
-      // X-Admin-Token alone isn't enough for this auth-gated endpoint.
-      const res = await fetch(`${API}/api/support/tickets/${ticket.id}`, {
-        headers: {
-          "Content-Type": "application/json",
-          "X-Admin-Token": token,
-          ...(await jwtHeader()),
-        },
-      
-      });
+      const res = await authFetch(`/api/support/tickets/${ticket.id}`);
       const j = await res.json();
       if (j?.ok) { setReplies(j.replies ?? []); }
       else { setReplies([]); }
@@ -370,9 +359,8 @@ function TicketDetail({
   const assign = async (adminProfileId: string | null) => {
     setAssignBusy(true);
     try {
-      const res = await fetch(`${API}/api/support/tickets/admin/${ticket.id}/assign`, {
+      const res = await authFetch(`/api/support/tickets/admin/${ticket.id}/assign`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Token": token },
         body: JSON.stringify({ adminProfileId }),
       });
       const j = await res.json();
@@ -394,9 +382,8 @@ function TicketDetail({
     if (!replyBody.trim()) return;
     setSending(true);
     try {
-      const res = await fetch(`${API}/api/support/tickets/admin/${ticket.id}/reply`, {
+      const res = await authFetch(`/api/support/tickets/admin/${ticket.id}/reply`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Token": token },
         body: JSON.stringify({ body: replyBody.trim() }),
       });
       const j = await res.json();
@@ -415,9 +402,8 @@ function TicketDetail({
   const changeStatus = async (status: Status) => {
     setStatusBusy(status);
     try {
-      const res = await fetch(`${API}/api/support/tickets/admin/${ticket.id}/status`, {
+      const res = await authFetch(`/api/support/tickets/admin/${ticket.id}/status`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Token": token },
         body: JSON.stringify({ status, resolution_note: note.trim() || undefined }),
       });
       const j = await res.json();
