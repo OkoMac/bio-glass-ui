@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
+import MarketingWalletCard from "@/components/provider/MarketingWalletCard";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -222,6 +223,9 @@ export default function ProviderBilling() {
             {message.text}
           </motion.div>
         )}
+
+        {/* Marketing Wallet — 5% of every paid booking ring-fenced for client BIONPoints redemption */}
+        <MarketingWalletCard />
 
         {/* Fee Breakdown */}
         <GlassCard className="p-5">

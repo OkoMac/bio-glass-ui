@@ -16,27 +16,33 @@ export type Database = {
     Tables: {
       bionpoints: {
         Row: {
+          class: string
           created_at: string
           id: string
           points: number
+          provider_id: string | null
           reason: string
           source_id: string | null
           source_type: string | null
           user_id: string
         }
         Insert: {
+          class?: string
           created_at?: string
           id?: string
           points: number
+          provider_id?: string | null
           reason: string
           source_id?: string | null
           source_type?: string | null
           user_id: string
         }
         Update: {
+          class?: string
           created_at?: string
           id?: string
           points?: number
+          provider_id?: string | null
           reason?: string
           source_id?: string | null
           source_type?: string | null
