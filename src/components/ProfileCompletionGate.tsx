@@ -129,7 +129,7 @@ export default function ProfileCompletionGate({ children }: Props) {
           const sessionStamp = sessionStorage.getItem(SESSION_KEY);
           if (!sessionStamp && d.gracesRemaining > 0 && !d.hardBlocked) {
             sessionStorage.setItem(SESSION_KEY, String(Date.now()));
-            fetch(`/api/relay/profiles/me/decrement-grace`, {
+            fetch(`/_proxy/api/profiles/me/decrement-grace`, {
               method: "POST",
               headers: { Authorization: `Bearer ${token}` },
             }).catch(() => {/* swallow — gate still works */});
@@ -214,7 +214,7 @@ export default function ProfileCompletionGate({ children }: Props) {
       // same call through the same-origin Vercel rewrite (/api/relay/...) avoids
       // the cross-origin path entirely on the browser side; Vercel's edge does
       // the cross-origin hop server-side where the bug doesn't manifest.
-      const res = await fetch(`/api/relay/profiles/me/complete`, {
+      const res = await fetch(`/_proxy/api/profiles/me/complete`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -12,7 +12,7 @@
   ],
   "rewrites": [
     { "source": "/provider/:slug", "destination": "/api/ssr/provider?slug=:slug" },
-    { "source": "/api/relay/:path*", "destination": "https://bion-backend.onrender.com/api/:path*" },
+    { "source": "/_proxy/:path*", "destination": "https://bion-backend.onrender.com/:path*" },
     { "source": "/welcome", "destination": "/welcome.html" },
     { "source": "/tools", "destination": "/tools.html" },
     { "source": "/tools/bmi-calculator", "destination": "/tools-bmi-calculator.html" },
