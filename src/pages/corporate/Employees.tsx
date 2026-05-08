@@ -74,10 +74,12 @@ export default function CorporateEmployees() {
       // Try Supabase first for authenticated corporate users
       if (supabaseId) {
         try {
-          const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
-          const res = await fetch(`${API}/api/corporate/employees`, {
-            headers: { Authorization: `Bearer ${supabaseId}` },
-          });
+          // BUG: was sending `Bearer ${supabaseId}` — supabaseId is the user's
+          // profile UUID, not a JWT. Backend rejected as invalid token →
+          // employees list silently fell back to localStorage every time,
+          // so server-side employees never showed for corporate admins.
+          const { authFetch } = await import("@/lib/authFetch");
+          const res = await authFetch(`/api/corporate/employees`);
           if (res.ok) {
             const data = await res.json();
             if (data.data && data.data.length > 0) {
