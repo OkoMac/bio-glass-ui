@@ -256,7 +256,16 @@ export default function SplashOnboarding() {
   // never hit the ProfileCompletionGate. Existing users still flow
   // through the gate (which captures the same fields post-hoc).
   // ageVerified is now derived from a valid 18+ DOB rather than a checkbox.
-  const [dob, setDob] = useState("");
+  // DOB stored as YYYY-MM-DD for backend compat, composed from three selects
+  // so users pick a year directly instead of tapping the month-arrow 40+ times
+  // in iOS Safari's calendar picker. Same pattern as ProfileCompletionGate.
+  const [dobDay, setDobDay] = useState("");
+  const [dobMonth, setDobMonth] = useState("");
+  const [dobYear, setDobYear] = useState("");
+  const dob =
+    dobYear && dobMonth && dobDay
+      ? `${dobYear}-${dobMonth.padStart(2, "0")}-${dobDay.padStart(2, "0")}`
+      : "";
   const [country, setCountry] = useState("ZA");
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotBusy, setForgotBusy] = useState(false);
@@ -974,13 +983,48 @@ export default function SplashOnboarding() {
               <div className="flex gap-3">
                 <div className="flex-1">
                   <label className="block text-[10px] text-muted-foreground px-1 mb-1">Date of birth</label>
-                  <input
-                    value={dob}
-                    onChange={(e) => setDob(e.target.value)}
-                    type="date"
-                    max={new Date().toISOString().split("T")[0]}
-                    className="w-full glass-1 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5"
-                  />
+                  <div className="grid grid-cols-3 gap-2">
+                    <select
+                      aria-label="Day"
+                      value={dobDay}
+                      onChange={(e) => setDobDay(e.target.value)}
+                      className="glass-1 rounded-xl px-2 py-3 text-sm text-foreground outline-none border border-white/5"
+                    >
+                      <option value="">Day</option>
+                      {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                        <option key={d} value={String(d)}>{d}</option>
+                      ))}
+                    </select>
+                    <select
+                      aria-label="Month"
+                      value={dobMonth}
+                      onChange={(e) => setDobMonth(e.target.value)}
+                      className="glass-1 rounded-xl px-2 py-3 text-sm text-foreground outline-none border border-white/5"
+                    >
+                      <option value="">Month</option>
+                      {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m, i) => (
+                        <option key={m} value={String(i + 1)}>{m}</option>
+                      ))}
+                    </select>
+                    <select
+                      aria-label="Year"
+                      value={dobYear}
+                      onChange={(e) => setDobYear(e.target.value)}
+                      className="glass-1 rounded-xl px-2 py-3 text-sm text-foreground outline-none border border-white/5"
+                    >
+                      <option value="">Year</option>
+                      {(() => {
+                        const now = new Date().getUTCFullYear();
+                        const max = now - 13;
+                        const min = now - 100;
+                        const years: number[] = [];
+                        for (let y = max; y >= min; y--) years.push(y);
+                        return years.map((y) => (
+                          <option key={y} value={String(y)}>{y}</option>
+                        ));
+                      })()}
+                    </select>
+                  </div>
                 </div>
                 <div className="flex-1">
                   <label className="block text-[10px] text-muted-foreground px-1 mb-1">Country</label>
