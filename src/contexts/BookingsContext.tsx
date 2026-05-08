@@ -372,16 +372,17 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
     }
 
     // ── Auto-send booking confirmation via email + WhatsApp ──
-    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+    // Backend now requires auth on these (closes spam vector — anyone
+    // could previously POST a "you have a booking" email/WhatsApp to
+    // any address/phone). authFetch auto-injects the session JWT.
+    const { authFetch } = await import("@/lib/authFetch");
     const clientEmail = user?.email;
     const providerName = booking.providerName ?? booking.clientName ?? "Provider";
     const bookingRef = newBooking.id;
 
-    // Email confirmation (best-effort with logging)
     if (clientEmail) {
-      fetch(`${API}/api/email/booking-confirmation`, {
+      authFetch(`/api/email/booking-confirmation`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: clientEmail,
           clientName: user?.name ?? "Client",
@@ -393,21 +394,16 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
           bookingRef,
         }),
       }).catch((err) => {
-        // Loud — booking confirmation email is a real user expectation;
-        // silent failure means the client thinks they got a receipt
-        // when nothing was sent.
         console.error("[booking] email confirmation failed:", err);
       });
     }
 
-    // WhatsApp confirmation to client (fetch phone from Supabase profile)
     if (user?.profileId && !user.id?.startsWith("demo_")) {
       supabase.from("profiles").select("phone").eq("id", user.profileId).maybeSingle().then(({ data }) => {
         const phone = (data as any)?.phone?.replace(/[\s\-()]/g, "");
         if (phone) {
-          fetch(`${API}/api/whatsapp/booking-confirmation`, {
+          authFetch(`/api/whatsapp/booking-confirmation`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               phone,
               clientName: user?.name ?? "Client",
@@ -422,13 +418,11 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
       });
     }
 
-    // WhatsApp notification to provider (best-effort)
     if (booking.clientId && booking.clientId !== user?.profileId) {
-      fetch(`${API}/api/whatsapp/provider-notification`, {
+      authFetch(`/api/whatsapp/provider-notification`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          providerProfileId: booking.clientId, // provider's profile ID from booking
+          providerProfileId: booking.clientId,
           clientName: user?.name ?? "Client",
           service: booking.service,
           date: booking.date,
