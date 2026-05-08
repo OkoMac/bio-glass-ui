@@ -268,10 +268,12 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
   const cancel = useCallback(async (id: string) => {
     if (!user?.profileId) return { ok: false, error: "Not signed in" };
     try {
-      const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
-      const res = await fetch(`${API}/api/bookings/${id}/cancel`, {
+      // Backend route requires requireAuth — without the Bearer token
+      // every cancel hit 401. Switched to authFetch (which auto-injects
+      // the Supabase session token + 15s/30s timeout).
+      const { authFetch } = await import("@/lib/authFetch");
+      const res = await authFetch(`/api/bookings/${id}/cancel`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ clientProfileId: user.profileId }),
       });
       const data = await res.json();
