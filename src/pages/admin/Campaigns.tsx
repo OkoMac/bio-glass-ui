@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
 import { useAuth } from "@/contexts/AuthContext";
+import { getSASTDateKey } from "@/utils/sastDate";
 import {
   ArrowLeft, Plus, Sparkles, Trash2, Edit3, Calendar,
   Loader2, Tag, MapPin, ChevronRight,
@@ -42,7 +43,7 @@ export default function AdminCampaigns() {
     title: "",
     description: "",
     type: "seasonal" as string,
-    startDate: new Date().toISOString().slice(0, 10),
+    startDate: getSASTDateKey(),
     endDate: "",
     discountPct: "",
     discountFixed: "",
@@ -100,7 +101,7 @@ export default function AdminCampaigns() {
         setShowForm(false);
         setForm({
           title: "", description: "", type: "seasonal",
-          startDate: new Date().toISOString().slice(0, 10), endDate: "",
+          startDate: getSASTDateKey(), endDate: "",
           discountPct: "", discountFixed: "", targetCategories: "",
           targetCities: "", bannerImageUrl: "", ctaText: "Learn More", ctaUrl: "",
         });

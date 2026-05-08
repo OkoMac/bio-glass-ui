@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import NudgePopup from "@/components/NudgePopup";
 import GlassCard from "@/components/GlassCard";
+import { getSASTDateKey } from "@/utils/sastDate";
 import BiometricsDashboard from "@/components/BiometricsDashboard";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
@@ -87,7 +88,7 @@ export default function HealthInsights() {
   // Read today's water count from the flat localStorage key used across the app
   const waterToday = useMemo(() => {
     try {
-      const key = `bion_water_${new Date().toISOString().slice(0, 10)}`;
+      const key = `bion_water_${getSASTDateKey()}`;
       return parseInt(localStorage.getItem(key) ?? "0") || 0;
     } catch {
       return 0;

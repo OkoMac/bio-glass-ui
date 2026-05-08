@@ -6,6 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Calendar, Clock, CreditCard, Loader2, Shield, X } from "lucide-react";
+import { getSASTDateKey } from "@/utils/sastDate";
 
 interface ProgramDay {
   id: string;
@@ -50,7 +51,7 @@ export default function ProgramDetail() {
   const [err, setErr] = useState<string | null>(null);
 
   const [showEnroll, setShowEnroll] = useState(false);
-  const [startDate, setStartDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [startDate, setStartDate] = useState(() => getSASTDateKey());
   const [enrollBusy, setEnrollBusy] = useState(false);
   const [enrollErr, setEnrollErr] = useState<string | null>(null);
 
@@ -279,7 +280,7 @@ export default function ProgramDetail() {
               <input
                 type="date"
                 value={startDate}
-                min={new Date().toISOString().slice(0, 10)}
+                min={getSASTDateKey()}
                 onChange={e => setStartDate(e.target.value)}
                 className="w-full px-4 py-3 glass-1 rounded-xl text-sm text-foreground outline-none border border-white/[0.08] focus:border-indigo/40"
               />

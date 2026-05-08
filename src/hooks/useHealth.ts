@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { getSASTDateKey } from "@/utils/sastDate";
 
 /** Demo accounts use non-UUID IDs that Supabase rejects with 400. */
 const isReal = (id?: string | null) => !!id && !id.startsWith("demo_");
@@ -60,7 +61,7 @@ export function useHealthLogs(days = 30) {
   /** Upsert today's log entry — overwrites the row for today if it exists. */
   const logToday = useCallback(async (entry: Partial<Omit<HealthLog, "id" | "user_id" | "log_date">>) => {
     if (!user?.profileId) throw new Error("Not signed in");
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getSASTDateKey();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from("health_logs") as any)
       .upsert(

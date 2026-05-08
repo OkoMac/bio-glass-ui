@@ -6,6 +6,7 @@ import ProviderNav from "@/components/ProviderNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getSASTDateKey } from "@/utils/sastDate";
 import {
   ArrowLeft, Plus, Trash2, ClipboardList, Pill, Dumbbell,
   Apple, Brain, Sparkles, Loader2, ChevronDown, ChevronUp,
@@ -62,7 +63,7 @@ export default function TreatmentPlan() {
   const [creating, setCreating] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [startDate, setStartDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [startDate, setStartDate] = useState(() => getSASTDateKey());
   const [endDate, setEndDate] = useState("");
   const [reviewDate, setReviewDate] = useState("");
   const [items, setItems] = useState<PlanItem[]>([{ ...emptyItem }]);

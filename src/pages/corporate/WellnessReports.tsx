@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/contexts/AuthContext";
+import { getSASTDateKey } from "@/utils/sastDate";
 import {
   ArrowLeft, BarChart3, Users, DollarSign, Calendar,
   TrendingUp, Download, Loader2, Heart, Activity,
@@ -77,7 +78,7 @@ export default function WellnessReports() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `bion-wellness-report-${period}-${new Date().toISOString().slice(0, 10)}.json`;
+        a.download = `bion-wellness-report-${period}-${getSASTDateKey()}.json`;
         a.click();
         URL.revokeObjectURL(url);
       }
