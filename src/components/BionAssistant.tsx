@@ -10,6 +10,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useHabitProfile } from "@/hooks/useHabits";
 import { trackEvent } from "@/lib/habits";
 import { supabase } from "@/integrations/supabase/client";
+import { getSASTDateKey } from "@/utils/sastDate";
 import { localDateKey } from "@/lib/relativeTime";
 import { useInstallApp, InstallModal } from "./InstallButton";
 
@@ -227,6 +228,7 @@ export default function BionAssistant() {
     return () => clearInterval(interval);
   }, [role]);
 
+  const [thinking, setThinking] = useState(false);
   const [messages, setMessages] = useState<Message[]>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -346,6 +348,12 @@ export default function BionAssistant() {
     let calendarEvents: any[] = [];
     try { calendarEvents = JSON.parse(localStorage.getItem("bion_calendar_events") ?? "[]").filter((e: any) => e.date === today); } catch {}
 
+    setThinking(true);
+    // 30s timeout — agent runner can be slow on cold starts but anything
+    // longer than that means something's wedged; fall back rather than
+    // leave the user staring at a typing dot forever.
+    const ctrl = new AbortController();
+    const timeoutId = setTimeout(() => ctrl.abort(), 30_000);
     try {
       const res = await fetch(`${API_URL}/api/chat`, {
         method: "POST",
@@ -354,17 +362,8 @@ export default function BionAssistant() {
           message: text.trim(),
           userName: user?.name,
           role,
-          // B2-7: send profileId + userId as separate keys so the backend
-          // can route the request through the agent runner. Without both
-          // present the backend falls back to the legacy chat path and
-          // tools never fire.
           profileId: user?.profileId,
           userId: user?.id,
-          // Pass conversation context so multi-turn flows ("I'm stressed"
-          // → B_ asks "want help finding someone?" → user "yes") don't
-          // look first-turn to the model. Without this every reply
-          // greeted the user fresh ("Hi Betchaza! How can I assist?").
-          // Slice excludes the message being sent (not yet in state).
           history: messages.slice(-10).map(m => ({ role: m.role, text: m.text })),
           systemHint: "Respond directly to the user's last message. If they say 'yes', 'no', 'not working' or otherwise refer back to your previous turn, treat that as continuation — do NOT start a fresh greeting.",
           userData: {
@@ -377,14 +376,21 @@ export default function BionAssistant() {
             events: calendarEvents.map((e: any) => ({ title: e.title, time: e.time, provider: e.provider })),
           },
         }),
+        signal: ctrl.signal,
       });
       const result = await res.json();
-      const reply: Message = { id: Date.now() + "a", role: "assistant", text: result.reply, ts: new Date() };
+      const replyText = (typeof result?.reply === "string" && result.reply.trim())
+        ? result.reply
+        : getSmartResponse(text, role, user?.name);
+      const reply: Message = { id: Date.now() + "a", role: "assistant", text: replyText, ts: new Date() };
       setMessages(prev => [...prev, reply]);
     } catch {
-      // Fallback to local regex engine if API unavailable
+      // Network error / timeout / abort — fall back to local regex engine.
       const reply: Message = { id: Date.now() + "a", role: "assistant", text: getSmartResponse(text, role, user?.name), ts: new Date() };
       setMessages(prev => [...prev, reply]);
+    } finally {
+      clearTimeout(timeoutId);
+      setThinking(false);
     }
   };
 
@@ -676,6 +682,18 @@ export default function BionAssistant() {
                     </div>
                   </div>
                 ))}
+                {thinking && (
+                  <div className="flex justify-start" aria-live="polite" aria-label="B_ is thinking">
+                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet to-indigo flex items-center justify-center mr-2 shrink-0 mt-0.5">
+                      <span className="text-[8px] font-bold text-white">B_</span>
+                    </div>
+                    <div className="glass-1 text-foreground rounded-2xl rounded-bl-sm px-3.5 py-2.5 flex gap-1 items-end h-8">
+                      <span className="w-1.5 h-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "120ms" }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "240ms" }} />
+                    </div>
+                  </div>
+                )}
                 <div ref={bottomRef} />
               </div>
 
