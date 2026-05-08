@@ -129,7 +129,7 @@ export default function ProfileCompletionGate({ children }: Props) {
           const sessionStamp = sessionStorage.getItem(SESSION_KEY);
           if (!sessionStamp && d.gracesRemaining > 0 && !d.hardBlocked) {
             sessionStorage.setItem(SESSION_KEY, String(Date.now()));
-            fetch(`${API}/api/profiles/me/decrement-grace`, {
+            fetch(`/api/relay/profiles/me/decrement-grace`, {
               method: "POST",
               headers: { Authorization: `Bearer ${token}` },
             }).catch(() => {/* swallow — gate still works */});
@@ -208,7 +208,13 @@ export default function ProfileCompletionGate({ children }: Props) {
         setError("Please sign in again.");
         return;
       }
-      const res = await fetch(`${API}/api/profiles/me/complete`, {
+      // iOS Safari hangs on this cross-origin POST roughly 1 in 5 attempts —
+      // the request never leaves the device, no preflight is logged backend-side.
+      // Lee Grant burned through 3 grace logins on it (2026-05-08). Routing the
+      // same call through the same-origin Vercel rewrite (/api/relay/...) avoids
+      // the cross-origin path entirely on the browser side; Vercel's edge does
+      // the cross-origin hop server-side where the bug doesn't manifest.
+      const res = await fetch(`/api/relay/profiles/me/complete`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -151,7 +151,6 @@ class ErrorBoundary extends React.Component<
 
 // ── Eager-loaded essential components (shell chrome / first paint) ──
 import SplashOnboarding from "./pages/SplashOnboarding";
-import StripePaymentPage, { PaymentSuccess } from "./pages/StripePayment";
 import NotFound        from "./pages/NotFound";
 import NotificationBell from "./components/NotificationBell";
 import HabitTracker     from "./components/HabitTracker";
@@ -665,10 +664,6 @@ function AppRoutes() {
       <Route path="/rep/crm/add" element={<RequireAuth allowedRoles={["sales_rep"]}><RepAddLead /></RequireAuth>} />
       <Route path="/rep/crm/suggested" element={<RequireAuth allowedRoles={["sales_rep"]}><RepSuggestedLeads /></RequireAuth>} />
       <Route path="/rep/crm/:id" element={<RequireAuth allowedRoles={["sales_rep"]}><RepLeadDetail /></RequireAuth>} />
-
-      {/* Stripe payment pages */}
-      <Route path="/payment" element={<RequireAuth><StripePaymentPage /></RequireAuth>} />
-      <Route path="/payment/success" element={<RequireAuth><PaymentSuccess /></RequireAuth>} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
