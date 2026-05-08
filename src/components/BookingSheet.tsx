@@ -108,7 +108,11 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
       });
       
       addBooking({
-        clientId:     user?.email ?? "client",
+        // Was user?.email — looks like an id but isn't one. Notifications
+      // FK on profiles.id (UUID); cancel/refund flows pass clientId in
+      // payloads. Email-as-id silently broke both. profileId is the
+      // canonical reference.
+      clientId:     user?.profileId ?? user?.email ?? "client",
         clientName:   user?.name  ?? "Guest",
         clientImage:  provider.image,
         providerName: provider.name,
@@ -150,7 +154,11 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
     
     // Create booking with real payment
     addBooking({
-      clientId:     user?.email ?? "client",
+      // Was user?.email — looks like an id but isn't one. Notifications
+      // FK on profiles.id (UUID); cancel/refund flows pass clientId in
+      // payloads. Email-as-id silently broke both. profileId is the
+      // canonical reference.
+      clientId:     user?.profileId ?? user?.email ?? "client",
       clientName:   user?.name  ?? "Guest",
       clientImage:  provider.image,
       providerName: provider.name,
