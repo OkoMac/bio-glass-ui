@@ -7,7 +7,6 @@ import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import AdBanner from "@/components/AdBanner";
 import { useFoodSync } from "@/hooks/useFoodSync";
-import { useActivityPoints } from "@/hooks/useActivityPoints";
 import { usePageView } from "@/hooks/usePageView";
 import { getSASTDateKey } from "@/utils/sastDate";
 import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
@@ -149,7 +148,9 @@ export default function FoodTracker() {
 
   // Sync with Supabase for authenticated users
   const { entries, todayEntries, monthly, yearly, goals, addEntry: syncAddEntry, deleteEntry: syncDeleteEntry, saveGoals: syncSaveGoals } = useFoodSync();
-  const { awardPoints } = useActivityPoints();
+  // v2.0 Phase 1B — engagement micro-rewards (1pt = R0.02 per food log)
+  // were dropped. Logging is its own reward; BIONPoints comes from
+  // real economic transactions, not gamified clicks.
   usePageView();
   const { showTip } = useFeatureDiscovery();
 
@@ -218,7 +219,6 @@ export default function FoodTracker() {
       date: getToday(),
     };
     syncAddEntry(entry);
-    awardPoints("log_food", entry.id).catch(() => {});
     trackEvent("tool_use", { category: "wellness_tracking", metadata: { tool: "food", meal: selectedMeal, calories: entry.calories } });
     setSearchQuery("");
   };
@@ -238,7 +238,6 @@ export default function FoodTracker() {
       date: getToday(),
     };
     syncAddEntry(entry);
-    awardPoints("log_food", entry.id).catch(() => {});
     trackEvent("tool_use", { category: "wellness_tracking", metadata: { tool: "food", meal: selectedMeal, calories: entry.calories } });
     setManualEntry({ name: "", calories: "", protein: "", carbs: "", fat: "" });
     setPhotoPreview(null);

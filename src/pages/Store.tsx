@@ -4,7 +4,9 @@ import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import { useStreakRewards, StreakTier } from "@/hooks/useStreakRewards";
-import { useActivityPoints, pointsToRand } from "@/hooks/useActivityPoints";
+import { useBioPoints } from "@/hooks/useBioPoints";
+
+const pointsToRand = (pts: number) => Math.round((pts / 50) * 100) / 100;
 import { useAuth } from "@/contexts/AuthContext";
 import AdBanner from "@/components/AdBanner";
 import {
@@ -16,7 +18,8 @@ export default function Store() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const rewards = useStreakRewards();
-  const points = useActivityPoints();
+  // v2.0 Phase 1B — single BIONPoints currency.
+  const points = useBioPoints();
 
   const [filter, setFilter] = useState<"available" | "claimed">("available");
   const [claimingId, setClaimingId] = useState<string | null>(null);

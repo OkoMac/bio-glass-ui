@@ -227,13 +227,9 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
       const booking = bookings.find(b => b.id === id);
       const priceNum = booking ? parseInt(booking.price.replace(/[^0-9]/g, ""), 10) || 0 : 0;
 
-      // 10 activity points for completing a session (R0.20)
-      supabase.from("activity_points").insert({
-        user_id: user.profileId,
-        points: 10,
-        action: "complete_session",
-        reference_id: id,
-      }).then(() => {});
+      // v2.0 Phase 1B — was 10 activity_points; removed as it duplicated
+      // the backend bookings.ts award (50 BIONPoints Class A on session
+      // completion via awardPoints helper). Single canonical award now.
 
       // Track monthly spend for voucher cashback (Premium subs only)
       if (priceNum > 0) {
@@ -336,14 +332,9 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
         notes:            booking.note ?? null,
       });
 
-      // Award 5 activity points for booking (R0.10 value)
-      // Trigger will reject if yearly cap hit
-      supabase.from("activity_points").insert({
-        user_id: user.profileId,
-        points: 5,
-        action: "book_session",
-        reference_id: newBooking.id,
-      }).then(() => {});
+      // v2.0 Phase 1B — booking-creation engagement points dropped.
+      // The real reward (Class A BIONPoints) lands on payment confirm
+      // + session complete via the backend helpers.
     }
 
     // ── Create in-app notifications for client + provider ──

@@ -7,7 +7,6 @@ import BionAssistant from "@/components/BionAssistant";
 import { ArrowLeft, Droplets, Plus, Minus, Trophy, Target, Flame } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import AdBanner from "@/components/AdBanner";
-import { useActivityPoints } from "@/hooks/useActivityPoints";
 import { useNativeHealth } from "@/hooks/useNativeHealth";
 import { haptics } from "@/lib/haptics";
 import { usePageView } from "@/hooks/usePageView";
@@ -149,7 +148,7 @@ export default function WaterTracker() {
   const [streak, setStreak] = useState(getStreak);
   const [milestone, setMilestone] = useState<string | null>(null);
   const [history, setHistory] = useState<Array<{ date: string; count: number; goal: number }>>([]);
-  const { awardPoints } = useActivityPoints();
+  // v2.0 Phase 1B: dropped 1pt/glass engagement awards.
   const native = useNativeHealth();
   usePageView();
   const { showTip } = useFeatureDiscovery();
@@ -283,8 +282,6 @@ export default function WaterTracker() {
     }));
     // Award 1 point per glass logged, capped at 8 (one daily goal worth) via the
     // hook's idempotency: ref ID = today's date, so DB unique would prevent double-count.
-    // We keep it simple here — points awarded per click; the yearly cap protects abuse.
-    awardPoints("log_water", `${dateKey}-glass-${data.glasses + 1}`).catch(() => {});
     trackEvent("tool_use", { category: "wellness_tracking", metadata: { tool: "water", amount_ml: 250 } });
     // Native: write 250ml back to Apple Health so other apps see BION as a contributor.
     // No-op on web. Best-effort — never blocks the UI.

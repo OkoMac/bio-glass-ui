@@ -8,7 +8,10 @@ import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWallet, TOPUP_MIN_RAND } from "@/hooks/useWallet";
 import { useEarnings, REFERRAL_COMMISSION_PER_PREMIUM, SALES_REP_THRESHOLD } from "@/hooks/useEarnings";
-import { useActivityPoints, pointsToRand } from "@/hooks/useActivityPoints";
+import { useBioPoints } from "@/hooks/useBioPoints";
+
+// 50 BIONPoints = R1 store credit (canonical, matches REWARDS.pointsPerRand)
+const pointsToRand = (pts: number) => Math.round((pts / 50) * 100) / 100;
 import { useVouchers } from "@/hooks/useVouchers";
 import MyOrdersSection from "@/components/wallet/MyOrdersSection";
 import {
@@ -34,7 +37,9 @@ export default function Wallet() {
   const { user } = useAuth();
   const wallet = useWallet();
   const earnings = useEarnings();
-  const points = useActivityPoints();
+  // v2.0 Phase 1B — single BIONPoints currency (was useActivityPoints).
+  const bionpoints = useBioPoints();
+  const points = { balance: bionpoints.balance };
   const vouchers = useVouchers();
 
   const [activeTab, setActiveTab] = useState<Tab>("wallet");

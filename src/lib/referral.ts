@@ -133,21 +133,9 @@ export async function recordReferralSignup(
     return { ok: false, error: refError.message };
   }
 
-  // Award 50 points to both users
-  await Promise.all([
-    supabase.from("activity_points").insert({
-      user_id: resolved.profileId,
-      points: 50,
-      action: "referral_signup",
-      reference_id: newUserProfileId,
-    }),
-    supabase.from("activity_points").insert({
-      user_id: newUserProfileId,
-      points: 50,
-      action: "signup",
-      reference_id: resolved.profileId,
-    }),
-  ]);
+  // v2.0 Phase 1B — referral points are now awarded server-side via
+  // the backend helper (referrals.ts → awardPoints, Class B). The
+  // frontend just needs to surface the success; no client-side insert.
 
   clearPendingReferralCode();
   return { ok: true, referrerId: resolved.profileId };
