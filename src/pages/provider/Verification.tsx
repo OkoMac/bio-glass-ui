@@ -305,10 +305,14 @@ export default function ProviderVerification() {
     if (!requiredDone)   { setError("Upload all required documents before submitting for review."); return; }
     setSubmitting(true); setError(null); setSuccess(null);
     try {
-      const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+      // Backend route is requireAuth — without the Bearer token every
+      // submit returned 401 and the provider saw "Submission failed"
+      // with no path to fix it. Switched to authFetch (auto-injects
+      // session token + same-origin relay + 15s timeout).
+      const { authFetch } = await import("@/lib/authFetch");
       const findPath = (t: string) => documents.find(d => d.type === t)?.fileUrl;
-      const res = await fetch(`${API}/api/kyc/provider/submit-documents`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
+      const res = await authFetch(`/api/kyc/provider/submit-documents`, {
+        method: "POST",
         body: JSON.stringify({
           profileId: user.profileId,
           regulator_body: regNumber ? "HPCSA" : "NONE",  // simplification: any non-empty reg number → HPCSA lookup
