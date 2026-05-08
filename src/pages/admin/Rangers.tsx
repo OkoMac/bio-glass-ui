@@ -4,6 +4,7 @@ import { useAdminToken } from "@/hooks/useAdminToken";
 import AdminNav from "@/components/AdminNav";
 import AdminTokenGate from "@/components/AdminTokenGate";
 import GlassCard from "@/components/GlassCard";
+import { authFetch } from "@/lib/authFetch";
 import {
   Target, Users, TrendingUp, Search, ChevronDown, ChevronRight,
   Phone, Mail, MapPin, Calendar, Award, AlertTriangle, Loader2,
@@ -59,9 +60,7 @@ export default function AdminRangers() {
     setLoading(true);
     try {
       // Fetch all rangers (profiles with sales_rep role)
-      const res = await fetch(`${API}/api/ranger-crm/admin/overview`, {
-        headers: { "X-Admin-Token": token },
-      });
+      const res = await authFetch(`/api/ranger-crm/admin/overview`);
       const j = await res.json();
       if (j.ok) {
         setRangers(j.rangers ?? []);

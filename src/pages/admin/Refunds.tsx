@@ -10,6 +10,7 @@ ArrowLeft, } from "lucide-react";
 import { toast } from "sonner";
 import { AdminMfaProvider, useAdminMfa } from "@/hooks/useAdminMfa";
 import { supabase } from "@/integrations/supabase/client";
+import { authFetch } from "@/lib/authFetch";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -60,8 +61,8 @@ function AdminRefundsInner() {
     setSearching(true);
     setResults([]);
     try {
-      const url = `${API}/api/compliance/admin/booking-lookup?q=${encodeURIComponent(query.trim())}`;
-      const res = await fetch(url, { headers: { "X-Admin-Token": token } });
+      const url = `/api/compliance/admin/booking-lookup?q=${encodeURIComponent(query.trim())}`;
+      const res = await authFetch(url);
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Search failed");
       setResults(j.bookings ?? []);

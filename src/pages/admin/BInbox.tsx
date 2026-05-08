@@ -23,6 +23,7 @@ import {
 import AdminNav from "@/components/AdminNav";
 import GlassCard from "@/components/GlassCard";
 import AdminTokenGate from "@/components/AdminTokenGate";
+import { authFetch } from "@/lib/authFetch";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -97,8 +98,7 @@ export default function BInbox() {
     if (!token) return;
     if (!quiet) setLoading(true);
     try {
-      const res = await fetch(`${API}/api/admin/assistant/inbox`, {
-        headers: { "X-Admin-Token": token }, });
+      const res = await authFetch(`/api/admin/assistant/inbox`);
       const j: InboxResponse = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed to load inbox");
       setItems(j.items ?? []);

@@ -21,6 +21,7 @@ ArrowLeft, } from "lucide-react";
 import { toast } from "sonner";
 import { formatRelativeTime } from "@/lib/relativeTime";
 import { AdminMfaProvider, useAdminMfa } from "@/hooks/useAdminMfa";
+import { authFetch } from "@/lib/authFetch";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -108,9 +109,7 @@ function _AdminComplianceBody({ mfaProtectedFetch, buildHeaders }: { mfaProtecte
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API}/api/admin/metrics/queues`, {
-        headers: { "X-Admin-Token": token },
-      });
+      const res = await authFetch(`/api/admin/metrics/queues`);
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed to load");
 

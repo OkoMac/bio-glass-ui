@@ -6,6 +6,7 @@ import AdminNav from "@/components/AdminNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { authFetch } from "@/lib/authFetch";
 import { AdminMfaProvider, useAdminMfa } from "@/hooks/useAdminMfa";
 import { toast } from "sonner";
 import {
@@ -29,11 +30,9 @@ async function logAuditAction(
   adminUserId?: string | null,
 ): Promise<void> {
   try {
-    const adminToken = localStorage.getItem("bion_admin_token") ?? "";
-    if (!adminToken) return; // no token → nothing we can do (also blocks dev)
-    await fetch(`${API_URL}/api/admin/audit-log`, {
+    // Backend requireAdmin needs the JWT (Bearer); X-Admin-Token alone 401s.
+    await authFetch(`/api/admin/audit-log`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-Admin-Token": adminToken },
       body: JSON.stringify({ admin_user_id: adminUserId ?? "system", action, target_type: targetType, target_id: targetId, details }),
     });
   } catch (err: any) {

@@ -5,6 +5,8 @@ import AdminNav from "@/components/AdminNav";
 import AdminTokenGate from "@/components/AdminTokenGate";
 import GlassCard from "@/components/GlassCard";
 import { toast } from "sonner";
+import { authFetch } from "@/lib/authFetch";
+import { getAuthHeaders } from "@/lib/authFetch";
 import {
   ArrowLeft, Send, MessageSquare, Mail, Phone, Clock,
   Users, TrendingUp, CheckCircle, AlertCircle, Loader2,
@@ -39,7 +41,7 @@ interface OutreachLog {
 
 export default function AdminOutreach() {
   const navigate = useNavigate();
-  const { token } = useAdminToken();
+  const { token, loading: tokenLoading } = useAdminToken();
   const [tab, setTab] = useState<"overview" | "email" | "whatsapp" | "logs">("overview");
   const [stats, setStats] = useState<OutreachStats | null>(null);
   const [waStatus, setWAStatus] = useState<WAStatus | null>(null);
@@ -49,15 +51,13 @@ export default function AdminOutreach() {
   // Bulk-send confirm modal — guards the 50-message WhatsApp blast.
   const [confirmBlast, setConfirmBlast] = useState(false);
 
-  const headers: Record<string, string> = { "X-Admin-Token": token ?? "" };
-
   async function fetchAll() {
     if (!token) return;
     setLoading(true);
     try {
       const [statsRes, waRes] = await Promise.all([
-        fetch(`${API}/api/campaigns/outreach-stats`, { headers }),
-        fetch(`${API}/api/campaigns/whatsapp-outreach/status`, { headers }),
+        authFetch(`/api/campaigns/outreach-stats`),
+        authFetch(`/api/campaigns/whatsapp-outreach/status`),
       ]);
       const [statsData, waData] = await Promise.all([statsRes.json(), waRes.json()]);
       if (statsData.ok) setStats(statsData);
@@ -69,7 +69,7 @@ export default function AdminOutreach() {
   async function fetchLogs() {
     if (!token) return;
     try {
-      const res = await fetch(`${API}/api/campaigns/outreach-stats`, { headers });
+      const res = await authFetch(`/api/campaigns/outreach-stats`);
       const data = await res.json();
       if (data.ok) setStats(data);
     } catch {}
@@ -79,9 +79,8 @@ export default function AdminOutreach() {
     if (!token) return;
     setSending(true);
     try {
-      const res = await fetch(`${API}/api/campaigns/whatsapp-outreach`, {
+      const res = await authFetch(`/api/campaigns/whatsapp-outreach`, {
         method: "POST",
-        headers: { ...headers, "Content-Type": "application/json" },
         body: JSON.stringify({ dryRun: false, limit: 50 }),
       });
       const data = await res.json();
