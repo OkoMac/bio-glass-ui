@@ -26,7 +26,7 @@ export function useBioPoints() {
     setLoading(true);
 
     supabase
-      .from("biopoints")
+      .from("bionpoints")
       .select("*")
       .eq("user_id", profileId)
       .order("created_at", { ascending: false })
@@ -46,7 +46,7 @@ export function useBioPoints() {
   const awardPoints = useCallback(async (points: number, reason: string, sourceType?: string) => {
     if (!profileId) return;
     setBalance(prev => prev + points);
-    await supabase.from("biopoints").insert({
+    await supabase.from("bionpoints").insert({
       user_id: profileId,
       points,
       reason,

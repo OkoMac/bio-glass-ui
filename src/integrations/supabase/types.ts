@@ -14,7 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      biopoints: {
+      bionpoints: {
         Row: {
           created_at: string
           id: string
