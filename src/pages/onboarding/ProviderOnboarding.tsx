@@ -35,10 +35,13 @@ export default function ProviderOnboarding() {
     if (user?.id) localStorage.setItem(`bion_onboarding_done_${user.id}`, "1");
     // Check if verification documents are already submitted
     try {
+      // BioUser.id is the auth user_id, profile primary key lives at user_id.
+      // Was .eq("id", user?.id) which never matched — every provider got
+      // routed to /pro/verification even if already approved.
       const { data: profile } = await supabase
         .from("profiles")
         .select("provider_status")
-        .eq("id", user?.id)
+        .eq("user_id", user?.id)
         .maybeSingle();
       if ((profile as any)?.provider_status === "verified" || (profile as any)?.provider_status === "approved") {
         navigate("/pro/dashboard", { replace: true });
