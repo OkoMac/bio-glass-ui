@@ -139,7 +139,10 @@ interface BookingsContextType {
   markComplete: (id: string) => void;
   markNoShow:   (id: string) => void;
   reschedule:   (id: string, newDate: string, newTime: string) => void;
-  addBooking:   (booking: Omit<Booking, "id" | "status">) => void;
+  /** Returns the inserted booking's UUID (or null if the user has
+   *  no profileId / DB write skipped). Awaits the supabase round-trip
+   *  so callers can chain follow-up calls (redemption, etc.). */
+  addBooking:   (booking: Omit<Booking, "id" | "status">) => Promise<string | null>;
   getByStatus:  (status: BookingStatus | BookingStatus[]) => Booking[];
   getByClient:  (clientId: string) => Booking[];
   // Added real providers data
@@ -285,8 +288,13 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
     }
   }, [user?.profileId]);
 
-  const addBooking = useCallback(async (booking: Omit<Booking, "id" | "status">) => {
-    const newBooking: Booking = { ...booking, id: `b${Date.now()}`, status: "pending" };
+  const addBooking = useCallback(async (booking: Omit<Booking, "id" | "status">): Promise<string | null> => {
+    // Optimistic UI uses a temporary id; we replace it with the real
+    // Supabase UUID once the insert returns. Callers awaiting addBooking
+    // get the real UUID so downstream calls (redemption, notifications,
+    // payouts) can reference the right row.
+    const tempId = `b${Date.now()}`;
+    const newBooking: Booking = { ...booking, id: tempId, status: "pending" };
     setBookings(prev => [...prev, newBooking]);
 
     // v2.0 Phase 1C: streak update is now server-side (backend
@@ -321,22 +329,36 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
       console.warn("[booking → calendar sync] failed:", err);
     }
 
-    // Only insert when we have a real session with a resolved profile ID
+    // Only insert when we have a real session with a resolved profile ID.
+    // Returns the inserted UUID so the caller can chain follow-up calls.
+    let insertedId: string | null = null;
     if (user?.profileId) {
-      await supabase.from("bookings").insert({
-        // profiles.id is the FK — use profileId, not the auth user id
-        client_id:        user.role === "client" ? user.profileId : (booking.clientId || user.profileId),
-        provider_id:      booking.providerId ?? (user.role === "provider" ? user.profileId : null),
-        booking_date:     booking.date,
-        booking_time:     booking.time,
-        duration_minutes: parseInt(booking.duration) || 60,
-        status:           "pending",
-        notes:            booking.note ?? null,
-      });
+      const { data: inserted, error } = await supabase
+        .from("bookings")
+        .insert({
+          // profiles.id is the FK. Was previously falling back to
+          // booking.clientId which could hold an email — that wrote a
+          // garbage non-UUID and the row failed validation. Now uses
+          // user.profileId as the canonical reference for clients.
+          client_id:        user.role === "client" ? user.profileId : (booking.clientId || user.profileId),
+          provider_id:      booking.providerId ?? (user.role === "provider" ? user.profileId : null),
+          booking_date:     booking.date,
+          booking_time:     booking.time,
+          duration_minutes: parseInt(booking.duration) || 60,
+          status:           "pending",
+          notes:            booking.note ?? null,
+        })
+        .select("id")
+        .single();
 
-      // v2.0 Phase 1B — booking-creation engagement points dropped.
-      // The real reward (Class A BIONPoints) lands on payment confirm
-      // + session complete via the backend helpers.
+      if (!error && inserted) {
+        insertedId = (inserted as { id: string }).id;
+        // Swap the optimistic temp id with the real UUID so subsequent
+        // updates (cancel, mark-complete) reference the right row.
+        setBookings(prev => prev.map(b =>
+          b.id === tempId ? { ...b, id: insertedId! } : b,
+        ));
+      }
     }
 
     // ── Create in-app notifications for client + provider ──
@@ -424,6 +446,8 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
         }),
       }).catch(() => {});
     }
+
+    return insertedId;
   }, [user?.id, user?.role, user?.profileId, user?.email, user?.name]);
 
   const getByStatus = useCallback((status: BookingStatus | BookingStatus[]) => {

@@ -156,21 +156,22 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
     setStep(3); // Go to payment step
   };
 
-  const handleStripePaymentSuccess = (paymentIntentId: string) => {
+  const handleStripePaymentSuccess = async (paymentIntentId: string) => {
     if (selectedService === null || !selectedTime) return;
-    
+
     const svc = provider.services[selectedService];
     const fees = calculateFees();
-    
-    // Store payment details for celebration display
+
     setPaymentDetails({
       price: `R${fees.servicePrice.toFixed(0)}`,
       fees: `R${fees.clientFee.toFixed(0)} (5%)`,
       totalPaid: `R${fees.total.toFixed(0)}`,
     });
-    
-    // Create booking with real payment
-    addBooking({
+
+    // Create booking — addBooking now returns the inserted UUID so we
+    // can fire downstream calls (BIONPoints redemption) against the
+    // right booking row instead of the Stripe payment intent ref.
+    const insertedBookingId = await addBooking({
       // Was user?.email — looks like an id but isn't one. Notifications
       // FK on profiles.id (UUID); cancel/refund flows pass clientId in
       // payloads. Email-as-id silently broke both. profileId is the
@@ -192,26 +193,20 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
       stripePaymentId: paymentIntentId,
     });
 
-    // BIONPoints v2.0: fire the actual /redeem-for-booking call now
-    // that the booking row exists. Server validates wallet balance +
-    // anti-self-dealing again and writes the negative bionpoints row.
+    // BIONPoints v2.0: fire /redeem-for-booking against the real
+    // inserted UUID. Server validates Class A balance + provider wallet
+    // + anti-self-dealing and writes the negative bionpoints row.
     // If the wallet drained between checkout and now, the call 409s
-    // and the user keeps their points (the discount they got from
-    // Stripe stands — Phase 4b will add a small refund-to-wallet
-    // path for that edge).
-    if (pendingRedemption && pendingRedemption.points > 0) {
-      // We don't have the inserted booking's UUID handy because addBooking
-      // is fire-and-forget; pass the local booking id as a best-effort
-      // reference. The backend will look up by recent client booking
-      // for this user. (Phase-2-Stitch refactor will replace this with
-      // a proper "create booking, get id, redeem" sequence.)
+    // and the user keeps their points (Phase 4b will add a refund-
+    // to-wallet path for that edge).
+    if (insertedBookingId && pendingRedemption && pendingRedemption.points > 0) {
       authFetch(`/api/bionpoints/redeem-for-booking`, {
         method: "POST",
         body: JSON.stringify({
           points:    pendingRedemption.points,
-          bookingId: paymentIntentId, // backend reconciles by stripe ref
+          bookingId: insertedBookingId,
         }),
-      }).catch(() => { /* non-blocking — server-side reconciliation handles drift */ });
+      }).catch(() => { /* non-blocking */ });
     }
 
     setStripePaymentId(paymentIntentId);
