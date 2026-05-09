@@ -49,6 +49,27 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
   const { addBooking } = useBookings();
   const { user }    = useAuth();
 
+  // Resolve the scraped provider slug (e.g. "cen_lynette") to the BION
+  // profile UUID via /api/providers/by-slug. Without this, every booking
+  // landed with providerId=undefined → notification table FK violations,
+  // marketing wallet credit attribution missed, payouts orphaned. Bridge
+  // ships with c3f5271 (backend) + 5dc48a8 (frontend by-slug rewrite).
+  const [registeredProviderId, setRegisteredProviderId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!provider.id) { setRegisteredProviderId(null); return; }
+    let cancelled = false;
+    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+    fetch(`${API}/api/providers/by-slug/${encodeURIComponent(provider.id)}`)
+      .then(r => r.json())
+      .then(j => {
+        if (cancelled) return;
+        if (j?.ok && j.profile_id) setRegisteredProviderId(j.profile_id as string);
+        else setRegisteredProviderId(null);
+      })
+      .catch(() => { /* directory-only fallback */ });
+    return () => { cancelled = true; };
+  }, [provider.id]);
+
   const weekDates = getWeekDates();
   const [step, setStep]                   = useState(1);
   const [selectedService, setSelectedService] = useState<number | null>(null);
@@ -108,11 +129,11 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
       });
       
       addBooking({
-        // Was user?.email — looks like an id but isn't one. Notifications
-      // FK on profiles.id (UUID); cancel/refund flows pass clientId in
-      // payloads. Email-as-id silently broke both. profileId is the
-      // canonical reference.
       clientId:     user?.profileId ?? user?.email ?? "client",
+      // Resolved BION profile UUID (when the provider has claimed +
+      // verified their listing) so notifications, wallet credit, and
+      // payout flows attach correctly. NULL for directory-only providers.
+      providerId:   registeredProviderId ?? undefined,
         clientName:   user?.name  ?? "Guest",
         clientImage:  provider.image,
         providerName: provider.name,
