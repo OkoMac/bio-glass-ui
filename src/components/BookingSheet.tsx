@@ -9,6 +9,7 @@ import { haptics } from "@/lib/haptics";
 import StripePaymentForm from "./StripePaymentForm";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRegisteredProvider } from "@/hooks/useRegisteredProvider";
 
 interface BookingSheetProps {
   open: boolean;
@@ -49,26 +50,11 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
   const { addBooking } = useBookings();
   const { user }    = useAuth();
 
-  // Resolve the scraped provider slug (e.g. "cen_lynette") to the BION
-  // profile UUID via /api/providers/by-slug. Without this, every booking
-  // landed with providerId=undefined → notification table FK violations,
-  // marketing wallet credit attribution missed, payouts orphaned. Bridge
-  // ships with c3f5271 (backend) + 5dc48a8 (frontend by-slug rewrite).
-  const [registeredProviderId, setRegisteredProviderId] = useState<string | null>(null);
-  useEffect(() => {
-    if (!provider.id) { setRegisteredProviderId(null); return; }
-    let cancelled = false;
-    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
-    fetch(`${API}/api/providers/by-slug/${encodeURIComponent(provider.id)}`)
-      .then(r => r.json())
-      .then(j => {
-        if (cancelled) return;
-        if (j?.ok && j.profile_id) setRegisteredProviderId(j.profile_id as string);
-        else setRegisteredProviderId(null);
-      })
-      .catch(() => { /* directory-only fallback */ });
-    return () => { cancelled = true; };
-  }, [provider.id]);
+  // Slug → BION profile UUID resolution. Shared with ProviderProfile
+  // so the lookup happens once per slug; both surfaces converge on
+  // the same profileId for provider notifications, marketing wallet
+  // credit, payouts, and points attribution.
+  const { profileId: registeredProviderId } = useRegisteredProvider(provider.id);
 
   const weekDates = getWeekDates();
   const [step, setStep]                   = useState(1);

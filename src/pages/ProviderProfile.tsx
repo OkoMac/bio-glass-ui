@@ -35,6 +35,7 @@ import { useProviderData } from "@/data/useProviderData";
 import { useProviderSlots, parseDuration } from "@/hooks/useProviderSlots";
 import { useAcquisitionVouchers } from "@/hooks/useAcquisitionVouchers";
 import { useProviderReviews } from "@/hooks/useReviews";
+import { useRegisteredProvider } from "@/hooks/useRegisteredProvider";
 import { getSASTDateKey } from "@/utils/sastDate";
 import { Gift } from "lucide-react";
 
@@ -138,32 +139,10 @@ export default function ProviderProfile() {
   }, [availableSlots, bookingTime]);
 
   // Bridge the scraped slug (cen_lynette) → BION profile UUID via the
-  // provider_claims table. verifiedProviders.has(slug) was always false
-  // because the Set holds UUIDs, not slugs — every URL-routed provider
-  // looked unregistered, even after a real claim + verification. Now the
-  // backend resolves the slug → profile_id + is_verified, and we use the
-  // resolved profile_id for downstream calls (services, programs, slots).
-  const [registeredProfileId, setRegisteredProfileId] = useState<string | null>(null);
-  const [isRegisteredOnBion, setIsRegisteredOnBion] = useState(false);
-  useEffect(() => {
-    if (!id) { setRegisteredProfileId(null); setIsRegisteredOnBion(false); return; }
-    let cancelled = false;
-    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
-    fetch(`${API}/api/providers/by-slug/${encodeURIComponent(id)}`)
-      .then(r => r.json())
-      .then(json => {
-        if (cancelled) return;
-        if (json?.ok && json.profile_id && json.is_verified) {
-          setRegisteredProfileId(json.profile_id as string);
-          setIsRegisteredOnBion(true);
-        } else {
-          setRegisteredProfileId(null);
-          setIsRegisteredOnBion(false);
-        }
-      })
-      .catch(() => { /* offline / 404 → directory-only */ });
-    return () => { cancelled = true; };
-  }, [id]);
+  // Slug → BION profile UUID resolution via the shared hook (also used
+  // by BookingSheet so a single resolve serves both surfaces).
+  const { profileId: registeredProfileId, isVerified } = useRegisteredProvider(id);
+  const isRegisteredOnBion = isVerified && Boolean(registeredProfileId);
 
   // ── Real BION services (registered providers only) ──────────────────────
   // GET /api/providers/:id/services returns the provider's active services
