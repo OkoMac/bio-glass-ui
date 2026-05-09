@@ -10,6 +10,8 @@ import StripePaymentForm from "./StripePaymentForm";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRegisteredProvider } from "@/hooks/useRegisteredProvider";
+import BionPointsRedeemCard from "@/components/BionPointsRedeemCard";
+import { authFetch } from "@/lib/authFetch";
 
 interface BookingSheetProps {
   open: boolean;
@@ -65,6 +67,11 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
   const [showCelebration, setShowCelebration] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<string>("card");
   const [isProcessing, setIsProcessing] = useState(false);
+  // BIONPoints redemption — selected upfront in the payment step,
+  // applied to the displayed/charged total. The actual server-side
+  // /redeem-for-booking call fires AFTER payment success once the
+  // booking row exists with a real UUID.
+  const [pendingRedemption, setPendingRedemption] = useState<{ points: number; rand: number } | null>(null);
   const [paymentDetails, setPaymentDetails] = useState<{
     price: string;
     fees: string;
@@ -82,19 +89,22 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
     }
   }, [open, user, navigate, onClose]);
 
-  // Calculate fees (5% to business + 5% to client = 10% total)
+  // Calculate fees (5% to business + 5% to client = 10% total),
+  // minus any pending BIONPoints redemption applied at checkout.
   const calculateFees = () => {
-    if (selectedService === null) return { servicePrice: 0, businessFee: 0, clientFee: 0, total: 0 };
-    
+    if (selectedService === null) return { servicePrice: 0, businessFee: 0, clientFee: 0, total: 0, discount: 0 };
+
     const svc = provider.services[selectedService];
     const priceStr = svc.price.replace('R', '').replace(',', '').replace('FREE', '0');
     const servicePrice = parseFloat(priceStr) || 0;
-    
-    const businessFee = servicePrice * 0.05; // 5% to business
-    const clientFee = servicePrice * 0.05;   // 5% to client
-    const total = servicePrice + clientFee;  // Client pays service price + their 5% fee
-    
-    return { servicePrice, businessFee, clientFee, total };
+
+    const businessFee = servicePrice * 0.05;
+    const clientFee   = servicePrice * 0.05;
+    const subtotal    = servicePrice + clientFee;
+    const discount    = Math.min(subtotal, pendingRedemption?.rand ?? 0);
+    const total       = Math.max(0, subtotal - discount);
+
+    return { servicePrice, businessFee, clientFee, total, discount };
   };
 
   const handlePayment = async () => {
@@ -181,7 +191,29 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
       paymentStatus: 'paid',
       stripePaymentId: paymentIntentId,
     });
-    
+
+    // BIONPoints v2.0: fire the actual /redeem-for-booking call now
+    // that the booking row exists. Server validates wallet balance +
+    // anti-self-dealing again and writes the negative bionpoints row.
+    // If the wallet drained between checkout and now, the call 409s
+    // and the user keeps their points (the discount they got from
+    // Stripe stands — Phase 4b will add a small refund-to-wallet
+    // path for that edge).
+    if (pendingRedemption && pendingRedemption.points > 0) {
+      // We don't have the inserted booking's UUID handy because addBooking
+      // is fire-and-forget; pass the local booking id as a best-effort
+      // reference. The backend will look up by recent client booking
+      // for this user. (Phase-2-Stitch refactor will replace this with
+      // a proper "create booking, get id, redeem" sequence.)
+      authFetch(`/api/bionpoints/redeem-for-booking`, {
+        method: "POST",
+        body: JSON.stringify({
+          points:    pendingRedemption.points,
+          bookingId: paymentIntentId, // backend reconciles by stripe ref
+        }),
+      }).catch(() => { /* non-blocking — server-side reconciliation handles drift */ });
+    }
+
     setStripePaymentId(paymentIntentId);
     setShowCelebration(true);
     haptics.success();
@@ -450,18 +482,31 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
                     </>
                   ) : (
                     <>
+                      {/* BIONPoints redemption — applies discount to total before payment */}
+                      <BionPointsRedeemCard
+                        bookingId="pending"
+                        bookingTotalRand={calculateFees().total + (pendingRedemption?.rand ?? 0)}
+                        onApplied={(rand, points) => setPendingRedemption({ points, rand })}
+                      />
+
                       {/* Paid Service - Stripe Payment Integration */}
                       <div className="glass-1 rounded-xl p-4">
                         <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
                           <CreditCard className="w-4 h-4" /> Secure Payment
                         </h3>
-                        
+
+                        {pendingRedemption && pendingRedemption.rand > 0 && (
+                          <div className="mb-3 p-2.5 bg-teal/10 border border-teal/20 rounded-lg text-xs text-foreground">
+                            BIONPoints discount: <span className="font-semibold text-teal">−R{pendingRedemption.rand.toFixed(2)}</span> ({pendingRedemption.points.toLocaleString()} pts)
+                          </div>
+                        )}
+
                         {stripeError && (
                           <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
                             {stripeError}
                           </div>
                         )}
-                        
+
                         <StripePaymentForm
                           amount={calculateFees().total}
                           currency="zar"
