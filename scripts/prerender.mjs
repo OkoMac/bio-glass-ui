@@ -101,7 +101,28 @@ async function prerender() {
       } catch { /* content may be minimal — that's fine */ }
 
       await new Promise((r) => setTimeout(r, 1500));
-      const html = await page.content();
+      let html = await page.content();
+
+      // ── Strip non-essential modulepreload hints ─────────────────────
+      // Puppeteer's render walks React Router and Vite tags every
+      // lazy-loaded chunk it discovers with <link rel="modulepreload">.
+      // Net effect: every first-paint hit was preloading 37 route chunks
+      // (~723 KB) the user may never visit (Directory, Settings, search,
+      // calendar, etc.). Only the vendor + main entry chunks need
+      // preload — everything else loads on-demand at navigation time.
+      //
+      // Keeps modulepreload for any /vendor-* chunk and the main index
+      // bundle (matched by the existing <script type="module" src>).
+      const scriptSrcMatch = html.match(/<script\s+type=["']module["'][^>]+src=["']\/assets\/(index-[^"']+\.js)["']/);
+      const mainEntry = scriptSrcMatch ? scriptSrcMatch[1] : null;
+      html = html.replace(
+        /<link\s+rel=["']modulepreload["'][^>]+href=["']\/assets\/([^"']+)["'][^>]*>/g,
+        (full, asset) => {
+          if (asset.startsWith("vendor-")) return full;
+          if (mainEntry && asset === mainEntry) return full;
+          return "";
+        },
+      );
 
       const filePath = path.join(DIST, filename);
       const publicPath = path.join(PUBLIC, filename);
