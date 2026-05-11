@@ -145,9 +145,7 @@ function _AdminComplianceBody({ mfaProtectedFetch, buildHeaders }: { mfaProtecte
       // Backend supports one exact-match event_type filter. For our group
       // filters (fica/bo/sars) we fetch everything and filter client-side so
       // one request covers "all" + any grouping.
-      const res = await fetch(`${API}/api/compliance/admin/events?limit=500`, {
-        headers: { "X-Admin-Token": token },
-      });
+      const res = await authFetch(`/api/compliance/admin/events?limit=500`);
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed to load events");
       const all = (j.events ?? []) as AuditEvent[];
