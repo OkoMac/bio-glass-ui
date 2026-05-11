@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Bot, Loader2 } from "lucide-react";
 import type { ChatMessage, CrawlResult } from "@/types/onboarding";
@@ -29,11 +30,25 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
         className={`max-w-[82%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
           isAssistant
             ? "bg-white/5 border border-white/8 text-foreground rounded-tl-sm"
-            : "gradient-indigo text-primary-foreground rounded-tr-sm"
+            : "gradient-indigo text-primary-foreground rounded-tr-sm whitespace-pre-line"
         }`}
       >
-        {msg.content.split("**").map((part, i) =>
-          i % 2 === 1 ? <strong key={i}>{part}</strong> : <span key={i}>{part}</span>
+        {isAssistant ? (
+          <ReactMarkdown
+            components={{
+              p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+              strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+              ul: ({ children }) => <ul className="list-disc pl-4 my-1.5 space-y-1">{children}</ul>,
+              ol: ({ children }) => <ol className="list-decimal pl-4 my-1.5 space-y-1">{children}</ol>,
+              li: ({ children }) => <li className="leading-snug">{children}</li>,
+              a: ({ href, children }) => <a href={href} className="text-indigo underline" target="_blank" rel="noopener noreferrer">{children}</a>,
+              code: ({ children }) => <code className="px-1 py-0.5 rounded bg-white/[0.06] text-[0.85em]">{children}</code>,
+            }}
+          >
+            {msg.content}
+          </ReactMarkdown>
+        ) : (
+          msg.content
         )}
       </div>
     </motion.div>

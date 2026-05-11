@@ -1044,6 +1044,25 @@ export default function Routines() {
                       className={`w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border transition-colors ${
                         createErrors.schedule ? "border-coral/60 focus:border-coral" : "border-white/08 focus:border-teal/40"
                       }`} />
+                    {/* Quick-pick chips for common cadences. Chronic-med
+                        users (Lee, 2026-05-11) wanted a one-tap "Daily"
+                        instead of typing "Mon, Tue, Wed, Thu, Fri, Sat, Sun". */}
+                    <div className="flex gap-1.5 mt-1.5 flex-wrap">
+                      {["Daily", "Weekdays", "Mon, Wed, Fri", "Weekends"].map(s => (
+                        <button key={s} type="button"
+                          onClick={() => {
+                            setNewRoutine(prev => ({ ...prev, schedule: s }));
+                            if (createErrors.schedule) setCreateErrors(prev => ({ ...prev, schedule: undefined }));
+                          }}
+                          className={`px-2.5 py-1 rounded-full text-[10px] border transition-colors ${
+                            newRoutine.schedule === s
+                              ? "border-teal/40 bg-teal/10 text-teal"
+                              : "border-white/08 text-muted-foreground hover:text-foreground"
+                          }`}>
+                          {s}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   <div>
                     <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Duration</label>

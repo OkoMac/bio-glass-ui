@@ -267,9 +267,9 @@ const Profile = () => {
                 <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full bg-indigo/20 blur-3xl" />
               </>
             )}
-            <label className="absolute top-3 right-3 w-9 h-9 rounded-full bg-obsidian/60 backdrop-blur-md border border-white/[0.12] flex items-center justify-center cursor-pointer hover:bg-obsidian/80 transition-colors z-10">
+            <label className="absolute top-3 right-3 w-11 h-11 rounded-full bg-obsidian/60 backdrop-blur-md border border-white/[0.12] flex items-center justify-center cursor-pointer hover:bg-obsidian/80 transition-colors z-10">
               <Camera className="w-4 h-4 text-white" />
-              <input type="file" accept="image/*" onChange={handleCoverUpload} className="hidden" />
+              <input type="file" accept="image/*" onChange={handleCoverUpload} className="sr-only" />
             </label>
           </div>
 
@@ -284,9 +284,11 @@ const Profile = () => {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <label className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-obsidian border-2 border-white/[0.08] flex items-center justify-center cursor-pointer opacity-0 group-hover/avatar:opacity-100 hover:bg-white/[0.04] transition-opacity z-10">
-                <Camera className="w-3 h-3 text-white" />
-                <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+              {/* Always visible on touch devices — fades in on hover on
+                  desktop. Same pattern as Index cover banner. */}
+              <label className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-obsidian border-2 border-white/[0.12] flex items-center justify-center cursor-pointer md:opacity-0 md:group-hover/avatar:opacity-100 hover:bg-white/[0.06] transition-opacity z-10 shadow-lg">
+                <Camera className="w-3.5 h-3.5 text-white" />
+                <input type="file" accept="image/*" onChange={handleAvatarUpload} className="sr-only" />
               </label>
             </div>
 

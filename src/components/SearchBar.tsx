@@ -278,7 +278,7 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
                   </button>
                   <button
                     onClick={() => removeSearch(q)}
-                    className="text-muted-foreground hover:text-coral opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="text-muted-foreground hover:text-coral md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                     aria-label={`Remove ${q} from history`}
                   >
                     <X className="w-3 h-3" />

@@ -144,7 +144,7 @@ export default function CatalogEditor() {
                       </p>
                       <p className="text-[10px] text-muted-foreground">{Meta.label}</p>
                     </div>
-                    <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex flex-col md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={(e) => { e.stopPropagation(); if (p.page_number > 1) reorderPage(p.id, p.page_number - 1); }}
                         className="p-0.5 hover:text-foreground"

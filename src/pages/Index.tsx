@@ -360,7 +360,7 @@ const Index = () => {
                   couldn't change his avatar from his iPhone at all. */}
               <label className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-obsidian border-2 border-white/[0.12] flex items-center justify-center cursor-pointer md:opacity-0 md:group-hover/avatar:opacity-100 hover:bg-white/[0.06] transition-opacity z-10 shadow-lg">
                 <Camera className="w-3.5 h-3.5 text-white" />
-                <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                <input type="file" accept="image/*" onChange={handleAvatarUpload} className="sr-only" />
               </label>
             </div>
           </div>

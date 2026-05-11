@@ -124,8 +124,8 @@ function OrderDisputeView({ orderId, onResolved }: { orderId: string; onResolved
                 <div key={i} className="relative group rounded-lg overflow-hidden border border-white/10 h-16">
                   <img src={u} alt="" className="w-full h-full object-cover" />
                   <button type="button" onClick={() => setEvidence(evidence.filter((_, j) => j !== i))}
-                    className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Trash2 className="w-2 h-2 text-white" />
+                    className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                    <Trash2 className="w-2.5 h-2.5 text-white" />
                   </button>
                 </div>
               ))}
