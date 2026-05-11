@@ -7,6 +7,8 @@ import { X, ChevronLeft, CreditCard, Shield, Lock, AlertCircle, Check, Loader2 }
 import BookingCelebration from "./BookingCelebration";
 import { haptics } from "@/lib/haptics";
 import StripePaymentForm from "./StripePaymentForm";
+import StitchCheckoutButton from "./StitchCheckoutButton";
+import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRegisteredProvider } from "@/hooks/useRegisteredProvider";
@@ -51,6 +53,14 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
   const navigate    = useNavigate();
   const { addBooking } = useBookings();
   const { user }    = useAuth();
+  const { isEnabled } = useFeatureFlags();
+  const useStitch = isEnabled("stitchCheckoutEnabled");
+  // Stitch needs a real booking UUID before initiating checkout
+  // (the webhook reconciles on externalReference = bookingId).
+  // Pre-create on entering the payment step. Worst case: user
+  // abandons → pending booking sits in the table; a cleanup cron
+  // would reap stale unpaid drafts after 30 min.
+  const [pendingBookingId, setPendingBookingId] = useState<string | null>(null);
 
   // Slug → BION profile UUID resolution. Shared with ProviderProfile
   // so the lookup happens once per slug; both surfaces converge on
@@ -79,6 +89,39 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
   } | null>(null);
   const [stripePaymentId, setStripePaymentId] = useState<string | null>(null);
   const [stripeError, setStripeError] = useState<string | null>(null);
+
+  // Pre-create the booking on entering step 3 if Stitch is enabled,
+  // so StitchCheckoutButton has a UUID to bind the payment_request to.
+  // Idempotent on re-entry (skips if pendingBookingId already set).
+  useEffect(() => {
+    if (step !== 3) return;
+    if (!useStitch) return;
+    if (pendingBookingId) return;
+    if (selectedService === null || !selectedTime || !user?.profileId) return;
+    const svc = provider.services[selectedService];
+    const fees = calculateFees();
+    (async () => {
+      const id = await addBooking({
+        clientId:     user.profileId!,
+        providerId:   registeredProviderId ?? undefined,
+        clientName:   user?.name ?? "Guest",
+        clientImage:  provider.image,
+        providerName: provider.name,
+        service:      svc.name,
+        date:         weekDates[selectedDay].fullLabel,
+        time:         selectedTime,
+        duration:     svc.duration,
+        price:        `R${fees.servicePrice.toFixed(0)}`,
+        fees:         `R${fees.clientFee.toFixed(0)} (5%)`,
+        totalPaid:    `R${fees.total.toFixed(0)}`,
+        providerEarns: `R${(fees.servicePrice - fees.businessFee).toFixed(0)}`,
+        note:         note || undefined,
+        paymentStatus: 'pending',
+      });
+      if (id) setPendingBookingId(id);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, useStitch]);
 
   // Check authentication when sheet opens
   useEffect(() => {
@@ -502,20 +545,28 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
                           </div>
                         )}
 
-                        <StripePaymentForm
-                          amount={calculateFees().total}
-                          currency="zar"
-                          bookingDetails={{
-                            providerId: provider.id || provider.name,
-                            serviceId: selectedService?.toString() || "",
-                            date: weekDates[selectedDay].fullLabel,
-                            time: selectedTime || "",
-                            note: note || undefined,
-                          }}
-                          onSuccess={handleStripePaymentSuccess}
-                          onError={handleStripePaymentError}
-                          onCancel={() => setStep(2)}
-                        />
+                        {useStitch ? (
+                          <StitchCheckoutButton
+                            bookingId={pendingBookingId ?? ""}
+                            amountRand={calculateFees().total}
+                            onError={setStripeError}
+                          />
+                        ) : (
+                          <StripePaymentForm
+                            amount={calculateFees().total}
+                            currency="zar"
+                            bookingDetails={{
+                              providerId: provider.id || provider.name,
+                              serviceId: selectedService?.toString() || "",
+                              date: weekDates[selectedDay].fullLabel,
+                              time: selectedTime || "",
+                              note: note || undefined,
+                            }}
+                            onSuccess={handleStripePaymentSuccess}
+                            onError={handleStripePaymentError}
+                            onCancel={() => setStep(2)}
+                          />
+                        )}
                       </div>
                       
                       {/* Note */}

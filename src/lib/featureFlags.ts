@@ -40,6 +40,17 @@ export const FEATURE_FLAGS: Record<string, FeatureFlag> = {
     rolloutPercentage: 100
   },
   
+  // v2 payment processor — swap Stripe checkout for Stitch.
+  // Off until Stitch business + banking verification clears. Flip
+  // to enabled:true the moment Stitch dashboard says "verified"
+  // and STITCH_ENV=production is set on Render.
+  stitchCheckoutEnabled: {
+    name: 'stitchCheckoutEnabled',
+    description: 'Use Stitch hosted checkout instead of Stripe for booking payments',
+    enabled: false,
+    rolloutPercentage: 0,
+  },
+
   // Phase 1: Gym Provider Tools (NEW - start disabled)
   providerDashboardV2: {
     name: 'providerDashboardV2',
