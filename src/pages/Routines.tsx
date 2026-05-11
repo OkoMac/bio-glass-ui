@@ -12,7 +12,7 @@ import { getProviderImage } from "@/lib/providerImages";
 import realData from "@/data/bion_pretoria_data.json";
 import {
   ArrowLeft, ChevronRight, CheckCircle, Circle, Plus, X,
-  Dumbbell, Apple, Stethoscope, Play, Eye, EyeOff, Shield, Pill, Heart,
+  Dumbbell, Apple, Stethoscope, Play, Eye, EyeOff, Shield, Pill, Heart, Activity,
   Clock, Calendar, Flame, ChevronDown, Trash2, Share2, Camera, Sparkles, Loader2,
 } from "lucide-react";
 
@@ -26,7 +26,7 @@ interface Exercise {
 interface Routine {
   id: string;
   title: string;
-  type: "workout" | "rehab" | "meal" | "skincare" | "medication" | "wellness" | "beauty" | "custom";
+  type: "workout" | "cardio" | "rehab" | "meal" | "skincare" | "medication" | "wellness" | "beauty" | "custom";
   provider?: string;         // undefined = self-created
   providerId?: string;
   providerImage?: string;
@@ -88,6 +88,13 @@ const EXERCISE_TEMPLATES: Record<string, Exercise[]> = {
     { name: "Pull-ups", sets: "3×max", done: false },
     { name: "Plank", sets: "3×45s", done: false },
     { name: "Cool-down stretch", sets: "5 min", done: false },
+  ],
+  cardio: [
+    { name: "Running", sets: "30 min", done: false },
+    { name: "Swimming", sets: "30 min", done: false },
+    { name: "Hiking", sets: "60 min", done: false },
+    { name: "Cycling", sets: "45 min", done: false },
+    { name: "Rowing", sets: "20 min", done: false },
   ],
   rehab: [
     { name: "Foam rolling", sets: "5 min", done: false },
@@ -321,6 +328,7 @@ function buildSampleRoutines(): Routine[] {
 
 const typeIcon: Record<string, React.ReactNode> = {
   workout:    <Dumbbell className="w-4 h-4" />,
+  cardio:     <Activity className="w-4 h-4" />,
   rehab:      <Stethoscope className="w-4 h-4" />,
   meal:       <Apple className="w-4 h-4" />,
   skincare:   <span className="text-sm">✨</span>,
@@ -331,7 +339,7 @@ const typeIcon: Record<string, React.ReactNode> = {
 };
 
 const typeLabel: Record<string, string> = {
-  workout: "Workout", rehab: "Rehab", meal: "Meal Plan", skincare: "Skincare", medication: "Medication", wellness: "Wellness", beauty: "Beauty", custom: "Custom",
+  workout: "Workout", cardio: "Cardio", rehab: "Rehab", meal: "Meal Plan", skincare: "Skincare", medication: "Medication", wellness: "Wellness", beauty: "Beauty", custom: "Custom",
 };
 
 // Per-type vocabulary so the Create Routine form copy matches the
@@ -341,6 +349,8 @@ const typeLabel: Record<string, string> = {
 const typeVocab: Record<string, { placeholder: string; itemNoun: string }> = {
   workout:    { placeholder: "e.g. Morning Strength, Evening Yoga, Parkrun, 5km Run, Cycling Plan",
                 itemNoun: "exercises" },
+  cardio:     { placeholder: "e.g. Half-Marathon Training, Trail Hikes, Open-Water Swim",
+                itemNoun: "sessions" },
   rehab:      { placeholder: "e.g. Knee Recovery, Post-op Shoulder, Lower Back Programme",
                 itemNoun: "movements" },
   meal:       { placeholder: "e.g. High-Protein Week, Mediterranean Plan, Vegan 28-Day",
@@ -468,7 +478,7 @@ export default function Routines() {
   // tapped Medication and ended up filling out a fitness routine form.
   const [searchParams, setSearchParams] = useSearchParams();
   const createIntent = searchParams.get("create") as Routine["type"] | null;
-  const VALID_TYPES: Routine["type"][] = ["workout","rehab","meal","skincare","medication","wellness","beauty","custom"];
+  const VALID_TYPES: Routine["type"][] = ["workout","cardio","rehab","meal","skincare","medication","wellness","beauty","custom"];
   const initialType: Routine["type"] = createIntent && VALID_TYPES.includes(createIntent) ? createIntent : "workout";
 
   // New routine form
@@ -574,7 +584,7 @@ export default function Routines() {
       id: `self_${Date.now()}`,
       title: newRoutine.title.trim(),
       type: newRoutine.type,
-      vertical: newRoutine.type === "workout" ? "teal" : newRoutine.type === "rehab" || newRoutine.type === "medication" ? "indigo" : newRoutine.type === "meal" ? "amber" : newRoutine.type === "wellness" ? "indigo" : "coral",
+      vertical: newRoutine.type === "workout" || newRoutine.type === "cardio" ? "teal" : newRoutine.type === "rehab" || newRoutine.type === "medication" ? "indigo" : newRoutine.type === "meal" ? "amber" : newRoutine.type === "wellness" ? "indigo" : "coral",
       daysCompleted: 0,
       totalDays: newRoutine.totalDays,
       exercises,
@@ -650,7 +660,7 @@ export default function Routines() {
       const inferredDays  = Number(json.data?.totalDays);
       setNewRoutine(prev => ({
         title:     prev.title.trim() ? prev.title : inferredTitle,
-        type:      (["workout","rehab","meal","skincare","medication","wellness","beauty","custom"].includes(inferredType) ? inferredType : prev.type) as Routine["type"],
+        type:      (["workout","cardio","rehab","meal","skincare","medication","wellness","beauty","custom"].includes(inferredType) ? inferredType : prev.type) as Routine["type"],
         schedule:  prev.schedule.trim() ? prev.schedule : inferredSched,
         totalDays: Number.isFinite(inferredDays) && inferredDays >= 7 && inferredDays <= 365 ? inferredDays : prev.totalDays,
       }));
@@ -996,7 +1006,7 @@ export default function Routines() {
                 <div>
                   <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5 block">Type</label>
                   <div className="flex gap-2 flex-wrap">
-                    {(["workout", "rehab", "meal", "skincare", "medication", "wellness", "beauty", "custom"] as const).map(t => (
+                    {(["workout", "cardio", "rehab", "meal", "skincare", "medication", "wellness", "beauty", "custom"] as const).map(t => (
                       <button key={t} onClick={() => {
                         // Reset the customised exercises list when the
                         // user switches type — otherwise the previous
@@ -1036,14 +1046,25 @@ export default function Routines() {
                       }`} />
                   </div>
                   <div>
-                    <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Duration (days)</label>
-                    <div className="flex gap-2">
-                      {[14, 28, 42, 56].map(d => (
+                    <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Duration</label>
+                    {/* totalDays = 9999 is the sentinel for "Ongoing" —
+                        used by chronic medications, lifelong wellness
+                        programmes, etc. The display layer renders it as
+                        "Ongoing" instead of "9999 days". */}
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { d: 28,   label: "28d" },
+                        { d: 90,   label: "90d" },
+                        { d: 180,  label: "6 mo" },
+                        { d: 365,  label: "1 yr" },
+                        { d: 730,  label: "2 yr" },
+                        { d: 9999, label: "Ongoing" },
+                      ].map(({ d, label }) => (
                         <button key={d} onClick={() => setNewRoutine(prev => ({ ...prev, totalDays: d }))}
-                          className={`flex-1 py-2.5 rounded-xl text-xs font-medium border transition-all ${
+                          className={`py-2.5 rounded-xl text-xs font-medium border transition-all ${
                             newRoutine.totalDays === d ? "border-teal/40 bg-teal/10 text-teal" : "border-white/08 text-muted-foreground"
                           }`}>
-                          {d}d
+                          {label}
                         </button>
                       ))}
                     </div>
@@ -1090,6 +1111,7 @@ export default function Routines() {
                             : newRoutine.type === "wellness" ? "Practice name (e.g. Meditation)"
                             : newRoutine.type === "beauty" ? "Ritual name"
                             : newRoutine.type === "rehab" ? "Movement name"
+                            : newRoutine.type === "cardio" ? "Activity (e.g. Running, Swimming, Hiking)"
                             : "Exercise name"
                           }
                           onKeyDown={e => e.key === "Enter" && addCustomExercise()}
@@ -1101,6 +1123,7 @@ export default function Routines() {
                             : newRoutine.type === "skincare" || newRoutine.type === "beauty" ? "Freq"
                             : newRoutine.type === "wellness" ? "Min"
                             : newRoutine.type === "workout" ? "Sets"
+                            : newRoutine.type === "cardio" ? "Time"
                             : "Reps"
                           }
                           onKeyDown={e => e.key === "Enter" && addCustomExercise()}

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Sparkles, Flame, Target, Calendar, TrendingUp, Brain,
   Apple, Dumbbell, Heart, Pill, Clock, ChevronRight, Bell, UserCheck, Mail, ExternalLink,
@@ -673,12 +674,26 @@ export default function BionAssistant() {
                         <span className="text-[8px] font-bold text-white">B_</span>
                       </div>
                     )}
-                    <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-line ${
+                    <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
                       m.role === "user"
-                        ? "bg-gradient-to-br from-violet to-indigo text-white rounded-br-sm"
+                        ? "bg-gradient-to-br from-violet to-indigo text-white rounded-br-sm whitespace-pre-line"
                         : "glass-1 text-foreground rounded-bl-sm"
                     }`}>
-                      {m.text}
+                      {m.role === "user" ? m.text : (
+                        <ReactMarkdown
+                          components={{
+                            p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                            strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                            ul: ({ children }) => <ul className="list-disc pl-4 my-1.5 space-y-1">{children}</ul>,
+                            ol: ({ children }) => <ol className="list-decimal pl-4 my-1.5 space-y-1">{children}</ol>,
+                            li: ({ children }) => <li className="leading-snug">{children}</li>,
+                            a: ({ href, children }) => <a href={href} className="text-teal underline" target="_blank" rel="noopener noreferrer">{children}</a>,
+                            code: ({ children }) => <code className="px-1 py-0.5 rounded bg-white/[0.06] text-[0.85em]">{children}</code>,
+                          }}
+                        >
+                          {m.text}
+                        </ReactMarkdown>
+                      )}
                     </div>
                   </div>
                 ))}

@@ -6,6 +6,7 @@ import AdBanner from "@/components/AdBanner";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePageView } from "@/hooks/usePageView";
+import { useHealthLogs, useHealthProfile } from "@/hooks/useHealth";
 import { authFetchJson } from "@/lib/authFetch";
 import { ArrowLeft, Calculator, ChevronDown, ChevronUp, TrendingUp } from "lucide-react";
 
@@ -47,6 +48,8 @@ const FAQ_DATA = [
 export default function BmiCalculator() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { logToday } = useHealthLogs(1);
+  const { save: saveHealthProfile } = useHealthProfile();
   usePageView();
 
   const [height, setHeight] = useState("");
@@ -128,6 +131,13 @@ export default function BmiCalculator() {
       } catch (err) {
         console.warn("[BmiCalculator] save failed:", err);
       }
+      // Mirror the values into the canonical health stores so the WEIGHT
+      // tile on /me (HealthProfile Metrics tab) and any other consumers
+      // see them. Without this, the BMI tool wrote to its own table and
+      // the WEIGHT tile read from health_logs — same user, different
+      // sources, "— kg" displayed despite a fresh BMI entry.
+      try { await logToday({ weight_kg: w }); } catch (err) { console.warn("[BmiCalculator] health_logs mirror failed:", err); }
+      try { await saveHealthProfile({ height_cm: h }); } catch (err) { console.warn("[BmiCalculator] health_profile mirror failed:", err); }
     }
   };
 

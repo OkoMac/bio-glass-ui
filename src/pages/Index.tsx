@@ -333,10 +333,13 @@ const Index = () => {
             </>
           )}
 
-          {/* Cover upload button */}
-          <label className="absolute top-3 right-3 w-10 h-10 rounded-full bg-obsidian/60 backdrop-blur-md border border-white/[0.12] flex items-center justify-center cursor-pointer hover:bg-obsidian/80 transition-colors z-10">
+          {/* Cover upload button. Input uses sr-only (not hidden/display:none)
+              because iOS Safari refuses to open the file picker for a label
+              wrapping a display:none input — Lee tapped this on his iPhone
+              and nothing happened. */}
+          <label className="absolute top-3 right-3 w-11 h-11 rounded-full bg-obsidian/60 backdrop-blur-md border border-white/[0.12] flex items-center justify-center cursor-pointer hover:bg-obsidian/80 transition-colors z-10">
             <Camera className="w-4 h-4 text-white" />
-            <input type="file" accept="image/*" onChange={handleCoverUpload} className="hidden" />
+            <input type="file" accept="image/*" onChange={handleCoverUpload} className="sr-only" />
           </label>
 
           {/* Avatar centered on banner */}
@@ -351,9 +354,12 @@ const Index = () => {
                 />
               </div>
 
-              {/* Tiny camera button — bottom-right corner, only visible on hover (desktop) */}
-              <label className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-obsidian border-2 border-white/[0.08] flex items-center justify-center cursor-pointer opacity-0 group-hover/avatar:opacity-100 hover:bg-white/[0.04] transition-opacity z-10">
-                <Camera className="w-3 h-3 text-white" />
+              {/* Camera button — bottom-right corner. Always visible on touch
+                  devices (hover doesn't exist there); fades in on hover on
+                  desktop. Previous opacity-0 + group-hover meant Lee
+                  couldn't change his avatar from his iPhone at all. */}
+              <label className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-obsidian border-2 border-white/[0.12] flex items-center justify-center cursor-pointer md:opacity-0 md:group-hover/avatar:opacity-100 hover:bg-white/[0.06] transition-opacity z-10 shadow-lg">
+                <Camera className="w-3.5 h-3.5 text-white" />
                 <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
               </label>
             </div>
