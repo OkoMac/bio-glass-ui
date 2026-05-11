@@ -16,7 +16,7 @@ import GlassCard from "@/components/GlassCard";
 import {
   Sparkles, MapPin, Star, Clock, Search as SearchIcon, Flame, Camera,
   Utensils, Calendar as CalendarIcon, BarChart3, Dumbbell,
-  Droplets, Moon, HeartPulse, Activity, Bot
+  Droplets, Moon, HeartPulse, Activity
 } from "lucide-react";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useHabitProfile } from "@/hooks/useHabits";
@@ -29,8 +29,7 @@ import TodaySummaryCard from "@/components/TodaySummaryCard";
 import PendingRatingsBanner from "@/components/PendingRatingsBanner";
 import ExpenditureRewardsStrip from "@/components/ExpenditureRewardsStrip";
 import realData from "@/data/bion_pretoria_data.json";
-import { getSASTDateKey } from "@/utils/sastDate";
-import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
+import { getProviderImage } from "@/lib/providerImages";
 import { getSastGreeting } from "@/lib/greeting";
 import CampaignBanner from "@/components/CampaignBanner";
 import InstallButton from "@/components/InstallButton";
@@ -70,11 +69,15 @@ function EmailVerifyBanner() {
   });
 
   useEffect(() => {
-    if (!user || user.id?.startsWith("demo_") || dismissed) return;
-    supabase.from("profiles")
-      .select("email_verified")
-      .eq("user_id", user.id)
-      .maybeSingle()
+    if (!user?.id || user.id.startsWith("demo_") || dismissed) return;
+    // PostgrestBuilder returns a PromiseLike; .catch isn't on its
+    // surface — wrap in Promise.resolve so the rejection path works.
+    Promise.resolve(
+      supabase.from("profiles")
+        .select("email_verified")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+    )
       .then(({ data }: any) => setVerified(data?.email_verified ?? false))
       .catch(() => {});
   }, [user?.id, dismissed]);
