@@ -50,26 +50,18 @@ function todayKey() {
 }
 
 /**
- * The date a sleep session belongs to is the night the user GOT INTO BED,
- * not the morning they pressed "Update". A typical overnight pattern
- * (bed 23:00, wake 07:00) crossed midnight, so the bedtime was yesterday
- * — and that's what the chart should show. Without this, logging at
- * 13:00 today put 8h of sleep on today's bar even though the user
- * hadn't slept since this morning.
+ * The date a sleep session belongs to is the morning the user WOKE UP
+ * (i.e. today, the day they're logging). Previous behaviour put a 23:00→07:00
+ * sleep on yesterday's bar because bedtime crossed midnight. Lee asked for
+ * the entry to land on today's bar instead (2026-05-11), since "Log Last
+ * Night's Sleep" semantically means the wake-up day from the user's POV —
+ * they're crediting themselves for sleep they did to start today.
  *
- * Naps inside the same calendar day (bed 13:00, wake 14:00) keep
- * today's date.
+ * Naps inside the same calendar day (bed 13:00, wake 14:00) also stay on
+ * today — unchanged from before.
  */
-function sleepEntryDate(bedtime: string, wakeTime: string): string {
-  const [bH, bM] = bedtime.split(":").map(Number);
-  const [wH, wM] = wakeTime.split(":").map(Number);
-  const bedMin = bH * 60 + bM;
-  const wakeMin = wH * 60 + wM;
-  const overnight = wakeMin <= bedMin;
-  if (!overnight) return getSASTDateKey();
-  const yesterday = new Date();
-  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
-  return getSASTDateKey(yesterday);
+function sleepEntryDate(_bedtime: string, _wakeTime: string): string {
+  return getSASTDateKey();
 }
 
 const SLEEP_TIPS = [

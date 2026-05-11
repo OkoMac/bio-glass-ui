@@ -116,10 +116,14 @@ function MetricCard({ metric }: { metric: Biometric }) {
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
-      className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 backdrop-blur-sm"
+      className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 backdrop-blur-sm h-full flex flex-col"
       style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}
     >
-      <div className="flex items-start justify-between mb-3">
+      {/* Top row is reserved to the ring's height (size px) on every tile,
+          so a goal-having tile (Steps, Sleep, Hydration) doesn't push its
+          neighbour shorter than itself. Without this, Steps was visibly
+          taller than Weight / Body Fat / Resting HR in the same row. */}
+      <div className="flex items-start justify-between mb-3" style={{ minHeight: size }}>
         <div className={`w-9 h-9 rounded-xl flex items-center justify-center bg-white/[0.04]`}>
           <Icon className={`w-4 h-4 ${metric.color}`} style={{ filter: "drop-shadow(0 0 6px currentColor)" }} />
         </div>
@@ -405,7 +409,8 @@ export default function BiometricsDashboard({ compact = false }: { compact?: boo
             <motion.div key={m.id}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}>
+              transition={{ delay: i * 0.05 }}
+              className="h-full">
               <MetricCard metric={m} />
             </motion.div>
           ))}
