@@ -103,7 +103,7 @@ export default function WellnessReports() {
       <div className="w-full px-4 md:px-8 xl:px-12 pt-20 space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate("/corporate/dashboard")} className="w-9 h-9 glass-2 rounded-full flex items-center justify-center">
+          <button onClick={() => navigate("/corporate/dashboard")} className="w-9 h-9 glass-2 rounded-full flex items-center justify-center" title="navigate('/corporate/dashboard')} className='w-9 h-9 glass-2 rounded-full fle…" aria-label="navigate('/corporate/dashboard')} className='w-9 h-9 glass-2 rounded-full fle…">
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div className="flex-1">
@@ -114,7 +114,7 @@ export default function WellnessReports() {
             onClick={exportReport}
             disabled={exporting}
             className="flex items-center gap-1.5 px-3 py-2 rounded-pill text-xs font-semibold glass-2 text-foreground hover:bg-white/[0.06]"
-          >
+           title="Download" aria-label="Download">
             {exporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
             Download
           </button>
@@ -131,7 +131,7 @@ export default function WellnessReports() {
                   ? "gradient-indigo text-primary-foreground shadow-cta"
                   : "glass-1 text-muted-foreground hover:text-foreground"
               }`}
-            >
+             title="setPeriod(p)} className= `} >" aria-label="setPeriod(p)} className= `} >">
               {PERIOD_LABELS[p]}
             </button>
           ))}

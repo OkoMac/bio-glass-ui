@@ -13,7 +13,7 @@ type Tab = "platform" | "security" | "notifications" | "billing";
 function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
   return (
     <button onClick={() => onChange(!value)}
-      className={`w-10 h-5 rounded-pill relative transition-all ${value ? "bg-indigo" : "bg-white/10"}`}>
+      className={`w-10 h-5 rounded-pill relative transition-all ${value ? "bg-indigo" : "bg-white/10"}`} title="onChange(!value)} className= `}>" aria-label="onChange(!value)} className= `}>">
       <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${value ? "left-5" : "left-0.5"}`} />
     </button>
   );
@@ -160,7 +160,7 @@ export default function AdminSettings() {
   if (loading) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
         <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-24 pb-10 md:pt-8 flex flex-col items-center justify-center gap-3" style={{ minHeight: "60vh" }}>
@@ -174,7 +174,7 @@ export default function AdminSettings() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-24 pb-10 md:pt-8 space-y-5">
@@ -210,7 +210,7 @@ export default function AdminSettings() {
             <button key={t.key} onClick={() => setTab(t.key)}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-pill text-xs font-medium transition-all ${
                 tab === t.key ? "gradient-indigo text-primary-foreground" : "text-muted-foreground"
-              }`}>
+              }`} title="setTab(t.key)} className= `}>" aria-label="setTab(t.key)} className= `}>">
               <t.icon className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">{t.label}</span>
             </button>

@@ -91,7 +91,7 @@ function BookingDisputesAdmin({ token }: { token: string }) {
           className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
             tab === "escalated" ? "bg-coral text-white" : "bg-white/5 text-muted-foreground"
           }`}
-        >
+         title="setTab('escalated')} className= `} > Escalated to admin ( )" aria-label="setTab('escalated')} className= `} > Escalated to admin ( )">
           Escalated to admin ({rows.filter((r) => r.status === "escalated").length})
         </button>
         <button
@@ -99,7 +99,7 @@ function BookingDisputesAdmin({ token }: { token: string }) {
           className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
             tab === "active" ? "bg-coral text-white" : "bg-white/5 text-muted-foreground"
           }`}
-        >
+         title="setTab('active')} className= `} > All active ( )" aria-label="setTab('active')} className= `} > All active ( )">
           All active ({rows.filter((r) => r.status !== "resolved" && r.status !== "closed").length})
         </button>
       </div>
@@ -146,7 +146,7 @@ function BookingCard({ row, onOpen }: { row: BookingDisputeRow; onOpen: () => vo
     <button
       onClick={onOpen}
       className="w-full text-left glass-1 hover:bg-white/[0.04] rounded-2xl p-4 flex items-center gap-4 transition-colors"
-    >
+     title="· R )} vs · d elapsed" aria-label="· R )} vs · d elapsed">
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
         row.status === "escalated" ? "bg-amber/10" :
         row.status === "b_ai_reviewed" ? "bg-indigo/10" :
@@ -324,7 +324,7 @@ function BookingDetail({
                       ? "border-teal/50 bg-teal/10 text-teal"
                       : "border-white/10 bg-white/[0.02] text-muted-foreground hover:text-foreground"
                   }`}
-                >
+                 title="setResolutionType(t)} className= `} >" aria-label="setResolutionType(t)} className= `} >">
                   {t.replace(/_/g, " ")}
                 </button>
               ))}
@@ -353,7 +353,7 @@ function BookingDetail({
                   className={`px-2 py-1 rounded-lg border text-[11px] ${
                     refundTo === "wallet" ? "border-teal/50 bg-teal/10 text-teal" : "border-white/10 text-muted-foreground"
                   }`}
-                >
+                 title="setRefundTo('wallet')} className= `} > Wallet (default)" aria-label="setRefundTo('wallet')} className= `} > Wallet (default)">
                   Wallet (default)
                 </button>
                 <button
@@ -361,7 +361,7 @@ function BookingDetail({
                   className={`px-2 py-1 rounded-lg border text-[11px] ${
                     refundTo === "bank" ? "border-teal/50 bg-teal/10 text-teal" : "border-white/10 text-muted-foreground"
                   }`}
-                >
+                 title="setRefundTo('bank')} className= `} > Bank" aria-label="setRefundTo('bank')} className= `} > Bank">
                   Bank
                 </button>
               </div>
@@ -381,7 +381,7 @@ function BookingDetail({
             <button
               onClick={submit} disabled={submitting}
               className="w-full py-3 rounded-xl bg-teal text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-            >
+             title="Apply final resolution" aria-label="Apply final resolution">
               {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
               Apply final resolution
             </button>
@@ -542,7 +542,7 @@ function OrderDisputeCard({ row, onOpen }: { row: Enriched; onOpen: () => void }
     <button
       onClick={onOpen}
       className="w-full text-left glass-1 hover:bg-white/[0.04] rounded-2xl p-4 flex items-center gap-4 transition-colors"
-    >
+     title=")} vs · R" aria-label=")} vs · R">
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${unresolved ? "bg-coral/10" : "bg-teal/10"}`}>
         {unresolved ? <AlertTriangle className="w-4 h-4 text-coral" /> : <CheckCircle className="w-4 h-4 text-teal" />}
       </div>
@@ -661,14 +661,14 @@ function OrderDisputeDetail({ row, onClose, onResolve }: {
             <button
               onClick={() => act("refunded")} disabled={resolving}
               className="py-3 rounded-xl bg-teal text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-            >
+             title="act('refunded')} disabled= className='py-3 rounded-xl bg-teal text-white text…" aria-label="act('refunded')} disabled= className='py-3 rounded-xl bg-teal text-white text…">
               {resolving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
               Refund buyer
             </button>
             <button
               onClick={() => act("declined")} disabled={resolving}
               className="py-3 rounded-xl bg-coral/80 text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-            >
+             title="act('declined')} disabled= className='py-3 rounded-xl bg-coral/80 text-white …" aria-label="act('declined')} disabled= className='py-3 rounded-xl bg-coral/80 text-white …">
               <XCircle className="w-4 h-4" /> Decline claim
             </button>
           </div>
@@ -702,7 +702,7 @@ export default function AdminDisputes() {
 
   return (
     <div className="min-h-screen bg-background md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <AdminNav />
@@ -725,7 +725,7 @@ export default function AdminDisputes() {
             className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 ${
               view === "bookings" ? "bg-indigo text-white" : "bg-white/5 text-muted-foreground"
             }`}
-          >
+           title="setView('bookings')} className= `} > Bookings" aria-label="setView('bookings')} className= `} > Bookings">
             <CalendarCheck className="w-3.5 h-3.5" /> Bookings
           </button>
           <button
@@ -733,7 +733,7 @@ export default function AdminDisputes() {
             className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 ${
               view === "orders" ? "bg-indigo text-white" : "bg-white/5 text-muted-foreground"
             }`}
-          >
+           title="setView('orders')} className= `} > Orders" aria-label="setView('orders')} className= `} > Orders">
             <ShoppingBag className="w-3.5 h-3.5" /> Orders
           </button>
         </div>
@@ -751,7 +751,7 @@ export default function AdminDisputes() {
             <button
               onClick={saveToken}
               className="px-3 py-2 rounded-lg bg-indigo text-white text-[11px] font-semibold"
-            >
+             title="Save" aria-label="Save">
               Save
             </button>
           </div>

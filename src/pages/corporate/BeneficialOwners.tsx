@@ -339,7 +339,7 @@ export default function BeneficialOwners() {
             <button
               onClick={() => navigate("/corporate/dashboard")}
               className="p-2 rounded-full glass-1 hover:bg-white/5 transition-all shrink-0"
-              aria-label="Back to dashboard">
+              aria-label="Back to dashboard" title="navigate('/corporate/dashboard')} className='p-2 rounded-full glass-1 hover:b…">
               <ArrowLeft className="w-4 h-4 text-muted-foreground" />
             </button>
             <div>
@@ -471,7 +471,7 @@ export default function BeneficialOwners() {
                                 owners.length === 1
                                   ? "text-muted-foreground/40 cursor-not-allowed"
                                   : "text-coral hover:bg-coral/10"
-                              }`}>
+                              }`} title="removeOwner(i)} disabled= aria-label='Remove owner' className= `}>">
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>

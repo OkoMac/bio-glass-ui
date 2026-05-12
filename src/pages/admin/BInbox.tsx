@@ -128,7 +128,7 @@ export default function BInbox() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <AdminNav />
@@ -162,7 +162,7 @@ export default function BInbox() {
             onClick={() => load()}
             disabled={loading}
             className="rounded-pill px-3 py-2 text-xs font-medium glass-1 text-foreground flex items-center gap-1.5 disabled:opacity-50"
-          >
+           title="load()} disabled= className='rounded-pill px-3 py-2 text-xs font-medium glass…" aria-label="load()} disabled= className='rounded-pill px-3 py-2 text-xs font-medium glass…">
             {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCcw className="w-3.5 h-3.5" />}
             Refresh
           </button>
@@ -303,7 +303,7 @@ function InboxCard({ item, onHandle }: { item: InboxItem; onHandle: () => void }
           <button
             onClick={(e) => { e.stopPropagation(); onHandle(); }}
             className="rounded-pill px-3 py-1.5 text-[11px] font-semibold gradient-indigo text-primary-foreground shadow-cta flex items-center gap-1 shrink-0"
-          >
+           title="} className='rounded-pill px-3 py-1.5 text-[11px] font-semibold gradient-indi…" aria-label="} className='rounded-pill px-3 py-1.5 text-[11px] font-semibold gradient-indi…">
             Handle <ArrowRight className="w-3 h-3" />
           </button>
         </div>

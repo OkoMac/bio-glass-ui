@@ -127,7 +127,7 @@ export default function AdminBQueue() {
 
   return (
     <div className="min-h-screen bg-background md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <AdminNav />
@@ -155,7 +155,7 @@ export default function AdminBQueue() {
               className={`flex-1 py-2 rounded-pill text-xs font-semibold capitalize transition-all ${
                 tab === t ? "gradient-indigo text-white" : "text-muted-foreground hover:text-foreground"
               }`}
-            >
+             title="setTab(t)} className= `} > s" aria-label="setTab(t)} className= `} > s">
               {t === "product" && <Package className="w-3 h-3 inline mr-1" />}
               {t === "sponsor" && <Building className="w-3 h-3 inline mr-1" />}
               {t === "reward" && <Gift className="w-3 h-3 inline mr-1" />}
@@ -180,7 +180,7 @@ export default function AdminBQueue() {
               const meta = STATUS_META[it.b_review_status] ?? STATUS_META.pending;
               return (
                 <button key={it.id} onClick={() => setSelected(it)}
-                  className="w-full text-left glass-1 hover:bg-white/[0.04] rounded-2xl p-4 flex items-center gap-4 transition-colors">
+                  className="w-full text-left glass-1 hover:bg-white/[0.04] rounded-2xl p-4 flex items-center gap-4 transition-colors" title="setSelected(it)} className='w-full text-left glass-1 hover:bg-white/[0.04] ro…" aria-label="setSelected(it)} className='w-full text-left glass-1 hover:bg-white/[0.04] ro…">
                   <div className="w-10 h-10 rounded-xl bg-indigo/10 flex items-center justify-center shrink-0">
                     {it.b_review_status === "b_flagged"
                       ? <AlertTriangle className="w-4 h-4 text-amber" />
@@ -308,14 +308,14 @@ function ReviewDetail({ item, onClose, onDecide }: {
             <button
               onClick={() => act("approve")} disabled={acting}
               className="py-3 rounded-xl bg-teal text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-            >
+             title="act('approve')} disabled= className='py-3 rounded-xl bg-teal text-white text-…" aria-label="act('approve')} disabled= className='py-3 rounded-xl bg-teal text-white text-…">
               {acting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
               Approve
             </button>
             <button
               onClick={() => act("reject")} disabled={acting}
               className="py-3 rounded-xl bg-coral/80 text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-            >
+             title="act('reject')} disabled= className='py-3 rounded-xl bg-coral/80 text-white te…" aria-label="act('reject')} disabled= className='py-3 rounded-xl bg-coral/80 text-white te…">
               <XCircle className="w-4 h-4" /> Reject
             </button>
           </div>

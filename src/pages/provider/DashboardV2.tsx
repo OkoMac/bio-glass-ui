@@ -21,7 +21,7 @@ export default function DashboardV2() {
   if (!isEnabled('providerDashboardV2')) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-        <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -47,7 +47,7 @@ export default function DashboardV2() {
   // Main dashboard content (will be built incrementally)
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-6xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -136,7 +136,7 @@ export default function DashboardV2() {
                   <span className="text-muted-foreground">Due for follow-up</span>
                   <span className="font-medium text-foreground">5 clients</span>
                 </div>
-                <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground mt-2">
+                <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground mt-2" title="View All Clients" aria-label="View All Clients">
                   View All Clients
                 </button>
               </div>
@@ -167,7 +167,7 @@ export default function DashboardV2() {
                   <span className="text-muted-foreground">Photos pending review</span>
                   <span className="font-medium text-foreground">12 photos</span>
                 </div>
-                <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground mt-2">
+                <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground mt-2" title="View Progress Gallery" aria-label="View Progress Gallery">
                   View Progress Gallery
                 </button>
               </div>
@@ -198,7 +198,7 @@ export default function DashboardV2() {
                   <span className="text-muted-foreground">Waitlisted</span>
                   <span className="font-medium text-foreground">3 clients</span>
                 </div>
-                <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground mt-2">
+                <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground mt-2" title="Manage Schedule" aria-label="Manage Schedule">
                   Manage Schedule
                 </button>
               </div>
@@ -229,7 +229,7 @@ export default function DashboardV2() {
                   <span className="text-muted-foreground">Package revenue</span>
                   <span className="font-medium text-foreground">R3,200</span>
                 </div>
-                <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground mt-2">
+                <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground mt-2" title="Create Package" aria-label="Create Package">
                   Create Package
                 </button>
               </div>

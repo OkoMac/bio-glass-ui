@@ -194,14 +194,14 @@ export default function CookieConsent({
                   onClick={acceptAll}
                   className="flex-1 min-w-[120px] py-2.5 px-4 rounded-xl gradient-indigo text-primary-foreground text-xs font-semibold"
                   aria-label="Accept all cookies"
-                >
+                 title="Accept all">
                   Accept all
                 </button>
                 <button
                   onClick={rejectAll}
                   className="flex-1 min-w-[120px] py-2.5 px-4 rounded-xl glass-1 border border-white/10 text-foreground text-xs font-semibold"
                   aria-label="Reject all non-essential cookies"
-                >
+                 title="Reject all">
                   Reject all
                 </button>
                 <button
@@ -209,7 +209,7 @@ export default function CookieConsent({
                   className="flex-1 min-w-[120px] py-2.5 px-4 rounded-xl text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
                   aria-expanded={expanded}
                   aria-controls="bion-cookie-details"
-                >
+                 title="setExpanded(true)} className='flex-1 min-w-[120px] py-2.5 px-4 rounded-xl tex…" aria-label="setExpanded(true)} className='flex-1 min-w-[120px] py-2.5 px-4 rounded-xl tex…">
                   Customise
                 </button>
               </div>
@@ -247,7 +247,7 @@ export default function CookieConsent({
                   }}
                   className="w-7 h-7 rounded-full glass-1 flex items-center justify-center shrink-0"
                   aria-label="Close cookie preferences"
-                >
+                 title="else }} className='w-7 h-7 rounded-full glass-1 flex items-center justify-cen…">
                   <X className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
               </div>
@@ -285,7 +285,7 @@ export default function CookieConsent({
                   onClick={savePreferences}
                   className="flex-1 min-w-[140px] py-2.5 px-4 rounded-xl gradient-indigo text-primary-foreground text-xs font-semibold inline-flex items-center justify-center gap-1.5"
                   aria-label="Save current cookie preferences"
-                >
+                 title="Save preferences">
                   <Check className="w-3.5 h-3.5" />
                   Save preferences
                 </button>
@@ -293,7 +293,7 @@ export default function CookieConsent({
                   onClick={acceptAll}
                   className="flex-1 min-w-[120px] py-2.5 px-4 rounded-xl glass-1 border border-white/10 text-foreground text-xs font-semibold"
                   aria-label="Accept all cookies"
-                >
+                 title="Accept all">
                   Accept all
                 </button>
               </div>
@@ -342,7 +342,7 @@ function Row({
         className={`w-10 h-5 rounded-pill relative transition-all shrink-0 ${
           value ? "gradient-indigo" : "bg-white/10"
         } ${locked ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
-      >
+       title="!locked && onChange?.(!value)} className= $ `} >">
         <span
           className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${
             value ? "left-5" : "left-0.5"

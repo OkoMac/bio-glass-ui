@@ -213,7 +213,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="w-full px-4 md:px-8 xl:px-12 pt-24 pb-10 md:pt-8 space-y-6">
@@ -337,19 +337,19 @@ export default function AdminDashboard() {
                           <button
                             onClick={() => updateRequestStatus(req.id, "contacted")}
                             className="px-3 py-2 rounded-xl text-xs font-medium glass-accent-indigo text-indigo-light hover:bg-indigo/20 transition-colors"
-                          >
+                           title="updateRequestStatus(req.id, 'contacted')} className='px-3 py-2 rounded-xl tex…" aria-label="updateRequestStatus(req.id, 'contacted')} className='px-3 py-2 rounded-xl tex…">
                             Mark Contacted
                           </button>
                           <button
                             onClick={() => updateRequestStatus(req.id, "booked")}
                             className="px-3 py-2 rounded-xl text-xs font-medium glass-accent-teal text-teal hover:bg-teal/20 transition-colors"
-                          >
+                           title="updateRequestStatus(req.id, 'booked')} className='px-3 py-2 rounded-xl text-x…" aria-label="updateRequestStatus(req.id, 'booked')} className='px-3 py-2 rounded-xl text-x…">
                             Mark Booked
                           </button>
                           <button
                             onClick={() => updateRequestStatus(req.id, "cancelled")}
                             className="px-3 py-2 rounded-xl text-xs font-medium glass-accent-coral text-coral hover:bg-coral/20 transition-colors"
-                          >
+                           title="updateRequestStatus(req.id, 'cancelled')} className='px-3 py-2 rounded-xl tex…" aria-label="updateRequestStatus(req.id, 'cancelled')} className='px-3 py-2 rounded-xl tex…">
                             Cancel
                           </button>
                         </div>
@@ -373,7 +373,7 @@ export default function AdminDashboard() {
                   {Object.values(approvals).filter(v => !v).length}
                 </span>
               </div>
-              <button onClick={() => navigate("/admin/providers")} className="text-xs text-indigo">View all</button>
+              <button onClick={() => navigate("/admin/providers")} className="text-xs text-indigo" title="navigate('/admin/providers')} className='text-xs text-indigo'>View all" aria-label="navigate('/admin/providers')} className='text-xs text-indigo'>View all">View all</button>
             </div>
 
             {loadingPending ? (

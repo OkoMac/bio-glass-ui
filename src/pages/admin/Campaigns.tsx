@@ -125,7 +125,7 @@ export default function AdminCampaigns() {
       <AdminNav />
       <div className="w-full px-4 md:px-8 xl:px-12 pt-24 md:pt-8 space-y-6">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate("/admin/dashboard")} className="w-9 h-9 glass-2 rounded-full flex items-center justify-center">
+          <button onClick={() => navigate("/admin/dashboard")} className="w-9 h-9 glass-2 rounded-full flex items-center justify-center" title="navigate('/admin/dashboard')} className='w-9 h-9 glass-2 rounded-full flex it…" aria-label="navigate('/admin/dashboard')} className='w-9 h-9 glass-2 rounded-full flex it…">
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div className="flex-1">
@@ -135,7 +135,7 @@ export default function AdminCampaigns() {
           <button
             onClick={() => setShowForm(!showForm)}
             className="flex items-center gap-1.5 px-3 py-2 rounded-pill text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta"
-          >
+           title="setShowForm(!showForm)} className='flex items-center gap-1.5 px-3 py-2 rounde…" aria-label="setShowForm(!showForm)} className='flex items-center gap-1.5 px-3 py-2 rounde…">
             <Plus className="w-3.5 h-3.5" /> New Campaign
           </button>
         </div>
@@ -278,7 +278,7 @@ export default function AdminCampaigns() {
                   <button
                     onClick={() => deleteCampaign(c.id)}
                     className="shrink-0 w-8 h-8 glass-2 rounded-full flex items-center justify-center text-red-400 hover:bg-red-500/10"
-                  >
+                   title="deleteCampaign(c.id)} className='shrink-0 w-8 h-8 glass-2 rounded-full flex i…" aria-label="deleteCampaign(c.id)} className='shrink-0 w-8 h-8 glass-2 rounded-full flex i…">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>

@@ -66,7 +66,7 @@ export default function CatalogEditor() {
       <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6 pt-20 md:pt-8">
         <header className="flex items-center justify-between gap-3 flex-wrap">
           <button onClick={() => navigate("/pro/catalogs")}
-            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground">
+            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground" title="navigate('/pro/catalogs')} className='flex items-center gap-2 text-xs text-mu…" aria-label="navigate('/pro/catalogs')} className='flex items-center gap-2 text-xs text-mu…">
             <ArrowLeft className="w-4 h-4" /> Back
           </button>
           <div className="flex-1 min-w-0 text-center">
@@ -89,13 +89,13 @@ export default function CatalogEditor() {
                   }}
                   title="Copy share link"
                   className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-foreground"
-                >
+                 aria-label="/catalog/$ `; navigator.clipboard.writeText(url).then(() => toast.success('Sh…">
                   <LinkIcon className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={() => window.open(`/catalog/${catalog.short_url}`, "_blank")}
                   className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10"
-                >
+                 title="window.open(`/catalog/$ `, '_blank')} className='flex items-center gap-1 text…" aria-label="window.open(`/catalog/$ `, '_blank')} className='flex items-center gap-1 text…">
                   <Eye className="w-3.5 h-3.5" /> Preview
                 </button>
               </>
@@ -112,7 +112,7 @@ export default function CatalogEditor() {
               className={`px-4 py-2 rounded-pill text-xs font-semibold ${
                 catalog.published ? "bg-white/5 text-muted-foreground hover:text-foreground" : "gradient-indigo text-white"
               }`}
-            >
+             title="try catch (e) }} className= `} >" aria-label="try catch (e) }} className= `} >">
               {catalog.published ? "Unpublish" : "Publish"}
             </button>
           </div>
@@ -149,14 +149,14 @@ export default function CatalogEditor() {
                         onClick={(e) => { e.stopPropagation(); if (p.page_number > 1) reorderPage(p.id, p.page_number - 1); }}
                         className="p-0.5 hover:text-foreground"
                         disabled={p.page_number === 1}
-                      >
+                       title="} className='p-0.5 hover:text-foreground' disabled= >" aria-label="} className='p-0.5 hover:text-foreground' disabled= >">
                         <ArrowUp className="w-3 h-3" />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); if (p.page_number < pages.length) reorderPage(p.id, p.page_number + 1); }}
                         className="p-0.5 hover:text-foreground"
                         disabled={p.page_number === pages.length}
-                      >
+                       title="{ e.stopPropagation(); if (p.page_number" aria-label="{ e.stopPropagation(); if (p.page_number">
                         <ArrowDown className="w-3 h-3" />
                       </button>
                     </div>
@@ -176,7 +176,7 @@ export default function CatalogEditor() {
                       key={t}
                       onClick={() => setAddingType(t)}
                       className="flex items-center gap-1.5 p-2 rounded-lg bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] text-xs text-foreground text-left"
-                    >
+                     title="setAddingType(t)} className='flex items-center gap-1.5 p-2 rounded-lg bg-whit…" aria-label="setAddingType(t)} className='flex items-center gap-1.5 p-2 rounded-lg bg-whit…">
                       <M.icon className="w-3 h-3 text-muted-foreground" />
                       {M.label}
                     </button>
@@ -232,10 +232,10 @@ export default function CatalogEditor() {
                 <p className="text-xs text-muted-foreground mt-1">{PAGE_TYPE_META[addingType].hint}</p>
               </div>
               <div className="flex gap-2">
-                <button onClick={() => setAddingType(null)} className="flex-1 py-2 rounded-xl bg-white/5 text-xs text-muted-foreground">
+                <button onClick={() => setAddingType(null)} className="flex-1 py-2 rounded-xl bg-white/5 text-xs text-muted-foreground" title="setAddingType(null)} className='flex-1 py-2 rounded-xl bg-white/5 text-xs tex…" aria-label="setAddingType(null)} className='flex-1 py-2 rounded-xl bg-white/5 text-xs tex…">
                   Cancel
                 </button>
-                <button onClick={() => handleAdd(addingType)} className="flex-1 py-2 rounded-xl gradient-indigo text-white text-xs font-semibold">
+                <button onClick={() => handleAdd(addingType)} className="flex-1 py-2 rounded-xl gradient-indigo text-white text-xs font-semibold" title="handleAdd(addingType)} className='flex-1 py-2 rounded-xl gradient-indigo text…" aria-label="handleAdd(addingType)} className='flex-1 py-2 rounded-xl gradient-indigo text…">
                   Add page
                 </button>
               </div>
@@ -293,7 +293,7 @@ function PageEditor({ page, onUpdate, onDelete }: {
         <button
           onClick={onDelete}
           className="text-xs text-coral hover:text-coral/80 flex items-center gap-1"
-        >
+         title="Delete" aria-label="Delete">
           <Trash2 className="w-3 h-3" /> Delete
         </button>
       </div>
@@ -343,7 +343,7 @@ function PageEditor({ page, onUpdate, onDelete }: {
               className={`px-3 py-1.5 rounded-pill text-[11px] font-semibold transition-all ${
                 form.layout === l ? "gradient-indigo text-white" : "bg-white/5 text-muted-foreground"
               }`}
-            >
+             title="setForm( )} className= `} >" aria-label="setForm( )} className= `} >">
               {l.replace(/_/g, " ")}
             </button>
           ))}
@@ -374,7 +374,7 @@ function PageEditor({ page, onUpdate, onDelete }: {
       <button
         onClick={handleSave} disabled={saving}
         className="w-full py-3 rounded-xl gradient-indigo text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-      >
+       title="Save page" aria-label="Save page">
         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
         Save page
       </button>

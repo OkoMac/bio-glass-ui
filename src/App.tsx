@@ -133,7 +133,7 @@ class ErrorBoundary extends React.Component<
             if ("caches" in window) caches.keys().then(ks => ks.forEach(k => caches.delete(k)));
             setTimeout(() => window.location.reload(), 200);
           }}
-            style={{ padding: "12px 32px", background: "#6366f1", color: "#fff", border: "none", borderRadius: 999, cursor: "pointer", fontWeight: 600, fontSize: 14 }}>
+            style={{ padding: "12px 32px", background: "#6366f1", color: "#fff", border: "none", borderRadius: 999, cursor: "pointer", fontWeight: 600, fontSize: 14 }} title="} style= }> Reload BION" aria-label="} style= }> Reload BION">
             Reload BION
           </button>
           {import.meta.env.DEV && this.state.error && (

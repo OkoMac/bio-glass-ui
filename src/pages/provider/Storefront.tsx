@@ -81,7 +81,7 @@ export default function ProviderStorefront() {
   if (!sf.loading && !sf.storefront?.enabled) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 pb-32 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
         <div className="mx-auto max-w-3xl px-4 md:px-8 pt-20 md:pt-8 space-y-5">
@@ -107,7 +107,7 @@ export default function ProviderStorefront() {
             <button
               onClick={() => canStorefront ? setSetupOpen(true) : navigate("/pro/billing?upgrade=pro")}
               className="rounded-pill px-6 py-3 gradient-indigo text-white text-sm font-semibold inline-flex items-center gap-2"
-            >
+             title="canStorefront ? setSetupOpen(true) : navigate('/pro/billing?upgrade=pro')} cl…" aria-label="canStorefront ? setSetupOpen(true) : navigate('/pro/billing?upgrade=pro')} cl…">
               <Plus className="w-4 h-4" /> {canStorefront ? "Set up storefront" : "Upgrade to Pro to enable"}
             </button>
           </GlassCard>
@@ -162,7 +162,7 @@ export default function ProviderStorefront() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 pb-32 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-5xl px-4 md:px-8 pt-20 md:pt-8 space-y-5">
@@ -173,7 +173,7 @@ export default function ProviderStorefront() {
             </h1>
             <p className="text-xs text-muted-foreground mt-1">{products.length} product{products.length !== 1 ? "s" : ""}</p>
           </div>
-          <button onClick={() => setSetupOpen(true)} className="text-xs text-indigo font-medium flex items-center gap-1">
+          <button onClick={() => setSetupOpen(true)} className="text-xs text-indigo font-medium flex items-center gap-1" title="setSetupOpen(true)} className='text-xs text-indigo font-medium flex items-cen…" aria-label="setSetupOpen(true)} className='text-xs text-indigo font-medium flex items-cen…">
             <SettingsIcon className="w-3.5 h-3.5" /> Settings
           </button>
         </div>
@@ -201,7 +201,7 @@ export default function ProviderStorefront() {
         <button
           onClick={() => setProductModal(true)}
           className="w-full rounded-2xl border-2 border-dashed border-white/[0.12] py-4 text-sm font-medium text-muted-foreground hover:border-white/[0.24] hover:text-foreground transition-colors flex items-center justify-center gap-2"
-        >
+         title="setProductModal(true)} className='w-full rounded-2xl border-2 border-dashed b…" aria-label="setProductModal(true)} className='w-full rounded-2xl border-2 border-dashed b…">
           <Plus className="w-4 h-4" /> Add a product
         </button>
 
@@ -299,7 +299,7 @@ function ProductRow({ product, onDelete, published, flagged }: {
           <p className="text-[10px] text-coral mt-1">{product.b_review_notes}</p>
         )}
       </div>
-      <button onClick={() => onDelete(product.id)} className="p-2 text-muted-foreground hover:text-coral">
+      <button onClick={() => onDelete(product.id)} className="p-2 text-muted-foreground hover:text-coral" title="onDelete(product.id)} className='p-2 text-muted-foreground hover:text-coral'>" aria-label="onDelete(product.id)} className='p-2 text-muted-foreground hover:text-coral'>">
         <Trash2 className="w-3.5 h-3.5" />
       </button>
     </GlassCard>

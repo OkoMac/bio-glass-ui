@@ -41,7 +41,7 @@ if (SENTRY_DSN) {
 
 function SentryTestButton() {
   const [show, setShow] = useState(false);
-  if (!show) return <button onClick={() => setShow(true)} style={{ display: "none" }}>Sentry test</button>;
+  if (!show) return <button onClick={() => setShow(true)} style={{ display: "none" }} title="setShow(true)} style= }>Sentry test" aria-label="setShow(true)} style= }>Sentry test">Sentry test</button>;
   return (
     <button
       onClick={() => { throw new Error("Sentry test: BION error tracking works!"); }}
@@ -51,7 +51,7 @@ function SentryTestButton() {
         borderRadius: 8, padding: "8px 16px", fontSize: 12, cursor: "pointer",
         fontFamily: "monospace",
       }}
-    >
+     title="} style= } > Break the world (Sentry test)" aria-label="} style= } > Break the world (Sentry test)">
       Break the world (Sentry test)
     </button>
   );

@@ -30,7 +30,7 @@ export default function Bicademy() {
         {/* Hero */}
         <header className="space-y-2">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…" aria-label="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div className="w-10 h-10 rounded-xl bg-indigo/10 flex items-center justify-center">

@@ -196,7 +196,7 @@ export default function QuickBook() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…" aria-label="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div>
@@ -210,7 +210,7 @@ export default function QuickBook() {
             </div>
           </div>
           <button onClick={() => setShowCustomize(true)}
-            className="w-10 h-10 rounded-xl border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+            className="w-10 h-10 rounded-xl border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors" title="setShowCustomize(true)} className='w-10 h-10 rounded-xl border border-white/[…" aria-label="setShowCustomize(true)} className='w-10 h-10 rounded-xl border border-white/[…">
             <Settings className="w-4 h-4" />
           </button>
         </div>
@@ -228,7 +228,7 @@ export default function QuickBook() {
                 Pick the tools you use most so they're always one tap away. Tap the gear icon in the top right to customize.
               </p>
               <button onClick={() => setShowCustomize(true)}
-                className="text-xs text-violet font-medium mt-2">
+                className="text-xs text-violet font-medium mt-2" title="setShowCustomize(true)} className='text-xs text-violet font-medium mt-2'> Cus…" aria-label="setShowCustomize(true)} className='text-xs text-violet font-medium mt-2'> Cus…">
                 Customize my menu →
               </button>
             </div>
@@ -273,7 +273,7 @@ export default function QuickBook() {
               <p className="text-xs text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
                 <Heart className="w-3 h-3 fill-coral text-coral" /> Favorites ({favoriteProviders.length})
               </p>
-              <button onClick={() => navigate("/favorites")} className="text-xs text-coral font-medium">View all →</button>
+              <button onClick={() => navigate("/favorites")} className="text-xs text-coral font-medium" title="navigate('/favorites')} className='text-xs text-coral font-medium'>View all →" aria-label="navigate('/favorites')} className='text-xs text-coral font-medium'>View all →">View all →</button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {favoriteProviders.slice(0, 4).map(p => (
@@ -285,7 +285,7 @@ export default function QuickBook() {
                     <p className="text-sm font-semibold text-foreground truncate">{p.name}</p>
                     <p className="text-[10px] text-muted-foreground truncate">{p.specialty}</p>
                   </div>
-                  <button onClick={(e) => { e.stopPropagation(); toggleFavorite(p.id); }} className="shrink-0">
+                  <button onClick={(e) => { e.stopPropagation(); toggleFavorite(p.id); }} className="shrink-0" title="} className='shrink-0'>" aria-label="} className='shrink-0'>">
                     <Heart className="w-4 h-4 fill-coral text-coral" />
                   </button>
                 </motion.button>
@@ -319,7 +319,7 @@ export default function QuickBook() {
               Your providers
             </p>
             <button onClick={() => navigate("/directory", { state: { from: "/book" } })}
-              className="text-xs text-teal font-medium">
+              className="text-xs text-teal font-medium" title="navigate('/directory', })} className='text-xs text-teal font-medium'>" aria-label="navigate('/directory', })} className='text-xs text-teal font-medium'>">
               {myProviders.length > 0 ? "+ Find more" : "Browse directory"}
             </button>
           </div>
@@ -335,7 +335,7 @@ export default function QuickBook() {
                 className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none"
               />
               {search && (
-                <button onClick={() => setSearch("")} className="text-muted-foreground">
+                <button onClick={() => setSearch("")} className="text-muted-foreground" title="setSearch('')} className='text-muted-foreground'>" aria-label="setSearch('')} className='text-muted-foreground'>">
                   <X className="w-3 h-3" />
                 </button>
               )}
@@ -371,7 +371,7 @@ export default function QuickBook() {
                 <button
                   onClick={() => navigate("/directory", { state: { from: "/book" } })}
                   className="rounded-pill px-4 py-1.5 text-xs font-semibold gradient-indigo text-primary-foreground"
-                >
+                 title="navigate('/directory', })} className='rounded-pill px-4 py-1.5 text-xs font-s…" aria-label="navigate('/directory', })} className='rounded-pill px-4 py-1.5 text-xs font-s…">
                   Browse directory
                 </button>
               </GlassCard>
@@ -424,7 +424,7 @@ export default function QuickBook() {
                   <p className="text-xs text-muted-foreground">Tap to pin or unpin tools</p>
                 </div>
                 <button onClick={() => setShowCustomize(false)}
-                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="setShowCustomize(false)} className='w-8 h-8 glass-1 rounded-full flex items-c…" aria-label="setShowCustomize(false)} className='w-8 h-8 glass-1 rounded-full flex items-c…">
                   <X className="w-4 h-4" />
                 </button>
               </div>

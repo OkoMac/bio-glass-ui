@@ -621,7 +621,7 @@ export default function SplashOnboarding() {
                 setPhase("role");
               }}
               className="w-full text-center text-sm text-muted-foreground"
-            >
+             title="catch setPhase('role'); }} className='w-full text-center text-sm text-muted-f…" aria-label="catch setPhase('role'); }} className='w-full text-center text-sm text-muted-f…">
               Skip
             </button>
           )}
@@ -703,7 +703,7 @@ export default function SplashOnboarding() {
                     {acc.role.replace(/_/g, " ")}
                   </motion.button>
                   <button onClick={() => handleDemoOnboarding(acc)}
-                    className="text-[10px] text-indigo/60 hover:text-indigo transition-colors leading-none py-1">
+                    className="text-[10px] text-indigo/60 hover:text-indigo transition-colors leading-none py-1" title="handleDemoOnboarding(acc)} className='text-[10px] text-indigo/60 hover:text-i…" aria-label="handleDemoOnboarding(acc)} className='text-[10px] text-indigo/60 hover:text-i…">
                     ↗ onboarding
                   </button>
                 </div>
@@ -720,7 +720,7 @@ export default function SplashOnboarding() {
     return (
       <div className="fixed inset-0 z-[100] bg-obsidian overflow-y-auto">
         <div className="max-w-lg mx-auto px-4 md:px-8 py-12 space-y-6">
-          <button onClick={() => setPhase("auth")} className="text-sm text-muted-foreground py-2">← Back to signup</button>
+          <button onClick={() => setPhase("auth")} className="text-sm text-muted-foreground py-2" title="setPhase('auth')} className='text-sm text-muted-foreground py-2'>← Back to si…" aria-label="setPhase('auth')} className='text-sm text-muted-foreground py-2'>← Back to si…">← Back to signup</button>
           <img src="/bion-logo-white-sm.png" alt="BION" className="h-8 md:h-12 w-auto" />
           <h1 className="text-2xl font-bold text-foreground">Terms of Service & Privacy Policy</h1>
           <p className="text-xs text-muted-foreground">Last updated: April 2026</p>
@@ -757,7 +757,7 @@ export default function SplashOnboarding() {
           </div>
 
           <button onClick={() => { setAcceptedTerms(true); setPhase("auth"); }}
-            className="w-full rounded-pill py-4 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta">
+            className="w-full rounded-pill py-4 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta" title="} className='w-full rounded-pill py-4 text-sm font-semibold gradient-indigo t…" aria-label="} className='w-full rounded-pill py-4 text-sm font-semibold gradient-indigo t…">
             I Accept — Continue to Sign Up
           </button>
         </div>
@@ -781,13 +781,13 @@ export default function SplashOnboarding() {
           <button
             onClick={() => { setAuthMode("signin"); setPhase("auth" as Phase); }}
             className="w-full rounded-pill py-3 text-sm font-semibold gradient-indigo text-primary-foreground"
-          >
+           title="} className='w-full rounded-pill py-3 text-sm font-semibold gradient-indigo t…" aria-label="} className='w-full rounded-pill py-3 text-sm font-semibold gradient-indigo t…">
             I've confirmed — Sign In
           </button>
           <button
             onClick={() => setPhase("auth" as Phase)}
             className="text-xs text-muted-foreground underline"
-          >
+           title="setPhase('auth' as Phase)} className='text-xs text-muted-foreground underline…" aria-label="setPhase('auth' as Phase)} className='text-xs text-muted-foreground underline…">
             Back to login
           </button>
         </motion.div>
@@ -829,7 +829,7 @@ export default function SplashOnboarding() {
           <button
             onClick={() => { setForgotError(""); setPhase("auth"); }}
             className="w-full text-center text-xs text-muted-foreground underline"
-          >
+           title="} className='w-full text-center text-xs text-muted-foreground underline' > Ba…" aria-label="} className='w-full text-center text-xs text-muted-foreground underline' > Ba…">
             Back to sign in
           </button>
         </motion.div>
@@ -853,7 +853,7 @@ export default function SplashOnboarding() {
           <button
             onClick={() => { setAuthMode("signin"); setPhase("auth"); }}
             className="w-full rounded-pill py-3 text-sm font-semibold gradient-indigo text-primary-foreground"
-          >
+           title="} className='w-full rounded-pill py-3 text-sm font-semibold gradient-indigo t…" aria-label="} className='w-full rounded-pill py-3 text-sm font-semibold gradient-indigo t…">
             Back to sign in
           </button>
         </motion.div>
@@ -885,7 +885,7 @@ export default function SplashOnboarding() {
             </p>
           </div>
           {authMode === "signup" && (
-            <button onClick={() => setPhase("role")} className="text-xs text-muted-foreground underline">
+            <button onClick={() => setPhase("role")} className="text-xs text-muted-foreground underline" title="setPhase('role')} className='text-xs text-muted-foreground underline'> Change…" aria-label="setPhase('role')} className='text-xs text-muted-foreground underline'> Change…">
               Change role
             </button>
           )}
@@ -897,7 +897,7 @@ export default function SplashOnboarding() {
             <button key={m} onClick={() => { setAuthMode(m); setError(""); }}
               className={`flex-1 rounded-pill py-2 text-sm font-medium transition-all ${
                 authMode === m ? "gradient-indigo text-primary-foreground" : "text-muted-foreground"
-              }`}>
+              }`} title="} className= `}>" aria-label="} className= `}>">
               {m === "signin" ? "Sign In" : "Sign Up"}
             </button>
           ))}
@@ -954,7 +954,7 @@ export default function SplashOnboarding() {
                   onKeyDown={e => e.key === "Enter" && handleAuth()}
                   className="w-full glass-1 rounded-xl px-4 py-3 pr-10 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
                 <button type="button" onClick={() => setShowPw(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" title="setShowPw(v => !v)} className='absolute right-3 top-1/2 -translate-y-1/2 text…" aria-label="setShowPw(v => !v)} className='absolute right-3 top-1/2 -translate-y-1/2 text…">
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
@@ -1087,12 +1087,12 @@ export default function SplashOnboarding() {
               <div className="flex justify-center gap-4">
                 <button type="button"
                   onClick={() => { setOtpStep("idle"); setOtpCode(""); setError(""); startSignup(); }}
-                  className="text-[11px] text-indigo underline">
+                  className="text-[11px] text-indigo underline" title="} className='text-[11px] text-indigo underline'> Resend code" aria-label="} className='text-[11px] text-indigo underline'> Resend code">
                   Resend code
                 </button>
                 <button type="button"
                   onClick={() => { setOtpStep("idle"); setOtpCode(""); setError(""); }}
-                  className="text-[11px] text-muted-foreground underline">
+                  className="text-[11px] text-muted-foreground underline" title="} className='text-[11px] text-muted-foreground underline'> Use a different nu…" aria-label="} className='text-[11px] text-muted-foreground underline'> Use a different nu…">
                   Use a different number
                 </button>
               </div>
@@ -1109,7 +1109,7 @@ export default function SplashOnboarding() {
                   onKeyDown={e => e.key === "Enter" && handleAuth()}
                   className="w-full glass-1 rounded-xl px-4 py-3 pr-10 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5" />
                 <button type="button" onClick={() => setShowPw(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" title="setShowPw(v => !v)} className='absolute right-3 top-1/2 -translate-y-1/2 text…" aria-label="setShowPw(v => !v)} className='absolute right-3 top-1/2 -translate-y-1/2 text…">
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
@@ -1118,7 +1118,7 @@ export default function SplashOnboarding() {
                   type="button"
                   onClick={() => { setForgotEmail(email); setForgotError(""); setPhase("forgot-password"); }}
                   className="text-xs text-indigo hover:text-indigo/80 transition-colors"
-                >
+                 title="} className='text-xs text-indigo hover:text-indigo/80 transition-colors' > Fo…" aria-label="} className='text-xs text-indigo hover:text-indigo/80 transition-colors' > Fo…">
                   Forgot password?
                 </button>
               </div>
@@ -1137,7 +1137,7 @@ export default function SplashOnboarding() {
             />
             <span className="text-[11px] text-muted-foreground leading-relaxed">
               I agree to BION's{" "}
-              <button type="button" onClick={() => setPhase("terms")} className="text-indigo underline">
+              <button type="button" onClick={() => setPhase("terms")} className="text-indigo underline" title="setPhase('terms')} className='text-indigo underline'> Terms of Service" aria-label="setPhase('terms')} className='text-indigo underline'> Terms of Service">
                 Terms of Service
               </button>{" "}
               and{" "}
@@ -1214,7 +1214,7 @@ export default function SplashOnboarding() {
                   {acc.role}
                 </motion.button>
                 <button onClick={() => handleDemoOnboarding(acc)}
-                  className="text-[10px] text-indigo/60 hover:text-indigo transition-colors leading-none py-1">
+                  className="text-[10px] text-indigo/60 hover:text-indigo transition-colors leading-none py-1" title="handleDemoOnboarding(acc)} className='text-[10px] text-indigo/60 hover:text-i…" aria-label="handleDemoOnboarding(acc)} className='text-[10px] text-indigo/60 hover:text-i…">
                   ↗ onboarding
                 </button>
               </div>

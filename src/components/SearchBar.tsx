@@ -223,7 +223,7 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
         />
         {value && (
           <button type="button" onClick={() => setValue("")}
-            className="text-muted-foreground hover:text-foreground shrink-0">
+            className="text-muted-foreground hover:text-foreground shrink-0" title="setValue('')} className='text-muted-foreground hover:text-foreground shrink-0'>" aria-label="setValue('')} className='text-muted-foreground hover:text-foreground shrink-0'>">
             <X className="w-3.5 h-3.5" />
           </button>
         )}
@@ -235,7 +235,7 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
               recording ? "text-coral animate-pulse" :
               "text-muted-foreground hover:text-foreground"
             }`}
-            aria-label={transcribing ? "Transcribing..." : recording ? "Stop recording" : "Voice search"}>
+            aria-label={transcribing ? "Transcribing..." : recording ? "Stop recording" : "Voice search"} title="Loading">
             {transcribing ? <Loader2 className="w-4 h-4 animate-spin" /> :
               recording ? <Square className="w-4 h-4 fill-current" /> :
               <Mic className="w-4 h-4" />}
@@ -264,7 +264,7 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
           >
             <div className="px-4 py-2 flex items-center justify-between border-b border-white/[0.06]">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Recent searches</p>
-              <button onClick={clearAll} className="text-[10px] text-muted-foreground hover:text-foreground">Clear all</button>
+              <button onClick={clearAll} className="text-[10px] text-muted-foreground hover:text-foreground" title="Clear all" aria-label="Clear all">Clear all</button>
             </div>
             <div className="py-1 max-h-60 overflow-y-auto">
               {history.map(q => (
@@ -273,14 +273,14 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
                   <button
                     onClick={() => setValue(q)}
                     className="flex-1 text-left text-sm text-foreground truncate"
-                  >
+                   title="setValue(q)} className='flex-1 text-left text-sm text-foreground truncate' >" aria-label="setValue(q)} className='flex-1 text-left text-sm text-foreground truncate' >">
                     {q}
                   </button>
                   <button
                     onClick={() => removeSearch(q)}
                     className="text-muted-foreground hover:text-coral md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                     aria-label={`Remove ${q} from history`}
-                  >
+                   title="removeSearch(q)} className='text-muted-foreground hover:text-coral md:opacity…">
                     <X className="w-3 h-3" />
                   </button>
                 </div>
@@ -310,7 +310,7 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-foreground">Filters</h3>
                 <button onClick={() => setShowFilters(false)}
-                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="setShowFilters(false)} className='w-8 h-8 glass-1 rounded-full flex items-cen…" aria-label="setShowFilters(false)} className='w-8 h-8 glass-1 rounded-full flex items-cen…">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -327,7 +327,7 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
                           filters.category === cat
                             ? "border-teal/40 bg-teal/10 text-teal"
                             : "border-white/[0.08] bg-white/[0.02] text-muted-foreground"
-                        }`}>
+                        }`} title="saveFilters( )} className= `}>" aria-label="saveFilters( )} className= `}>">
                         {cat}
                       </button>
                     ))}
@@ -340,7 +340,7 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
                   <div className="space-y-2">
                     <button
                       onClick={() => saveFilters({ ...filters, freeOnly: !filters.freeOnly })}
-                      className="w-full flex items-center justify-between p-3 rounded-2xl border border-white/[0.08] bg-white/[0.02]">
+                      className="w-full flex items-center justify-between p-3 rounded-2xl border border-white/[0.08] bg-white/[0.02]" title="saveFilters( )} className='w-full flex items-center justify-between p-3 round…" aria-label="saveFilters( )} className='w-full flex items-center justify-between p-3 round…">
                       <span className="text-sm text-foreground">Free sessions only</span>
                       <div className={`w-10 h-6 rounded-full flex items-center px-0.5 transition-colors ${filters.freeOnly ? "bg-teal/30" : "bg-white/[0.08]"}`}>
                         <div className={`w-5 h-5 rounded-full transition-all ${filters.freeOnly ? "bg-teal translate-x-4" : "bg-muted-foreground/40"}`} />
@@ -348,7 +348,7 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
                     </button>
                     <button
                       onClick={() => saveFilters({ ...filters, availableNow: !filters.availableNow })}
-                      className="w-full flex items-center justify-between p-3 rounded-2xl border border-white/[0.08] bg-white/[0.02]">
+                      className="w-full flex items-center justify-between p-3 rounded-2xl border border-white/[0.08] bg-white/[0.02]" title="saveFilters( )} className='w-full flex items-center justify-between p-3 round…" aria-label="saveFilters( )} className='w-full flex items-center justify-between p-3 round…">
                       <span className="text-sm text-foreground">Available now</span>
                       <div className={`w-10 h-6 rounded-full flex items-center px-0.5 transition-colors ${filters.availableNow ? "bg-teal/30" : "bg-white/[0.08]"}`}>
                         <div className={`w-5 h-5 rounded-full transition-all ${filters.availableNow ? "bg-teal translate-x-4" : "bg-muted-foreground/40"}`} />
@@ -387,7 +387,7 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
                           filters.minRating === r
                             ? "border-amber/40 bg-amber/10 text-amber"
                             : "border-white/[0.08] bg-white/[0.02] text-muted-foreground"
-                        }`}>
+                        }`} title="saveFilters( )} className= `}> +`}" aria-label="saveFilters( )} className= `}> +`}">
                         {r === 0 ? "Any" : `${r}+`}
                       </button>
                     ))}
@@ -397,11 +397,11 @@ const SearchBar = ({ value: externalValue, onChange, onFilterClick, onFiltersCha
 
               <div className="flex gap-3 mt-6">
                 <button onClick={resetFilters}
-                  className="flex-1 py-3 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground">
+                  className="flex-1 py-3 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground" title="Reset" aria-label="Reset">
                   Reset
                 </button>
                 <button onClick={() => setShowFilters(false)}
-                  className="flex-1 py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400">
+                  className="flex-1 py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400" title="setShowFilters(false)} className='flex-1 py-3 rounded-2xl text-sm font-semibo…" aria-label="setShowFilters(false)} className='flex-1 py-3 rounded-2xl text-sm font-semibo…">
                   Apply Filters
                 </button>
               </div>

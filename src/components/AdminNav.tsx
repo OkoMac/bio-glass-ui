@@ -106,14 +106,14 @@ export default function AdminNav() {
             return (
               <button key={r}
                 onClick={() => { switchRole(r as any); window.location.href = c.path; }}
-                className="w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all text-sm">
+                className="w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all text-sm" title="} className='w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-muted…" aria-label="} className='w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-muted…">
                 <span>{c.icon}</span> Switch to {c.label}
               </button>
             );
           })}
           <button onClick={logout}
             aria-label="Sign out"
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground hover:text-coral hover:bg-white/5 transition-all text-sm">
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground hover:text-coral hover:bg-white/5 transition-all text-sm" title="Sign out">
             <LogOut className="w-4 h-4" aria-hidden="true" /> Sign out
           </button>
         </div>
@@ -147,7 +147,7 @@ export default function AdminNav() {
               <button
                 aria-label="Open navigation menu"
                 className="p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
-              >
+               title="Menu">
                 <Menu className="w-4 h-4" />
               </button>
             </SheetTrigger>

@@ -125,7 +125,7 @@ export default function ServiceAreaCard() {
         <button
           onClick={save} disabled={saving}
           className="flex-1 py-2.5 rounded-xl bg-indigo text-white text-xs font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-        >
+         title="Save" aria-label="Save">
           {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MapPin className="w-3.5 h-3.5" />}
           Save
         </button>

@@ -165,7 +165,7 @@ export default function Locations() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
 
@@ -181,7 +181,7 @@ export default function Locations() {
           <button
             onClick={() => { resetForm(); setShowForm(true); }}
             className="px-4 py-2 rounded-pill text-sm font-semibold gradient-indigo text-primary-foreground flex items-center gap-1.5"
-          >
+           title="} className='px-4 py-2 rounded-pill text-sm font-semibold gradient-indigo tex…" aria-label="} className='px-4 py-2 rounded-pill text-sm font-semibold gradient-indigo tex…">
             <Plus className="w-3.5 h-3.5" /> Add Location
           </button>
         </div>
@@ -228,14 +228,14 @@ export default function Locations() {
                         onClick={() => makePrimary(loc.id)}
                         className="p-1.5 rounded-lg text-muted-foreground hover:text-teal transition-colors"
                         title="Set as primary"
-                      >
+                       aria-label="makePrimary(loc.id)} className='p-1.5 rounded-lg text-muted-foreground hover:…">
                         <Star className="w-3.5 h-3.5" />
                       </button>
                     )}
-                    <button onClick={() => openEditForm(loc)} className="p-1.5 rounded-lg text-muted-foreground hover:text-indigo transition-colors">
+                    <button onClick={() => openEditForm(loc)} className="p-1.5 rounded-lg text-muted-foreground hover:text-indigo transition-colors" title="openEditForm(loc)} className='p-1.5 rounded-lg text-muted-foreground hover:te…" aria-label="openEditForm(loc)} className='p-1.5 rounded-lg text-muted-foreground hover:te…">
                       <Edit3 className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => deleteLocation(loc.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-coral transition-colors">
+                    <button onClick={() => deleteLocation(loc.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-coral transition-colors" title="deleteLocation(loc.id)} className='p-1.5 rounded-lg text-muted-foreground hov…" aria-label="deleteLocation(loc.id)} className='p-1.5 rounded-lg text-muted-foreground hov…">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -293,7 +293,7 @@ export default function Locations() {
                 <h2 className="text-lg font-bold text-foreground">
                   {editingId ? "Edit Location" : "Add Location"}
                 </h2>
-                <button onClick={() => { setShowForm(false); resetForm(); }} className="text-muted-foreground">
+                <button onClick={() => { setShowForm(false); resetForm(); }} className="text-muted-foreground" title="} className='text-muted-foreground'>" aria-label="} className='text-muted-foreground'>">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -359,7 +359,7 @@ export default function Locations() {
                     className={`w-9 h-5 rounded-full transition-all flex items-center px-0.5 ${
                       isPrimary ? "bg-teal" : "bg-white/10"
                     }`}
-                  >
+                   title="setIsPrimary(!isPrimary)} className= `} >" aria-label="setIsPrimary(!isPrimary)} className= `} >">
                     <motion.div
                       animate={{ x: isPrimary ? 16 : 0 }}
                       className="w-4 h-4 rounded-full bg-white shadow-sm"
@@ -380,7 +380,7 @@ export default function Locations() {
                           className={`w-10 text-[10px] font-semibold py-1 rounded-lg transition-all ${
                             hours[d].closed ? "glass-1 text-muted-foreground" : "bg-indigo/20 text-indigo"
                           }`}
-                        >
+                         title="setHours(prev => ( }))} className= `} >" aria-label="setHours(prev => ( }))} className= `} >">
                           {d}
                         </button>
                         {hours[d].closed ? (

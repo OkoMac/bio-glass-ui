@@ -294,19 +294,19 @@ export default function BiometricsDashboard({ compact = false }: { compact?: boo
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2 mt-3">
-            <button onClick={() => navigate("/water-tracker")} className="glass-1 rounded-xl p-3 text-left hover:bg-white/5 transition-colors">
+            <button onClick={() => navigate("/water-tracker")} className="glass-1 rounded-xl p-3 text-left hover:bg-white/5 transition-colors" title="navigate('/water-tracker')} className='glass-1 rounded-xl p-3 text-left hover…" aria-label="navigate('/water-tracker')} className='glass-1 rounded-xl p-3 text-left hover…">
               <Droplets className="w-4 h-4 text-blue-400 mb-1.5" />
               <p className="text-xs font-medium text-foreground">Log water</p>
             </button>
-            <button onClick={() => navigate("/food-tracker")} className="glass-1 rounded-xl p-3 text-left hover:bg-white/5 transition-colors">
+            <button onClick={() => navigate("/food-tracker")} className="glass-1 rounded-xl p-3 text-left hover:bg-white/5 transition-colors" title="navigate('/food-tracker')} className='glass-1 rounded-xl p-3 text-left hover:…" aria-label="navigate('/food-tracker')} className='glass-1 rounded-xl p-3 text-left hover:…">
               <Flame className="w-4 h-4 text-coral mb-1.5" />
               <p className="text-xs font-medium text-foreground">Log food</p>
             </button>
-            <button onClick={() => navigate("/sleep-tracker")} className="glass-1 rounded-xl p-3 text-left hover:bg-white/5 transition-colors">
+            <button onClick={() => navigate("/sleep-tracker")} className="glass-1 rounded-xl p-3 text-left hover:bg-white/5 transition-colors" title="navigate('/sleep-tracker')} className='glass-1 rounded-xl p-3 text-left hover…" aria-label="navigate('/sleep-tracker')} className='glass-1 rounded-xl p-3 text-left hover…">
               <Moon className="w-4 h-4 text-violet mb-1.5" />
               <p className="text-xs font-medium text-foreground">Log sleep</p>
             </button>
-            <button onClick={() => navigate("/health-profile")} className="glass-1 rounded-xl p-3 text-left hover:bg-white/5 transition-colors">
+            <button onClick={() => navigate("/health-profile")} className="glass-1 rounded-xl p-3 text-left hover:bg-white/5 transition-colors" title="navigate('/health-profile')} className='glass-1 rounded-xl p-3 text-left hove…" aria-label="navigate('/health-profile')} className='glass-1 rounded-xl p-3 text-left hove…">
               <Scale className="w-4 h-4 text-indigo mb-1.5" />
               <p className="text-xs font-medium text-foreground">Add weight</p>
             </button>
@@ -351,7 +351,7 @@ export default function BiometricsDashboard({ compact = false }: { compact?: boo
               onClick={() => native.requestAuth()}
               disabled={native.loading}
               className="text-xs font-medium text-teal bg-teal/10 hover:bg-teal/20 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
-            >
+             title="native.requestAuth()} disabled= className='text-xs font-medium text-teal bg-t…" aria-label="native.requestAuth()} disabled= className='text-xs font-medium text-teal bg-t…">
               {native.loading ? "Connecting..." : "Connect Health Data"}
             </button>
           </div>

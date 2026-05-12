@@ -161,7 +161,7 @@ export default function ProviderSettings() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -273,7 +273,7 @@ export default function ProviderSettings() {
                         className={`text-[10px] px-2.5 py-1 rounded-pill transition-all ${
                           vertical === v ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
                         }`}
-                      >
+                       title="setVertical(v)} className= `} >" aria-label="setVertical(v)} className= `} >">
                         {v}
                       </button>
                     ))}
@@ -300,7 +300,7 @@ export default function ProviderSettings() {
                   <button
                     onClick={() => navigate("/pro/locations")}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-pill text-xs font-medium gradient-indigo text-primary-foreground"
-                  >
+                   title="navigate('/pro/locations')} className='flex items-center gap-1 px-3 py-1.5 ro…" aria-label="navigate('/pro/locations')} className='flex items-center gap-1 px-3 py-1.5 ro…">
                     Manage <ChevronRight className="w-3 h-3" />
                   </button>
                 </div>
@@ -323,7 +323,7 @@ export default function ProviderSettings() {
                         className={`text-[10px] px-2.5 py-1 rounded-pill transition-all ${
                           sessionLength === l ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
                         }`}
-                      >
+                       title="setSessionLength(l)} className= `} > min" aria-label="setSessionLength(l)} className= `} > min">
                         {l} min
                       </button>
                     ))}
@@ -340,7 +340,7 @@ export default function ProviderSettings() {
                         className={`w-full text-left p-3 rounded-xl border transition-all ${
                           cancelPolicyPreset === p.id ? "border-indigo/40 glass-accent-indigo" : "border-white/5 glass-1"
                         }`}
-                      >
+                       title="setCancelPolicyPreset(p.id)} className= `} >" aria-label="setCancelPolicyPreset(p.id)} className= `} >">
                         <p className="text-sm font-medium text-foreground">{p.label}</p>
                         <p className="text-[11px] text-muted-foreground">{p.desc}</p>
                       </button>
@@ -379,7 +379,7 @@ export default function ProviderSettings() {
                     <p className="text-[10px] text-muted-foreground">Public URL</p>
                     <p className="text-sm font-medium text-foreground">{miniSiteUrl}</p>
                   </div>
-                  <button className="glass-1 rounded-xl p-2.5" onClick={() => navigator.clipboard?.writeText(`https://${miniSiteUrl}`)}>
+                  <button className="glass-1 rounded-xl p-2.5" onClick={() => navigator.clipboard?.writeText(`https://${miniSiteUrl}`)} title="navigator.clipboard?.writeText(`https://$ `)}>" aria-label="navigator.clipboard?.writeText(`https://$ `)}>">
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </div>
@@ -397,7 +397,7 @@ export default function ProviderSettings() {
                   <p className="text-sm font-medium text-foreground">B_ booking assistant</p>
                   <p className="text-[11px] text-muted-foreground">Let B_ handle client enquiries and bookings</p>
                 </div>
-                <button onClick={() => setBEnabled(!bEnabled)} className={`w-9 h-5 rounded-full ${bEnabled ? "bg-indigo-500" : "bg-white/20"} flex items-center px-0.5`}>
+                <button onClick={() => setBEnabled(!bEnabled)} className={`w-9 h-5 rounded-full ${bEnabled ? "bg-indigo-500" : "bg-white/20"} flex items-center px-0.5`} title="setBEnabled(!bEnabled)} className= flex items-center px-0.5`}>" aria-label="setBEnabled(!bEnabled)} className= flex items-center px-0.5`}>">
                   <motion.div animate={{ x: bEnabled ? 16 : 0 }} className="w-4 h-4 rounded-full bg-white shadow-sm" />
                 </button>
               </GlassCard>
@@ -431,7 +431,7 @@ export default function ProviderSettings() {
                     </div>
                   ))}
                 </div>
-                <button onClick={() => navigate("/pro/billing")} className="w-full py-2.5 glass-1 rounded-pill text-sm text-muted-foreground font-medium">
+                <button onClick={() => navigate("/pro/billing")} className="w-full py-2.5 glass-1 rounded-pill text-sm text-muted-foreground font-medium" title="navigate('/pro/billing')} className='w-full py-2.5 glass-1 rounded-pill text-…" aria-label="navigate('/pro/billing')} className='w-full py-2.5 glass-1 rounded-pill text-…">
                   Upgrade to Pro →
                 </button>
               </GlassCard>
@@ -481,7 +481,7 @@ export default function ProviderSettings() {
                       className={`w-9 h-5 rounded-full transition-all flex items-center px-0.5 shrink-0 ${
                         notifs[item.key as keyof typeof notifs] ? "bg-indigo-500" : "bg-white/10"
                       }`}
-                    >
+                     title="toggleNotif(item.key as keyof typeof notifs)} className= `} >" aria-label="toggleNotif(item.key as keyof typeof notifs)} className= `} >">
                       <motion.div
                         animate={{ x: notifs[item.key as keyof typeof notifs] ? 16 : 0 }}
                         className="w-4 h-4 rounded-full bg-white shadow-sm"
@@ -520,7 +520,7 @@ export default function ProviderSettings() {
                     <p className="text-sm font-medium text-foreground">+27 82 000 0000</p>
                     <p className="text-[11px] text-teal">Connected</p>
                   </div>
-                  <button onClick={() => alert("WhatsApp disconnection — contact support@bionhealth.co.za.")} className="glass-1 rounded-pill px-3 py-1.5 text-xs text-muted-foreground">Disconnect</button>
+                  <button onClick={() => alert("WhatsApp disconnection — contact support@bionhealth.co.za.")} className="glass-1 rounded-pill px-3 py-1.5 text-xs text-muted-foreground" title="alert('WhatsApp disconnection — contact support@bionhealth.co.za.')} classNam…" aria-label="alert('WhatsApp disconnection — contact support@bionhealth.co.za.')} classNam…">Disconnect</button>
                 </div>
               </GlassCard>
             </motion.div>
@@ -651,7 +651,7 @@ function AvailabilitySection() {
                     state.enabled ? "bg-indigo-500" : "bg-white/10"
                   }`}
                   aria-label={`Toggle ${d.label}`}
-                >
+                 title="setDay(d.key, )} className= `} aria-label= `} >">
                   <motion.div
                     animate={{ x: state.enabled ? 16 : 0 }}
                     className="w-4 h-4 rounded-full bg-white shadow-sm"

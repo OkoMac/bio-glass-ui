@@ -30,7 +30,7 @@ export default function Favorites() {
     <div className="min-h-screen bg-obsidian pb-32">
       <div className="max-w-3xl xl:max-w-7xl mx-auto px-4 md:px-8 pt-20 space-y-5">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="glass-2 rounded-full w-10 h-10 flex items-center justify-center">
+          <button onClick={() => navigate(-1)} className="glass-2 rounded-full w-10 h-10 flex items-center justify-center" title="navigate(-1)} className='glass-2 rounded-full w-10 h-10 flex items-center jus…" aria-label="navigate(-1)} className='glass-2 rounded-full w-10 h-10 flex items-center jus…">
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <div>
@@ -49,7 +49,7 @@ export default function Favorites() {
               Tap the heart on any provider profile to save them here for quick access.
             </p>
             <button onClick={() => navigate("/home")}
-              className="rounded-pill px-6 py-2.5 gradient-indigo text-sm font-semibold text-primary-foreground">
+              className="rounded-pill px-6 py-2.5 gradient-indigo text-sm font-semibold text-primary-foreground" title="navigate('/home')} className='rounded-pill px-6 py-2.5 gradient-indigo text-s…" aria-label="navigate('/home')} className='rounded-pill px-6 py-2.5 gradient-indigo text-s…">
               Discover providers
             </button>
           </GlassCard>
@@ -80,7 +80,7 @@ export default function Favorites() {
                     onClick={(e) => { e.stopPropagation(); toggle(p.id); }}
                     className="p-2 glass-1 rounded-full shrink-0"
                     aria-label="Remove from favorites"
-                  >
+                   title="} className='p-2 glass-1 rounded-full shrink-0' aria-label='Remove from favor…">
                     <Heart className="w-4 h-4 fill-coral text-coral" />
                   </button>
                 </GlassCard>

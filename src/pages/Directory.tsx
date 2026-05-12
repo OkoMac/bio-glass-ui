@@ -540,12 +540,12 @@ export default function Directory() {
             <div className="flex items-center gap-2">
               {backLabel ? (
                 <button onClick={() => navigate(-1)} aria-label={backLabel}
-                  className="shrink-0 flex items-center gap-1.5 pl-2 pr-3 h-9 glass-2 rounded-full text-foreground hover:bg-white/[0.06] transition-colors">
+                  className="shrink-0 flex items-center gap-1.5 pl-2 pr-3 h-9 glass-2 rounded-full text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} aria-label= className='shrink-0 flex items-center gap-1.5 pl-2 …">
                   <ArrowLeft className="w-4 h-4" aria-hidden="true" />
                   <span className="text-xs font-medium">{backLabel}</span>
                 </button>
               ) : (
-                <button onClick={() => navigate(-1)} aria-label="Go back" className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+                <button onClick={() => navigate(-1)} aria-label="Go back" className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} aria-label='Go back' className='shrink-0 w-9 h-9 glass-2 rounde…">
                   <ArrowLeft className="w-4 h-4" aria-hidden="true" />
                 </button>
               )}
@@ -559,7 +559,7 @@ export default function Directory() {
                 aria-label={showLocationPicker ? "Close location picker" : "Change location"}
                 aria-expanded={showLocationPicker}
                 className="flex items-center gap-1.5 text-xs text-teal hover:text-teal/80 transition-colors"
-              >
+               title="setShowLocationPicker(!showLocationPicker)} aria-label= aria-expanded= classN…">
                 <MapPin className="w-3 h-3" />
                 <span className="font-data">{manualLocation?.name || "Near you"}</span>
                 <span className="text-[9px] text-muted-foreground underline">change</span>
@@ -567,16 +567,16 @@ export default function Directory() {
               {user ? (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground hidden sm:inline">Hi, {user.name?.split(" ")[0]}</span>
-                  <button onClick={() => navigate("/home")} className="px-3 py-1.5 md:px-4 md:py-2 rounded-pill text-[11px] md:text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta">
+                  <button onClick={() => navigate("/home")} className="px-3 py-1.5 md:px-4 md:py-2 rounded-pill text-[11px] md:text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta" title="navigate('/home')} className='px-3 py-1.5 md:px-4 md:py-2 rounded-pill text-[…" aria-label="navigate('/home')} className='px-3 py-1.5 md:px-4 md:py-2 rounded-pill text-[…">
                     Dashboard
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-1.5">
-                  <button onClick={() => navigate("/login")} className="px-2.5 py-1 rounded-pill text-[10px] font-medium glass-2 text-foreground hover:bg-white/[0.08] transition-colors">
+                  <button onClick={() => navigate("/login")} className="px-2.5 py-1 rounded-pill text-[10px] font-medium glass-2 text-foreground hover:bg-white/[0.08] transition-colors" title="navigate('/login')} className='px-2.5 py-1 rounded-pill text-[10px] font-medi…" aria-label="navigate('/login')} className='px-2.5 py-1 rounded-pill text-[10px] font-medi…">
                     Log In
                   </button>
-                  <button onClick={() => navigate("/welcome")} className="px-2.5 py-1 rounded-pill text-[10px] font-semibold gradient-indigo text-primary-foreground shadow-cta">
+                  <button onClick={() => navigate("/welcome")} className="px-2.5 py-1 rounded-pill text-[10px] font-semibold gradient-indigo text-primary-foreground shadow-cta" title="navigate('/welcome')} className='px-2.5 py-1 rounded-pill text-[10px] font-se…" aria-label="navigate('/welcome')} className='px-2.5 py-1 rounded-pill text-[10px] font-se…">
                     Sign Up
                   </button>
                 </div>
@@ -602,7 +602,7 @@ export default function Directory() {
                       autoFocus
                     />
                     {manualLocation && (
-                      <button onClick={() => { setManualLocation(null); setShowLocationPicker(false); setLocationSearch(""); try { localStorage.removeItem("bion_user_location"); } catch {} }} className="text-[10px] text-coral">
+                      <button onClick={() => { setManualLocation(null); setShowLocationPicker(false); setLocationSearch(""); try { localStorage.removeItem("bion_user_location"); } catch {} }} className="text-[10px] text-coral" title="catch }} className='text-[10px] text-coral'> Reset" aria-label="catch }} className='text-[10px] text-coral'> Reset">
                         Reset
                       </button>
                     )}
@@ -630,7 +630,7 @@ export default function Directory() {
                             className={`rounded-pill px-2.5 py-1 text-[11px] font-medium border transition-colors ${
                               manualLocation?.name === suburb ? "border-teal/40 bg-teal/20 text-teal" : "border-white/[0.06] text-muted-foreground hover:text-foreground"
                             }`}
-                          >
+                           title="; setManualLocation(loc); try catch } setShowLocationPicker(false); setLocati…" aria-label="; setManualLocation(loc); try catch } setShowLocationPicker(false); setLocati…">
                             {suburb}
                           </button>
                         );
@@ -652,7 +652,7 @@ export default function Directory() {
               className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
             />
             {search && (
-              <button onClick={() => setSearch("")} aria-label="Clear search">
+              <button onClick={() => setSearch("")} aria-label="Clear search" title="setSearch('')} aria-label='Clear search'>">
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
             )}
@@ -662,7 +662,7 @@ export default function Directory() {
               aria-label={showFilters ? "Close filters" : "Open filters"}
               aria-expanded={showFilters}
               className={`flex items-center gap-1.5 text-xs transition-colors ${showFilters || selectedSuburb || selectedCity ? "text-indigo font-semibold" : "text-muted-foreground hover:text-foreground"}`}
-            >
+             title="setShowFilters(!showFilters)} aria-label= aria-expanded= className= `} > Filters">
               <SlidersHorizontal className="w-4 h-4" aria-hidden="true" />
               <span className="hidden md:inline">Filters</span>
               {(selectedSuburb || selectedCity) && <span className="w-1.5 h-1.5 rounded-full bg-indigo" aria-hidden="true" />}
@@ -686,12 +686,12 @@ export default function Directory() {
                       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
                       aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
                       className="flex items-center gap-1 px-2 py-1 rounded-pill border border-white/[0.08] bg-white/[0.02] text-[10px] text-muted-foreground hover:text-foreground transition-colors"
-                    >
+                     title="setTheme(theme === 'light' ? 'dark' : 'light')} aria-label= mode`} className=…">
                       {theme === "light" ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />}
                       <span className="capitalize">{theme === "light" ? "Dark" : "Light"} mode</span>
                     </button>
                     {selected.length > 0 && (
-                      <button onClick={clearAll} className="text-[10px] text-indigo whitespace-nowrap">
+                      <button onClick={clearAll} className="text-[10px] text-indigo whitespace-nowrap" title="Clear all ( )" aria-label="Clear all ( )">
                         Clear all ({selected.length})
                       </button>
                     )}
@@ -706,7 +706,7 @@ export default function Directory() {
                           onClick={() => toggleSelected(s.city, s.suburb)}
                           className="rounded-pill px-2.5 py-1 text-[10px] font-medium bg-teal/20 text-teal border border-teal/40 flex items-center gap-1.5"
                           aria-label={`Remove ${s.suburb ?? s.city} filter`}
-                        >
+                         title="toggleSelected(s.city, s.suburb)} className='rounded-pill px-2.5 py-1 text-[1…">
                           <span>{s.suburb ?? s.city}</span>
                           {!s.suburb && <span className="text-[9px] uppercase tracking-wider opacity-70">all</span>}
                           <X className="w-3 h-3 opacity-70" />
@@ -768,7 +768,7 @@ export default function Directory() {
                             className={`w-full flex items-center justify-between px-3 py-2 text-left transition-colors ${
                               allOfCitySelected ? "bg-indigo/10" : "hover:bg-white/[0.03]"
                             }`}
-                          >
+                           title="); }} className= `} >" aria-label="); }} className= `} >">
                             <div className="flex items-center gap-2 min-w-0">
                               <span className={`text-xs font-medium truncate ${allOfCitySelected ? "text-indigo" : "text-foreground"}`}>
                                 {city}
@@ -803,7 +803,7 @@ export default function Directory() {
                                         ? "bg-indigo/20 text-indigo"
                                         : "bg-white/[0.02] text-muted-foreground hover:text-foreground"
                                     }`}
-                                  >
+                                   title="toggleSelected(city, null)} className= `} > All of" aria-label="toggleSelected(city, null)} className= `} > All of">
                                     All of {city}
                                   </button>
 
@@ -821,7 +821,7 @@ export default function Directory() {
                                                 ? "border-teal/40 bg-teal/20 text-teal"
                                                 : "border-white/[0.06] bg-white/[0.02] text-muted-foreground hover:text-foreground"
                                             }`}
-                                          >
+                                           title="toggleSelected(city, suburb)} className= `} > |$ `) ?? 0}" aria-label="toggleSelected(city, suburb)} className= `} > |$ `) ?? 0}">
                                             <span>{suburb}</span>
                                             <span className={`text-[9px] tabular-nums ${subSelected ? "text-teal/70" : "text-muted-foreground/60"}`}>
                                               {SUBURB_COUNTS.get(`${city}|${suburb}`) ?? 0}
@@ -938,7 +938,7 @@ export default function Directory() {
             <button
               onClick={() => setShowLocationPicker(true)}
               className="w-full rounded-pill py-2 text-xs font-medium glass-1 text-foreground"
-            >
+             title="setShowLocationPicker(true)} className='w-full rounded-pill py-2 text-xs font…" aria-label="setShowLocationPicker(true)} className='w-full rounded-pill py-2 text-xs font…">
               Or select your suburb manually →
             </button>
           </motion.div>
@@ -960,7 +960,7 @@ export default function Directory() {
                 <button
                   onClick={() => setSelectedCategoryId(null)}
                   className="ml-2 text-xs text-muted-foreground glass-1 rounded-pill px-2 py-0.5 flex items-center gap-1"
-                >
+                 title="setSelectedCategoryId(null)} className='ml-2 text-xs text-muted-foreground gl…" aria-label="setSelectedCategoryId(null)} className='ml-2 text-xs text-muted-foreground gl…">
                   <X className="w-3 h-3" /> Clear
                 </button>
               )}
@@ -979,7 +979,7 @@ export default function Directory() {
                     ? "gradient-indigo text-primary-foreground shadow-cta"
                     : "glass-1 text-muted-foreground hover:text-foreground"
                 }`}
-              >
+               title="setActiveFilter(tab)} className= `} >" aria-label="setActiveFilter(tab)} className= `} >">
                 {tab}
               </button>
             ))}
@@ -1049,14 +1049,14 @@ export default function Directory() {
                     {search.trim() ? `No providers found for "${search}". Try a different search or let us know who you're looking for.` : "No providers found."}
                   </p>
                   <div className="flex items-center justify-center gap-3 mt-3">
-                    <button onClick={() => { setSelectedCategoryId(null); setSearch(""); setVisibleCount(12); }} className="text-indigo text-sm">
+                    <button onClick={() => { setSelectedCategoryId(null); setSearch(""); setVisibleCount(12); }} className="text-indigo text-sm" title="} className='text-indigo text-sm'> Clear filters →" aria-label="} className='text-indigo text-sm'> Clear filters →">
                       Clear filters →
                     </button>
                     {search.trim() && (
                       <button
                         onClick={() => handleRequestProvider()}
                         className="px-4 py-2 rounded-pill text-sm font-medium gradient-indigo text-primary-foreground shadow-cta"
-                      >
+                       title="handleRequestProvider()} className='px-4 py-2 rounded-pill text-sm font-mediu…" aria-label="handleRequestProvider()} className='px-4 py-2 rounded-pill text-sm font-mediu…">
                         Request a provider
                       </button>
                     )}
@@ -1155,7 +1155,7 @@ export default function Directory() {
                           <button
                             onClick={(e) => { e.stopPropagation(); handleRequestProvider({ name: result.name }); }}
                             className="flex items-center gap-1 text-[10px] text-coral hover:text-coral/80 font-medium"
-                          >
+                           title="); }} className='flex items-center gap-1 text-[10px] text-coral hover:text-co…" aria-label="); }} className='flex items-center gap-1 text-[10px] text-coral hover:text-co…">
                             <Send className="w-3 h-3" /> Request on BION
                           </button>
                         </div>
@@ -1195,7 +1195,7 @@ export default function Directory() {
                       </div>
                       <h3 className="text-lg font-bold text-foreground">Request logged!</h3>
                       <p className="text-sm text-muted-foreground">We're reaching out to add this provider. We'll notify you when they're on BION.</p>
-                      <button onClick={() => setShowRequestForm(false)} className="px-6 py-2 rounded-pill text-sm font-medium gradient-indigo text-primary-foreground shadow-cta">
+                      <button onClick={() => setShowRequestForm(false)} className="px-6 py-2 rounded-pill text-sm font-medium gradient-indigo text-primary-foreground shadow-cta" title="setShowRequestForm(false)} className='px-6 py-2 rounded-pill text-sm font-med…" aria-label="setShowRequestForm(false)} className='px-6 py-2 rounded-pill text-sm font-med…">
                         Done
                       </button>
                     </div>
@@ -1203,7 +1203,7 @@ export default function Directory() {
                     <>
                       <div className="flex items-center justify-between">
                         <h3 className="text-lg font-bold text-foreground">Request a Provider</h3>
-                        <button onClick={() => setShowRequestForm(false)} className="w-8 h-8 rounded-full glass-1 flex items-center justify-center">
+                        <button onClick={() => setShowRequestForm(false)} className="w-8 h-8 rounded-full glass-1 flex items-center justify-center" title="setShowRequestForm(false)} className='w-8 h-8 rounded-full glass-1 flex items…" aria-label="setShowRequestForm(false)} className='w-8 h-8 rounded-full glass-1 flex items…">
                           <X className="w-4 h-4 text-muted-foreground" />
                         </button>
                       </div>
@@ -1344,7 +1344,7 @@ export default function Directory() {
             <button
               onClick={() => navigate("/welcome")}
               className="rounded-pill px-8 py-3 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta"
-            >
+             title="navigate('/welcome')} className='rounded-pill px-8 py-3 text-sm font-semibold…" aria-label="navigate('/welcome')} className='rounded-pill px-8 py-3 text-sm font-semibold…">
               Get Started — It's Free
             </button>
           </motion.div>

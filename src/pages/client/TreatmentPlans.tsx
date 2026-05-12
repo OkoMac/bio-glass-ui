@@ -124,7 +124,7 @@ export default function ClientTreatmentPlans() {
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-24">
       <div className="w-full px-4 md:px-8 xl:px-12 pt-20 space-y-5">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+          <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…" aria-label="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…">
             <ArrowLeft className="w-4 h-4" />
           </button>
           <h1 className="text-2xl font-bold text-foreground">My Treatment Plans</h1>
@@ -153,7 +153,7 @@ export default function ClientTreatmentPlans() {
                   <button
                     onClick={() => setExpandedPlan(isExpanded ? null : plan.id)}
                     className="w-full p-4 flex items-center gap-3 text-left"
-                  >
+                   title="setExpandedPlan(isExpanded ? null : plan.id)} className='w-full p-4 flex item…" aria-label="setExpandedPlan(isExpanded ? null : plan.id)} className='w-full p-4 flex item…">
                     <div className="w-12 h-12 rounded-xl bg-indigo/20 flex items-center justify-center shrink-0 relative">
                       <ClipboardList className="w-6 h-6 text-indigo" />
                       {progress > 0 && (

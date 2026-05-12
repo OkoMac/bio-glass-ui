@@ -181,7 +181,7 @@ export default function AdminUsers() {
   if (loading) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
         <div className="mx-auto max-w-4xl xl:max-w-7xl px-4 pt-24 pb-10 md:pt-8 flex flex-col items-center justify-center gap-3" style={{ minHeight: "60vh" }}>
@@ -195,7 +195,7 @@ export default function AdminUsers() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-4xl xl:max-w-7xl px-4 pt-24 pb-10 md:pt-8 space-y-5">
@@ -230,7 +230,7 @@ export default function AdminUsers() {
             <button key={r} onClick={() => setRoleFilter(r)}
               className={`px-3 py-1.5 rounded-pill text-xs font-medium capitalize whitespace-nowrap transition-all ${
                 roleFilter === r ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
-              }`}>
+              }`} title="setRoleFilter(r)} className= `}>" aria-label="setRoleFilter(r)} className= `}>">
               {r === "all" ? "All roles" : r}
             </button>
           ))}
@@ -343,7 +343,7 @@ export default function AdminUsers() {
                           <button
                             onClick={() => togglePermission(selected.id, perm)}
                             className={`relative w-10 h-5 rounded-full transition-colors ${enabled ? "bg-teal/40" : "bg-white/10"}`}
-                          >
+                           title="togglePermission(selected.id, perm)} className= `} >" aria-label="togglePermission(selected.id, perm)} className= `} >">
                             <span className={`absolute top-0.5 w-4 h-4 rounded-full transition-all ${enabled ? "left-[22px] bg-teal" : "left-0.5 bg-white/30"}`} />
                           </button>
                         </div>
@@ -391,7 +391,7 @@ export default function AdminUsers() {
               <div className="px-5 pt-5 pb-8">
                 <div className="flex items-center justify-between mb-5">
                   <h3 className="text-base font-bold text-foreground">Add New User</h3>
-                  <button onClick={() => setShowAddModal(false)}><X className="w-5 h-5 text-muted-foreground" /></button>
+                  <button onClick={() => setShowAddModal(false)} title="setShowAddModal(false)}>" aria-label="setShowAddModal(false)}>"><X className="w-5 h-5 text-muted-foreground" /></button>
                 </div>
 
                 {addDone ? (
@@ -422,7 +422,7 @@ export default function AdminUsers() {
                             <button key={r} onClick={() => setNewRole(r)}
                               className={`flex-1 py-2 rounded-xl text-[11px] font-medium capitalize border transition-all ${
                                 newRole === r ? `${ROLE_META[r].color}` : "border-white/08 glass-1 text-muted-foreground"
-                              }`}>
+                              }`} title="setNewRole(r)} className= ` : 'border-white/08 glass-1 text-muted-foreground'…" aria-label="setNewRole(r)} className= ` : 'border-white/08 glass-1 text-muted-foreground'…">
                               {r}
                             </button>
                           ))}

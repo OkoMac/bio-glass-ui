@@ -260,7 +260,7 @@ export default function SleepTracker() {
           <button
             onClick={() => setScheduleExpanded(!scheduleExpanded)}
             className="w-full flex items-center justify-between"
-          >
+           title="setScheduleExpanded(!scheduleExpanded)} className='w-full flex items-center j…" aria-label="setScheduleExpanded(!scheduleExpanded)} className='w-full flex items-center j…">
             <div className="flex items-center gap-2">
               <Bell className="w-4 h-4 text-indigo-400" />
               <div className="text-left">
@@ -324,7 +324,7 @@ export default function SleepTracker() {
                     toast.success("Reminders paused");
                   }}
                   className="w-full text-[11px] text-muted-foreground/80 hover:text-muted-foreground"
-                >
+                 title="); toast.success('Reminders paused'); }} className='w-full text-[11px] text-m…" aria-label="); toast.success('Reminders paused'); }} className='w-full text-[11px] text-m…">
                   Pause reminders
                 </button>
               )}

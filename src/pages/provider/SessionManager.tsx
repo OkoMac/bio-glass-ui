@@ -30,7 +30,7 @@ export default function SessionManager() {
   if (!isEnabled('sessionManagement')) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-        <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -54,7 +54,7 @@ export default function SessionManager() {
   
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-6xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -67,7 +67,7 @@ export default function SessionManager() {
               Manage personal sessions, group classes, and virtual appointments
             </p>
           </div>
-          <button className="gradient-indigo rounded-pill px-4 py-2 text-sm font-semibold text-white flex items-center gap-2">
+          <button className="gradient-indigo rounded-pill px-4 py-2 text-sm font-semibold text-white flex items-center gap-2" title="New Session" aria-label="New Session">
             <Plus className="w-4 h-4" />
             New Session
           </button>
@@ -155,7 +155,7 @@ export default function SessionManager() {
                   <p className="text-xs text-muted-foreground">Manage your weekly classes</p>
                 </div>
               </div>
-              <button className="glass-1 rounded-pill px-3 py-1.5 text-xs font-medium text-foreground">
+              <button className="glass-1 rounded-pill px-3 py-1.5 text-xs font-medium text-foreground" title="View All" aria-label="View All">
                 View All
               </button>
             </div>
@@ -188,7 +188,7 @@ export default function SessionManager() {
                 </div>
               ))}
 
-              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground mt-2 flex items-center justify-center gap-2">
+              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground mt-2 flex items-center justify-center gap-2" title="Add New Class" aria-label="Add New Class">
                 <Plus className="w-4 h-4" />
                 Add New Class
               </button>
@@ -197,7 +197,7 @@ export default function SessionManager() {
               <div className="text-center py-6">
                 <Users className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground mb-3">No group classes set up yet.</p>
-                <button className="glass-1 rounded-pill py-2.5 px-4 text-sm font-medium text-foreground flex items-center justify-center gap-2 mx-auto">
+                <button className="glass-1 rounded-pill py-2.5 px-4 text-sm font-medium text-foreground flex items-center justify-center gap-2 mx-auto" title="Add New Class" aria-label="Add New Class">
                   <Plus className="w-4 h-4" />
                   Add New Class
                 </button>

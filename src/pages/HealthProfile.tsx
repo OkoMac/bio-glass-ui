@@ -321,7 +321,7 @@ export default function HealthProfile() {
 
         {/* Header */}
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate("/profile")} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={() => navigate("/profile")} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors" title="navigate('/profile')} className='w-8 h-8 glass-1 rounded-full flex items-cent…" aria-label="navigate('/profile')} className='w-8 h-8 glass-1 rounded-full flex items-cent…">
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div>
@@ -402,7 +402,7 @@ export default function HealthProfile() {
             <button key={t.id} onClick={() => setTab(t.id)}
               className={`flex-1 py-2 rounded-xl text-[11px] font-medium transition-all ${
                 tab === t.id ? "gradient-indigo text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}>
+              }`} title="setTab(t.id)} className= `}>" aria-label="setTab(t.id)} className= `}>">
               {t.label}
             </button>
           ))}
@@ -482,7 +482,7 @@ export default function HealthProfile() {
                     style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-bold text-foreground">Log Today's Metrics</h3>
-                      <button onClick={() => setShowLogMetrics(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                      <button onClick={() => setShowLogMetrics(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="setShowLogMetrics(false)} className='w-8 h-8 glass-1 rounded-full flex items-…" aria-label="setShowLogMetrics(false)} className='w-8 h-8 glass-1 rounded-full flex items-…">
                         <X className="w-4 h-4" />
                       </button>
                     </div>
@@ -605,7 +605,7 @@ export default function HealthProfile() {
                   >
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-bold text-foreground">New Goal</h3>
-                      <button onClick={() => setShowAddGoal(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                      <button onClick={() => setShowAddGoal(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="setShowAddGoal(false)} className='w-8 h-8 glass-1 rounded-full flex items-cen…" aria-label="setShowAddGoal(false)} className='w-8 h-8 glass-1 rounded-full flex items-cen…">
                         <X className="w-4 h-4" />
                       </button>
                     </div>
@@ -652,7 +652,7 @@ export default function HealthProfile() {
                                   ? `${v.color} border-current bg-white/05`
                                   : "border-white/08 text-muted-foreground"
                               }`}
-                            >
+                             title="setNewGoal(prev => ( ))} className= border-current bg-white/05` : 'border-whi…" aria-label="setNewGoal(prev => ( ))} className= border-current bg-white/05` : 'border-whi…">
                               {v.label}
                             </button>
                           ))}
@@ -684,7 +684,7 @@ export default function HealthProfile() {
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Conditions</p>
                 <button onClick={() => setShowAddCondition(true)}
-                  className="flex items-center gap-1 text-[10px] text-teal font-medium hover:text-teal/80 transition-colors">
+                  className="flex items-center gap-1 text-[10px] text-teal font-medium hover:text-teal/80 transition-colors" title="setShowAddCondition(true)} className='flex items-center gap-1 text-[10px] tex…" aria-label="setShowAddCondition(true)} className='flex items-center gap-1 text-[10px] tex…">
                   <Plus className="w-3 h-3" /> Add
                 </button>
               </div>
@@ -695,7 +695,7 @@ export default function HealthProfile() {
                     <GlassCard className="p-4 text-center">
                       <AlertCircle className="w-5 h-5 text-muted-foreground/30 mx-auto mb-1.5" />
                       <p className="text-xs text-muted-foreground">No conditions recorded</p>
-                      <button onClick={() => setShowAddCondition(true)} className="text-[10px] text-teal mt-1.5 inline-block">Add your first condition</button>
+                      <button onClick={() => setShowAddCondition(true)} className="text-[10px] text-teal mt-1.5 inline-block" title="setShowAddCondition(true)} className='text-[10px] text-teal mt-1.5 inline-blo…" aria-label="setShowAddCondition(true)} className='text-[10px] text-teal mt-1.5 inline-blo…">Add your first condition</button>
                     </GlassCard>
                   </motion.div>
                 )}
@@ -719,15 +719,15 @@ export default function HealthProfile() {
                                 <button key={s} onClick={() => setConditions(prev => prev.map(x => x.id === c.id ? { ...x, severity: s } : x))}
                                   className={`flex-1 py-1.5 rounded-lg text-[10px] font-medium border capitalize transition-all ${
                                     c.severity === s ? `${SEV_COLOR[s]} border-current bg-white/05` : "border-white/08 text-muted-foreground"
-                                  }`}>{s}</button>
+                                  }`} title="setConditions(prev => prev.map(x => x.id === c.id ? : x))} className= border-…" aria-label="setConditions(prev => prev.map(x => x.id === c.id ? : x))} className= border-…">{s}</button>
                               ))}
                             </div>
                             <button onClick={() => setEditCondition(null)}
-                              className="w-full py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400">Done</button>
+                              className="w-full py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400" title="setEditCondition(null)} className='w-full py-2 rounded-xl text-xs font-semibo…" aria-label="setEditCondition(null)} className='w-full py-2 rounded-xl text-xs font-semibo…">Done</button>
                           </div>
                         ) : (
                           <div className="flex items-start justify-between">
-                            <button onClick={() => setEditCondition(c.id)} className="flex-1 text-left">
+                            <button onClick={() => setEditCondition(c.id)} className="flex-1 text-left" title="setEditCondition(c.id)} className='flex-1 text-left'> }" aria-label="setEditCondition(c.id)} className='flex-1 text-left'> }">
                               <div className="flex items-center gap-2">
                                 <p className="text-sm font-semibold text-foreground">{c.label}</p>
                                 <span className={`text-[10px] font-semibold capitalize ${SEV_COLOR[c.severity]}`}>{c.severity}</span>
@@ -735,7 +735,7 @@ export default function HealthProfile() {
                               {c.note && <p className="text-xs text-muted-foreground mt-0.5">{c.note}</p>}
                             </button>
                             <button onClick={() => setConditions(prev => prev.filter(x => x.id !== c.id))}
-                              className="w-6 h-6 flex items-center justify-center rounded-full text-muted-foreground/40 hover:text-coral hover:bg-coral/10 transition-colors shrink-0 ml-2">
+                              className="w-6 h-6 flex items-center justify-center rounded-full text-muted-foreground/40 hover:text-coral hover:bg-coral/10 transition-colors shrink-0 ml-2" title="setConditions(prev => prev.filter(x => x.id !== c.id))} className='w-6 h-6 fl…" aria-label="setConditions(prev => prev.filter(x => x.id !== c.id))} className='w-6 h-6 fl…">
                               <X className="w-3 h-3" />
                             </button>
                           </div>
@@ -764,14 +764,14 @@ export default function HealthProfile() {
                           <button key={s} onClick={() => setNewCondition(prev => ({ ...prev, severity: s }))}
                             className={`flex-1 py-1.5 rounded-lg text-[10px] font-medium border capitalize transition-all ${
                               newCondition.severity === s ? `${SEV_COLOR[s]} border-current bg-white/05` : "border-white/08 text-muted-foreground"
-                            }`}>{s}</button>
+                            }`} title="setNewCondition(prev => ( ))} className= border-current bg-white/05` : 'borde…" aria-label="setNewCondition(prev => ( ))} className= border-current bg-white/05` : 'borde…">{s}</button>
                         ))}
                       </div>
                       <div className="flex gap-2">
                         <button onClick={() => { setShowAddCondition(false); setNewCondition({ label: "", note: "", severity: "none" }); }}
-                          className="flex-1 py-2 rounded-xl text-xs font-medium border border-white/08 text-muted-foreground">Cancel</button>
+                          className="flex-1 py-2 rounded-xl text-xs font-medium border border-white/08 text-muted-foreground" title="); }} className='flex-1 py-2 rounded-xl text-xs font-medium border border-whi…" aria-label="); }} className='flex-1 py-2 rounded-xl text-xs font-medium border border-whi…">Cancel</button>
                         <button onClick={handleAddCondition} disabled={!newCondition.label.trim()}
-                          className="flex-1 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 transition-opacity">Save</button>
+                          className="flex-1 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 transition-opacity" title="Save" aria-label="Save">Save</button>
                       </div>
                     </GlassCard>
                   </motion.div>
@@ -784,7 +784,7 @@ export default function HealthProfile() {
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Allergies</p>
                 <button onClick={() => setShowAddAllergy(true)}
-                  className="flex items-center gap-1 text-[10px] text-teal font-medium hover:text-teal/80 transition-colors">
+                  className="flex items-center gap-1 text-[10px] text-teal font-medium hover:text-teal/80 transition-colors" title="setShowAddAllergy(true)} className='flex items-center gap-1 text-[10px] text-…" aria-label="setShowAddAllergy(true)} className='flex items-center gap-1 text-[10px] text-…">
                   <Plus className="w-3 h-3" /> Add
                 </button>
               </div>
@@ -793,7 +793,7 @@ export default function HealthProfile() {
                 <GlassCard className="p-4 text-center">
                   <AlertTriangle className="w-5 h-5 text-muted-foreground/30 mx-auto mb-1.5" />
                   <p className="text-xs text-muted-foreground">No allergies recorded</p>
-                  <button onClick={() => setShowAddAllergy(true)} className="text-[10px] text-teal mt-1.5 inline-block">Add your first allergy</button>
+                  <button onClick={() => setShowAddAllergy(true)} className="text-[10px] text-teal mt-1.5 inline-block" title="setShowAddAllergy(true)} className='text-[10px] text-teal mt-1.5 inline-block…" aria-label="setShowAddAllergy(true)} className='text-[10px] text-teal mt-1.5 inline-block…">Add your first allergy</button>
                 </GlassCard>
               )}
 
@@ -804,7 +804,7 @@ export default function HealthProfile() {
                       className="px-3 py-1.5 glass-accent-coral rounded-pill text-xs text-coral inline-flex items-center gap-1.5 group">
                       {a}
                       <button onClick={() => setAllergies(prev => prev.filter((_, idx) => idx !== i))}
-                        className="w-3.5 h-3.5 flex items-center justify-center rounded-full opacity-40 group-hover:opacity-100 hover:bg-coral/20 transition-all">
+                        className="w-3.5 h-3.5 flex items-center justify-center rounded-full opacity-40 group-hover:opacity-100 hover:bg-coral/20 transition-all" title="setAllergies(prev => prev.filter((_, idx) => idx !== i))} className='w-3.5 h-…" aria-label="setAllergies(prev => prev.filter((_, idx) => idx !== i))} className='w-3.5 h-…">
                         <X className="w-2.5 h-2.5" />
                       </button>
                     </motion.span>
@@ -824,9 +824,9 @@ export default function HealthProfile() {
                           placeholder="Allergy name *"
                           className="flex-1 px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors" />
                         <button onClick={() => { setShowAddAllergy(false); setNewAllergy(""); }}
-                          className="px-3 py-2 rounded-xl text-xs font-medium border border-white/08 text-muted-foreground">Cancel</button>
+                          className="px-3 py-2 rounded-xl text-xs font-medium border border-white/08 text-muted-foreground" title="} className='px-3 py-2 rounded-xl text-xs font-medium border border-white/08 …" aria-label="} className='px-3 py-2 rounded-xl text-xs font-medium border border-white/08 …">Cancel</button>
                         <button onClick={handleAddAllergy} disabled={!newAllergy.trim()}
-                          className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 transition-opacity">Add</button>
+                          className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 transition-opacity" title="Add" aria-label="Add">Add</button>
                       </div>
                     </GlassCard>
                   </motion.div>
@@ -839,7 +839,7 @@ export default function HealthProfile() {
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Supplements & Medications</p>
                 <button onClick={() => setShowAddMedication(true)}
-                  className="flex items-center gap-1 text-[10px] text-teal font-medium hover:text-teal/80 transition-colors">
+                  className="flex items-center gap-1 text-[10px] text-teal font-medium hover:text-teal/80 transition-colors" title="setShowAddMedication(true)} className='flex items-center gap-1 text-[10px] te…" aria-label="setShowAddMedication(true)} className='flex items-center gap-1 text-[10px] te…">
                   <Plus className="w-3 h-3" /> Add
                 </button>
               </div>
@@ -850,7 +850,7 @@ export default function HealthProfile() {
                     <GlassCard className="p-4 text-center">
                       <Pill className="w-5 h-5 text-muted-foreground/30 mx-auto mb-1.5" />
                       <p className="text-xs text-muted-foreground">No medications recorded</p>
-                      <button onClick={() => setShowAddMedication(true)} className="text-[10px] text-teal mt-1.5 inline-block">Add your first medication</button>
+                      <button onClick={() => setShowAddMedication(true)} className="text-[10px] text-teal mt-1.5 inline-block" title="setShowAddMedication(true)} className='text-[10px] text-teal mt-1.5 inline-bl…" aria-label="setShowAddMedication(true)} className='text-[10px] text-teal mt-1.5 inline-bl…">Add your first medication</button>
                     </GlassCard>
                   </motion.div>
                 )}
@@ -876,18 +876,18 @@ export default function HealthProfile() {
                                 className="w-full px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors" />
                             </div>
                             <button onClick={() => setEditMedication(null)}
-                              className="w-full py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400">Done</button>
+                              className="w-full py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400" title="setEditMedication(null)} className='w-full py-2 rounded-xl text-xs font-semib…" aria-label="setEditMedication(null)} className='w-full py-2 rounded-xl text-xs font-semib…">Done</button>
                           </div>
                         ) : (
                           <div className="flex items-center justify-between">
-                            <button onClick={() => setEditMedication(m.id)} className="flex items-center gap-2 flex-1 text-left">
+                            <button onClick={() => setEditMedication(m.id)} className="flex items-center gap-2 flex-1 text-left" title="setEditMedication(m.id)} className='flex items-center gap-2 flex-1 text-left'>" aria-label="setEditMedication(m.id)} className='flex items-center gap-2 flex-1 text-left'>">
                               <Pill className="w-3.5 h-3.5 text-indigo shrink-0" />
                               <p className="text-sm text-foreground">{m.name}</p>
                             </button>
                             <div className="flex items-center gap-2">
                               <span className="text-[11px] text-muted-foreground">{m.dose}{m.dose && m.frequency ? " · " : ""}{m.frequency}</span>
                               <button onClick={() => setMedications(prev => prev.filter(x => x.id !== m.id))}
-                                className="w-6 h-6 flex items-center justify-center rounded-full text-muted-foreground/40 hover:text-coral hover:bg-coral/10 transition-colors shrink-0">
+                                className="w-6 h-6 flex items-center justify-center rounded-full text-muted-foreground/40 hover:text-coral hover:bg-coral/10 transition-colors shrink-0" title="setMedications(prev => prev.filter(x => x.id !== m.id))} className='w-6 h-6 f…" aria-label="setMedications(prev => prev.filter(x => x.id !== m.id))} className='w-6 h-6 f…">
                                 <X className="w-3 h-3" />
                               </button>
                             </div>
@@ -920,9 +920,9 @@ export default function HealthProfile() {
                       </div>
                       <div className="flex gap-2">
                         <button onClick={() => { setShowAddMedication(false); setNewMedication({ name: "", dose: "", frequency: "" }); }}
-                          className="flex-1 py-2 rounded-xl text-xs font-medium border border-white/08 text-muted-foreground">Cancel</button>
+                          className="flex-1 py-2 rounded-xl text-xs font-medium border border-white/08 text-muted-foreground" title="); }} className='flex-1 py-2 rounded-xl text-xs font-medium border border-whi…" aria-label="); }} className='flex-1 py-2 rounded-xl text-xs font-medium border border-whi…">Cancel</button>
                         <button onClick={handleAddMedication} disabled={!newMedication.name.trim()}
-                          className="flex-1 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 transition-opacity">Save</button>
+                          className="flex-1 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 transition-opacity" title="Save" aria-label="Save">Save</button>
                       </div>
                     </GlassCard>
                   </motion.div>
@@ -963,7 +963,7 @@ export default function HealthProfile() {
                               current === level
                                 ? `${PRIVACY_LABELS[level].color} border-current bg-white/05`
                                 : "border-white/08 text-muted-foreground"
-                            }`}>
+                            }`} title="setPrivacy(prev => ( ))} className= border-current bg-white/05` : 'border-whi…" aria-label="setPrivacy(prev => ( ))} className= border-current bg-white/05` : 'border-whi…">
                             {PRIVACY_LABELS[level].label}
                           </button>
                         ))}
@@ -986,7 +986,7 @@ export default function HealthProfile() {
                       <p className="text-sm font-semibold text-foreground capitalize">{section} Data</p>
                     </div>
                     <button onClick={() => setShowProviderPicker(section)}
-                      className="text-xs text-teal font-medium">
+                      className="text-xs text-teal font-medium" title="setShowProviderPicker(section)} className='text-xs text-teal font-medium'> Ma…" aria-label="setShowProviderPicker(section)} className='text-xs text-teal font-medium'> Ma…">
                       Manage Access
                     </button>
                   </div>
@@ -995,7 +995,7 @@ export default function HealthProfile() {
                       <Lock className="w-5 h-5 text-muted-foreground/40 mx-auto mb-1" />
                       <p className="text-xs text-muted-foreground">Only you can see your {section} data</p>
                       <button onClick={() => setShowProviderPicker(section)}
-                        className="text-[10px] text-teal mt-1">Grant access to a provider →</button>
+                        className="text-[10px] text-teal mt-1" title="setShowProviderPicker(section)} className='text-[10px] text-teal mt-1'>Grant …" aria-label="setShowProviderPicker(section)} className='text-[10px] text-teal mt-1'>Grant …">Grant access to a provider →</button>
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -1029,7 +1029,7 @@ export default function HealthProfile() {
                         <p className="text-xs text-muted-foreground">Select which providers can view your {showProviderPicker} data</p>
                       </div>
                       <button onClick={() => setShowProviderPicker(null)}
-                        className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                        className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="setShowProviderPicker(null)} className='w-8 h-8 glass-1 rounded-full flex ite…" aria-label="setShowProviderPicker(null)} className='w-8 h-8 glass-1 rounded-full flex ite…">
                         <X className="w-4 h-4" />
                       </button>
                     </div>
@@ -1046,7 +1046,7 @@ export default function HealthProfile() {
                               providerName: prov.name,
                               granting: !hasAccess,
                             })}
-                            className="w-full flex items-center gap-3 py-3 px-3 rounded-xl border border-white/[0.06] hover:border-white/[0.12] transition-colors">
+                            className="w-full flex items-center gap-3 py-3 px-3 rounded-xl border border-white/[0.06] hover:border-white/[0.12] transition-colors" title="setConfirmToggle( )} className='w-full flex items-center gap-3 py-3 px-3 roun…" aria-label="setConfirmToggle( )} className='w-full flex items-center gap-3 py-3 px-3 roun…">
                             <img src={prov.image} alt={prov.name} className="w-9 h-9 rounded-xl object-cover shrink-0" />
                             <div className="flex-1 text-left min-w-0">
                               <p className="text-sm text-foreground truncate">{prov.name}</p>
@@ -1100,7 +1100,7 @@ export default function HealthProfile() {
                       </p>
                       <div className="flex gap-3 mt-5 w-full">
                         <button onClick={() => setConfirmToggle(null)}
-                          className="flex-1 py-2.5 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground">
+                          className="flex-1 py-2.5 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground" title="setConfirmToggle(null)} className='flex-1 py-2.5 rounded-2xl text-sm font-med…" aria-label="setConfirmToggle(null)} className='flex-1 py-2.5 rounded-2xl text-sm font-med…">
                           Cancel
                         </button>
                         <button onClick={() => {
@@ -1111,7 +1111,7 @@ export default function HealthProfile() {
                         }}
                           className={`flex-1 py-2.5 rounded-2xl text-sm font-semibold text-white ${
                             confirmToggle.granting ? "bg-gradient-to-r from-teal to-emerald-400" : "bg-gradient-to-r from-coral to-red-500"
-                          }`}>
+                          }`} title="= confirmToggle; const setter = section === 'medical' ? setMedicalAccess : se…" aria-label="= confirmToggle; const setter = section === 'medical' ? setMedicalAccess : se…">
                           {confirmToggle.granting ? "Grant Access" : "Revoke Access"}
                         </button>
                       </div>

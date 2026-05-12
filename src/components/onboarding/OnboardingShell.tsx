@@ -186,7 +186,7 @@ function QuizStepRenderer({
                       className={`w-full text-left px-3 py-2.5 rounded-lg border text-sm transition-all ${borderColor} ${
                         selected ? "bg-indigo/10 text-foreground" : "glass-1 text-muted-foreground hover:text-foreground"
                       }`}
-                    >
+                     title="else }} className= $ `} >" aria-label="else }} className= $ `} >">
                       <span className="w-4 h-4 rounded-full border border-current inline-flex items-center justify-center mr-2 shrink-0">
                         {selected && <span className="w-2 h-2 rounded-full bg-current" />}
                       </span>
@@ -217,7 +217,7 @@ function QuizStepRenderer({
                     className={`w-10 h-10 rounded-xl border text-sm font-semibold transition-all ${
                       userAns === n ? "border-indigo/60 bg-indigo/20 text-foreground" : "border-white/10 glass-1 text-muted-foreground"
                     }`}
-                  >
+                   title="onAnswer(q.id, n)} className= `} >" aria-label="onAnswer(q.id, n)} className= `} >">
                     {n}
                   </button>
                 ))}
@@ -229,7 +229,7 @@ function QuizStepRenderer({
               <button
                 onClick={() => reveal(q.id)}
                 className="text-xs text-indigo underline"
-              >
+               title="reveal(q.id)} className='text-xs text-indigo underline' > Check answer" aria-label="reveal(q.id)} className='text-xs text-indigo underline' > Check answer">
                 Check answer
               </button>
             )}
@@ -278,7 +278,7 @@ function ConsentStepRenderer({
               ? "border-teal/40 bg-teal/5"
               : "border-white/[0.08] glass-1"
           }`}
-        >
+         title="onAnswer(item.id, !answers[item.id])} className= `} >" aria-label="onAnswer(item.id, !answers[item.id])} className= `} >">
           <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${
             answers[item.id]
               ? "border-teal bg-teal"
@@ -350,7 +350,7 @@ function FormStepRenderer({
                           ? "border-indigo/50 bg-indigo/15 text-foreground"
                           : "border-white/10 glass-1 text-muted-foreground hover:text-foreground"
                       }`}
-                    >
+                     title="} className= `} >" aria-label="} className= `} >">
                       {isSelected && <span className="mr-1">✓</span>}
                       {o}
                     </button>
@@ -496,7 +496,7 @@ function OnboardingShellInner({
         <button
           onClick={() => setSidebarOpen(true)}
           className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-        >
+         title="setSidebarOpen(true)} className='flex items-center gap-2 text-sm text-muted-f…" aria-label="setSidebarOpen(true)} className='flex items-center gap-2 text-sm text-muted-f…">
           <BookOpen className="w-4 h-4" />
           <span className="hidden sm:block">Course Outline</span>
           <span className="sm:hidden">Outline</span>
@@ -518,7 +518,7 @@ function OnboardingShellInner({
         <button
           onClick={() => setChatOpen(true)}
           className="w-8 h-8 rounded-full glass-1 flex items-center justify-center text-muted-foreground hover:text-foreground border border-white/5"
-        >
+         title="setChatOpen(true)} className='w-8 h-8 rounded-full glass-1 flex items-center …" aria-label="setChatOpen(true)} className='w-8 h-8 rounded-full glass-1 flex items-center …">
           <MessageCircle className="w-4 h-4" />
         </button>
       </div>
@@ -578,7 +578,7 @@ function OnboardingShellInner({
             <button
               onClick={ob.prevStep}
               className="flex items-center gap-1.5 px-4 py-3 glass-1 rounded-pill text-sm text-muted-foreground border border-white/5 hover:text-foreground"
-            >
+             title="Back" aria-label="Back">
               <ChevronLeft className="w-4 h-4" />
               Back
             </button>
@@ -602,7 +602,7 @@ function OnboardingShellInner({
           <button
             onClick={ob.nextStep}
             className="w-full text-center text-xs text-muted-foreground mt-3"
-          >
+           title="Skip this step" aria-label="Skip this step">
             Skip this step
           </button>
         )}
@@ -624,7 +624,7 @@ function OnboardingShellInner({
             >
               <div className="flex items-center justify-between mb-5">
                 <h3 className="text-sm font-semibold text-foreground">Course Outline</h3>
-                <button onClick={() => setSidebarOpen(false)}><X className="w-4 h-4 text-muted-foreground" /></button>
+                <button onClick={() => setSidebarOpen(false)} title="setSidebarOpen(false)}>" aria-label="setSidebarOpen(false)}>"><X className="w-4 h-4 text-muted-foreground" /></button>
               </div>
               <div className="space-y-1">
                 {steps.map((s, i) => {
@@ -637,7 +637,7 @@ function OnboardingShellInner({
                       className={`w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-all ${
                         active ? "bg-indigo/15 border border-indigo/25" : "hover:bg-white/5"
                       }`}
-                    >
+                     title="} className= `} >" aria-label="} className= `} >">
                       <span className="text-lg shrink-0">{STEP_ICONS[s.type] ?? "📋"}</span>
                       <div className="flex-1 min-w-0">
                         <p className={`text-xs font-medium truncate ${active ? "text-foreground" : "text-muted-foreground"}`}>

@@ -258,7 +258,7 @@ export default function BmiCalculator() {
               <button
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 className="w-full flex items-center justify-between p-4 text-left"
-              >
+               title="setOpenFaq(openFaq === i ? null : i)} className='w-full flex items-center jus…" aria-label="setOpenFaq(openFaq === i ? null : i)} className='w-full flex items-center jus…">
                 <span className="text-sm font-medium text-foreground">{faq.q}</span>
                 {openFaq === i ? (
                   <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" />

@@ -89,7 +89,7 @@ export default function AdminRangers() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <AdminNav />
@@ -154,7 +154,7 @@ export default function AdminRangers() {
                   <button
                     onClick={() => setExpandedRanger(expanded ? null : ranger.id)}
                     className="w-full p-4 flex items-center gap-3 text-left hover:bg-white/[0.02] transition-colors"
-                  >
+                   title="setExpandedRanger(expanded ? null : ranger.id)} className='w-full p-4 flex it…" aria-label="setExpandedRanger(expanded ? null : ranger.id)} className='w-full p-4 flex it…">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal to-emerald flex items-center justify-center text-sm font-bold text-obsidian shrink-0">
                       {ranger.full_name?.[0]?.toUpperCase() ?? "R"}
                     </div>

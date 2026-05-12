@@ -47,7 +47,7 @@ export default function ProviderCatalogs() {
 
   return (
     <div className="min-h-screen bg-background md:pl-56 pb-24 md:pb-8 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <ProviderNav />
@@ -64,7 +64,7 @@ export default function ProviderCatalogs() {
           <button
             onClick={() => setCreating(true)}
             className="flex items-center gap-2 px-4 py-2 rounded-pill gradient-indigo text-white text-sm font-semibold"
-          >
+           title="setCreating(true)} className='flex items-center gap-2 px-4 py-2 rounded-pill …" aria-label="setCreating(true)} className='flex items-center gap-2 px-4 py-2 rounded-pill …">
             <Plus className="w-4 h-4" /> New
           </button>
         </header>
@@ -83,7 +83,7 @@ export default function ProviderCatalogs() {
             <button
               onClick={() => setCreating(true)}
               className="mt-4 px-4 py-2 rounded-pill gradient-indigo text-white text-sm font-semibold inline-flex items-center gap-2"
-            >
+             title="setCreating(true)} className='mt-4 px-4 py-2 rounded-pill gradient-indigo tex…" aria-label="setCreating(true)} className='mt-4 px-4 py-2 rounded-pill gradient-indigo tex…">
               <Sparkles className="w-4 h-4" /> Start your first catalog
             </button>
           </GlassCard>
@@ -101,7 +101,7 @@ export default function ProviderCatalogs() {
                     onClick={() => navigate(`/pro/catalogs/${c.id}`)}
                     className="h-40 relative flex items-end p-4 text-left"
                     style={{ background: c.cover_image_url ? `url(${c.cover_image_url}) center/cover` : themeGradient }}
-                  >
+                   title="navigate(`/pro/catalogs/$ `)} className='h-40 relative flex items-end p-4 tex…" aria-label="navigate(`/pro/catalogs/$ `)} className='h-40 relative flex items-end p-4 tex…">
                     {c.cover_image_url && <div className="absolute inset-0 bg-black/40" />}
                     <div className="relative z-10">
                       <p className="text-lg font-bold text-white leading-tight">{c.title}</p>
@@ -133,7 +133,7 @@ export default function ProviderCatalogs() {
                           onClick={(e) => { e.stopPropagation(); copyLink(c.short_url!); }}
                           title="Copy share link"
                           className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors"
-                        >
+                         aria-label="} title='Copy share link' className='p-1.5 rounded-lg bg-white/5 hover:bg-whi…">
                           <LinkIcon className="w-3.5 h-3.5" />
                         </button>
                       )}
@@ -146,7 +146,7 @@ export default function ProviderCatalogs() {
                           c.published ? "bg-white/5 text-muted-foreground hover:text-foreground"
                                       : "bg-indigo text-white"
                         }`}
-                      >
+                       title="catch (e) }} className= `} >" aria-label="catch (e) }} className= `} >">
                         {c.published ? "Unpublish" : "Publish"}
                       </button>
                       <button
@@ -158,7 +158,7 @@ export default function ProviderCatalogs() {
                         }}
                         className="p-1.5 rounded-lg bg-white/5 hover:bg-coral/20 text-muted-foreground hover:text-coral transition-colors"
                         title="Delete"
-                      >
+                       aria-label="catch (err) }} className='p-1.5 rounded-lg bg-white/5 hover:bg-coral/20 text-…">
                         <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -185,7 +185,7 @@ export default function ProviderCatalogs() {
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-foreground">New catalog</h3>
-                <button onClick={() => setCreating(false)} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+                <button onClick={() => setCreating(false)} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center" title="setCreating(false)} className='w-8 h-8 rounded-full bg-white/5 flex items-cen…" aria-label="setCreating(false)} className='w-8 h-8 rounded-full bg-white/5 flex items-cen…">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
@@ -219,6 +219,7 @@ export default function ProviderCatalogs() {
                       }`}
                       style={{ background: t.gradient }}
                       title={t.id}
+                      aria-label={t.id}
                     />
                   ))}
                 </div>

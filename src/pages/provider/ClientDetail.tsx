@@ -177,7 +177,7 @@ export default function ClientDetail() {
             <Users className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
             <h1 className="text-lg font-bold text-foreground mb-2">Client not found</h1>
             <p className="text-xs text-muted-foreground mb-4">This client does not exist or has not booked with you yet.</p>
-            <button onClick={() => navigate("/pro/clients")} className="px-4 py-2 gradient-indigo rounded-full text-sm font-medium">
+            <button onClick={() => navigate("/pro/clients")} className="px-4 py-2 gradient-indigo rounded-full text-sm font-medium" title="navigate('/pro/clients')} className='px-4 py-2 gradient-indigo rounded-full t…" aria-label="navigate('/pro/clients')} className='px-4 py-2 gradient-indigo rounded-full t…">
               Back to Clients
             </button>
           </GlassCard>
@@ -251,7 +251,7 @@ export default function ClientDetail() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate("/pro/clients")} className="p-1.5 glass-1 rounded-full">
+            <button onClick={() => navigate("/pro/clients")} className="p-1.5 glass-1 rounded-full" title="navigate('/pro/clients')} className='p-1.5 glass-1 rounded-full'>" aria-label="navigate('/pro/clients')} className='p-1.5 glass-1 rounded-full'>">
               <ArrowLeft className="w-5 h-5 text-foreground" />
             </button>
             <div>
@@ -269,11 +269,11 @@ export default function ClientDetail() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => navigate("/pro/messages")} className="px-4 py-2 glass-1 rounded-full text-sm font-medium">
+            <button onClick={() => navigate("/pro/messages")} className="px-4 py-2 glass-1 rounded-full text-sm font-medium" title="navigate('/pro/messages')} className='px-4 py-2 glass-1 rounded-full text-sm …" aria-label="navigate('/pro/messages')} className='px-4 py-2 glass-1 rounded-full text-sm …">
               <MessageSquare className="w-4 h-4 inline mr-1" />
               Message
             </button>
-            <button onClick={() => navigate("/pro/bookings")} className="px-4 py-2 gradient-indigo rounded-full text-sm font-medium">
+            <button onClick={() => navigate("/pro/bookings")} className="px-4 py-2 gradient-indigo rounded-full text-sm font-medium" title="navigate('/pro/bookings')} className='px-4 py-2 gradient-indigo rounded-full …" aria-label="navigate('/pro/bookings')} className='px-4 py-2 gradient-indigo rounded-full …">
               <Calendar className="w-4 h-4 inline mr-1" />
               Book Session
             </button>
@@ -418,7 +418,7 @@ export default function ClientDetail() {
                         </div>
                       </div>
                     </div>
-                    <button onClick={() => alert("Session notes will open here.")} className="p-2 rounded-full hover:bg-white/10">
+                    <button onClick={() => alert("Session notes will open here.")} className="p-2 rounded-full hover:bg-white/10" title="alert('Session notes will open here.')} className='p-2 rounded-full hover:bg-…" aria-label="alert('Session notes will open here.')} className='p-2 rounded-full hover:bg-…">
                       <FileText className="w-4 h-4 text-foreground" />
                     </button>
                   </div>
@@ -433,7 +433,7 @@ export default function ClientDetail() {
             <GlassCard className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-foreground">Active Tasks</h3>
-                <button onClick={() => alert("Task creation coming soon.")} className="px-3 py-1.5 gradient-indigo rounded-full text-xs font-medium">
+                <button onClick={() => alert("Task creation coming soon.")} className="px-3 py-1.5 gradient-indigo rounded-full text-xs font-medium" title="alert('Task creation coming soon.')} className='px-3 py-1.5 gradient-indigo r…" aria-label="alert('Task creation coming soon.')} className='px-3 py-1.5 gradient-indigo r…">
                   <Plus className="w-3 h-3 inline mr-1" />
                   Add Task
                 </button>
@@ -453,7 +453,7 @@ export default function ClientDetail() {
                         className={`w-5 h-5 rounded-full border flex items-center justify-center ${
                           task.done ? "bg-emerald border-emerald" : "border-muted-foreground"
                         }`}
-                      >
+                       title="markTaskDone(task.id)} className= `} >" aria-label="markTaskDone(task.id)} className= `} >">
                         {task.done && <CheckCircle className="w-3 h-3 text-white" />}
                       </button>
                       <div>
@@ -472,7 +472,7 @@ export default function ClientDetail() {
                         </div>
                       </div>
                     </div>
-                    <button onClick={() => alert("Task editing coming soon.")} className="p-2 rounded-full hover:bg-white/10">
+                    <button onClick={() => alert("Task editing coming soon.")} className="p-2 rounded-full hover:bg-white/10" title="alert('Task editing coming soon.')} className='p-2 rounded-full hover:bg-whit…" aria-label="alert('Task editing coming soon.')} className='p-2 rounded-full hover:bg-whit…">
                       <Edit3 className="w-4 h-4 text-foreground" />
                     </button>
                   </div>
@@ -490,7 +490,7 @@ export default function ClientDetail() {
                 <button
                   onClick={() => setShowNoteForm(true)}
                   className="px-3 py-1.5 gradient-indigo rounded-full text-xs font-medium"
-                >
+                 title="setShowNoteForm(true)} className='px-3 py-1.5 gradient-indigo rounded-full te…" aria-label="setShowNoteForm(true)} className='px-3 py-1.5 gradient-indigo rounded-full te…">
                   <Plus className="w-3 h-3 inline mr-1" />
                   Add Note
                 </button>
@@ -517,7 +517,7 @@ export default function ClientDetail() {
                           <button
                             onClick={() => setPinned(!pinned)}
                             className={`p-1.5 rounded-full ${pinned ? "bg-amber/20 text-amber" : "glass-1 text-muted-foreground"}`}
-                          >
+                           title="setPinned(!pinned)} className= `} >" aria-label="setPinned(!pinned)} className= `} >">
                             <Award className="w-4 h-4" />
                           </button>
                           <span className="text-xs text-muted-foreground">
@@ -532,14 +532,14 @@ export default function ClientDetail() {
                               setPinned(false);
                             }}
                             className="px-3 py-1.5 glass-1 rounded-full text-xs"
-                          >
+                           title="} className='px-3 py-1.5 glass-1 rounded-full text-xs' > Cancel" aria-label="} className='px-3 py-1.5 glass-1 rounded-full text-xs' > Cancel">
                             Cancel
                           </button>
                           <button
                             onClick={addNote}
                             disabled={!newNote.trim()}
                             className="px-3 py-1.5 gradient-indigo rounded-full text-xs font-medium"
-                          >
+                           title="Save Note" aria-label="Save Note">
                             Save Note
                           </button>
                         </div>
@@ -575,7 +575,7 @@ export default function ClientDetail() {
                         {note.pinned && (
                           <Award className="w-4 h-4 text-amber" />
                         )}
-                        <button onClick={() => alert("Note editing coming soon.")} className="p-1.5 rounded-full hover:bg-white/10">
+                        <button onClick={() => alert("Note editing coming soon.")} className="p-1.5 rounded-full hover:bg-white/10" title="alert('Note editing coming soon.')} className='p-1.5 rounded-full hover:bg-wh…" aria-label="alert('Note editing coming soon.')} className='p-1.5 rounded-full hover:bg-wh…">
                           <Edit3 className="w-4 h-4 text-foreground" />
                         </button>
                       </div>
@@ -647,7 +647,7 @@ export default function ClientDetail() {
                     <div className="text-center py-8">
                       <Gift className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
                       <p className="text-sm text-muted-foreground">No rewards yet</p>
-                      <button onClick={() => alert("Points awarded! (Coming soon)")} className="mt-3 px-4 py-2 gradient-indigo rounded-full text-sm font-medium">
+                      <button onClick={() => alert("Points awarded! (Coming soon)")} className="mt-3 px-4 py-2 gradient-indigo rounded-full text-sm font-medium" title="alert('Points awarded! (Coming soon)')} className='mt-3 px-4 py-2 gradient-in…" aria-label="alert('Points awarded! (Coming soon)')} className='mt-3 px-4 py-2 gradient-in…">
                         <Award className="w-4 h-4 inline mr-1" />
                         Award Points
                       </button>

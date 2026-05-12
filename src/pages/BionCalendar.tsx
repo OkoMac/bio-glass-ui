@@ -412,7 +412,7 @@ export default function BionCalendar() {
                   className={`aspect-square rounded-xl flex flex-col items-center justify-center relative transition-all ${
                     isSelected ? "bg-gradient-to-br from-indigo to-violet text-white" :
                     isToday ? "border border-teal/40 text-teal" : "text-foreground hover:bg-white/[0.03]"
-                  }`}>
+                  }`} title="setSelectedDate(dateStr)} className= `}> )}" aria-label="setSelectedDate(dateStr)} className= `}> )}">
                   <span className="text-xs font-medium">{day.getDate()}</span>
                   {dayCategories && (
                     <div className="flex gap-0.5 mt-0.5">
@@ -436,14 +436,14 @@ export default function BionCalendar() {
           <button onClick={() => setCategoryFilter("all")}
             className={`px-3 py-1.5 rounded-pill text-xs font-medium border whitespace-nowrap transition-all ${
               categoryFilter === "all" ? "border-teal/40 bg-teal/10 text-teal" : "border-white/08 text-muted-foreground"
-            }`}>All</button>
+            }`} title="setCategoryFilter('all')} className= `}>All" aria-label="setCategoryFilter('all')} className= `}>All">All</button>
           {(Object.keys(CATEGORY_CONFIG) as EventCategory[]).map(cat => {
             const cfg = CATEGORY_CONFIG[cat];
             return (
               <button key={cat} onClick={() => setCategoryFilter(cat)}
                 className={`px-3 py-1.5 rounded-pill text-xs font-medium border whitespace-nowrap transition-all flex items-center gap-1 ${
                   categoryFilter === cat ? `border-current ${cfg.color} bg-white/5` : "border-white/08 text-muted-foreground"
-                }`}>
+                }`} title="setCategoryFilter(cat)} className= bg-white/5` : 'border-white/08 text-muted-…" aria-label="setCategoryFilter(cat)} className= bg-white/5` : 'border-white/08 text-muted-…">
                 {cfg.label}
               </button>
             );
@@ -465,7 +465,7 @@ export default function BionCalendar() {
               <p className="text-sm text-foreground mb-1">No events</p>
               <p className="text-xs text-muted-foreground mb-3">Nothing scheduled for this day</p>
               <button onClick={() => setShowAdd(true)}
-                className="text-xs text-teal font-medium"><Plus className="w-3 h-3 inline mr-1" />Add event</button>
+                className="text-xs text-teal font-medium" title="setShowAdd(true)} className='text-xs text-teal font-medium'> Add event" aria-label="setShowAdd(true)} className='text-xs text-teal font-medium'> Add event"><Plus className="w-3 h-3 inline mr-1" />Add event</button>
             </GlassCard>
           ) : (
             <div className="space-y-2">
@@ -477,7 +477,7 @@ export default function BionCalendar() {
                     <GlassCard className={`p-3.5 ${event.completed ? "opacity-60" : ""}`}>
                       <div className="flex items-start gap-3">
                         <button onClick={() => toggleComplete(event.id)}
-                          className={`w-9 h-9 rounded-xl ${cfg.bg} flex items-center justify-center shrink-0 mt-0.5`}>
+                          className={`w-9 h-9 rounded-xl ${cfg.bg} flex items-center justify-center shrink-0 mt-0.5`} title="toggleComplete(event.id)} className= flex items-center justify-center shrink-…" aria-label="toggleComplete(event.id)} className= flex items-center justify-center shrink-…">
                           {event.completed ? <Check className={`w-4 h-4 ${cfg.color}`} /> : <Icon className={`w-4 h-4 ${cfg.color}`} />}
                         </button>
                         <div className="flex-1 min-w-0">
@@ -506,7 +506,7 @@ export default function BionCalendar() {
                             <p className="text-[10px] text-muted-foreground mt-1">{event.notes}</p>
                           )}
                         </div>
-                        <button onClick={() => deleteEvent(event.id)} className="text-muted-foreground hover:text-coral text-xs shrink-0">
+                        <button onClick={() => deleteEvent(event.id)} className="text-muted-foreground hover:text-coral text-xs shrink-0" title="deleteEvent(event.id)} className='text-muted-foreground hover:text-coral text…" aria-label="deleteEvent(event.id)} className='text-muted-foreground hover:text-coral text…">
                           <X className="w-3 h-3" />
                         </button>
                       </div>
@@ -543,7 +543,7 @@ export default function BionCalendar() {
 
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-foreground">Add Event</h3>
-                <button onClick={() => setShowAdd(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                <button onClick={() => setShowAdd(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="setShowAdd(false)} className='w-8 h-8 glass-1 rounded-full flex items-center …" aria-label="setShowAdd(false)} className='w-8 h-8 glass-1 rounded-full flex items-center …">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -562,7 +562,7 @@ export default function BionCalendar() {
                       <button key={key} onClick={() => setNewEvent(p => ({ ...p, category: key }))}
                         className={`px-2.5 py-1.5 rounded-pill text-[10px] font-medium border transition-all ${
                           newEvent.category === key ? `border-current ${cfg.color} bg-white/5` : "border-white/08 text-muted-foreground"
-                        }`}>{cfg.label}</button>
+                        }`} title="setNewEvent(p => ( ))} className= bg-white/5` : 'border-white/08 text-muted-f…" aria-label="setNewEvent(p => ( ))} className= bg-white/5` : 'border-white/08 text-muted-f…">{cfg.label}</button>
                     ))}
                   </div>
                 </div>
@@ -605,7 +605,7 @@ export default function BionCalendar() {
                             type="button"
                             onMouseDown={(e) => { e.preventDefault(); setNewEvent(prev => ({ ...prev, provider: p.name })); setProviderPickerOpen(false); }}
                             className="w-full text-left px-3 py-2 hover:bg-white/[0.04] transition-colors border-b border-white/[0.04] last:border-0"
-                          >
+                           title=")); setProviderPickerOpen(false); }} className='w-full text-left px-3 py-2 ho…" aria-label=")); setProviderPickerOpen(false); }} className='w-full text-left px-3 py-2 ho…">
                             <p className="text-sm text-foreground truncate">{p.name}</p>
                             <p className="text-[10px] text-muted-foreground truncate">{p.service} · {p.location}</p>
                           </button>

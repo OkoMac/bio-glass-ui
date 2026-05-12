@@ -116,7 +116,7 @@ export default function ForCorporate() {
               type="button"
               onClick={() => setDemoOpen(true)}
               className="rounded-pill px-8 py-3.5 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta inline-flex items-center gap-2"
-            >
+             title="setDemoOpen(true)} className='rounded-pill px-8 py-3.5 text-sm font-semibold …" aria-label="setDemoOpen(true)} className='rounded-pill px-8 py-3.5 text-sm font-semibold …">
               Request a demo <ArrowRight className="w-4 h-4" />
             </button>
             <Link
@@ -297,7 +297,7 @@ export default function ForCorporate() {
                 onClick={() => setDemoOpen(false)}
                 className="absolute top-4 right-4 w-9 h-9 rounded-full glass-1 flex items-center justify-center text-muted-foreground hover:text-foreground"
                 aria-label="Close"
-              >
+               title="setDemoOpen(false)} className='absolute top-4 right-4 w-9 h-9 rounded-full gl…">
                 <X className="w-4 h-4" />
               </button>
               <h3 className="text-2xl font-bold mb-1">Request a demo</h3>
@@ -360,7 +360,7 @@ function DemoForm() {
           type="button"
           onClick={() => setStatus("idle")}
           className="mt-4 text-xs text-indigo-light underline"
-        >
+         title="setStatus('idle')} className='mt-4 text-xs text-indigo-light underline' > Sen…" aria-label="setStatus('idle')} className='mt-4 text-xs text-indigo-light underline' > Sen…">
           Send another
         </button>
       </div>

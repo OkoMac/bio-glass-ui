@@ -182,13 +182,13 @@ export default function HealthInsights() {
           <button onClick={() => setTab("insights")}
             className={`flex-1 py-2 rounded-xl text-xs font-medium border transition-all ${
               tab === "insights" ? "border-teal/40 bg-teal/10 text-teal" : "border-white/08 text-muted-foreground"
-            }`}>
+            }`} title="setTab('insights')} className= `}> Insights" aria-label="setTab('insights')} className= `}> Insights">
             <Activity className="w-3.5 h-3.5 inline mr-1" /> Insights
           </button>
           <button onClick={() => setTab("biometrics")}
             className={`flex-1 py-2 rounded-xl text-xs font-medium border transition-all ${
               tab === "biometrics" ? "border-indigo/40 bg-indigo/10 text-indigo" : "border-white/08 text-muted-foreground"
-            }`}>
+            }`} title="setTab('biometrics')} className= `}> Device Sync" aria-label="setTab('biometrics')} className= `}> Device Sync">
             <Smartphone className="w-3.5 h-3.5 inline mr-1" /> Device Sync
           </button>
         </div>
@@ -212,7 +212,7 @@ export default function HealthInsights() {
                         : f.key === "good" ? "border-teal/40 bg-teal/10 text-teal"
                         : "border-indigo/40 bg-indigo/10 text-indigo"
                       : "border-white/08 text-muted-foreground"
-                  }`}>{f.label}</button>
+                  }`} title="setSeverityFilter(f.key)} className= `}>" aria-label="setSeverityFilter(f.key)} className= `}>">{f.label}</button>
               ))}
             </div>
             )}
@@ -228,7 +228,7 @@ export default function HealthInsights() {
                 <button
                   onClick={() => navigate("/progress")}
                   className="mt-4 inline-flex items-center gap-1.5 rounded-pill px-4 py-2 gradient-indigo text-primary-foreground text-xs font-semibold"
-                >
+                 title="navigate('/progress')} className='mt-4 inline-flex items-center gap-1.5 round…" aria-label="navigate('/progress')} className='mt-4 inline-flex items-center gap-1.5 round…">
                   Start tracking <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </GlassCard>

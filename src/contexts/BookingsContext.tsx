@@ -242,7 +242,9 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
           p_user_id: user.profileId,
           p_month: month,
           p_amount: priceNum,
-        }).then(() => {});
+        }).then(() => {
+          console.warn("[bookings] upsert_monthly_spend completed (no error check)");
+        });
       }
     }
   }, [user?.id, user?.profileId, bookings]);
@@ -370,7 +372,9 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
         body: `${booking.service} with ${booking.providerName ?? "your provider"} on ${booking.date} at ${booking.time}`,
         action_url: "/schedule",
       };
-      supabase.from("notifications").insert(clientNotif).then(() => {});
+      supabase.from("notifications").insert(clientNotif).then(() => {
+          console.warn("[bookings] client notification inserted (no error check)");
+        });
 
       // Notify provider too (if known)
       const providerId = booking.providerId;
@@ -382,7 +386,9 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
           body: `${user.name ?? "A client"} requested ${booking.service} on ${booking.date} at ${booking.time}`,
           action_url: "/pro/bookings",
         };
-        supabase.from("notifications").insert(providerNotif).then(() => {});
+        supabase.from("notifications").insert(providerNotif).then(() => {
+          console.warn("[bookings] provider notification inserted (no error check)");
+        });
       }
     }
 

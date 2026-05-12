@@ -14,6 +14,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { getSASTDateKey } from "@/utils/sastDate";
 import { localDateKey } from "@/lib/relativeTime";
 import { useInstallApp, InstallModal } from "./InstallButton";
+import { AiLoader } from "@/components/ui/ai-loader";
+import { AiPromptInput } from "@/components/ui/ai-prompt-input";
+import { AiReasoning } from "@/components/ui/ai-reasoning";
+import { AiMessage } from "@/components/ui/ai-message";
 
 interface Message {
   id: string;
@@ -241,7 +245,7 @@ export default function BionAssistant() {
     return [{ id: "init", role: "assistant", text: buildGreeting(role, user?.name), ts: new Date() }];
   });
   const bottomRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
   useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 300); }, [open]);
@@ -537,7 +541,7 @@ export default function BionAssistant() {
               onClick={() => dismissNudge(true)}
               className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/10"
               aria-label="Dismiss"
-            >
+             title="dismissNudge(true)} className='absolute top-1.5 right-1.5 w-5 h-5 rounded-ful…">
               <X className="w-3 h-3" />
             </button>
             <div className="px-4 py-3 pr-8">
@@ -551,13 +555,13 @@ export default function BionAssistant() {
                 <button
                   onClick={acceptNudge}
                   className="text-[11px] font-medium text-indigo hover:underline"
-                >
+                 title="Yes, help me" aria-label="Yes, help me">
                   Yes, help me
                 </button>
                 <button
                   onClick={() => dismissNudge(true)}
                   className="text-[11px] text-muted-foreground hover:text-foreground"
-                >
+                 title="dismissNudge(true)} className='text-[11px] text-muted-foreground hover:text-f…" aria-label="dismissNudge(true)} className='text-[11px] text-muted-foreground hover:text-f…">
                   Not now
                 </button>
               </div>
@@ -579,7 +583,7 @@ export default function BionAssistant() {
               <button
                 onClick={() => { setShowChannelPicker(false); setOpen(true); }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-colors text-left"
-              >
+               title="} className='w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-w…" aria-label="} className='w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-w…">
                 <span className="w-8 h-8 rounded-full bg-gradient-to-br from-violet to-indigo flex items-center justify-center shrink-0">
                   <span className="text-[10px] font-bold text-white">B_</span>
                 </span>
@@ -594,7 +598,7 @@ export default function BionAssistant() {
                   window.open("https://wa.me/27647432005?text=" + encodeURIComponent("Hi B_! 👋"), "_blank");
                 }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-colors text-left"
-              >
+               title="} className='w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-w…" aria-label="} className='w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-w…">
                 <span className="w-8 h-8 rounded-full bg-[#25D366]/20 flex items-center justify-center shrink-0">
                   <svg viewBox="0 0 24 24" className="w-4 h-4 fill-[#25D366]"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.34 0-4.508-.657-6.363-1.795l-.444-.267-3.072 1.03 1.03-3.072-.267-.444A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
                 </span>
@@ -653,10 +657,10 @@ export default function BionAssistant() {
                 <div className="flex items-center gap-1.5">
                   <button onClick={() => requestHuman()}
                     className="flex items-center gap-1 text-[10px] text-teal px-2.5 py-1.5 rounded-lg border border-teal/30 bg-teal/8 hover:bg-teal/20 hover:border-teal/50 hover:text-teal hover:shadow-[0_0_8px_rgba(13,148,136,0.25)] transition-all duration-300 animate-[subtle-pulse_3s_ease-in-out_infinite]"
-                    aria-label="Talk to a human agent">
+                    aria-label="Talk to a human agent" title="requestHuman()} className='flex items-center gap-1 text-[10px] text-teal px-2…">
                     <UserCheck className="w-3 h-3" /> Human
                   </button>
-                  <button onClick={resetChat} className="text-[10px] text-muted-foreground hover:text-foreground px-2 py-1 glass-1 rounded-lg transition-colors">
+                  <button onClick={resetChat} className="text-[10px] text-muted-foreground hover:text-foreground px-2 py-1 glass-1 rounded-lg transition-colors" title="Clear" aria-label="Clear">
                     Clear
                   </button>
                   <button onClick={handleClose} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors" aria-label="Close" title="Close">
@@ -667,19 +671,11 @@ export default function BionAssistant() {
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto px-4 space-y-3 pb-2">
-                {messages.map(m => (
-                  <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                    {m.role === "assistant" && (
-                      <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet to-indigo flex items-center justify-center mr-2 shrink-0 mt-0.5">
-                        <span className="text-[8px] font-bold text-white">B_</span>
-                      </div>
-                    )}
-                    <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                      m.role === "user"
-                        ? "bg-gradient-to-br from-violet to-indigo text-white rounded-br-sm whitespace-pre-line"
-                        : "glass-1 text-foreground rounded-bl-sm"
-                    }`}>
-                      {m.role === "user" ? m.text : (
+                {messages.map(m => {
+                  const isUser = m.role === "user";
+                  return (
+                    <AiMessage key={m.id} role={m.role} timestamp={m.ts}>
+                      {isUser ? m.text : (
                         <ReactMarkdown
                           components={{
                             p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
@@ -694,18 +690,16 @@ export default function BionAssistant() {
                           {m.text}
                         </ReactMarkdown>
                       )}
-                    </div>
-                  </div>
-                ))}
+                    </AiMessage>
+                  );
+                })}
                 {thinking && (
                   <div className="flex justify-start" aria-live="polite" aria-label="B_ is thinking">
                     <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet to-indigo flex items-center justify-center mr-2 shrink-0 mt-0.5">
                       <span className="text-[8px] font-bold text-white">B_</span>
                     </div>
-                    <div className="glass-1 text-foreground rounded-2xl rounded-bl-sm px-3.5 py-2.5 flex gap-1 items-end h-8">
-                      <span className="w-1.5 h-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <span className="w-1.5 h-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "120ms" }} />
-                      <span className="w-1.5 h-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "240ms" }} />
+                    <div className="glass-1 text-foreground rounded-2xl rounded-bl-sm px-3.5 py-2.5">
+                      <AiLoader variant="dots" dotClassName="bg-gradient-to-br from-violet to-indigo" />
                     </div>
                   </div>
                 )}
@@ -719,7 +713,7 @@ export default function BionAssistant() {
                     const Icon = q.icon;
                     return (
                       <button key={q.label} onClick={() => send(q.prompt)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 glass-1 rounded-pill text-xs text-muted-foreground whitespace-nowrap hover:text-foreground transition-colors shrink-0">
+                        className="flex items-center gap-1.5 px-3 py-1.5 glass-1 rounded-pill text-xs text-muted-foreground whitespace-nowrap hover:text-foreground transition-colors shrink-0" title="send(q.prompt)} className='flex items-center gap-1.5 px-3 py-1.5 glass-1 roun…" aria-label="send(q.prompt)} className='flex items-center gap-1.5 px-3 py-1.5 glass-1 roun…">
                         <Icon className="w-3 h-3" /> {q.label}
                       </button>
                     );
@@ -729,17 +723,14 @@ export default function BionAssistant() {
 
               {/* Input */}
               <div className="px-4 pt-2 shrink-0" style={{ paddingBottom: "max(3rem, env(safe-area-inset-bottom, 3rem))" }}>
-                <div className="flex items-center gap-2 glass-1 rounded-2xl px-3 py-2">
-                  <input ref={inputRef} value={input}
-                    onChange={e => setInput(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && send(input)}
-                    placeholder="Ask B_ anything..."
-                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none" />
-                  <button onClick={() => send(input)}
-                    className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet to-indigo flex items-center justify-center shrink-0">
-                    <Send className="w-3.5 h-3.5 text-white" />
-                  </button>
-                </div>
+                <AiPromptInput
+                  value={input}
+                  onChange={setInput}
+                  onSend={() => send(input)}
+                  placeholder="Ask B_ anything..."
+                  disabled={thinking}
+                  textareaRef={inputRef as React.RefObject<HTMLTextAreaElement | null>}
+                />
               </div>
             </motion.div>
           </>
@@ -768,7 +759,7 @@ export default function BionAssistant() {
                   </div>
                 </div>
                 <button onClick={() => setShowHumanModal(false)}
-                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="setShowHumanModal(false)} className='w-8 h-8 glass-1 rounded-full flex items-…" aria-label="setShowHumanModal(false)} className='w-8 h-8 glass-1 rounded-full flex items-…">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -790,7 +781,7 @@ export default function BionAssistant() {
                         onClick={() => setHumanChannel(cat.key)}
                         className={`py-2 rounded-xl text-[10px] font-medium border transition-all ${
                           humanChannel === cat.key ? "border-teal/40 bg-teal/10 text-teal" : "border-white/[0.08] bg-white/[0.02] text-muted-foreground"
-                        }`}>
+                        }`} title="setHumanChannel(cat.key)} className= `}>" aria-label="setHumanChannel(cat.key)} className= `}>">
                         {cat.label}
                       </button>
                     ))}
@@ -823,7 +814,7 @@ export default function BionAssistant() {
 
               <div className="flex gap-2 mt-5">
                 <button onClick={() => setShowHumanModal(false)}
-                  className="flex-1 py-2.5 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground">
+                  className="flex-1 py-2.5 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground" title="setShowHumanModal(false)} className='flex-1 py-2.5 rounded-2xl text-sm font-m…" aria-label="setShowHumanModal(false)} className='flex-1 py-2.5 rounded-2xl text-sm font-m…">
                   Cancel
                 </button>
                 <button
@@ -895,7 +886,7 @@ export default function BionAssistant() {
                     }
                   }}
                   disabled={!humanReason.trim() || submittingTicket}
-                  className="flex-1 py-2.5 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 flex items-center justify-center gap-1.5">
+                  className="flex-1 py-2.5 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 flex items-center justify-center gap-1.5" title="const category = humanChannel === 'bookings' ? 'booking' : humanChannel === '…" aria-label="const category = humanChannel === 'bookings' ? 'booking' : humanChannel === '…">
                   <LifeBuoy className="w-3.5 h-3.5" /> {submittingTicket ? "Raising…" : "Raise Ticket"}
                 </button>
               </div>

@@ -182,7 +182,7 @@ export default function Wallet() {
 
         {/* Header */}
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+          <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…" aria-label="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…">
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div>
@@ -198,7 +198,7 @@ export default function Wallet() {
             className={`flex-1 rounded-pill py-2 text-sm font-medium transition-all ${
               activeTab === "wallet" ? "gradient-indigo text-white" : "text-muted-foreground"
             }`}
-          >
+           title="setActiveTab('wallet')} className= `} > Wallet" aria-label="setActiveTab('wallet')} className= `} > Wallet">
             <WalletIcon className="w-3.5 h-3.5 inline mr-1" /> Wallet
           </button>
           <button
@@ -206,7 +206,7 @@ export default function Wallet() {
             className={`flex-1 rounded-pill py-2 text-sm font-medium transition-all ${
               activeTab === "earnings" ? "gradient-indigo text-white" : "text-muted-foreground"
             }`}
-          >
+           title="setActiveTab('earnings')} className= `} > Earnings" aria-label="setActiveTab('earnings')} className= `} > Earnings">
             <TrendingUp className="w-3.5 h-3.5 inline mr-1" /> Earnings
           </button>
         </div>
@@ -416,7 +416,7 @@ export default function Wallet() {
                 <button
                   onClick={() => navigate("/profile")}
                   className="text-xs text-indigo font-medium"
-                >
+                 title="navigate('/profile')} className='text-xs text-indigo font-medium' > Get your …" aria-label="navigate('/profile')} className='text-xs text-indigo font-medium' > Get your …">
                   Get your referral link →
                 </button>
               </div>
@@ -480,7 +480,7 @@ export default function Wallet() {
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-foreground">Top up wallet</h3>
-                <button onClick={() => setShowTopUp(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
+                <button onClick={() => setShowTopUp(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center" title="setShowTopUp(false)} className='w-8 h-8 glass-1 rounded-full flex items-cente…" aria-label="setShowTopUp(false)} className='w-8 h-8 glass-1 rounded-full flex items-cente…">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
@@ -493,7 +493,7 @@ export default function Wallet() {
                     className={`py-3 rounded-xl text-sm font-bold transition-colors ${
                       topUpAmount === amt ? "gradient-indigo text-white" : "glass-1 text-foreground"
                     }`}
-                  >
+                   title="} className= `} > R" aria-label="} className= `} > R">
                     R{amt}
                   </button>
                 ))}
@@ -557,7 +557,7 @@ export default function Wallet() {
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-foreground">Transfer to wallet</h3>
-                <button onClick={() => setShowTransfer(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
+                <button onClick={() => setShowTransfer(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center" title="setShowTransfer(false)} className='w-8 h-8 glass-1 rounded-full flex items-ce…" aria-label="setShowTransfer(false)} className='w-8 h-8 glass-1 rounded-full flex items-ce…">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
@@ -582,7 +582,7 @@ export default function Wallet() {
                   placeholder="Amount to transfer"
                   className="flex-1 bg-transparent text-sm text-foreground outline-none"
                 />
-                <button onClick={() => setTransferAmount(earnings.balance.toFixed(2))} className="text-xs text-indigo font-medium">Max</button>
+                <button onClick={() => setTransferAmount(earnings.balance.toFixed(2))} className="text-xs text-indigo font-medium" title="setTransferAmount(earnings.balance.toFixed(2))} className='text-xs text-indig…" aria-label="setTransferAmount(earnings.balance.toFixed(2))} className='text-xs text-indig…">Max</button>
               </div>
 
               <motion.button
@@ -612,7 +612,7 @@ export default function Wallet() {
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-foreground">Withdraw to bank</h3>
-                <button onClick={() => setShowWithdraw(null)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
+                <button onClick={() => setShowWithdraw(null)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center" title="setShowWithdraw(null)} className='w-8 h-8 glass-1 rounded-full flex items-cen…" aria-label="setShowWithdraw(null)} className='w-8 h-8 glass-1 rounded-full flex items-cen…">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>

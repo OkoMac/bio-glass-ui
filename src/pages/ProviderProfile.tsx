@@ -811,7 +811,7 @@ export default function ProviderProfile() {
     return (
       <div className="min-h-screen bg-obsidian flex flex-col items-center justify-center text-foreground gap-4">
         <p className="text-lg font-semibold">Provider not found</p>
-        <button onClick={() => navigate("/")} className="text-sm text-indigo">Back to providers</button>
+        <button onClick={() => navigate("/")} className="text-sm text-indigo" title="navigate('/')} className='text-sm text-indigo'>Back to providers" aria-label="navigate('/')} className='text-sm text-indigo'>Back to providers">Back to providers</button>
       </div>
     );
   }
@@ -977,7 +977,7 @@ export default function ProviderProfile() {
                       ? "gradient-indigo text-primary-foreground"
                       : "glass-1 text-muted-foreground"
                   }`}
-                >
+                 title="setSelectedLocationId(loc.id)} className= `} >" aria-label="setSelectedLocationId(loc.id)} className= `} >">
                   {loc.name}
                   {loc.is_primary && " (Main)"}
                 </button>
@@ -1095,7 +1095,7 @@ export default function ProviderProfile() {
                   </GlassCard>
                 ))}
                 {provider.servicesOffered.length > 3 && !showAllServices && (
-                  <button onClick={() => setShowAllServices(true)} className="text-xs text-indigo font-medium mt-1">
+                  <button onClick={() => setShowAllServices(true)} className="text-xs text-indigo font-medium mt-1" title="setShowAllServices(true)} className='text-xs text-indigo font-medium mt-1'> S…" aria-label="setShowAllServices(true)} className='text-xs text-indigo font-medium mt-1'> S…">
                     Show all {provider.servicesOffered.length} services
                   </button>
                 )}
@@ -1141,7 +1141,7 @@ export default function ProviderProfile() {
                   window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
                 }}
                 className="w-full rounded-pill py-2.5 text-xs font-semibold bg-[#25D366]/20 text-[#25D366] flex items-center justify-center gap-2"
-              >
+               title=", I found you on BION Health. Could you share your services and pricing?` : `…" aria-label=", I found you on BION Health. Could you share your services and pricing?` : `…">
                 <svg viewBox="0 0 24 24" className="w-4 h-4 fill-[#25D366]"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.34 0-4.508-.657-6.363-1.795l-.444-.267-3.072 1.03 1.03-3.072-.267-.444A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
                 {provider.contact?.website ? "Or ask via WhatsApp" : "Ask for pricing via WhatsApp"}
               </button>
@@ -1323,7 +1323,7 @@ export default function ProviderProfile() {
                 <button
                   onClick={() => navigate("/welcome?login=true")}
                   className="shrink-0 px-3 py-1.5 gradient-indigo rounded-pill text-xs font-medium text-white shadow-cta"
-                >
+                 title="navigate('/welcome?login=true')} className='shrink-0 px-3 py-1.5 gradient-ind…" aria-label="navigate('/welcome?login=true')} className='shrink-0 px-3 py-1.5 gradient-ind…">
                   Sign Up
                 </button>
               </div>
@@ -1356,7 +1356,7 @@ export default function ProviderProfile() {
                         setClaimId(null);
                       }}
                       className="px-3 py-1.5 gradient-indigo rounded-pill text-xs font-medium text-white shadow-cta"
-                    >
+                     title="} className='px-3 py-1.5 gradient-indigo rounded-pill text-xs font-medium tex…" aria-label="} className='px-3 py-1.5 gradient-indigo rounded-pill text-xs font-medium tex…">
                       Claim This Business
                     </button>
                     <button
@@ -1366,7 +1366,7 @@ export default function ProviderProfile() {
                         setMeetingError(null);
                       }}
                       className="px-3 py-1.5 glass-1 rounded-pill text-xs font-medium text-foreground border border-white/[0.08] hover:bg-white/[0.06] transition-colors"
-                    >
+                     title="} className='px-3 py-1.5 glass-1 rounded-pill text-xs font-medium text-foregr…" aria-label="} className='px-3 py-1.5 glass-1 rounded-pill text-xs font-medium text-foregr…">
                       Request a Meeting
                     </button>
                   </div>
@@ -1451,7 +1451,7 @@ export default function ProviderProfile() {
                     key={pg.id}
                     onClick={() => navigate(`/program/${pg.id}`)}
                     className="block w-full text-left"
-                  >
+                   title="navigate(`/program/$ `)} className='block w-full text-left' > d )} `}" aria-label="navigate(`/program/$ `)} className='block w-full text-left' > d )} `}">
                     <GlassCard hover className="p-3">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
@@ -1584,7 +1584,7 @@ export default function ProviderProfile() {
                 <button
                   onClick={() => { setBookingError(null); setShowBooking(false); }}
                   className="w-full py-2.5 glass-1 rounded-pill text-sm font-medium text-foreground"
-                >
+                 title="} className='w-full py-2.5 glass-1 rounded-pill text-sm font-medium text-fore…" aria-label="} className='w-full py-2.5 glass-1 rounded-pill text-sm font-medium text-fore…">
                   Close
                 </button>
               </div>
@@ -1595,7 +1595,7 @@ export default function ProviderProfile() {
                     <CalendarDays className="w-5 h-5 text-indigo" />
                     <h3 className="text-base font-bold text-foreground">Book with {provider.name}</h3>
                   </div>
-                  <button onClick={() => setShowBooking(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
+                  <button onClick={() => setShowBooking(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center" title="setShowBooking(false)} className='w-8 h-8 glass-1 rounded-full flex items-cen…" aria-label="setShowBooking(false)} className='w-8 h-8 glass-1 rounded-full flex items-cen…">
                     <X className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </div>
@@ -1610,7 +1610,7 @@ export default function ProviderProfile() {
                       <button key={choice.id ?? `${choice.label}-${i}`} onClick={() => setSelectedService(i)}
                         className={`px-3 py-1.5 rounded-pill text-xs font-medium transition-colors ${
                           selectedService === i ? "gradient-indigo text-white" : "glass-1 text-foreground"
-                        }`}>
+                        }`} title="setSelectedService(i)} className= `}> )}" aria-label="setSelectedService(i)} className= `}> )}">
                         {choice.label}
                         {hasRealServices && choice.priceRand > 0 && (
                           <span className="ml-1 opacity-70 font-data">· R{choice.priceRand}</span>
@@ -1629,7 +1629,7 @@ export default function ProviderProfile() {
                         <button key={mode} onClick={() => setDeliveryMode(mode)}
                           className={`flex-1 py-2.5 rounded-pill text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ${
                             deliveryMode === mode ? "gradient-indigo text-white" : "glass-1 text-foreground"
-                          }`}>
+                          }`} title="setDeliveryMode(mode)} className= `}>" aria-label="setDeliveryMode(mode)} className= `}>">
                           {mode === "in_person" ? (
                             <><MapPin className="w-3.5 h-3.5" /> In-Person</>
                           ) : (
@@ -1668,7 +1668,7 @@ export default function ProviderProfile() {
                         <button key={t} onClick={() => setBookingTime(t)}
                           className={`py-2 rounded-pill text-xs font-medium transition-colors ${
                             bookingTime === t ? "gradient-indigo text-white" : "glass-1 text-foreground"
-                          }`}>
+                          }`} title="setBookingTime(t)} className= `}>" aria-label="setBookingTime(t)} className= `}>">
                           {t}
                         </button>
                       ))}
@@ -1685,7 +1685,7 @@ export default function ProviderProfile() {
                           <button key={slot} onClick={() => setBookingTime(slot.split(" ")[0])}
                             className={`py-2 rounded-pill text-xs font-medium transition-colors ${
                               bookingTime === slot.split(" ")[0] ? "gradient-indigo text-white" : "glass-1 text-foreground"
-                            }`}>
+                            }`} title="setBookingTime(slot.split(' ')[0])} className= `}>" aria-label="setBookingTime(slot.split(' ')[0])} className= `}>">
                             {slot}
                           </button>
                         ))}
@@ -1739,7 +1739,7 @@ export default function ProviderProfile() {
                             <button key={freq} onClick={() => setRecurringFrequency(freq)}
                               className={`px-3 py-1.5 rounded-pill text-xs font-medium transition-colors capitalize ${
                                 recurringFrequency === freq ? "gradient-indigo text-white" : "glass-1 text-foreground"
-                              }`}>
+                              }`} title="setRecurringFrequency(freq)} className= `}>" aria-label="setRecurringFrequency(freq)} className= `}>">
                               {freq === "biweekly" ? "Bi-weekly" : freq}
                             </button>
                           ))}
@@ -1752,7 +1752,7 @@ export default function ProviderProfile() {
                             <button key={n} onClick={() => setRecurringSessions(n)}
                               className={`px-3 py-1.5 rounded-pill text-xs font-medium transition-colors ${
                                 recurringSessions === n ? "gradient-indigo text-white" : "glass-1 text-foreground"
-                              }`}>
+                              }`} title="setRecurringSessions(n)} className= `}> sessions" aria-label="setRecurringSessions(n)} className= `}> sessions">
                               {n} sessions
                             </button>
                           ))}
@@ -1947,7 +1947,7 @@ export default function ProviderProfile() {
                           type="button"
                           onClick={() => setShowAllScopes(v => !v)}
                           className="text-[11px] text-indigo font-medium hover:underline"
-                        >
+                         title="setShowAllScopes(v => !v)} className='text-[11px] text-indigo font-medium hov…" aria-label="setShowAllScopes(v => !v)} className='text-[11px] text-indigo font-medium hov…">
                           {showAllScopes ? "Hide other domains" : `Other domains — tap to share (${allScopes.filter(s => !defaultScopes.includes(s)).length})`}
                         </button>
                         {showAllScopes && (
@@ -2039,7 +2039,7 @@ export default function ProviderProfile() {
                   setShowContactPrompt(false);
                 }}
                 className="w-full rounded-pill py-3.5 text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald flex items-center justify-center gap-2"
-              >
+               title="on BION and would like to book a session. Can you help me with availability a…" aria-label="on BION and would like to book a session. Can you help me with availability a…">
                 <MessageCircle className="w-4 h-4" /> WhatsApp {provider?.contact?.phone ? provider.name?.split(" ")[0] : "B_ to connect"}
               </button>
 
@@ -2049,7 +2049,7 @@ export default function ProviderProfile() {
                   setShowContactPrompt(false);
                 }}
                 className="w-full rounded-pill py-3 text-xs font-medium glass-1 text-muted-foreground"
-              >
+               title="} className='w-full rounded-pill py-3 text-xs font-medium glass-1 text-muted-…" aria-label="} className='w-full rounded-pill py-3 text-xs font-medium glass-1 text-muted-…">
                 Browse registered providers instead
               </button>
 
@@ -2089,7 +2089,7 @@ export default function ProviderProfile() {
                 <button
                   onClick={() => navigate("/pro/verification")}
                   className="w-full py-2.5 gradient-indigo rounded-pill text-sm font-semibold text-white shadow-cta"
-                >
+                 title="navigate('/pro/verification')} className='w-full py-2.5 gradient-indigo round…" aria-label="navigate('/pro/verification')} className='w-full py-2.5 gradient-indigo round…">
                   Upload Documents
                 </button>
               </div>
@@ -2109,7 +2109,7 @@ export default function ProviderProfile() {
                   <button
                     onClick={() => !claimBusy && setShowClaim(false)}
                     className="w-8 h-8 glass-1 rounded-full flex items-center justify-center"
-                  >
+                   title="!claimBusy && setShowClaim(false)} className='w-8 h-8 glass-1 rounded-full fl…" aria-label="!claimBusy && setShowClaim(false)} className='w-8 h-8 glass-1 rounded-full fl…">
                     <X className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </div>
@@ -2161,7 +2161,7 @@ export default function ProviderProfile() {
                 <button
                   onClick={() => { setClaimOtpSent(false); setClaimError(null); setClaimOtp(""); }}
                   className="w-full text-xs text-muted-foreground text-center hover:text-foreground transition-colors"
-                >
+                 title="} className='w-full text-xs text-muted-foreground text-center hover:text-fore…" aria-label="} className='w-full text-xs text-muted-foreground text-center hover:text-fore…">
                   Back to edit details
                 </button>
               </>
@@ -2181,7 +2181,7 @@ export default function ProviderProfile() {
                   <button
                     onClick={() => !claimBusy && setShowClaim(false)}
                     className="w-8 h-8 glass-1 rounded-full flex items-center justify-center"
-                  >
+                   title="!claimBusy && setShowClaim(false)} className='w-8 h-8 glass-1 rounded-full fl…" aria-label="!claimBusy && setShowClaim(false)} className='w-8 h-8 glass-1 rounded-full fl…">
                     <X className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </div>
@@ -2285,7 +2285,7 @@ export default function ProviderProfile() {
                 <button
                   onClick={() => setShowMeeting(false)}
                   className="w-full py-2.5 gradient-indigo rounded-pill text-sm font-semibold text-white shadow-cta"
-                >
+                 title="setShowMeeting(false)} className='w-full py-2.5 gradient-indigo rounded-pill …" aria-label="setShowMeeting(false)} className='w-full py-2.5 gradient-indigo rounded-pill …">
                   Done
                 </button>
               </div>
@@ -2304,7 +2304,7 @@ export default function ProviderProfile() {
                   <button
                     onClick={() => !meetingBusy && setShowMeeting(false)}
                     className="w-8 h-8 glass-1 rounded-full flex items-center justify-center"
-                  >
+                   title="!meetingBusy && setShowMeeting(false)} className='w-8 h-8 glass-1 rounded-ful…" aria-label="!meetingBusy && setShowMeeting(false)} className='w-8 h-8 glass-1 rounded-ful…">
                     <X className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </div>

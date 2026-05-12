@@ -106,7 +106,7 @@ export default function AdminOutreach() {
 
         {/* Header */}
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate("/admin/dashboard")} className="w-9 h-9 glass-2 rounded-full flex items-center justify-center">
+          <button onClick={() => navigate("/admin/dashboard")} className="w-9 h-9 glass-2 rounded-full flex items-center justify-center" title="navigate('/admin/dashboard')} className='w-9 h-9 glass-2 rounded-full flex it…" aria-label="navigate('/admin/dashboard')} className='w-9 h-9 glass-2 rounded-full flex it…">
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div className="flex-1">
@@ -127,7 +127,7 @@ export default function AdminOutreach() {
               className={`px-3 py-1.5 rounded-pill text-xs font-semibold transition-colors ${
                 tab === t ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground hover:text-foreground"
               }`}
-            >
+             title="setTab(t)} className= `} >" aria-label="setTab(t)} className= `} >">
               {t === "overview" ? "Overview" : t === "whatsapp" ? "WhatsApp" : t === "email" ? "Email" : "Activity Log"}
             </button>
           ))}
@@ -207,28 +207,28 @@ export default function AdminOutreach() {
                 <button
                   onClick={() => navigate("/admin/whatsapp")}
                   className="p-3 glass-1 rounded-xl text-center hover:bg-white/[0.06] transition-colors"
-                >
+                 title="navigate('/admin/whatsapp')} className='p-3 glass-1 rounded-xl text-center ho…" aria-label="navigate('/admin/whatsapp')} className='p-3 glass-1 rounded-xl text-center ho…">
                   <MessageSquare className="w-5 h-5 text-teal mx-auto mb-1" />
                   <p className="text-[10px] text-foreground">WhatsApp Inbox</p>
                 </button>
                 <button
                   onClick={() => navigate("/admin/rangers")}
                   className="p-3 glass-1 rounded-xl text-center hover:bg-white/[0.06] transition-colors"
-                >
+                 title="navigate('/admin/rangers')} className='p-3 glass-1 rounded-xl text-center hov…" aria-label="navigate('/admin/rangers')} className='p-3 glass-1 rounded-xl text-center hov…">
                   <Users className="w-5 h-5 text-indigo mx-auto mb-1" />
                   <p className="text-[10px] text-foreground">Rangers CRM</p>
                 </button>
                 <button
                   onClick={() => navigate("/admin/campaigns")}
                   className="p-3 glass-1 rounded-xl text-center hover:bg-white/[0.06] transition-colors"
-                >
+                 title="navigate('/admin/campaigns')} className='p-3 glass-1 rounded-xl text-center h…" aria-label="navigate('/admin/campaigns')} className='p-3 glass-1 rounded-xl text-center h…">
                   <Send className="w-5 h-5 text-amber mx-auto mb-1" />
                   <p className="text-[10px] text-foreground">Campaigns</p>
                 </button>
                 <button
                   onClick={() => navigate("/admin/broadcasts")}
                   className="p-3 glass-1 rounded-xl text-center hover:bg-white/[0.06] transition-colors"
-                >
+                 title="navigate('/admin/broadcasts')} className='p-3 glass-1 rounded-xl text-center …" aria-label="navigate('/admin/broadcasts')} className='p-3 glass-1 rounded-xl text-center …">
                   <Mail className="w-5 h-5 text-rose mx-auto mb-1" />
                   <p className="text-[10px] text-foreground">Broadcasts</p>
                 </button>
@@ -260,14 +260,14 @@ export default function AdminOutreach() {
                 onClick={() => setConfirmBlast(true)}
                 disabled={sending || (waStatus?.template?.status !== "APPROVED") || (waStatus?.remaining ?? 0) === 0}
                 className="flex-1 py-3 rounded-pill text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta disabled:opacity-50 flex items-center justify-center gap-2"
-              >
+               title="setConfirmBlast(true)} disabled= className='flex-1 py-3 rounded-pill text-sm …" aria-label="setConfirmBlast(true)} disabled= className='flex-1 py-3 rounded-pill text-sm …">
                 {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 Send 50 Now
               </button>
               <button
                 onClick={() => navigate("/admin/whatsapp")}
                 className="px-4 py-3 rounded-pill text-sm font-semibold glass-2 text-foreground flex items-center gap-2"
-              >
+               title="navigate('/admin/whatsapp')} className='px-4 py-3 rounded-pill text-sm font-s…" aria-label="navigate('/admin/whatsapp')} className='px-4 py-3 rounded-pill text-sm font-s…">
                 <MessageSquare className="w-4 h-4" /> View Replies
               </button>
             </div>
@@ -338,9 +338,9 @@ export default function AdminOutreach() {
                 <CheckCircle className="w-6 h-6 text-teal mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">
                   Outreach sent. Responses will appear in the{" "}
-                  <button onClick={() => navigate("/admin/whatsapp")} className="text-indigo underline">WhatsApp inbox</button>
+                  <button onClick={() => navigate("/admin/whatsapp")} className="text-indigo underline" title="navigate('/admin/whatsapp')} className='text-indigo underline'>WhatsApp inbox" aria-label="navigate('/admin/whatsapp')} className='text-indigo underline'>WhatsApp inbox">WhatsApp inbox</button>
                   {" "}and{" "}
-                  <button onClick={() => navigate("/admin/rangers")} className="text-indigo underline">Rangers CRM</button>.
+                  <button onClick={() => navigate("/admin/rangers")} className="text-indigo underline" title="navigate('/admin/rangers')} className='text-indigo underline'>Rangers CRM" aria-label="navigate('/admin/rangers')} className='text-indigo underline'>Rangers CRM">Rangers CRM</button>.
                 </p>
               </GlassCard>
             )}
@@ -376,7 +376,7 @@ export default function AdminOutreach() {
             <div className="flex gap-2 justify-end pt-1">
               <button onClick={() => setConfirmBlast(false)}
                 disabled={sending}
-                className="rounded-pill px-4 py-2 text-xs font-semibold glass-1 text-muted-foreground hover:text-foreground disabled:opacity-50">
+                className="rounded-pill px-4 py-2 text-xs font-semibold glass-1 text-muted-foreground hover:text-foreground disabled:opacity-50" title="setConfirmBlast(false)} disabled= className='rounded-pill px-4 py-2 text-xs f…" aria-label="setConfirmBlast(false)} disabled= className='rounded-pill px-4 py-2 text-xs f…">
                 Cancel
               </button>
               <button onClick={triggerWhatsAppNow}

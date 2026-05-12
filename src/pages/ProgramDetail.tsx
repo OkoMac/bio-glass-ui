@@ -130,7 +130,7 @@ export default function ProgramDetail() {
       <div className="min-h-screen bg-obsidian flex flex-col items-center justify-center gap-3 text-foreground">
         <p className="text-sm font-semibold">Program not found</p>
         <p className="text-xs text-muted-foreground">{err ?? "It may have been unpublished."}</p>
-        <button onClick={() => navigate(-1)} className="text-xs text-indigo">Go back</button>
+        <button onClick={() => navigate(-1)} className="text-xs text-indigo" title="navigate(-1)} className='text-xs text-indigo'>Go back" aria-label="navigate(-1)} className='text-xs text-indigo'>Go back">Go back</button>
       </div>
     );
   }
@@ -270,7 +270,7 @@ export default function ProgramDetail() {
                 <Calendar className="w-5 h-5 text-indigo" />
                 <h3 className="text-base font-bold text-foreground">Start your program</h3>
               </div>
-              <button onClick={() => setShowEnroll(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
+              <button onClick={() => setShowEnroll(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center" title="setShowEnroll(false)} className='w-8 h-8 glass-1 rounded-full flex items-cent…" aria-label="setShowEnroll(false)} className='w-8 h-8 glass-1 rounded-full flex items-cent…">
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>

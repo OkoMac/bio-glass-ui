@@ -66,7 +66,7 @@ function NonSafariInstall({ onDone }: { onDone: () => void }) {
         <button
           onClick={() => { navigator.clipboard.writeText(window.location.origin).then(() => setCopied(true)); }}
           className="w-full py-3 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-indigo to-violet"
-        >
+         title="} className='w-full py-3 rounded-xl text-xs font-semibold text-white bg-gradi…" aria-label="} className='w-full py-3 rounded-xl text-xs font-semibold text-white bg-gradi…">
           Copy Link
         </button>
       )}
@@ -88,7 +88,7 @@ function NonSafariInstall({ onDone }: { onDone: () => void }) {
         </div>
       )}
 
-      <button onClick={onDone} className="text-[10px] text-muted-foreground">
+      <button onClick={onDone} className="text-[10px] text-muted-foreground" title="I'll do it later" aria-label="I'll do it later">
         I'll do it later
       </button>
     </div>
@@ -378,7 +378,7 @@ export function InstallModal({
                     toast.success("Link copied — open in your browser to install");
                   }}
                   className="w-full py-2.5 rounded-xl border border-indigo/20 bg-indigo/5 text-xs font-medium text-indigo flex items-center justify-center gap-1.5 hover:bg-indigo/10 transition-colors"
-                >
+                 title="} className='w-full py-2.5 rounded-xl border border-indigo/20 bg-indigo/5 tex…" aria-label="} className='w-full py-2.5 rounded-xl border border-indigo/20 bg-indigo/5 tex…">
                   <Copy className="w-3 h-3" />
                   Copy BION link
                 </button>
@@ -387,11 +387,11 @@ export function InstallModal({
 
             <div className="flex gap-2 mt-5">
               <button onClick={onDismiss}
-                className="flex-1 py-2.5 rounded-2xl text-xs font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground">
+                className="flex-1 py-2.5 rounded-2xl text-xs font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground" title="Don't show again" aria-label="Don't show again">
                 Don't show again
               </button>
               <button onClick={onClose}
-                className="flex-1 py-2.5 rounded-2xl text-xs font-semibold text-white bg-gradient-to-r from-indigo to-violet">
+                className="flex-1 py-2.5 rounded-2xl text-xs font-semibold text-white bg-gradient-to-r from-indigo to-violet" title="Got it" aria-label="Got it">
                 Got it
               </button>
             </div>

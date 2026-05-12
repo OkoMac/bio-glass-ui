@@ -50,7 +50,7 @@ export default function BicademyCourse() {
         <button
           onClick={() => navigate("/bicademy")}
           className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
-        >
+         title="navigate('/bicademy')} className='flex items-center gap-2 text-xs text-muted-…" aria-label="navigate('/bicademy')} className='flex items-center gap-2 text-xs text-muted-…">
           <ArrowLeft className="w-4 h-4" /> Bicademy
         </button>
 
@@ -163,7 +163,7 @@ export default function BicademyCourse() {
                   ? "bg-gradient-to-r from-indigo to-teal text-white hover:brightness-110"
                   : "bg-white/[0.02] border border-white/5 text-muted-foreground cursor-not-allowed opacity-60"
               }`}
-            >
+             title="navigate(`/bicademy/$ /assessment`)} disabled= className= `} > questions · %`…" aria-label="navigate(`/bicademy/$ /assessment`)} disabled= className= `} > questions · %`…">
               <Sparkles className="w-5 h-5" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold">

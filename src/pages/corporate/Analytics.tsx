@@ -136,7 +136,7 @@ export default function CorporateAnalytics() {
               <button key={p} onClick={() => setPeriod(p)}
                 className={`px-3 py-1.5 rounded-pill text-xs font-medium transition-all ${
                   period === p ? "gradient-indigo text-primary-foreground" : "text-muted-foreground"
-                }`}>
+                }`} title="setPeriod(p)} className= `}>" aria-label="setPeriod(p)} className= `}>">
                 {p}
               </button>
             ))}

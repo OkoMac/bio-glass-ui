@@ -121,7 +121,7 @@ function Inner() {
               className={`px-4 py-1.5 rounded-pill text-xs font-medium flex items-center gap-1.5 transition-colors ${
                 tab === k ? "gradient-indigo text-white" : "glass-1 text-foreground"
               }`}
-            >
+             title="setTab(k)} className= `} >" aria-label="setTab(k)} className= `} >">
               <Icon className="w-3.5 h-3.5" /> {label}
             </button>
           ))}
@@ -212,7 +212,7 @@ function TemplatesTab({
                       ? "border-teal/30 bg-teal/10 text-teal"
                       : "border-white/10 bg-white/[0.03] text-muted-foreground"
                   }`}
-                >
+                 title="setEditing( )} className= `} >" aria-label="setEditing( )} className= `} >">
                   <Icon className="w-3 h-3" />
                   {v.channel}
                   {v.enabled ? null : <span className="opacity-60">· paused</span>}
@@ -379,11 +379,11 @@ function TemplateEditor({
           onClick={save}
           disabled={saving || !body.trim()}
           className="flex-1 py-2.5 rounded-xl gradient-indigo text-sm font-semibold text-white disabled:opacity-50 flex items-center justify-center gap-2"
-        >
+         title="Save (MFA required)" aria-label="Save (MFA required)">
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           Save (MFA required)
         </button>
-        <button onClick={onClose} className="px-5 py-2.5 glass-1 rounded-xl text-sm text-foreground">Cancel</button>
+        <button onClick={onClose} className="px-5 py-2.5 glass-1 rounded-xl text-sm text-foreground" title="Cancel" aria-label="Cancel">Cancel</button>
       </div>
     </GlassCard>
   );
@@ -512,7 +512,7 @@ function SchedulesTab({
                         ? "border-indigo/40 bg-indigo/15 text-indigo"
                         : "border-white/10 bg-white/[0.03] text-muted-foreground"
                     }`}
-                  >
+                   title="); }} className= `} >" aria-label="); }} className= `} >">
                     <Icon className="w-3 h-3" /> {ch}
                   </button>
                 );
@@ -525,7 +525,7 @@ function SchedulesTab({
               onClick={() => save(row)}
               disabled={savingKey === row.template_key}
               className="px-4 py-2 rounded-xl gradient-indigo text-xs font-semibold text-white disabled:opacity-50 flex items-center gap-1.5"
-            >
+             title="save(row)} disabled= className='px-4 py-2 rounded-xl gradient-indigo text-xs …" aria-label="save(row)} disabled= className='px-4 py-2 rounded-xl gradient-indigo text-xs …">
               {savingKey === row.template_key ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : (
@@ -577,7 +577,7 @@ function SendLogTab({ authHeader }: { authHeader: () => Promise<Record<string, s
             className="w-full glass-1 rounded-xl pl-9 pr-3 py-2 text-xs text-foreground outline-none border border-white/[0.08] focus:border-indigo/40"
           />
         </div>
-        <button onClick={refresh} className="px-3 py-2 glass-1 rounded-xl text-xs text-foreground">Refresh</button>
+        <button onClick={refresh} className="px-3 py-2 glass-1 rounded-xl text-xs text-foreground" title="Refresh" aria-label="Refresh">Refresh</button>
       </div>
 
       {loading ? <Loading /> :

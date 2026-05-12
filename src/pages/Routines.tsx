@@ -778,7 +778,7 @@ export default function Routines() {
                 filter === f.key
                   ? "border-teal/40 bg-teal/10 text-teal"
                   : "border-white/08 text-muted-foreground"
-              }`}>
+              }`} title="setFilter(f.key)} className= `}>" aria-label="setFilter(f.key)} className= `}>">
               {f.label}
             </button>
           ))}
@@ -818,7 +818,7 @@ export default function Routines() {
               <GlassCard className="overflow-hidden">
                 {/* Card header */}
                 <button onClick={() => setExpanded(isOpen ? null : r.id)}
-                  className="w-full p-4 flex items-center gap-3 text-left">
+                  className="w-full p-4 flex items-center gap-3 text-left" title="setExpanded(isOpen ? null : r.id)} className='w-full p-4 flex items-center ga…" aria-label="setExpanded(isOpen ? null : r.id)} className='w-full p-4 flex items-center ga…">
                   {r.providerImage ? (
                     <img src={r.providerImage} alt={r.provider} className="w-10 h-10 rounded-xl object-cover ring-2 ring-white/10 shrink-0" />
                   ) : (
@@ -918,12 +918,12 @@ export default function Routines() {
                             );
                           })()}
                           <button onClick={() => setShowPrivacy(showPrivacy === r.id ? null : r.id)}
-                            className="px-3 py-2 rounded-pill text-xs glass-1 text-muted-foreground flex items-center gap-1.5 hover:text-foreground transition-colors">
+                            className="px-3 py-2 rounded-pill text-xs glass-1 text-muted-foreground flex items-center gap-1.5 hover:text-foreground transition-colors" title="setShowPrivacy(showPrivacy === r.id ? null : r.id)} className='px-3 py-2 roun…" aria-label="setShowPrivacy(showPrivacy === r.id ? null : r.id)} className='px-3 py-2 roun…">
                             <Shield className="w-3 h-3" /> Privacy
                           </button>
                           {r.createdBy === "self" && (
                             <button onClick={() => deleteRoutine(r.id)}
-                              className="px-3 py-2 rounded-pill text-xs glass-1 text-coral/70 flex items-center gap-1.5 hover:text-coral transition-colors">
+                              className="px-3 py-2 rounded-pill text-xs glass-1 text-coral/70 flex items-center gap-1.5 hover:text-coral transition-colors" title="deleteRoutine(r.id)} className='px-3 py-2 rounded-pill text-xs glass-1 text-c…" aria-label="deleteRoutine(r.id)} className='px-3 py-2 rounded-pill text-xs glass-1 text-c…">
                               <Trash2 className="w-3 h-3" />
                             </button>
                           )}
@@ -941,7 +941,7 @@ export default function Routines() {
                                 {myProviders.length === 0 ? (
                                   <div className="text-xs text-muted-foreground py-2">
                                     No providers yet. Book a session and that provider will appear here so you can share routine progress with them.
-                                    <button onClick={() => navigate("/directory")} className="block mt-2 text-teal underline-offset-2 hover:underline">
+                                    <button onClick={() => navigate("/directory")} className="block mt-2 text-teal underline-offset-2 hover:underline" title="navigate('/directory')} className='block mt-2 text-teal underline-offset-2 ho…" aria-label="navigate('/directory')} className='block mt-2 text-teal underline-offset-2 ho…">
                                       Browse the directory →
                                     </button>
                                   </div>
@@ -951,7 +951,7 @@ export default function Routines() {
                                       const isShared = r.sharedWith.includes(prov.id);
                                       return (
                                         <button key={prov.id} onClick={() => toggleShare(r.id, prov.id)}
-                                          className="w-full flex items-center gap-2.5 py-1.5 text-left">
+                                          className="w-full flex items-center gap-2.5 py-1.5 text-left" title="toggleShare(r.id, prov.id)} className='w-full flex items-center gap-2.5 py-1.…" aria-label="toggleShare(r.id, prov.id)} className='w-full flex items-center gap-2.5 py-1.…">
                                           <img src={prov.image} alt={prov.name} className="w-7 h-7 rounded-lg object-cover shrink-0" />
                                           <span className="flex-1 text-xs text-foreground truncate">{prov.name}</span>
                                           {isShared
@@ -1012,11 +1012,11 @@ export default function Routines() {
                   <button
                     onClick={() => setShowImport(true)}
                     className="text-[10px] px-2.5 py-1 bg-indigo/15 text-indigo rounded-pill border border-indigo/30 flex items-center gap-1.5 hover:bg-indigo/25 transition-colors"
-                  >
+                   title="setShowImport(true)} className='text-[10px] px-2.5 py-1 bg-indigo/15 text-ind…" aria-label="setShowImport(true)} className='text-[10px] px-2.5 py-1 bg-indigo/15 text-ind…">
                     <Sparkles className="w-3 h-3" /> Import
                   </button>
                   <button onClick={() => { setShowCreate(false); setCreateErrors({}); }}
-                    className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                    className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="); }} className='w-8 h-8 glass-1 rounded-full flex items-center justify-cente…" aria-label="); }} className='w-8 h-8 glass-1 rounded-full flex items-center justify-cente…">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
@@ -1056,7 +1056,7 @@ export default function Routines() {
                           newRoutine.type === t
                             ? "border-teal/40 bg-teal/10 text-teal"
                             : "border-white/08 text-muted-foreground"
-                        }`}>
+                        }`} title=")); }} className= `}>" aria-label=")); }} className= `}>">
                         {typeIcon[t]} {typeLabel[t]}
                       </button>
                     ))}
@@ -1092,7 +1092,7 @@ export default function Routines() {
                             newRoutine.schedule === s
                               ? "border-teal/40 bg-teal/10 text-teal"
                               : "border-white/08 text-muted-foreground hover:text-foreground"
-                          }`}>
+                          }`} title=")); if (createErrors.schedule) setCreateErrors(prev => ( )); }} className= `}>" aria-label=")); if (createErrors.schedule) setCreateErrors(prev => ( )); }} className= `}>">
                           {s}
                         </button>
                       ))}
@@ -1116,7 +1116,7 @@ export default function Routines() {
                         <button key={d} onClick={() => setNewRoutine(prev => ({ ...prev, totalDays: d }))}
                           className={`py-2.5 rounded-xl text-xs font-medium border transition-all ${
                             newRoutine.totalDays === d ? "border-teal/40 bg-teal/10 text-teal" : "border-white/08 text-muted-foreground"
-                          }`}>
+                          }`} title="setNewRoutine(prev => ( ))} className= `}>" aria-label="setNewRoutine(prev => ( ))} className= `}>">
                           {label}
                         </button>
                       ))}
@@ -1147,7 +1147,7 @@ export default function Routines() {
                           <span className="text-[10px] text-muted-foreground">{ex.sets}</span>
                           <button onClick={() => setCustomExercises(prev => prev.filter((_, j) => j !== i))}
                             className="w-6 h-6 rounded-full flex items-center justify-center text-coral/60 hover:text-coral hover:bg-coral/10"
-                            aria-label={`Remove ${ex.name}`}>
+                            aria-label={`Remove ${ex.name}`} title="setCustomExercises(prev => prev.filter((_, j) => j !== i))} className='w-6 h-…">
                             <X className="w-3 h-3" />
                           </button>
                         </div>
@@ -1172,7 +1172,7 @@ export default function Routines() {
                                   already
                                     ? "border-white/04 text-muted-foreground/40 cursor-not-allowed"
                                     : "border-white/08 text-foreground hover:border-teal/40 hover:bg-teal/10 hover:text-teal"
-                                }`}>
+                                }`} title="setCustomExercises(prev => [...prev, ])} className= `}> ·" aria-label="setCustomExercises(prev => [...prev, ])} className= `}> ·">
                                 {already ? "✓ " : "+ "}{sug.name} <span className="opacity-50">· {sug.sets}</span>
                               </button>
                             );
@@ -1227,7 +1227,7 @@ export default function Routines() {
                   routine edit mode". */}
               <div className="flex gap-2 mt-5">
                 <button onClick={() => { setShowCreate(false); setCreateErrors({}); }}
-                  className="px-5 py-3 rounded-2xl text-sm font-semibold text-muted-foreground bg-white/[0.03] border border-white/[0.08] hover:text-foreground hover:bg-white/[0.06] transition-colors">
+                  className="px-5 py-3 rounded-2xl text-sm font-semibold text-muted-foreground bg-white/[0.03] border border-white/[0.08] hover:text-foreground hover:bg-white/[0.06] transition-colors" title="); }} className='px-5 py-3 rounded-2xl text-sm font-semibold text-muted-foreg…" aria-label="); }} className='px-5 py-3 rounded-2xl text-sm font-semibold text-muted-foreg…">
                   Cancel
                 </button>
                 <motion.button whileTap={{ scale: 0.97 }} onClick={handleCreateRoutine}
@@ -1264,7 +1264,7 @@ export default function Routines() {
                   <h3 className="text-lg font-bold text-foreground">Import routine</h3>
                 </div>
                 <button onClick={() => importing ? cancelImport() : setShowImport(false)}
-                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="importing ? cancelImport() : setShowImport(false)} className='w-8 h-8 glass-1…" aria-label="importing ? cancelImport() : setShowImport(false)} className='w-8 h-8 glass-1…">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -1321,14 +1321,14 @@ export default function Routines() {
                 <button
                   onClick={() => importing ? cancelImport() : setShowImport(false)}
                   className="flex-1 rounded-pill py-2.5 text-xs font-semibold glass-1 text-muted-foreground"
-                >
+                 title="importing ? cancelImport() : setShowImport(false)} className='flex-1 rounded-…" aria-label="importing ? cancelImport() : setShowImport(false)} className='flex-1 rounded-…">
                   Cancel
                 </button>
                 <button
                   onClick={() => runImport({ text: importText.trim() })}
                   disabled={importing || !importText.trim()}
                   className="flex-[2] rounded-pill py-2.5 text-xs font-semibold gradient-indigo text-primary-foreground disabled:opacity-40"
-                >
+                 title="runImport( )} disabled= className='flex-[2] rounded-pill py-2.5 text-xs font-…" aria-label="runImport( )} disabled= className='flex-[2] rounded-pill py-2.5 text-xs font-…">
                   {importing ? "Extracting…" : "Extract from text"}
                 </button>
               </div>

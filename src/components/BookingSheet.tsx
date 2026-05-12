@@ -316,7 +316,7 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold text-foreground">Select Service</h2>
-                    <button onClick={onClose} aria-label="Close"><X className="w-5 h-5 text-muted-foreground" /></button>
+                    <button onClick={onClose} aria-label="Close" title="Close"><X className="w-5 h-5 text-muted-foreground" /></button>
                   </div>
                   <div className="space-y-2">
                     {provider.services.map((svc, i) => (
@@ -347,11 +347,11 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
               {step === 2 && (
                 <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <button onClick={() => setStep(1)} className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <button onClick={() => setStep(1)} className="flex items-center gap-1 text-sm text-muted-foreground" title="setStep(1)} className='flex items-center gap-1 text-sm text-muted-foreground'…" aria-label="setStep(1)} className='flex items-center gap-1 text-sm text-muted-foreground'…">
                       <ChevronLeft className="w-4 h-4" /> Back
                     </button>
                     <h2 className="text-lg font-semibold text-foreground">Select Time</h2>
-                    <button onClick={onClose} aria-label="Close"><X className="w-5 h-5 text-muted-foreground" /></button>
+                    <button onClick={onClose} aria-label="Close" title="Close"><X className="w-5 h-5 text-muted-foreground" /></button>
                   </div>
                   {/* Day strip */}
                   <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
@@ -359,7 +359,7 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
                       <button key={i} onClick={() => setSelectedDay(i)}
                         className={`flex flex-col items-center gap-0.5 py-2 px-2.5 rounded-xl transition-all shrink-0 ${
                           selectedDay === i ? "glass-accent-indigo" : ""
-                        }`}>
+                        }`} title="setSelectedDay(i)} className= `}>" aria-label="setSelectedDay(i)} className= `}>">
                         <span className="text-[10px] text-muted-foreground">{d.day}</span>
                         <span className={`text-sm font-data font-bold ${selectedDay === i ? "text-indigo" : "text-foreground"}`}>{d.date}</span>
                         <span className="text-[9px] text-muted-foreground">{d.month}</span>
@@ -396,11 +396,11 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
               {step === 3 && (
                 <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <button onClick={() => setStep(2)} className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <button onClick={() => setStep(2)} className="flex items-center gap-1 text-sm text-muted-foreground" title="setStep(2)} className='flex items-center gap-1 text-sm text-muted-foreground'…" aria-label="setStep(2)} className='flex items-center gap-1 text-sm text-muted-foreground'…">
                       <ChevronLeft className="w-4 h-4" /> Back
                     </button>
                     <h2 className="text-lg font-semibold text-foreground">Secure Payment</h2>
-                    <button onClick={onClose} aria-label="Close"><X className="w-5 h-5 text-muted-foreground" /></button>
+                    <button onClick={onClose} aria-label="Close" title="Close"><X className="w-5 h-5 text-muted-foreground" /></button>
                   </div>
                   
                   {/* Booking Summary */}

@@ -194,7 +194,7 @@ export default function ProviderSchedule() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-3xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-4">
@@ -228,10 +228,10 @@ export default function ProviderSchedule() {
               ))}
             </div>
             {/* Week nav */}
-            <button onClick={() => setWeekOffset(w => w - 1)} className="p-1.5 glass-1 rounded-full">
+            <button onClick={() => setWeekOffset(w => w - 1)} className="p-1.5 glass-1 rounded-full" title="setWeekOffset(w => w - 1)} className='p-1.5 glass-1 rounded-full'>" aria-label="setWeekOffset(w => w - 1)} className='p-1.5 glass-1 rounded-full'>">
               <ChevronLeft className="w-4 h-4 text-foreground" />
             </button>
-            <button onClick={() => setWeekOffset(w => w + 1)} className="p-1.5 glass-1 rounded-full">
+            <button onClick={() => setWeekOffset(w => w + 1)} className="p-1.5 glass-1 rounded-full" title="setWeekOffset(w => w + 1)} className='p-1.5 glass-1 rounded-full'>" aria-label="setWeekOffset(w => w + 1)} className='p-1.5 glass-1 rounded-full'>">
               <ChevronRight className="w-4 h-4 text-foreground" />
             </button>
           </div>
@@ -507,7 +507,7 @@ export default function ProviderSchedule() {
                             navigate("/pro/messages");
                           }}
                           className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex-shrink-0"
-                        >
+                         title="} className='p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colo…" aria-label="} className='p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colo…">
                           <MessageSquare className="w-4 h-4 text-white" />
                         </button>
                       </div>
@@ -523,7 +523,7 @@ export default function ProviderSchedule() {
                 <Calendar className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
                 <div className="text-sm font-medium text-foreground mb-1">No bookings scheduled</div>
                 <div className="text-xs text-muted-foreground mb-3">Your schedule will populate as clients book with you.</div>
-                <button onClick={() => navigate("/pro/availability")} className="px-4 py-2 gradient-indigo rounded-full text-sm font-medium">
+                <button onClick={() => navigate("/pro/availability")} className="px-4 py-2 gradient-indigo rounded-full text-sm font-medium" title="navigate('/pro/availability')} className='px-4 py-2 gradient-indigo rounded-f…" aria-label="navigate('/pro/availability')} className='px-4 py-2 gradient-indigo rounded-f…">
                   <Plus className="w-4 h-4 inline mr-1" />
                   Add Availability
                 </button>
@@ -576,7 +576,7 @@ export default function ProviderSchedule() {
                       <div className="text-sm text-muted-foreground">{detail.service}</div>
                     </div>
                   </div>
-                  <button onClick={() => setDetail(null)} className="p-1.5 rounded-full hover:bg-white/10">
+                  <button onClick={() => setDetail(null)} className="p-1.5 rounded-full hover:bg-white/10" title="setDetail(null)} className='p-1.5 rounded-full hover:bg-white/10'>" aria-label="setDetail(null)} className='p-1.5 rounded-full hover:bg-white/10'>">
                     <X className="w-5 h-5 text-foreground" />
                   </button>
                 </div>
@@ -607,10 +607,10 @@ export default function ProviderSchedule() {
                 </div>
 
                 <div className="flex gap-3 mt-6">
-                  <button onClick={() => { setDetail(null); alert("Reschedule functionality coming soon."); }} className="flex-1 py-2.5 glass-1 rounded-xl text-sm font-medium">
+                  <button onClick={() => { setDetail(null); alert("Reschedule functionality coming soon."); }} className="flex-1 py-2.5 glass-1 rounded-xl text-sm font-medium" title="} className='flex-1 py-2.5 glass-1 rounded-xl text-sm font-medium'> Reschedule" aria-label="} className='flex-1 py-2.5 glass-1 rounded-xl text-sm font-medium'> Reschedule">
                     Reschedule
                   </button>
-                  <button onClick={() => { confirm(detail.id); setDetail(null); }} className="flex-1 py-2.5 gradient-indigo rounded-xl text-sm font-medium">
+                  <button onClick={() => { confirm(detail.id); setDetail(null); }} className="flex-1 py-2.5 gradient-indigo rounded-xl text-sm font-medium" title="} className='flex-1 py-2.5 gradient-indigo rounded-xl text-sm font-medium'> C…" aria-label="} className='flex-1 py-2.5 gradient-indigo rounded-xl text-sm font-medium'> C…">
                     Confirm
                   </button>
                 </div>

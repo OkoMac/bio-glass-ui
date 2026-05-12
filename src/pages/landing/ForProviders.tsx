@@ -129,7 +129,7 @@ export default function ForProviders() {
             <button
               onClick={scrollToFeatures}
               className="rounded-pill px-8 py-3.5 text-sm font-semibold glass-2 text-foreground hover:bg-white/[0.08] transition-colors"
-            >
+             title="See how it works" aria-label="See how it works">
               See how it works
             </button>
           </motion.div>
@@ -513,7 +513,7 @@ function FAQ({ q, a }: { q: string; a: string }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="w-full px-5 py-4 flex items-center justify-between gap-3 text-left"
-      >
+       title="setOpen((v) => !v)} className='w-full px-5 py-4 flex items-center justify-bet…" aria-label="setOpen((v) => !v)} className='w-full px-5 py-4 flex items-center justify-bet…">
         <span className="text-sm md:text-base font-medium text-foreground">{q}</span>
         <ChevronDown className={`w-4 h-4 text-muted-foreground shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>

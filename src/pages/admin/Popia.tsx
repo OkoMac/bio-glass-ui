@@ -179,7 +179,7 @@ export default function AdminPopia() {
         <button
           onClick={() => navigate("/admin/dashboard")}
           className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
-        >
+         title="navigate('/admin/dashboard')} className='text-xs text-muted-foreground hover:…" aria-label="navigate('/admin/dashboard')} className='text-xs text-muted-foreground hover:…">
           <ArrowLeft className="w-3 h-3" /> Back to dashboard
         </button>
 
@@ -214,7 +214,7 @@ export default function AdminPopia() {
                   ? "text-foreground border-b-2 border-violet -mb-[1px]"
                   : "text-muted-foreground hover:text-foreground"
               }`}
-            >
+             title="setTab(t)} className= `} > )` : 'Audit summary'}" aria-label="setTab(t)} className= `} > )` : 'Audit summary'}">
               {t === "pending" ? `Pending (${pending.length})` : "Audit summary"}
             </button>
           ))}
@@ -408,14 +408,14 @@ function PendingCard({
             disabled={busy}
             onClick={onApprove}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal/15 text-teal text-xs hover:bg-teal/25 disabled:opacity-50 transition-colors"
-          >
+           title="Approve" aria-label="Approve">
             <CheckCircle className="w-3.5 h-3.5" /> Approve
           </button>
           <button
             disabled={busy}
             onClick={() => setDenyOpen(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-coral/15 text-coral text-xs hover:bg-coral/25 disabled:opacity-50 transition-colors"
-          >
+           title="setDenyOpen(true)} className='flex items-center gap-1.5 px-3 py-1.5 rounded-l…" aria-label="setDenyOpen(true)} className='flex items-center gap-1.5 px-3 py-1.5 rounded-l…">
             <XCircle className="w-3.5 h-3.5" /> Deny
           </button>
         </div>
@@ -435,14 +435,14 @@ function PendingCard({
               disabled={busy}
               onClick={() => { setDenyOpen(false); setDenyNotes(""); }}
               className="px-3 py-1.5 rounded-lg bg-white/5 text-muted-foreground text-xs hover:bg-white/10 disabled:opacity-50"
-            >
+             title="} className='px-3 py-1.5 rounded-lg bg-white/5 text-muted-foreground text-xs …" aria-label="} className='px-3 py-1.5 rounded-lg bg-white/5 text-muted-foreground text-xs …">
               Cancel
             </button>
             <button
               disabled={busy || denyNotes.trim().length < 20}
               onClick={onDeny}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-coral text-white text-xs hover:bg-coral/90 disabled:opacity-50 transition-colors"
-            >
+             title="Confirm denial" aria-label="Confirm denial">
               {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
               Confirm denial
             </button>

@@ -497,7 +497,7 @@ function AdminVerificationInner() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-3xl xl:max-w-7xl px-4 pt-24 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -510,12 +510,12 @@ function AdminVerificationInner() {
           </div>
           <div className="flex gap-2">
             <button onClick={() => setManualOpen(v => !v)}
-              className="text-xs text-indigo font-medium px-3 py-1.5 rounded-pill border border-indigo/20 bg-indigo/5 hover:bg-indigo/10 transition-colors flex items-center gap-1.5">
+              className="text-xs text-indigo font-medium px-3 py-1.5 rounded-pill border border-indigo/20 bg-indigo/5 hover:bg-indigo/10 transition-colors flex items-center gap-1.5" title="setManualOpen(v => !v)} className='text-xs text-indigo font-medium px-3 py-1.…" aria-label="setManualOpen(v => !v)} className='text-xs text-indigo font-medium px-3 py-1.…">
               <Sparkles className="w-3.5 h-3.5" />
               Verify Manually
             </button>
             <button onClick={loadDocs}
-              className="text-xs text-teal font-medium px-3 py-1.5 rounded-pill border border-teal/20 bg-teal/5 hover:bg-teal/10 transition-colors">
+              className="text-xs text-teal font-medium px-3 py-1.5 rounded-pill border border-teal/20 bg-teal/5 hover:bg-teal/10 transition-colors" title="Refresh" aria-label="Refresh">
               Refresh
             </button>
           </div>
@@ -550,7 +550,7 @@ function AdminVerificationInner() {
                       className="w-full pl-9 pr-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-indigo/40" />
                   </div>
                   <button onClick={() => void runProviderSearch()} disabled={searching || searchQuery.trim().length < 2}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold gradient-indigo text-primary-foreground disabled:opacity-40">
+                    className="px-4 py-2 rounded-xl text-xs font-semibold gradient-indigo text-primary-foreground disabled:opacity-40" title="void runProviderSearch()} disabled=" aria-label="void runProviderSearch()} disabled=">
                     {searching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Search"}
                   </button>
                 </div>
@@ -584,7 +584,7 @@ function AdminVerificationInner() {
                           </div>
                           {!verified && isProvider && (
                             <button onClick={() => { setVerifyTarget(row); setVerifyReason(""); }}
-                              className="shrink-0 px-3 py-1.5 rounded-pill text-[11px] font-semibold gradient-teal text-obsidian">
+                              className="shrink-0 px-3 py-1.5 rounded-pill text-[11px] font-semibold gradient-teal text-obsidian" title="} className='shrink-0 px-3 py-1.5 rounded-pill text-[11px] font-semibold grad…" aria-label="} className='shrink-0 px-3 py-1.5 rounded-pill text-[11px] font-semibold grad…">
                               Verify
                             </button>
                           )}
@@ -634,11 +634,11 @@ function AdminVerificationInner() {
                   </p>
                   <div className="flex gap-2">
                     <button onClick={() => setVerifyTarget(null)} disabled={verifying}
-                      className="flex-1 py-2 rounded-pill text-xs font-semibold glass-1 text-muted-foreground hover:text-foreground">
+                      className="flex-1 py-2 rounded-pill text-xs font-semibold glass-1 text-muted-foreground hover:text-foreground" title="setVerifyTarget(null)} disabled= className='flex-1 py-2 rounded-pill text-xs …" aria-label="setVerifyTarget(null)} disabled= className='flex-1 py-2 rounded-pill text-xs …">
                       Cancel
                     </button>
                     <button onClick={() => void submitManualVerify()} disabled={verifying || verifyReason.trim().length < 10}
-                      className="flex-1 py-2 rounded-pill text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 flex items-center justify-center gap-1.5">
+                      className="flex-1 py-2 rounded-pill text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 flex items-center justify-center gap-1.5" title="void submitManualVerify()} disabled=" aria-label="void submitManualVerify()} disabled=">
                       {verifying ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Verifying…</> : "Verify"}
                     </button>
                   </div>
@@ -723,7 +723,7 @@ function AdminVerificationInner() {
                       </div>
                       {!verified && (
                         <button onClick={() => { setVerifyTarget(row); setVerifyReason(""); }}
-                          className="shrink-0 px-3 py-1.5 rounded-pill text-[11px] font-semibold gradient-teal text-obsidian">
+                          className="shrink-0 px-3 py-1.5 rounded-pill text-[11px] font-semibold gradient-teal text-obsidian" title="} className='shrink-0 px-3 py-1.5 rounded-pill text-[11px] font-semibold grad…" aria-label="} className='shrink-0 px-3 py-1.5 rounded-pill text-[11px] font-semibold grad…">
                           Verify
                         </button>
                       )}
@@ -756,7 +756,7 @@ function AdminVerificationInner() {
               <div className="flex items-center gap-2">
                 {orphansSelected.size > 0 && (
                   <button onClick={() => setOrphansCleanupOpen(true)}
-                    className="text-[10px] px-2.5 py-1 rounded-pill bg-coral/15 text-coral font-semibold hover:bg-coral/25">
+                    className="text-[10px] px-2.5 py-1 rounded-pill bg-coral/15 text-coral font-semibold hover:bg-coral/25" title="setOrphansCleanupOpen(true)} className='text-[10px] px-2.5 py-1 rounded-pill …" aria-label="setOrphansCleanupOpen(true)} className='text-[10px] px-2.5 py-1 rounded-pill …">
                     Delete {orphansSelected.size}
                   </button>
                 )}
@@ -846,12 +846,12 @@ function AdminVerificationInner() {
                   </p>
                   <div className="flex gap-2">
                     <button onClick={() => setOrphansCleanupOpen(false)} disabled={orphansCleaning}
-                      className="flex-1 py-2 rounded-pill text-xs font-semibold glass-1 text-muted-foreground hover:text-foreground">
+                      className="flex-1 py-2 rounded-pill text-xs font-semibold glass-1 text-muted-foreground hover:text-foreground" title="setOrphansCleanupOpen(false)} disabled= className='flex-1 py-2 rounded-pill t…" aria-label="setOrphansCleanupOpen(false)} disabled= className='flex-1 py-2 rounded-pill t…">
                       Cancel
                     </button>
                     <button onClick={() => void submitOrphanCleanup()}
                       disabled={orphansCleaning || orphansCleanupReason.trim().length < 10}
-                      className="flex-1 py-2 rounded-pill text-xs font-semibold text-white bg-gradient-to-r from-coral to-rose-500 disabled:opacity-40 flex items-center justify-center gap-1.5">
+                      className="flex-1 py-2 rounded-pill text-xs font-semibold text-white bg-gradient-to-r from-coral to-rose-500 disabled:opacity-40 flex items-center justify-center gap-1.5" title="void submitOrphanCleanup()} disabled=" aria-label="void submitOrphanCleanup()} disabled=">
                       {orphansCleaning ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Deleting…</> : "Delete"}
                     </button>
                   </div>
@@ -874,7 +874,7 @@ function AdminVerificationInner() {
                       f === "rejected" ? "border-coral/40 bg-coral/10 text-coral" :
                       "border-indigo/40 bg-indigo/10 text-indigo"
                     : "border-white/[0.08] bg-white/[0.02] text-muted-foreground"
-                }`}>
+                }`} title="setFilter(f)} className= `}>" aria-label="setFilter(f)} className= `}>">
                 <span className="capitalize">{f}</span>
                 <span className="ml-1.5 font-data">{count}</span>
               </button>
@@ -959,12 +959,12 @@ function AdminVerificationInner() {
                                   <VerifyHelperButton doc={doc} />
                                 )}
                                 <button onClick={() => approveDoc(doc)} disabled={isLoading}
-                                  className="text-[10px] px-2 py-1 rounded-lg bg-teal/10 border border-teal/30 text-teal hover:bg-teal/20 flex items-center gap-1 transition-colors disabled:opacity-50">
+                                  className="text-[10px] px-2 py-1 rounded-lg bg-teal/10 border border-teal/30 text-teal hover:bg-teal/20 flex items-center gap-1 transition-colors disabled:opacity-50" title="approveDoc(doc)} disabled= className='text-[10px] px-2 py-1 rounded-lg bg-tea…" aria-label="approveDoc(doc)} disabled= className='text-[10px] px-2 py-1 rounded-lg bg-tea…">
                                   {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle className="w-3 h-3" />}
                                   Approve
                                 </button>
                                 <button onClick={() => openRejectModal(doc)} disabled={isLoading}
-                                  className="text-[10px] px-2 py-1 rounded-lg bg-coral/10 border border-coral/30 text-coral hover:bg-coral/20 flex items-center gap-1 transition-colors disabled:opacity-50">
+                                  className="text-[10px] px-2 py-1 rounded-lg bg-coral/10 border border-coral/30 text-coral hover:bg-coral/20 flex items-center gap-1 transition-colors disabled:opacity-50" title="openRejectModal(doc)} disabled= className='text-[10px] px-2 py-1 rounded-lg b…" aria-label="openRejectModal(doc)} disabled= className='text-[10px] px-2 py-1 rounded-lg b…">
                                   <XCircle className="w-3 h-3" /> Reject
                                 </button>
                               </>
@@ -1012,11 +1012,11 @@ function AdminVerificationInner() {
               </p>
               <div className="flex gap-2 mt-4">
                 <button onClick={() => setRejectModal(null)}
-                  className="flex-1 py-2.5 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground">
+                  className="flex-1 py-2.5 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground" title="setRejectModal(null)} className='flex-1 py-2.5 rounded-2xl text-sm font-mediu…" aria-label="setRejectModal(null)} className='flex-1 py-2.5 rounded-2xl text-sm font-mediu…">
                   Cancel
                 </button>
                 <button onClick={confirmReject} disabled={actionLoading === rejectModal.id}
-                  className="flex-1 py-2.5 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-coral to-red-500 disabled:opacity-50 flex items-center justify-center gap-1.5">
+                  className="flex-1 py-2.5 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-coral to-red-500 disabled:opacity-50 flex items-center justify-center gap-1.5" title="Confirm Reject" aria-label="Confirm Reject">
                   {actionLoading === rejectModal.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
                   Confirm Reject
                 </button>
@@ -1097,7 +1097,7 @@ function VerifyHelperButton({ doc }: { doc: PendingDoc }) {
       <button
         onClick={() => { setOpen(true); if (!result) runChecks(); }}
         className="text-[10px] px-2 py-1 rounded-lg bg-indigo/10 border border-indigo/30 text-indigo hover:bg-indigo/20 flex items-center gap-1 transition-colors"
-      >
+       title="} className='text-[10px] px-2 py-1 rounded-lg bg-indigo/10 border border-indi…" aria-label="} className='text-[10px] px-2 py-1 rounded-lg bg-indigo/10 border border-indi…">
         <Sparkles className="w-3 h-3" /> Verify
       </button>
 
@@ -1119,7 +1119,7 @@ function VerifyHelperButton({ doc }: { doc: PendingDoc }) {
                     {doc.provider_name} · {doc.file_name}
                   </p>
                 </div>
-                <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">
+                <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground" title="setOpen(false)} className='text-muted-foreground hover:text-foreground'>" aria-label="setOpen(false)} className='text-muted-foreground hover:text-foreground'>">
                   <XCircle className="w-4 h-4" />
                 </button>
               </div>

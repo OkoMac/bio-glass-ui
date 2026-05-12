@@ -75,7 +75,7 @@ export default function AdminOpsStrip() {
       <GlassCard className="p-4 flex items-center gap-3">
         <AlertTriangle className="w-5 h-5 text-coral" />
         <p className="text-sm text-coral flex-1">{err}</p>
-        <button onClick={refresh} className="text-xs text-indigo underline">Retry</button>
+        <button onClick={refresh} className="text-xs text-indigo underline" title="Retry" aria-label="Retry">Retry</button>
       </GlassCard>
     );
   }
@@ -130,7 +130,7 @@ export default function AdminOpsStrip() {
       <GlassCard className="p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-foreground">Needs action</h3>
-          <button onClick={refresh} className="p-1.5 glass-1 rounded-full" aria-label="Refresh">
+          <button onClick={refresh} className="p-1.5 glass-1 rounded-full" aria-label="Refresh" title="Refresh">
             <RefreshCw className={`w-3.5 h-3.5 text-muted-foreground ${loading ? "animate-spin" : ""}`} />
           </button>
         </div>
@@ -143,7 +143,7 @@ export default function AdminOpsStrip() {
                 key={a.label}
                 onClick={() => navigate(a.path)}
                 className="text-left glass-1 rounded-xl p-3 hover:bg-white/5 transition-colors"
-              >
+               title="navigate(a.path)} className='text-left glass-1 rounded-xl p-3 hover:bg-white/…" aria-label="navigate(a.path)} className='text-left glass-1 rounded-xl p-3 hover:bg-white/…">
                 <div className="flex items-center justify-between mb-1">
                   <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${t}`}>
                     <Icon className="w-3.5 h-3.5" />
@@ -184,10 +184,10 @@ export default function AdminOpsStrip() {
 
       {/* Quick jump to full directory + external-providers */}
       <div className="flex flex-wrap gap-2 text-xs">
-        <button onClick={() => navigate("/admin/providers")}      className="px-3 py-1.5 glass-1 rounded-pill text-foreground">Providers ({data.providers.verified + data.providers.pending + data.providers.docs_submitted})</button>
-        <button onClick={() => navigate("/admin/whatsapp")}       className="px-3 py-1.5 glass-1 rounded-pill text-foreground">WhatsApp conversations</button>
-        <button onClick={() => navigate("/admin/b-queue")}        className="px-3 py-1.5 glass-1 rounded-pill text-foreground">B_ Review Queue</button>
-        <button onClick={() => navigate("/admin/disputes")}       className="px-3 py-1.5 glass-1 rounded-pill text-foreground">Disputes</button>
+        <button onClick={() => navigate("/admin/providers")}      className="px-3 py-1.5 glass-1 rounded-pill text-foreground" title="navigate('/admin/providers')} className='px-3 py-1.5 glass-1 rounded-pill tex…" aria-label="navigate('/admin/providers')} className='px-3 py-1.5 glass-1 rounded-pill tex…">Providers ({data.providers.verified + data.providers.pending + data.providers.docs_submitted})</button>
+        <button onClick={() => navigate("/admin/whatsapp")}       className="px-3 py-1.5 glass-1 rounded-pill text-foreground" title="navigate('/admin/whatsapp')} className='px-3 py-1.5 glass-1 rounded-pill text…" aria-label="navigate('/admin/whatsapp')} className='px-3 py-1.5 glass-1 rounded-pill text…">WhatsApp conversations</button>
+        <button onClick={() => navigate("/admin/b-queue")}        className="px-3 py-1.5 glass-1 rounded-pill text-foreground" title="navigate('/admin/b-queue')} className='px-3 py-1.5 glass-1 rounded-pill text-…" aria-label="navigate('/admin/b-queue')} className='px-3 py-1.5 glass-1 rounded-pill text-…">B_ Review Queue</button>
+        <button onClick={() => navigate("/admin/disputes")}       className="px-3 py-1.5 glass-1 rounded-pill text-foreground" title="navigate('/admin/disputes')} className='px-3 py-1.5 glass-1 rounded-pill text…" aria-label="navigate('/admin/disputes')} className='px-3 py-1.5 glass-1 rounded-pill text…">Disputes</button>
         <span className="px-3 py-1.5 glass-1 rounded-pill text-muted-foreground">Leads: {data.external_providers.total}</span>
       </div>
     </div>

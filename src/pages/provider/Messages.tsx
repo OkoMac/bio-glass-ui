@@ -102,7 +102,7 @@ export default function ProviderMessages() {
   if (needsUpgrade) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-        <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+        <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="mx-auto max-w-3xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -150,7 +150,7 @@ export default function ProviderMessages() {
               <button
                 onClick={() => navigate(getUpgradeUrl())}
                 className="w-full gradient-indigo rounded-pill py-3.5 text-sm font-semibold text-white flex items-center justify-center gap-2"
-              >
+               title="navigate(getUpgradeUrl())} className='w-full gradient-indigo rounded-pill py-…" aria-label="navigate(getUpgradeUrl())} className='w-full gradient-indigo rounded-pill py-…">
                 <CreditCard className="w-4 h-4" />
                 Upgrade to Pro - R499/month
               </button>
@@ -158,7 +158,7 @@ export default function ProviderMessages() {
               <button
                 onClick={() => navigate('/pro/billing')}
                 className="w-full glass-1 rounded-pill py-3 text-sm font-medium text-foreground"
-              >
+               title="navigate('/pro/billing')} className='w-full glass-1 rounded-pill py-3 text-sm…" aria-label="navigate('/pro/billing')} className='w-full glass-1 rounded-pill py-3 text-sm…">
                 View All Plans
               </button>
             </div>
@@ -248,7 +248,7 @@ export default function ProviderMessages() {
             <motion.div key="thread" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-3">
               {/* Thread header */}
               <div className="flex items-center gap-3">
-                <button onClick={() => setActiveId(null)} className="p-2 glass-1 rounded-full">
+                <button onClick={() => setActiveId(null)} className="p-2 glass-1 rounded-full" title="setActiveId(null)} className='p-2 glass-1 rounded-full'>" aria-label="setActiveId(null)} className='p-2 glass-1 rounded-full'>">
                   <ChevronLeft className="w-4 h-4 text-foreground" />
                 </button>
                 <div className="relative">
@@ -293,10 +293,10 @@ export default function ProviderMessages() {
               {/* Input */}
               <div className="flex items-center gap-2">
                 <button onClick={() => setShowQuickReplies(true)} title="Quick replies"
-                  className="p-2.5 glass-1 rounded-full text-indigo">
+                  className="p-2.5 glass-1 rounded-full text-indigo" aria-label="setShowQuickReplies(true)} title='Quick replies' className='p-2.5 glass-1 rou…">
                   <Zap className="w-4 h-4" />
                 </button>
-                <button onClick={() => alert("File attachments coming soon.")} className="p-2.5 glass-1 rounded-full text-muted-foreground">
+                <button onClick={() => alert("File attachments coming soon.")} className="p-2.5 glass-1 rounded-full text-muted-foreground" title="alert('File attachments coming soon.')} className='p-2.5 glass-1 rounded-full…" aria-label="alert('File attachments coming soon.')} className='p-2.5 glass-1 rounded-full…">
                   <Paperclip className="w-4 h-4" />
                 </button>
                 <div className="flex-1 flex items-center gap-2 glass-1 rounded-pill px-4 py-2.5">
@@ -308,7 +308,7 @@ export default function ProviderMessages() {
                     className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
                   />
                 </div>
-                <button onClick={() => alert("Voice messages coming soon.")} className="p-2.5 glass-1 rounded-full text-muted-foreground">
+                <button onClick={() => alert("Voice messages coming soon.")} className="p-2.5 glass-1 rounded-full text-muted-foreground" title="alert('Voice messages coming soon.')} className='p-2.5 glass-1 rounded-full t…" aria-label="alert('Voice messages coming soon.')} className='p-2.5 glass-1 rounded-full t…">
                   <Mic className="w-4 h-4" />
                 </button>
                 <motion.button
@@ -344,7 +344,7 @@ export default function ProviderMessages() {
                   <Zap className="w-5 h-5 text-indigo" />
                   <h3 className="text-base font-bold text-foreground">Quick Replies</h3>
                 </div>
-                <button onClick={() => setShowQuickReplies(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
+                <button onClick={() => setShowQuickReplies(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center" title="setShowQuickReplies(false)} className='w-8 h-8 glass-1 rounded-full flex item…" aria-label="setShowQuickReplies(false)} className='w-8 h-8 glass-1 rounded-full flex item…">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
@@ -361,7 +361,7 @@ export default function ProviderMessages() {
                           setShowQuickReplies(false);
                         }}
                         className="w-full glass-1 rounded-2xl p-3 flex items-start gap-3 text-left hover:bg-white/[0.04] transition-colors"
-                      >
+                       title="} className='w-full glass-1 rounded-2xl p-3 flex items-start gap-3 text-left …" aria-label="} className='w-full glass-1 rounded-2xl p-3 flex items-start gap-3 text-left …">
                         <span className="text-xl shrink-0">{r.emoji}</span>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-foreground">{r.label}</p>

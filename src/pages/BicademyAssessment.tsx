@@ -61,7 +61,7 @@ export default function BicademyAssessment() {
         <button
           onClick={() => navigate(`/bicademy/${code}`)}
           className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
-        >
+         title="navigate(`/bicademy/$ `)} className='flex items-center gap-2 text-xs text-mut…" aria-label="navigate(`/bicademy/$ `)} className='flex items-center gap-2 text-xs text-mut…">
           <ArrowLeft className="w-4 h-4" /> {course.course_code}
         </button>
 
@@ -91,7 +91,7 @@ export default function BicademyAssessment() {
                 <button
                   onClick={() => setPhase("questions")}
                   className="w-full py-3 rounded-pill bg-gradient-to-r from-indigo to-teal text-white text-sm font-semibold"
-                >
+                 title="setPhase('questions')} className='w-full py-3 rounded-pill bg-gradient-to-r f…" aria-label="setPhase('questions')} className='w-full py-3 rounded-pill bg-gradient-to-r f…">
                   Start assessment
                 </button>
               </GlassCard>
@@ -129,7 +129,7 @@ export default function BicademyAssessment() {
                             ? "border-indigo/50 bg-indigo/10 text-foreground"
                             : "border-white/5 bg-white/[0.02] text-muted-foreground hover:text-foreground hover:bg-white/[0.04]"
                         }`}
-                      >
+                       title="setAnswers( )} className= `} >" aria-label="setAnswers( )} className= `} >">
                         <div className="flex items-center gap-3">
                           <div className={`w-4 h-4 rounded-full border-2 shrink-0 ${
                             isPicked ? "border-indigo bg-indigo" : "border-white/20"
@@ -147,7 +147,7 @@ export default function BicademyAssessment() {
                   onClick={() => setCurrent(Math.max(0, current - 1))}
                   disabled={current === 0}
                   className="text-xs text-muted-foreground disabled:opacity-30"
-                >
+                 title="setCurrent(Math.max(0, current - 1))} disabled= className='text-xs text-muted…" aria-label="setCurrent(Math.max(0, current - 1))} disabled= className='text-xs text-muted…">
                   ← Previous
                 </button>
                 {current < questions.length - 1 ? (
@@ -155,7 +155,7 @@ export default function BicademyAssessment() {
                     onClick={() => setCurrent(current + 1)}
                     disabled={!picked}
                     className="flex-1 max-w-xs py-2.5 rounded-pill bg-indigo text-white text-xs font-semibold flex items-center justify-center gap-2 disabled:opacity-40"
-                  >
+                   title="setCurrent(current + 1)} disabled= className='flex-1 max-w-xs py-2.5 rounded-…" aria-label="setCurrent(current + 1)} disabled= className='flex-1 max-w-xs py-2.5 rounded-…">
                     Next <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 ) : (
@@ -239,7 +239,7 @@ export default function BicademyAssessment() {
                   <button
                     onClick={() => navigate("/bicademy")}
                     className="flex-1 py-3 rounded-pill bg-gradient-to-r from-indigo to-teal text-white text-sm font-semibold flex items-center justify-center gap-2"
-                  >
+                   title="navigate('/bicademy')} className='flex-1 py-3 rounded-pill bg-gradient-to-r f…" aria-label="navigate('/bicademy')} className='flex-1 py-3 rounded-pill bg-gradient-to-r f…">
                     <Award className="w-4 h-4" /> Back to Bicademy
                   </button>
                 ) : (
@@ -247,13 +247,13 @@ export default function BicademyAssessment() {
                     <button
                       onClick={() => navigate(`/bicademy/${code}`)}
                       className="flex-1 py-3 rounded-xl bg-white/5 text-foreground text-sm font-semibold"
-                    >
+                     title="navigate(`/bicademy/$ `)} className='flex-1 py-3 rounded-xl bg-white/5 text-f…" aria-label="navigate(`/bicademy/$ `)} className='flex-1 py-3 rounded-xl bg-white/5 text-f…">
                       Review lessons
                     </button>
                     <button
                       onClick={handleRetake}
                       className="flex-1 py-3 rounded-pill bg-indigo text-white text-sm font-semibold flex items-center justify-center gap-2"
-                    >
+                     title="Retake" aria-label="Retake">
                       <RotateCcw className="w-4 h-4" /> Retake
                     </button>
                   </>

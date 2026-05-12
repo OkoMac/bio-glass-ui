@@ -122,7 +122,7 @@ export default function ProviderNav() {
             return (
               <button key={r}
                 onClick={() => { switchRole(r as any); window.location.href = c.path; }}
-                className="w-full flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
+                className="w-full flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1" title="} className='w-full flex items-center gap-2 text-xs text-muted-foreground hov…" aria-label="} className='w-full flex items-center gap-2 text-xs text-muted-foreground hov…">
                 <span className="text-sm">{c.icon}</span> Switch to {c.label}
               </button>
             );
@@ -130,7 +130,7 @@ export default function ProviderNav() {
           <button
             onClick={logout}
             className="w-full flex items-center gap-2 text-xs text-muted-foreground hover:text-coral transition-colors py-1"
-          >
+           title="Sign out" aria-label="Sign out">
             <LogOut className="w-3.5 h-3.5" />
             Sign out
           </button>
@@ -177,7 +177,7 @@ export default function ProviderNav() {
             <button
               aria-label="Open navigation menu"
               className="flex-1 flex flex-col items-center gap-1 py-1 rounded-2xl text-muted-foreground hover:text-foreground transition-colors"
-            >
+             title="More">
               <Menu className="w-5 h-5" />
               <span className="text-[9px] font-medium">More</span>
             </button>

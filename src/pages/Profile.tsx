@@ -246,7 +246,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-40 relative">
-      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded…" aria-label="navigate(-1)} className='absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded…">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="w-full max-w-lg md:max-w-3xl xl:max-w-7xl mx-auto px-4 md:px-8 pt-20 space-y-6">
@@ -338,7 +338,7 @@ const Profile = () => {
               )}
               {!profileEmail && !profilePhone && !profileLocation && !profileAge && (
                 <button onClick={openEditModal}
-                  className="col-span-2 text-xs text-teal text-left flex items-center gap-1.5 mt-1">
+                  className="col-span-2 text-xs text-teal text-left flex items-center gap-1.5 mt-1" title="Add personal details" aria-label="Add personal details">
                   <Plus className="w-3 h-3" /> Add personal details
                 </button>
               )}
@@ -362,7 +362,7 @@ const Profile = () => {
                 activeTab === tab
                   ? "border-teal/40 bg-teal/10 text-teal"
                   : "border-white/[0.08] bg-white/[0.02] text-muted-foreground"
-              }`}>
+              }`} title="setActiveTab(tab)} className= `}>" aria-label="setActiveTab(tab)} className= `}>">
               {tab}
             </button>
           ))}
@@ -693,7 +693,7 @@ const Profile = () => {
                   <p className="text-xs text-muted-foreground">Personal details visible to providers you book</p>
                 </div>
                 <button onClick={() => setEditOpen(false)}
-                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="setEditOpen(false)} className='w-8 h-8 glass-1 rounded-full flex items-center…" aria-label="setEditOpen(false)} className='w-8 h-8 glass-1 rounded-full flex items-center…">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -794,11 +794,11 @@ const Profile = () => {
 
               <div className="flex gap-3 mt-5 max-w-md mx-auto">
                 <button onClick={() => setEditOpen(false)}
-                  className="flex-1 py-3 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground">
+                  className="flex-1 py-3 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground" title="setEditOpen(false)} className='flex-1 py-3 rounded-2xl text-sm font-medium bo…" aria-label="setEditOpen(false)} className='flex-1 py-3 rounded-2xl text-sm font-medium bo…">
                   Cancel
                 </button>
                 <button onClick={handleSaveProfile}
-                  className="flex-1 py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 flex items-center justify-center gap-1.5">
+                  className="flex-1 py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 flex items-center justify-center gap-1.5" title="Save Changes" aria-label="Save Changes">
                   <Save className="w-3.5 h-3.5" /> Save Changes
                 </button>
               </div>

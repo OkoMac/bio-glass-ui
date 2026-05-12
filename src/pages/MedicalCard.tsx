@@ -135,7 +135,7 @@ function ListSection({
             onClick={onRequestEdit}
             className="ml-auto inline-flex items-center gap-1 glass-2 rounded-pill px-2.5 py-0.5 text-[10px] text-teal hover:bg-teal/10 transition-colors"
             aria-label={`Add ${label.toLowerCase()}`}
-          >
+           title="Add">
             <Plus className="w-3 h-3" /> Add
           </button>
         )}
@@ -154,7 +154,7 @@ function ListSection({
           <span key={i} className="inline-flex items-center gap-1 glass-2 rounded-pill px-3 py-1 text-xs text-foreground">
             {item}
             {editing && (
-              <button onClick={() => onRemove(i)}>
+              <button onClick={() => onRemove(i)} title="onRemove(i)}>" aria-label="onRemove(i)}>">
                 <X className="w-3 h-3 text-muted-foreground hover:text-red-400" />
               </button>
             )}
@@ -563,7 +563,7 @@ export default function MedicalCard() {
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold text-foreground">Medical Summary</h3>
-                <button onClick={() => setShowShare(false)}>
+                <button onClick={() => setShowShare(false)} title="setShowShare(false)}>" aria-label="setShowShare(false)}>">
                   <X className="w-5 h-5 text-muted-foreground" />
                 </button>
               </div>
@@ -903,7 +903,7 @@ function MedicalAidSection({
             className={`w-9 h-5 rounded-full transition-all flex items-center px-0.5 ${
               showToProvider ? "bg-teal" : "bg-white/10"
             } ${!editing ? "opacity-50" : ""}`}
-          >
+           title="editing && setShowToProvider(!showToProvider)} className= $ `} >" aria-label="editing && setShowToProvider(!showToProvider)} className= $ `} >">
             <motion.div
               animate={{ x: showToProvider ? 16 : 0 }}
               className="w-4 h-4 rounded-full bg-white shadow-sm"

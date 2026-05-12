@@ -204,7 +204,7 @@ export default function DataSharing() {
               className={`px-4 py-1.5 rounded-pill text-xs font-medium transition-colors ${
                 tab === k ? "gradient-indigo text-white" : "glass-1 text-foreground"
               }`}
-            >
+             title="setTab(k)} className= `} >" aria-label="setTab(k)} className= `} >">
               {label}
             </button>
           ))}
@@ -247,7 +247,7 @@ export default function DataSharing() {
                       onClick={() => revokeAll(card)}
                       disabled={busyScope === card.provider_id}
                       className="text-[11px] text-coral hover:underline flex items-center gap-1"
-                    >
+                     title="revokeAll(card)} disabled= className='text-[11px] text-coral hover:underline …" aria-label="revokeAll(card)} disabled= className='text-[11px] text-coral hover:underline …">
                       <Trash2 className="w-3 h-3" /> Revoke all
                     </button>
                   </div>

@@ -191,7 +191,7 @@ export default function IntakeForms() {
       <div className="w-full px-4 md:px-8 xl:px-12 pt-20 space-y-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…" aria-label="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <h1 className="text-2xl font-bold text-foreground">Intake Forms</h1>
@@ -199,7 +199,7 @@ export default function IntakeForms() {
           <button
             onClick={() => setShowCreate(v => !v)}
             className="flex items-center gap-2 px-4 py-2 gradient-indigo rounded-pill text-sm font-semibold text-primary-foreground"
-          >
+           title="setShowCreate(v => !v)} className='flex items-center gap-2 px-4 py-2 gradient…" aria-label="setShowCreate(v => !v)} className='flex items-center gap-2 px-4 py-2 gradient…">
             <Plus className="w-4 h-4" /> New Form
           </button>
         </div>
@@ -211,7 +211,7 @@ export default function IntakeForms() {
               <GlassCard className="p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-foreground">Create Intake Form</h3>
-                  <button onClick={() => setShowCreate(false)} className="w-7 h-7 glass-1 rounded-full flex items-center justify-center">
+                  <button onClick={() => setShowCreate(false)} className="w-7 h-7 glass-1 rounded-full flex items-center justify-center" title="setShowCreate(false)} className='w-7 h-7 glass-1 rounded-full flex items-cent…" aria-label="setShowCreate(false)} className='w-7 h-7 glass-1 rounded-full flex items-cent…">
                     <X className="w-3.5 h-3.5 text-muted-foreground" />
                   </button>
                 </div>
@@ -243,7 +243,7 @@ export default function IntakeForms() {
                             className="flex-1 px-3 py-2 glass-2 rounded-lg text-xs text-foreground placeholder:text-muted-foreground outline-none"
                           />
                           {fields.length > 1 && (
-                            <button onClick={() => removeField(idx)} className="w-6 h-6 rounded-full glass-2 flex items-center justify-center">
+                            <button onClick={() => removeField(idx)} className="w-6 h-6 rounded-full glass-2 flex items-center justify-center" title="removeField(idx)} className='w-6 h-6 rounded-full glass-2 flex items-center j…" aria-label="removeField(idx)} className='w-6 h-6 rounded-full glass-2 flex items-center j…">
                               <Trash2 className="w-3 h-3 text-coral" />
                             </button>
                           )}
@@ -283,7 +283,7 @@ export default function IntakeForms() {
                       </div>
                     ))}
                   </div>
-                  <button onClick={addField} className="mt-2 flex items-center gap-1.5 text-xs text-indigo font-medium">
+                  <button onClick={addField} className="mt-2 flex items-center gap-1.5 text-xs text-indigo font-medium" title="Add Field" aria-label="Add Field">
                     <Plus className="w-3.5 h-3.5" /> Add Field
                   </button>
                 </div>
@@ -311,7 +311,7 @@ export default function IntakeForms() {
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-bold text-foreground">Submissions</h3>
-                <button onClick={() => setViewFormId(null)} className="w-7 h-7 glass-1 rounded-full flex items-center justify-center">
+                <button onClick={() => setViewFormId(null)} className="w-7 h-7 glass-1 rounded-full flex items-center justify-center" title="setViewFormId(null)} className='w-7 h-7 glass-1 rounded-full flex items-cente…" aria-label="setViewFormId(null)} className='w-7 h-7 glass-1 rounded-full flex items-cente…">
                   <X className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
               </div>
@@ -376,7 +376,7 @@ export default function IntakeForms() {
                   <button
                     onClick={() => setExpandedForm(isExpanded ? null : form.id)}
                     className="w-full p-4 flex items-center gap-3 text-left"
-                  >
+                   title="setExpandedForm(isExpanded ? null : form.id)} className='w-full p-4 flex item…" aria-label="setExpandedForm(isExpanded ? null : form.id)} className='w-full p-4 flex item…">
                     <div className="w-10 h-10 rounded-xl bg-violet/20 flex items-center justify-center shrink-0">
                       <ClipboardList className="w-5 h-5 text-violet" />
                     </div>
@@ -417,11 +417,11 @@ export default function IntakeForms() {
 
                           <div className="flex gap-2 pt-2">
                             <button onClick={() => loadSubmissions(form.id)}
-                              className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-indigo">
+                              className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-indigo" title="loadSubmissions(form.id)} className='flex-1 flex items-center justify-center …" aria-label="loadSubmissions(form.id)} className='flex-1 flex items-center justify-center …">
                               <Eye className="w-3 h-3" /> View Submissions
                             </button>
                             <button onClick={() => deleteForm(form.id)}
-                              className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-coral">
+                              className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-coral" title="deleteForm(form.id)} className='flex-1 flex items-center justify-center gap-1…" aria-label="deleteForm(form.id)} className='flex-1 flex items-center justify-center gap-1…">
                               <Trash2 className="w-3 h-3" /> Remove
                             </button>
                           </div>

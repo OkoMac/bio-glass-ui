@@ -152,7 +152,7 @@ export default function BionPointsRedeemCard({ bookingId, bookingTotalRand, onAp
         onClick={apply}
         disabled={points <= 0 || submitting}
         className="w-full glass-1 rounded-xl py-2.5 text-sm font-semibold text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
-      >
+       title="Apply discount" aria-label="Apply discount">
         {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
         Apply discount
       </button>

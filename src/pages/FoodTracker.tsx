@@ -402,9 +402,9 @@ export default function FoodTracker() {
             </div>
             <div className="flex gap-1">
               <button onClick={() => setWaterCount(prev => Math.max(0, prev - 1))}
-                className="w-7 h-7 rounded-lg glass-1 text-muted-foreground text-xs font-bold">−</button>
+                className="w-7 h-7 rounded-lg glass-1 text-muted-foreground text-xs font-bold" title="setWaterCount(prev => Math.max(0, prev - 1))} className='w-7 h-7 rounded-lg g…" aria-label="setWaterCount(prev => Math.max(0, prev - 1))} className='w-7 h-7 rounded-lg g…">−</button>
               <button onClick={() => setWaterCount(prev => prev + 1)}
-                className="w-7 h-7 rounded-lg bg-blue-400/20 text-blue-400 text-xs font-bold">+</button>
+                className="w-7 h-7 rounded-lg bg-blue-400/20 text-blue-400 text-xs font-bold" title="setWaterCount(prev => prev + 1)} className='w-7 h-7 rounded-lg bg-blue-400/20…" aria-label="setWaterCount(prev => prev + 1)} className='w-7 h-7 rounded-lg bg-blue-400/20…">+</button>
             </div>
           </div>
         </GlassCard>
@@ -416,7 +416,7 @@ export default function FoodTracker() {
             const count = todayEntries.filter(e => e.meal === meal).length;
             return (
               <button key={meal} onClick={() => { setSelectedMeal(meal); setShowAdd(true); }}
-                className="flex-1 py-3 glass-1 rounded-2xl flex flex-col items-center gap-1 border border-white/08 hover:border-white/16 transition-colors">
+                className="flex-1 py-3 glass-1 rounded-2xl flex flex-col items-center gap-1 border border-white/08 hover:border-white/16 transition-colors" title="} className='flex-1 py-3 glass-1 rounded-2xl flex flex-col items-center gap-1…" aria-label="} className='flex-1 py-3 glass-1 rounded-2xl flex flex-col items-center gap-1…">
                 <Icon className="w-4 h-4 text-teal" />
                 <span className="text-[10px] text-foreground font-medium">{MEAL_LABELS[meal]}</span>
                 {count > 0 && <span className="text-[9px] text-muted-foreground">{count} items</span>}
@@ -473,7 +473,7 @@ export default function FoodTracker() {
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <span className="text-[10px] text-muted-foreground">{entry.time}</span>
-                      <button onClick={() => deleteEntry(entry.id)} className="text-muted-foreground hover:text-coral transition-colors">
+                      <button onClick={() => deleteEntry(entry.id)} className="text-muted-foreground hover:text-coral transition-colors" title="deleteEntry(entry.id)} className='text-muted-foreground hover:text-coral tran…" aria-label="deleteEntry(entry.id)} className='text-muted-foreground hover:text-coral tran…">
                         <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
@@ -530,7 +530,7 @@ export default function FoodTracker() {
 
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-foreground">Log {MEAL_LABELS[selectedMeal]}</h3>
-                <button onClick={() => setShowAdd(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                <button onClick={() => setShowAdd(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="setShowAdd(false)} className='w-8 h-8 glass-1 rounded-full flex items-center …" aria-label="setShowAdd(false)} className='w-8 h-8 glass-1 rounded-full flex items-center …">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -567,7 +567,7 @@ export default function FoodTracker() {
                   <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0">
                     <img src={photoPreview} alt="Food" className="w-full h-full object-cover" />
                     <button onClick={() => setPhotoPreview(null)}
-                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-obsidian/80 flex items-center justify-center">
+                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-obsidian/80 flex items-center justify-center" title="setPhotoPreview(null)} className='absolute top-1 right-1 w-5 h-5 rounded-full…" aria-label="setPhotoPreview(null)} className='absolute top-1 right-1 w-5 h-5 rounded-full…">
                       <X className="w-3 h-3 text-white" />
                     </button>
                   </div>
@@ -583,7 +583,7 @@ export default function FoodTracker() {
                   <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
                     {searchResults.map(([name, info]) => (
                       <button key={name} onClick={() => addFromDatabase(name, info)}
-                        className="w-full flex items-center justify-between p-2.5 rounded-xl glass-1 text-left hover:bg-white/[0.03] transition-colors">
+                        className="w-full flex items-center justify-between p-2.5 rounded-xl glass-1 text-left hover:bg-white/[0.03] transition-colors" title="addFromDatabase(name, info)} className='w-full flex items-center justify-betw…" aria-label="addFromDatabase(name, info)} className='w-full flex items-center justify-betw…">
                         <span className="text-sm text-foreground capitalize">{name}</span>
                         <span className="text-xs text-muted-foreground">{info.cal} kcal</span>
                       </button>
@@ -649,7 +649,7 @@ export default function FoodTracker() {
                     {isOver ? `Burn ${Math.abs(calRemaining)} excess calories` : "Activities to maintain your deficit"}
                   </p>
                 </div>
-                <button onClick={() => setShowBurn(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                <button onClick={() => setShowBurn(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="setShowBurn(false)} className='w-8 h-8 glass-1 rounded-full flex items-center…" aria-label="setShowBurn(false)} className='w-8 h-8 glass-1 rounded-full flex items-center…">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -685,7 +685,7 @@ export default function FoodTracker() {
               style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-foreground">Daily Goals</h3>
-                <button onClick={() => setShowGoals(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                <button onClick={() => setShowGoals(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="setShowGoals(false)} className='w-8 h-8 glass-1 rounded-full flex items-cente…" aria-label="setShowGoals(false)} className='w-8 h-8 glass-1 rounded-full flex items-cente…">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -730,7 +730,7 @@ export default function FoodTracker() {
                 <div className="flex items-center gap-2">
                   {historyDay && (
                     <button onClick={() => setHistoryDay(null)}
-                      className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                      className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="setHistoryDay(null)} className='w-8 h-8 glass-1 rounded-full flex items-cente…" aria-label="setHistoryDay(null)} className='w-8 h-8 glass-1 rounded-full flex items-cente…">
                       <ArrowLeft className="w-4 h-4" />
                     </button>
                   )}
@@ -741,7 +741,7 @@ export default function FoodTracker() {
                   </h3>
                 </div>
                 <button onClick={() => { setShowHistory(false); setHistoryDay(null); }}
-                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="} className='w-8 h-8 glass-1 rounded-full flex items-center justify-center te…" aria-label="} className='w-8 h-8 glass-1 rounded-full flex items-center justify-center te…">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -800,7 +800,7 @@ export default function FoodTracker() {
                                     <span className="text-[10px] text-muted-foreground">{entry.time}</span>
                                     <button onClick={() => deleteEntry(entry.id)}
                                       aria-label="Delete entry"
-                                      className="text-muted-foreground hover:text-coral transition-colors">
+                                      className="text-muted-foreground hover:text-coral transition-colors" title="deleteEntry(entry.id)} aria-label='Delete entry' className='text-muted-foregr…">
                                       <Trash2 className="w-3 h-3" />
                                     </button>
                                   </div>
@@ -848,7 +848,7 @@ export default function FoodTracker() {
                             const over = cal > goals.calories;
                             return (
                               <button key={day} onClick={() => setHistoryDay(day)}
-                                className="w-full text-left">
+                                className="w-full text-left" title="setHistoryDay(day)} className='w-full text-left'> )} item / kcal" aria-label="setHistoryDay(day)} className='w-full text-left'> )} item / kcal">
                                 <GlassCard className="p-3 hover:border-white/16 transition-colors">
                                   <div className="flex items-center justify-between mb-1.5">
                                     <div>

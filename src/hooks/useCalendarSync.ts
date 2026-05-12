@@ -90,7 +90,9 @@ export function useCalendarSync() {
         notes: event.notes,
         completed: false,
         recurring: event.recurring,
-      } as any).then(() => {});
+      } as any).then(() => {
+          console.warn("[calendar-sync] insert completed (no error check possible)");
+        });
     }
   }, [events, saveEvents, supabaseId]);
 

@@ -61,7 +61,7 @@ export default function Store() {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-32">
         <div className="max-w-3xl mx-auto px-4 md:px-8 pt-20 space-y-5">
-          <button onClick={() => navigate(-1)} className="glass-2 rounded-full w-10 h-10 flex items-center justify-center">
+          <button onClick={() => navigate(-1)} className="glass-2 rounded-full w-10 h-10 flex items-center justify-center" title="navigate(-1)} className='glass-2 rounded-full w-10 h-10 flex items-center jus…" aria-label="navigate(-1)} className='glass-2 rounded-full w-10 h-10 flex items-center jus…">
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
 
@@ -89,7 +89,7 @@ export default function Store() {
             <button
               onClick={() => navigate("/home")}
               className="block mx-auto mt-5 rounded-pill px-6 py-2.5 gradient-indigo text-white text-sm font-semibold"
-            >
+             title="navigate('/home')} className='block mx-auto mt-5 rounded-pill px-6 py-2.5 gra…" aria-label="navigate('/home')} className='block mx-auto mt-5 rounded-pill px-6 py-2.5 gra…">
               Discover providers
             </button>
           </GlassCard>
@@ -171,7 +171,7 @@ export default function Store() {
             className={`flex-1 rounded-pill py-2 text-xs font-medium transition-all ${
               filter === "available" ? "gradient-indigo text-white" : "text-muted-foreground"
             }`}
-          >
+           title="setFilter('available')} className= `} > Available ( )" aria-label="setFilter('available')} className= `} > Available ( )">
             Available ({availableRewards.length})
           </button>
           <button
@@ -179,7 +179,7 @@ export default function Store() {
             className={`flex-1 rounded-pill py-2 text-xs font-medium transition-all ${
               filter === "claimed" ? "gradient-indigo text-white" : "text-muted-foreground"
             }`}
-          >
+           title="setFilter('claimed')} className= `} > My claims ( )" aria-label="setFilter('claimed')} className= `} > My claims ( )">
             My claims ({myRedemptions.length})
           </button>
         </div>
@@ -277,7 +277,7 @@ export default function Store() {
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-foreground">Claim reward</h3>
-                <button onClick={() => setClaimingId(null)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
+                <button onClick={() => setClaimingId(null)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center" title="setClaimingId(null)} className='w-8 h-8 glass-1 rounded-full flex items-cente…" aria-label="setClaimingId(null)} className='w-8 h-8 glass-1 rounded-full flex items-cente…">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
@@ -384,7 +384,7 @@ function RewardCard({ reward, tierLabel, onClaim }: { reward: any; tierLabel: st
             {reward.stock_remaining} of {reward.stock_qty} left
           </span>
           <button onClick={onClaim}
-            className="rounded-pill px-3 py-1.5 gradient-indigo text-white text-xs font-semibold">
+            className="rounded-pill px-3 py-1.5 gradient-indigo text-white text-xs font-semibold" title="Claim free" aria-label="Claim free">
             Claim free
           </button>
         </div>

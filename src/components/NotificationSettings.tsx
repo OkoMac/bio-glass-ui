@@ -44,7 +44,7 @@ function Toggle({ label, description, icon, checked, disabled, onChange }: Toggl
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className={`w-11 h-6 rounded-full transition-colors relative ${checked ? "bg-indigo" : "bg-white/10"}`}
-      >
+       title="onChange(!checked)} className= `} >" aria-label="onChange(!checked)} className= `} >">
         <div className={`w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform ${checked ? "translate-x-[22px]" : "translate-x-0.5"}`} />
       </button>
     </div>
@@ -83,7 +83,7 @@ export default function NotificationSettings() {
             className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${
               tab === t ? "gradient-indigo text-primary-foreground" : "text-muted-foreground"
             }`}
-          >
+           title="setTab(t)} className= `} >" aria-label="setTab(t)} className= `} >">
             {t === "channels" ? "Channels" : t === "categories" ? "Categories" : "Quiet Hours"}
           </button>
         ))}
@@ -261,7 +261,7 @@ export default function NotificationSettings() {
                   className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                     prefs.daily_cap === n ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
                   }`}
-                >
+                 title="update('daily_cap', n)} className= `} >" aria-label="update('daily_cap', n)} className= `} >">
                   {n}
                 </button>
               ))}

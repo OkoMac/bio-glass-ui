@@ -152,7 +152,7 @@ function OrderDetailSheet({ order, onClose }: { order: OrderRow; onClose: () => 
           <button
             onClick={() => setDisputing(true)}
             className="w-full py-2.5 rounded-xl bg-coral/10 text-coral hover:bg-coral/20 text-xs font-semibold transition-colors"
-          >
+           title="setDisputing(true)} className='w-full py-2.5 rounded-xl bg-coral/10 text-cora…" aria-label="setDisputing(true)} className='w-full py-2.5 rounded-xl bg-coral/10 text-cora…">
             {order.status === "disputed" ? "View dispute" : "Report a problem"}
           </button>
         )}
