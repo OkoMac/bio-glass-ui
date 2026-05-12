@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
-import { Search, MapPin, SlidersHorizontal, Navigation, Star, Clock, ChevronRight, ChevronDown, X, Plus, Lock, Phone, ArrowLeft, Globe, ExternalLink, Send, Sun, Moon } from "lucide-react";
+import { Search, MapPin, SlidersHorizontal, Navigation, Star, ChevronRight, ChevronDown, X, Plus, Phone, ArrowLeft, Globe, ExternalLink, Send, Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
 import BookingRequestForm from "@/components/BookingRequestForm";
 import { useGeolocation } from "@/hooks/useGeolocation";

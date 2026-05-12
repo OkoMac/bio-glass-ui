@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import BioAvatar from "./BioAvatar";
-import { Calendar, Clock, Share2, MessageCircle } from "lucide-react";
+import { Calendar, MessageCircle } from "lucide-react";
 import { getBookingConfirmationUrl, openWhatsApp } from "@/lib/whatsapp";
 
 interface BookingCelebrationProps {

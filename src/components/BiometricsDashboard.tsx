@@ -1,8 +1,7 @@
 import { motion } from "framer-motion";
 import {
   Heart, Activity, Droplets, Moon, Flame, Footprints,
-  Scale, TrendingUp, TrendingDown, Wind, Brain, Dumbbell, Plus,
-  Smartphone,
+  Scale, TrendingUp, TrendingDown, Smartphone,
 } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { useHealthLogs } from "@/hooks/useHealth";

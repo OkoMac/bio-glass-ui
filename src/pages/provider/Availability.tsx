@@ -6,7 +6,7 @@ import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Clock, Plus, X, ChevronDown, CheckCircle, Calendar, AlertTriangle, Loader2, ArrowLeft } from "lucide-react";
+import { Clock, Plus, X, ChevronDown, CheckCircle, Calendar, AlertTriangle, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { getSASTDateKey } from "../../utils/sastDate";
 

@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Users, User, GraduationCap, Target } from "lucide-react";
+import { LayoutDashboard, User, GraduationCap, Target } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const tabs = [

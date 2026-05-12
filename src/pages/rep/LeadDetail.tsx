@@ -4,12 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import RepNav from "@/components/RepNav";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { getAuthHeaders } from "@/lib/authFetch";
 import {
   ArrowLeft, Phone, MessageCircle, Mail, Users as UsersIcon,
-  Monitor, Clock, FileText, Save, ExternalLink, ChevronDown,
-  Plus, X,
+  Monitor, Clock, FileText, Save, ExternalLink, Plus, X,
 } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";

@@ -7,9 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import ServiceCategoryBlock, { SERVICE_CATEGORIES, type ServiceCategory } from "@/components/ServiceCategoryBlock";
 import { getProviderImage, hasCustomImage } from "@/lib/providerImages";
 import {
-  Search, Star, MapPin, CheckCircle, XCircle, Eye, Pause, Play,
-  MessageSquare, Plus, ChevronRight, X, Settings, Lock, Phone, Mail,
-  SlidersHorizontal, UserPlus, ArrowLeft, Globe, ExternalLink,
+  Search, Star, MapPin, CheckCircle, Eye, Pause, MessageSquare, X, Settings, Phone, Mail,
+  UserPlus, ArrowLeft, Globe, ExternalLink,
 } from "lucide-react";
 
 import realData from "@/data/bion_pretoria_data.json";

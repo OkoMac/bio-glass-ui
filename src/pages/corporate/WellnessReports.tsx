@@ -5,9 +5,9 @@ import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { getSASTDateKey } from "@/utils/sastDate";
 import {
-  ArrowLeft, BarChart3, Users, DollarSign, Calendar,
+  ArrowLeft, Users, DollarSign, Calendar,
   TrendingUp, Download, Loader2, Heart, Activity,
-  ChevronRight, ClipboardList,
+  ClipboardList,
 } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";

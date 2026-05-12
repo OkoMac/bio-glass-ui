@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import GlassCard from "./GlassCard";
 import BioAvatar from "./BioAvatar";
 import { Star, MapPin, Clock } from "lucide-react";

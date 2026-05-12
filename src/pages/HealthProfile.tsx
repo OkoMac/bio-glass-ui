@@ -27,7 +27,6 @@ function computeBMI(weightKg: number, heightCm: number | null | undefined): { va
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
-import { usePageView } from "@/hooks/usePageView";
 import { getSASTDateKey } from "@/utils/sastDate";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -38,7 +37,7 @@ import { getProviderImage } from "@/lib/providerImages";
 // Connected providers loaded dynamically from user's bookings
 import {
   ArrowLeft, Heart, Activity, Shield, Pill, AlertTriangle,
-  Target, TrendingUp, Edit3, ChevronRight, CheckCircle,
+  TrendingUp, ChevronRight, CheckCircle,
   Scale, Dna, Eye, Lock, X, Plus, EyeOff, AlertCircle
 } from "lucide-react";
 

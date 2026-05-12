@@ -8,7 +8,7 @@ import { trackEvent } from "@/lib/habits";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
-import { useMessages, useUnreadCount } from "@/hooks/useMessages";
+import { useMessages } from "@/hooks/useMessages";
 import { useConversations } from "@/hooks/useMessaging";
 import { supabase } from "@/integrations/supabase/client";
 import { getProviderImage } from "@/lib/providerImages";

@@ -6,8 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   ArrowLeft, Copy, Share2, CheckCircle, Users, DollarSign,
-  TrendingUp, Award, Loader2, Gift, ChevronRight, ExternalLink,
-} from "lucide-react";
+  TrendingUp, Award, Loader2, Gift, } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 

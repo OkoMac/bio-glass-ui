@@ -7,7 +7,7 @@ import BionAssistant from "@/components/BionAssistant";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useProviderAvailability, AvailabilitySlot, AvailabilityOverride } from "@/hooks/useProviderAvailability";
 import { getProviderImage } from "@/lib/providerImages";
-import { ChevronLeft, ChevronRight, Clock, User, MessageSquare, X, Plus, Calendar, ArrowLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, MessageSquare, X, Plus, Calendar, ArrowLeft } from "lucide-react";
 
 interface Booking {
   id: string;

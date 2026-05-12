@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
 import BionAssistant from "@/components/BionAssistant";
-import { TrendingUp, TrendingDown, Users, Zap, Target, Award, ArrowLeft, } from "lucide-react";
+import { TrendingUp, TrendingDown, Users, Zap, } from "lucide-react";
 
 // SVG line chart
 function LineChart({ data, color, height = 80 }: { data: number[]; color: string; height?: number }) {

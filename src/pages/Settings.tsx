@@ -8,10 +8,10 @@ import { useWallet } from "@/hooks/useWallet";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Bell, CreditCard, Eye, User, ChevronLeft, Save, Check,
-  Smartphone, Mail, Shield, Trash2, Plus, Loader2, Download,
+  Mail, Shield, Trash2, Plus, Loader2, Download,
   AlertTriangle, FileText, X, Cookie, ArrowRight,
 } from "lucide-react";
-import CookieConsent, { openCookieBanner } from "@/components/CookieConsent";
+import { openCookieBanner } from "@/components/CookieConsent";
 import NotificationSettings from "@/components/NotificationSettings";
 import { getConsent, onConsentChanged, type ConsentState } from "@/lib/cookieConsent";
 import { trackedFetch } from "@/lib/errorReporter";

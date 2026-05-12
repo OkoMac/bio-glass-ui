@@ -9,16 +9,13 @@ import { useBookings, BookingStatus } from "@/contexts/BookingsContext";
 import { useBioPoints } from "@/hooks/useBioPoints";
 import { useStreaks } from "@/hooks/useStreaks";
 import {
-  Shield, Star, Award, Flame, Gift, Lock,
-  LogOut, CreditCard, Bell, Eye, Activity, Trophy, Settings,
-  Copy, Share2, CheckCircle, MessageCircle, Camera,
+  Shield, Star, Award, Flame, Gift, LogOut, CreditCard, Bell, Eye, Activity, Trophy, Copy, Share2, CheckCircle, MessageCircle, Camera,
   Mail, Phone, MapPin, Cake, Plus, Edit3, X, Save, User,
   Droplets, Moon, HeartPulse, Brain, Utensils, CalendarDays,
   BarChart3, Dumbbell, FileText, Wallet, LifeBuoy, ArrowLeft, Pill,
 } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import { getReferralShareUrl, openWhatsApp } from "@/lib/whatsapp";
-import { ImagePickerOverlay } from "@/components/ImagePickerOverlay";
 import { getProviderImage } from "@/lib/providerImages";
 import { validateSaPhone } from "@/lib/saPhoneValidator";
 import { useImageUpload } from "@/hooks/useUpload";

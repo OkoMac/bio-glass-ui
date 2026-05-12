@@ -6,7 +6,7 @@ import BioAvatar from "@/components/BioAvatar";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
 import SubscriptionGate from "@/components/SubscriptionGate";
-import { Search, MessageSquare, ChevronRight, AlertTriangle, Star, Plus, X, Send, UserPlus, ArrowLeft } from "lucide-react";
+import { Search, MessageSquare, ChevronRight, AlertTriangle, Star, X, Send, UserPlus, ArrowLeft } from "lucide-react";
 
 interface Client {
   id: string; name: string; image: string; vertical: "teal" | "indigo" | "coral" | "amber";

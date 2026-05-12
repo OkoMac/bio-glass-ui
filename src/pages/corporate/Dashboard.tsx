@@ -10,10 +10,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useCorporateAnalytics } from "@/hooks/useCorporateAnalytics";
 import { getSastGreeting } from "@/lib/greeting";
 import {
-  Users, TrendingUp, Wallet, Star, ChevronRight,
-  ArrowUpRight, ArrowDownRight, Zap, Calendar, BarChart2,
+  Users, Wallet, Star, ChevronRight,
+  ArrowUpRight, ArrowDownRight, Zap, BarChart2,
   Briefcase, UserPlus, Link2, Plus, X, Shield, AlertTriangle,
-ArrowLeft, } from "lucide-react";
+} from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
@@ -12,9 +12,8 @@ import { getSASTDateKey } from "@/utils/sastDate";
 import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
 import { trackEvent } from "@/lib/habits";
 import {
-  ArrowLeft, Camera, Plus, X, Flame, TrendingUp, TrendingDown,
-  Utensils, Droplets, Apple, Coffee, Moon, Sun, ChevronRight,
-  Target, Trash2, Image, Zap, Clock, AlertTriangle, History, Calendar
+  ArrowLeft, Camera, Plus, X, Flame, Utensils, Droplets, Apple, Coffee, Moon, Sun, ChevronRight,
+  Target, Trash2, Image, History, Calendar
 } from "lucide-react";
 
 /* ── Types ──────────────────────────────────────────── */

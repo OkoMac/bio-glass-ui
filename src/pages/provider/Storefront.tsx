@@ -9,8 +9,7 @@ import { useMyProducts, Product } from "@/hooks/useProducts";
 import { useSubscription } from "@/hooks/useSubscription";
 import ImageUpload from "@/components/ImageUpload";
 import {
-  Store, Package, Plus, X, Loader2, Check, AlertTriangle, Eye, EyeOff,
-  TrendingUp, ShoppingBag, MapPin, Settings as SettingsIcon, Edit3, Trash2, ArrowLeft,
+  Store, Package, Plus, X, Loader2, AlertTriangle, TrendingUp, ShoppingBag, MapPin, Settings as SettingsIcon, Trash2, ArrowLeft,
 } from "lucide-react";
 
 export default function ProviderStorefront() {

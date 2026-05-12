@@ -7,8 +7,7 @@ import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Building2, Users, Bell, CreditCard, Save, Check,
-  Shield, Zap, ChevronDown,
-ArrowLeft, } from "lucide-react";
+  Shield, Zap, } from "lucide-react";
 
 /* ─── helpers ───────────────────────────────────────────────────────────── */
 type Tab = "company" | "wellness" | "notifications" | "billing";

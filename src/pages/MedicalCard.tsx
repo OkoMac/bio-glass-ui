@@ -11,7 +11,7 @@ import { getSASTDateKey } from "@/utils/sastDate";
 import AdBanner from "@/components/AdBanner";
 import {
   ArrowLeft, Heart, QrCode, Shield, Phone, User, Pill,
-  AlertTriangle, X, Share2, Plus, Trash2, Edit3, Save, Camera, Loader2,
+  AlertTriangle, X, Share2, Plus, Edit3, Save, Camera, Loader2,
   BookOpen, Sparkles,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";

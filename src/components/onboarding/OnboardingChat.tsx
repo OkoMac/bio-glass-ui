@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { X, Send, Bot, Loader2 } from "lucide-react";
 import type { ChatMessage, CrawlResult } from "@/types/onboarding";
 import { getAIResponse, buildInitialMessages } from "@/lib/onboardingAI";

@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Sparkles, Flame, Target, Calendar, TrendingUp, Brain,
-  Apple, Dumbbell, Heart, Pill, Clock, ChevronRight, Bell, UserCheck, Mail, ExternalLink,
-  LifeBuoy, Download } from "lucide-react";
+import { X, Send, Target, Calendar, TrendingUp, Brain,
+  Apple, Dumbbell, Heart, Pill, Clock, Bell, UserCheck, LifeBuoy, Download } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { getReminderSummary, getActiveReminders, requestNotificationPermission, fireReminderNotifications } from "@/lib/reminders";

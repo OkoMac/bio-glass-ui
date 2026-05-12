@@ -8,7 +8,7 @@ import ProviderDisputePanel from "@/components/provider/ProviderDisputePanel";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import {
-  Package, Truck, Check, X, Loader2, ShoppingBag, MapPin, Home, Clock, AlertCircle, ArrowLeft,
+  Package, Truck, X, Loader2, ShoppingBag, MapPin, Home, ArrowLeft,
 } from "lucide-react";
 
 interface Order {

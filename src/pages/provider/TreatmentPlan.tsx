@@ -10,8 +10,7 @@ import { getSASTDateKey } from "@/utils/sastDate";
 import {
   ArrowLeft, Plus, Trash2, ClipboardList, Pill, Dumbbell,
   Apple, Brain, Sparkles, Loader2, ChevronDown, ChevronUp,
-  Calendar, X, Check,
-} from "lucide-react";
+  Calendar, X, } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 

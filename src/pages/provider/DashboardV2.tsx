@@ -6,7 +6,7 @@ import ProviderNav from "@/components/ProviderNav";
 import {
   Users, Calendar, TrendingUp, Package,
   Image, Target, BarChart, MessageSquare,
-  ChevronRight, Sparkles, Lock, ArrowLeft,
+  ChevronRight, Sparkles, ArrowLeft,
 } from "lucide-react";
 
 // This is the NEW enhanced provider dashboard

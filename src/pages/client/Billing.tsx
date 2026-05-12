@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import {
   CreditCard, Heart, Activity, TrendingUp, Check,
-  Shield, Zap, Target, BarChart, Smartphone, Bell,
+  Shield, Target, BarChart, Smartphone, Bell,
   Crown, Star, CheckCircle, Loader2, ArrowLeft,
 } from "lucide-react";
 

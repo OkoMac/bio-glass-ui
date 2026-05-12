@@ -10,8 +10,7 @@ import { useProviderData } from "@/data/useProviderData";
 import { getSASTDateKey } from "@/utils/sastDate";
 import {
   ArrowLeft, ChevronLeft, ChevronRight, Plus, X, Calendar,
-  Dumbbell, Apple, Pill, Heart, Stethoscope, Sparkles, Eye,
-  Clock, Target, MapPin, Check
+  Dumbbell, Apple, Pill, Heart, Stethoscope, Sparkles, Clock, Target, MapPin, Check
 } from "lucide-react";
 
 /* ── Types ──────────────────────────────────────────── */

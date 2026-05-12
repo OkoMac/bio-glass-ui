@@ -20,7 +20,7 @@ import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
-import { Save, Loader2, ArrowLeft, Edit2, Check, X } from "lucide-react";
+import { Loader2, ArrowLeft, Edit2, Check, X } from "lucide-react";
 
 interface Constant {
   key: string;

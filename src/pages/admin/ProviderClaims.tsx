@@ -22,7 +22,7 @@ import AdminTokenGate from "@/components/AdminTokenGate";
 import { supabase } from "@/integrations/supabase/client";
 import {
   UserCheck, CheckCircle, XCircle, Loader2, AlertCircle, Clock,
-  Phone, Mail, Briefcase, ShieldCheck, Sparkles,
+  Phone, Mail, Briefcase, Sparkles,
 ArrowLeft, } from "lucide-react";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";

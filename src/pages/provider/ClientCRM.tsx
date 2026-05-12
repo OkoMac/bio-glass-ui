@@ -6,8 +6,8 @@ import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import {
   Users, User, Calendar, MessageSquare, Phone, Mail,
-  TrendingUp, Target, Clock, Star, Filter, Search,
-  Plus, Edit, Trash2, ChevronRight, Sparkles,
+  TrendingUp, Target, Star, Filter, Search,
+  Plus, Edit, ChevronRight, Sparkles,
   CheckCircle, AlertCircle, Clock as ClockIcon, ArrowLeft,
 } from "lucide-react";
 

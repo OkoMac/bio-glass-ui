@@ -10,7 +10,6 @@ import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import { getAuthHeaders } from "@/lib/authFetch";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 

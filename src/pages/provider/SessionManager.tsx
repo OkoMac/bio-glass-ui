@@ -6,8 +6,8 @@ import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import {
   Calendar, Clock, Users, Video, Home, MapPin,
-  Plus, Edit, Trash2, Check, X, ChevronRight,
-  Sparkles, Lock, TrendingUp, ArrowLeft,
+  Plus, ChevronRight,
+  Sparkles, TrendingUp, ArrowLeft,
 } from "lucide-react";
 
 // Session Management System for Gym Providers

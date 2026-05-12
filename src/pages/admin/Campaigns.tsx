@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { getSASTDateKey } from "@/utils/sastDate";
 import {
-  ArrowLeft, Plus, Sparkles, Trash2, Edit3, Calendar,
-  Loader2, Tag, MapPin, ChevronRight,
-} from "lucide-react";
+  ArrowLeft, Plus, Sparkles, Trash2, Calendar,
+  Loader2, Tag, MapPin, } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 

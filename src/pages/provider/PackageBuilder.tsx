@@ -6,7 +6,7 @@ import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import {
   Package, Tag, Users, Calendar, TrendingUp,
-  Plus, Edit, Trash2, Check, X, ChevronRight,
+  Plus, ChevronRight,
   Sparkles, CreditCard, Percent, Clock, ArrowLeft,
 } from "lucide-react";
 

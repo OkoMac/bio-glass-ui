@@ -13,7 +13,7 @@ import realData from "@/data/bion_pretoria_data.json";
 import {
   ArrowLeft, ChevronRight, CheckCircle, Circle, Plus, X,
   Dumbbell, Apple, Stethoscope, Play, Eye, EyeOff, Shield, Pill, Heart, Activity,
-  Clock, Calendar, Flame, ChevronDown, Trash2, Share2, Camera, Sparkles, Loader2,
+  Calendar, Flame, Trash2, Camera, Sparkles, Loader2,
 } from "lucide-react";
 
 /* ── Types ─────────────────────────────────────────── */

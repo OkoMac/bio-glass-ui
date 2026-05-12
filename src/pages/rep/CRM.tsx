@@ -6,10 +6,9 @@ import NudgePopup from "@/components/NudgePopup";
 import GlassCard from "@/components/GlassCard";
 import RepNav from "@/components/RepNav";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { getAuthHeaders } from "@/lib/authFetch";
 import {
-  Search, Plus, Phone, MessageCircle, FileText, ChevronRight,
+  Search, Plus, Phone, MessageCircle, ChevronRight,
   ArrowLeft, Filter, Users, Sparkles, X,
 } from "lucide-react";
 

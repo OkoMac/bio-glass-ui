@@ -3,12 +3,12 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import NudgePopup from "@/components/NudgePopup";
 import {
-  BarChart, Bar, LineChart, Line,
+  BarChart, Bar, Line,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
   ComposedChart,
 } from "recharts";
 import {
-  TrendingUp, TrendingDown, Users, Crown, Lock, ArrowRight,
+  TrendingUp, Users, Crown, Lock, ArrowRight,
   Loader2, ArrowLeft, Eye, CalendarCheck, DollarSign,
   Star, Clock, Lightbulb, BarChart3, UserCheck,
 } from "lucide-react";

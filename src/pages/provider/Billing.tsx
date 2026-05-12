@@ -9,9 +9,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { PROVIDER_TIER_PRICING } from "@/lib/subscription";
 import {
-  CreditCard, TrendingUp, CheckCircle, Download,
-  Building2, Zap, Shield, Clock, Check, Loader2, ArrowLeft,
-  AlertCircle, Search, ChevronRight, Crown, Star,
+  CreditCard, CheckCircle, Building2, Zap, Loader2, ArrowLeft,
+  AlertCircle, Search, Crown, Star,
 } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";

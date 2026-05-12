@@ -11,7 +11,7 @@ import { AdminMfaProvider, useAdminMfa } from "@/hooks/useAdminMfa";
 import { toast } from "sonner";
 import {
   CheckCircle, XCircle, Clock, Loader2, FileText, User,
-  ExternalLink, Filter, AlertCircle, Award, CreditCard, Shield, Building2,
+  ExternalLink, AlertCircle, Award, CreditCard, Shield, Building2,
   Sparkles, Search,
 ArrowLeft, } from "lucide-react";
 

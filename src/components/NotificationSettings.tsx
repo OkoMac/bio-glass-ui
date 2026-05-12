@@ -16,8 +16,7 @@ import { useNotificationPreferences, type NotificationPreferences } from "@/hook
 import {
   Bell, Mail, MessageSquare, Smartphone,
   Shield, CreditCard, Heart, TrendingUp, Briefcase, Megaphone,
-  Moon, Clock, Loader2, Check,
-} from "lucide-react";
+  Moon, Clock, Loader2, } from "lucide-react";
 
 type Tab = "channels" | "categories" | "quiet";
 

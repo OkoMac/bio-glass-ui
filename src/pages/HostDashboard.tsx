@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import {
   ArrowLeft, Copy, Download, QrCode, Eye, Users, CalendarCheck,
-  CheckCircle, Loader2, Printer, Heart, ExternalLink,
+  CheckCircle, Loader2, Printer, ExternalLink,
 } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";

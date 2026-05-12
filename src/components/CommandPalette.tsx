@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, Star, User, Calendar, Settings, Heart, MessageSquare, X } from "lucide-react";
+import { Search, MapPin, User, Calendar, Settings, Heart, MessageSquare } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface SearchResult {

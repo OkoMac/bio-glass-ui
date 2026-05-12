@@ -6,7 +6,7 @@ import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import BionAssistant from "@/components/BionAssistant";
 import { ServiceCoverPicker } from "@/components/ImagePickerOverlay";
-import { Plus, Pencil, Trash2, Check, X, Clock, Zap, Loader2, ArrowLeft, Users, CalendarDays } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Clock, Zap, Loader2, ArrowLeft, Users, CalendarDays } from "lucide-react";
 import { useBookings } from "@/contexts/BookingsContext";
 import {
   useProviderServices,

@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import GlassCard from "@/components/GlassCard";
 import RepNav from "@/components/RepNav";
-import { User, Mail, Phone, MapPin, LogOut, Shield, Copy, Check, ArrowLeft } from "lucide-react";
+import { User, Mail, Phone, LogOut, Shield, Copy, Check, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { signOutSupabase } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";

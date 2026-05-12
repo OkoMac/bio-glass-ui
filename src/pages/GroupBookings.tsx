@@ -5,8 +5,7 @@ import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import {
-  ArrowLeft, CalendarDays, Clock, Users, MapPin, Filter,
-  Loader2, Check, Share2, Sparkles,
+  ArrowLeft, CalendarDays, Clock, Users, Loader2, Share2, Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 

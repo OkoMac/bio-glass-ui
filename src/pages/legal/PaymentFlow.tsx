@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, CreditCard, ArrowRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import GlassCard from "@/components/GlassCard";
 
 export default function PaymentFlow() {

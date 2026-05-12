@@ -6,8 +6,8 @@ import AdminTokenGate from "@/components/AdminTokenGate";
 import GlassCard from "@/components/GlassCard";
 import { authFetch } from "@/lib/authFetch";
 import {
-  Target, Users, TrendingUp, Search, ChevronDown, ChevronRight,
-  Phone, Mail, MapPin, Calendar, Award, AlertTriangle, Loader2,
+  Target, Users, Search, ChevronDown, ChevronRight,
+  Phone, Mail, MapPin, Loader2,
 ArrowLeft, } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";

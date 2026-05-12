@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "./GlassCard";
 import BioAvatar from "./BioAvatar";
-import { X, ChevronLeft, CreditCard, Shield, Lock, AlertCircle, Check, Loader2 } from "lucide-react";
+import { X, ChevronLeft, CreditCard, Shield, Check } from "lucide-react";
 import BookingCelebration from "./BookingCelebration";
 import { haptics } from "@/lib/haptics";
 import StripePaymentForm from "./StripePaymentForm";

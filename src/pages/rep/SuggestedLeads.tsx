@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import RepNav from "@/components/RepNav";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { getAuthHeaders } from "@/lib/authFetch";
 import {
   ArrowLeft, Sparkles, MapPin, Star, Plus, Check,

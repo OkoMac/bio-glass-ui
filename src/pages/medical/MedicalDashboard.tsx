@@ -6,8 +6,8 @@ import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import {
   Stethoscope, FileText, Pill, Shield, User,
-  Calendar, Clock, TrendingUp, AlertCircle, CheckCircle,
-  Filter, Search, Plus, Edit, Trash2, ChevronRight,
+  Calendar, TrendingUp, CheckCircle,
+  Plus, ChevronRight,
   Sparkles as SparklesIcon, Clipboard, Heart,
   ArrowLeft,
 } from "lucide-react";

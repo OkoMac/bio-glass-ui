@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
@@ -6,13 +6,11 @@ import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
-import { usePageView } from "@/hooks/usePageView";
 import { getSASTDateKey } from "@/utils/sastDate";
 import { useNotifications as useDbNotifications, type DbNotification } from "@/hooks/useNotifications";
-import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Bell, Calendar, MessageSquare, Flame,
-  Gift, Zap, CheckCheck, Trash2, Settings, BellOff, DollarSign, Clock, Star, Loader2,
+  Gift, Zap, Trash2, Settings, BellOff, DollarSign, Clock, Star, Loader2,
 } from "lucide-react";
 import { getActiveReminders, dismissReminder, type Reminder } from "@/lib/reminders";
 

@@ -6,7 +6,7 @@ import CorporateNav from "@/components/CorporateNav";
 import BionAssistant from "@/components/BionAssistant";
 import {
   Search, Briefcase, MapPin, Star, Plus, X, Trash2, CheckCircle,
-ArrowLeft, } from "lucide-react";
+} from "lucide-react";
 
 interface PreferredProvider {
   id: string;

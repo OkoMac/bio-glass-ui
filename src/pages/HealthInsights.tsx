@@ -15,7 +15,7 @@ import { deriveInsights } from "@/lib/insights";
 import {
   ArrowLeft, AlertTriangle, CheckCircle, AlertCircle, TrendingUp,
   TrendingDown, Heart, Brain, Droplets, Moon, Dumbbell, Apple,
-  Pill, Sparkles, Activity, Eye, Shield, Flame, Smartphone,
+  Sparkles, Activity, Smartphone,
   WifiOff, ChevronRight
 } from "lucide-react";
 

@@ -9,10 +9,8 @@ import { useBookings } from "@/contexts/BookingsContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getProviderImage } from "@/lib/providerImages";
 import {
-  ArrowLeft, MessageSquare, Calendar, Star, AlertTriangle,
-  CheckCircle, Plus, Send, Award, Flame, ClipboardList,
-  TrendingUp, Activity, FileText, Gift, ChevronRight,
-  Clock, Target, Edit3, Trash2, X, Users, Loader2
+  ArrowLeft, MessageSquare, Calendar, Star, CheckCircle, Plus, Award, ClipboardList,
+  FileText, Gift, Target, Edit3, Users, Loader2
 } from "lucide-react";
 
 /* ── Client CRM data types ─────────── */

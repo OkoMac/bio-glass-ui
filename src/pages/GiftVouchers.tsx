@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import {
-  ArrowLeft, Gift, Heart, Send, Check, Loader2, CreditCard,
-  Copy, Sparkles,
-} from "lucide-react";
+  ArrowLeft, Gift, Send, Check, Loader2, Copy, } from "lucide-react";
 import { toast } from "sonner";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";

@@ -5,7 +5,7 @@ import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { FileText, CheckCircle2, Shield, ArrowLeft } from "lucide-react";
+import { CheckCircle2, Shield, ArrowLeft } from "lucide-react";
 
 const SECTIONS = [
   {

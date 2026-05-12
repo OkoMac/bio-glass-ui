@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import {
   LayoutDashboard, CalendarDays, BookOpen, Users,
   MessageSquare, BarChart3, Clock, Settings, Shield,
-  LogOut, Tag, ChevronRight, Banknote, ClipboardList, Store, ShoppingBag,
+  LogOut, Tag, Banknote, ClipboardList, Store, ShoppingBag,
   Book, UserPlus, MapPin, ListOrdered, Menu,
 } from "lucide-react";
 import {

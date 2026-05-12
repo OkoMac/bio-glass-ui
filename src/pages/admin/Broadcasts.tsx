@@ -1,13 +1,10 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
 import { useAuth } from "@/contexts/AuthContext";
 import {
-  ArrowLeft, Plus, Send, Clock, CheckCircle, Users,
-  Loader2, MessageSquare, BarChart3, AlertTriangle,
-} from "lucide-react";
+  ArrowLeft, Plus, Send, Clock, CheckCircle, Loader2, MessageSquare, BarChart3, } from "lucide-react";
 import { AdminMfaProvider, useAdminMfa } from "@/hooks/useAdminMfa";
 import { toast } from "sonner";
 

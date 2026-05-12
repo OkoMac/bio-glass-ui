@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Upload, FileText, Shield, CheckCircle, AlertCircle,
-  Clock, Camera, X, Eye, Trash2, CreditCard, Award, Building2, Loader2
+  Clock, Eye, Trash2, CreditCard, Award, Building2, Loader2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 

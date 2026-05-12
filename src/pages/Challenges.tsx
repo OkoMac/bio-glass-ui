@@ -7,8 +7,8 @@ import BionAssistant from "@/components/BionAssistant";
 import { useChallenges } from "@/hooks/useChallenges";
 import { toast } from "sonner";
 import {
-  Flame, Trophy, Users, Target, Clock, CheckCircle,
-  Lock, ChevronRight, Medal, Star, Zap, Plus, Loader2, ArrowLeft, X,
+  Flame, Trophy, Users, Clock, CheckCircle,
+  Lock, ChevronRight, Loader2, ArrowLeft, X,
 } from "lucide-react";
 
 /* ── types ───────────────────────────────────────────────────── */

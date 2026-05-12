@@ -6,12 +6,10 @@ import AdminTokenGate from "@/components/AdminTokenGate";
 import GlassCard from "@/components/GlassCard";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
-import { getAuthHeaders } from "@/lib/authFetch";
 import {
   ArrowLeft, Send, MessageSquare, Mail, Phone, Clock,
   Users, TrendingUp, CheckCircle, AlertCircle, Loader2,
-  RefreshCw, Calendar, ExternalLink,
-} from "lucide-react";
+  RefreshCw, Calendar, } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 

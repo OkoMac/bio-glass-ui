@@ -15,7 +15,7 @@ import {
   DEMO_ACCOUNTS, BioUser, UserRole,
   signInWithEmail, signUpWithEmail, signInWithGoogle,
 } from "@/lib/auth";
-import { ShieldCheck, Briefcase, User, Building2, TrendingUp, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Briefcase, User, Building2, TrendingUp, Eye, EyeOff, Loader2 } from "lucide-react";
 
 type OnboardingStep = {
   type: "default" | "flow";

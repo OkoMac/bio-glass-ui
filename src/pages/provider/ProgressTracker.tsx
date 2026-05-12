@@ -5,9 +5,8 @@ import { FeatureGate } from "@/components/FeatureGate";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import {
-  Image, TrendingUp, Target, BarChart, Ruler, Weight,
-  Camera, CheckCircle, Clock, Users, Download, Share2,
-  Plus, Edit, Trash2, ChevronRight, Sparkles, Lock, ArrowLeft,
+  TrendingUp, Target, BarChart, Ruler, Camera, Users, Download, Share2,
+  Plus, ChevronRight, Sparkles, ArrowLeft,
 } from "lucide-react";
 
 // Progress Tracking System for Client Transformations

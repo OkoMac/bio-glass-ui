@@ -14,7 +14,7 @@ import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import { useNavigate } from "react-router-dom";
 import {
-  Users, Briefcase, CheckCircle, Clock, AlertTriangle, ShieldCheck,
+  Users, Briefcase, Clock, AlertTriangle, ShieldCheck,
   Banknote, TrendingUp, RefreshCw,
 } from "lucide-react";
 import { authFetch } from "@/lib/authFetch";

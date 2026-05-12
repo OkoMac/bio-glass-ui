@@ -6,10 +6,9 @@ import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
 import {
   Scissors, Palette, Droplets, Sparkles, User,
-  Calendar, Clock, TrendingUp, Package, Star,
-  Filter, Search, Plus, Edit, Trash2, ChevronRight,
-  Sparkles as SparklesIcon, AlertCircle, CheckCircle,
-  ArrowLeft,
+  Calendar, TrendingUp, Package, Star,
+  Plus, ChevronRight,
+  Sparkles as SparklesIcon, ArrowLeft,
 } from "lucide-react";
 
 // Beauty Vertical Dashboard

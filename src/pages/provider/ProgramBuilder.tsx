@@ -8,7 +8,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Plus, Trash2, ChevronDown, ChevronUp, Check,
+  Plus, Trash2, Check,
   ArrowLeft, Loader2, Lock, CreditCard, Send, Rocket, Pencil,
 } from "lucide-react";
 
