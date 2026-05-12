@@ -500,7 +500,10 @@ export default function Routines() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [customExercises, setCustomExercises] = useState<Exercise[]>([]);
+  // Seed with the workout template so the editable list isn't empty on
+  // first modal open — user instantly sees rows with X to remove and
+  // an input to add more, no read-only step in between.
+  const [customExercises, setCustomExercises] = useState<Exercise[]>(() => EXERCISE_TEMPLATES.workout ?? []);
   const [newExName, setNewExName] = useState("");
   const [newExSets, setNewExSets] = useState("");
   // Validation flags painted onto inputs after a failed Create attempt.
@@ -594,7 +597,7 @@ export default function Routines() {
     };
     syncAddRoutine(routine);
     setNewRoutine({ title: "", type: "workout", schedule: "", totalDays: 28 });
-    setCustomExercises([]);
+    setCustomExercises(EXERCISE_TEMPLATES.workout ?? []);
     setCreateErrors({});
     setShowCreate(false);
     setExpanded(routine.id);
@@ -1008,14 +1011,14 @@ export default function Routines() {
                   <div className="flex gap-2 flex-wrap">
                     {(["workout", "cardio", "rehab", "meal", "skincare", "medication", "wellness", "beauty", "custom"] as const).map(t => (
                       <button key={t} onClick={() => {
-                        // Reset the customised exercises list when the
-                        // user switches type — otherwise the previous
-                        // type's exercises stay rendered under the new
-                        // label (reported 2026-04-28: switching to Meal
-                        // Plan still showed Squats / Bench Press / etc.).
-                        // Switching back into the same type lets the
-                        // EXERCISE_TEMPLATES default re-render fresh.
-                        if (t !== newRoutine.type) setCustomExercises([]);
+                        // Load the type's template into the editable
+                        // list immediately so the user sees actionable
+                        // rows (with X to remove, Add input below) the
+                        // moment they pick a type. Previously the
+                        // template appeared as a read-only preview with
+                        // open-circle bullets that looked tappable but
+                        // weren't — Oko hit this on Cardio 2026-05-12.
+                        setCustomExercises(EXERCISE_TEMPLATES[t] ?? []);
                         setNewRoutine(prev => ({ ...prev, type: t }));
                       }}
                         className={`px-3 py-1.5 rounded-pill text-xs font-medium border flex items-center gap-1.5 transition-all ${
@@ -1090,80 +1093,67 @@ export default function Routines() {
                   </div>
                 </div>
 
-                {/* Template preview or custom exercises */}
+                {/* Editable item list — always rendered. Type chip selection
+                    auto-loads its template into customExercises so users
+                    can immediately remove items they don't want or add
+                    new ones via the input below. */}
                 <div>
                   <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5 block">
-                    {newRoutine.type === "custom" ? "Add Exercises" : `Template (${typeLabel[newRoutine.type]})`}
+                    {newRoutine.type === "custom" ? "Add Exercises" : `${typeLabel[newRoutine.type]} — tap × to remove, add new below`}
                   </label>
 
-                  {newRoutine.type !== "custom" && customExercises.length === 0 && (
-                    <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] space-y-1.5">
-                      {(EXERCISE_TEMPLATES[newRoutine.type] ?? []).map((ex, i) => (
-                        <div key={i} className="flex items-center gap-2 text-xs">
-                          <Circle className="w-3 h-3 text-muted-foreground shrink-0" />
-                          <span className="flex-1 text-foreground">{ex.name}</span>
-                          <span className="text-[10px] text-muted-foreground">{ex.sets}</span>
-                        </div>
-                      ))}
-                      <p className="text-[9px] text-muted-foreground mt-2">You can customise {typeVocab[newRoutine.type]?.itemNoun ?? "items"} after creating.</p>
-                    </div>
-                  )}
-
-                  {/* Custom exercise input */}
-                  {(newRoutine.type === "custom" || customExercises.length > 0) && (
-                    <div className="space-y-2">
-                      {customExercises.map((ex, i) => (
-                        <div key={i} className="flex items-center gap-2 text-xs p-2 rounded-lg bg-white/[0.03]">
-                          <CheckCircle className="w-3 h-3 text-teal shrink-0" />
-                          <span className="flex-1 text-foreground">{ex.name}</span>
-                          <span className="text-[10px] text-muted-foreground">{ex.sets}</span>
-                          <button onClick={() => setCustomExercises(prev => prev.filter((_, j) => j !== i))}
-                            className="text-coral/60 hover:text-coral"><X className="w-3 h-3" /></button>
-                        </div>
-                      ))}
-                      <div className="flex gap-2">
-                        <input value={newExName} onChange={e => setNewExName(e.target.value)}
-                          placeholder={
-                            newRoutine.type === "meal" ? "Meal name (e.g. Breakfast)"
-                            : newRoutine.type === "medication" ? "Medication name"
-                            : newRoutine.type === "skincare" ? "Step name (e.g. Cleanser)"
-                            : newRoutine.type === "wellness" ? "Practice name (e.g. Meditation)"
-                            : newRoutine.type === "beauty" ? "Ritual name"
-                            : newRoutine.type === "rehab" ? "Movement name"
-                            : newRoutine.type === "cardio" ? "Activity (e.g. Running, Swimming, Hiking)"
-                            : "Exercise name"
-                          }
-                          onKeyDown={e => e.key === "Enter" && addCustomExercise()}
-                          className="flex-1 px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/08" />
-                        <input value={newExSets} onChange={e => setNewExSets(e.target.value)}
-                          placeholder={
-                            newRoutine.type === "meal" ? "kcal"
-                            : newRoutine.type === "medication" ? "Dose"
-                            : newRoutine.type === "skincare" || newRoutine.type === "beauty" ? "Freq"
-                            : newRoutine.type === "wellness" ? "Min"
-                            : newRoutine.type === "workout" ? "Sets"
-                            : newRoutine.type === "cardio" ? "Time"
-                            : "Reps"
-                          }
-                          onKeyDown={e => e.key === "Enter" && addCustomExercise()}
-                          className="w-20 px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/08" />
-                        <button onClick={addCustomExercise}
-                          disabled={!newExName.trim()}
-                          aria-label={newExName.trim() ? "Add exercise" : "Type an exercise name first"}
-                          title={newExName.trim() ? "Add exercise" : "Type an exercise name first"}
-                          className="w-9 h-9 rounded-xl bg-teal/20 text-teal flex items-center justify-center shrink-0 disabled:opacity-40 disabled:cursor-not-allowed">
-                          <Plus className="w-4 h-4" />
+                  <div className="space-y-2">
+                    {customExercises.map((ex, i) => (
+                      <div key={i} className="flex items-center gap-2 text-xs p-2 rounded-lg bg-white/[0.03]">
+                        <CheckCircle className="w-3 h-3 text-teal shrink-0" />
+                        <span className="flex-1 text-foreground">{ex.name}</span>
+                        <span className="text-[10px] text-muted-foreground">{ex.sets}</span>
+                        <button onClick={() => setCustomExercises(prev => prev.filter((_, j) => j !== i))}
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-coral/60 hover:text-coral hover:bg-coral/10">
+                          <X className="w-3 h-3" />
                         </button>
                       </div>
+                    ))}
+                    {customExercises.length === 0 && newRoutine.type !== "custom" && (
+                      <p className="text-[10px] text-muted-foreground italic px-1">
+                        No items yet — add some below or reselect <span className="text-teal">{typeLabel[newRoutine.type]}</span> to reload the defaults.
+                      </p>
+                    )}
+                    <div className="flex gap-2">
+                      <input value={newExName} onChange={e => setNewExName(e.target.value)}
+                        placeholder={
+                          newRoutine.type === "meal" ? "Meal name (e.g. Breakfast)"
+                          : newRoutine.type === "medication" ? "Medication name"
+                          : newRoutine.type === "skincare" ? "Step name (e.g. Cleanser)"
+                          : newRoutine.type === "wellness" ? "Practice name (e.g. Meditation)"
+                          : newRoutine.type === "beauty" ? "Ritual name"
+                          : newRoutine.type === "rehab" ? "Movement name"
+                          : newRoutine.type === "cardio" ? "Activity (e.g. Running, Swimming, Hiking)"
+                          : "Exercise name"
+                        }
+                        onKeyDown={e => e.key === "Enter" && addCustomExercise()}
+                        className="flex-1 px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/08" />
+                      <input value={newExSets} onChange={e => setNewExSets(e.target.value)}
+                        placeholder={
+                          newRoutine.type === "meal" ? "kcal"
+                          : newRoutine.type === "medication" ? "Dose"
+                          : newRoutine.type === "skincare" || newRoutine.type === "beauty" ? "Freq"
+                          : newRoutine.type === "wellness" ? "Min"
+                          : newRoutine.type === "workout" ? "Sets"
+                          : newRoutine.type === "cardio" ? "Time"
+                          : "Reps"
+                        }
+                        onKeyDown={e => e.key === "Enter" && addCustomExercise()}
+                        className="w-20 px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/08" />
+                      <button onClick={addCustomExercise}
+                        disabled={!newExName.trim()}
+                        aria-label={newExName.trim() ? "Add exercise" : "Type an exercise name first"}
+                        title={newExName.trim() ? "Add exercise" : "Type an exercise name first"}
+                        className="w-9 h-9 rounded-xl bg-teal/20 text-teal flex items-center justify-center shrink-0 disabled:opacity-40 disabled:cursor-not-allowed">
+                        <Plus className="w-4 h-4" />
+                      </button>
                     </div>
-                  )}
-
-                  {newRoutine.type !== "custom" && customExercises.length === 0 && (
-                    <button onClick={() => setCustomExercises(EXERCISE_TEMPLATES[newRoutine.type] ?? [])}
-                      className="mt-2 text-[10px] text-teal font-medium">
-                      Customise {typeVocab[newRoutine.type]?.itemNoun ?? "items"} →
-                    </button>
-                  )}
+                  </div>
                 </div>
               </div>
 
