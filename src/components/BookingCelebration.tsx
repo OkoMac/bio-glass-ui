@@ -22,7 +22,7 @@ interface BookingCelebrationProps {
   paymentStatus?: 'pending' | 'paid' | 'refunded' | 'failed';
 }
 
-const BookingCelebration = ({ provider, service, date, time, onClose }: BookingCelebrationProps) => {
+const BookingCelebration = ({ provider, service, date, time, onClose, price, fees, totalPaid }: BookingCelebrationProps) => {
   const fired = useRef(false);
 
   useEffect(() => {

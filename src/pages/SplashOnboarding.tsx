@@ -65,7 +65,7 @@ const onboardingSteps: OnboardingStep[] = [
 ];
 
 type Phase = "splash" | "onboarding" | "role" | "auth" | "terms" | "email-sent" | "forgot-password" | "forgot-password-sent";
-type AuthMode = "signin" | "signup";
+type AuthMode = "signin" | "signup" | "login";
 
 const ROLE_OPTIONS = [
   { role: "client"    as UserRole, label: "I'm looking for services",    desc: "Book health, beauty & wellness providers",              icon: User,        color: "#6366F1" },
@@ -396,7 +396,7 @@ export default function SplashOnboarding() {
           country,
           age_verified: true,
           profile_completed_at: new Date().toISOString(),
-        }).eq("user_id", user.id);
+        }).eq("user_id", user.id!);
       } catch {/* non-fatal */}
 
       if (referralCode.trim() && user.profileId && selectedRole === "client") {
