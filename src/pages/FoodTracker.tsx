@@ -401,9 +401,9 @@ export default function FoodTracker() {
             </div>
             <div className="flex gap-1">
               <button onClick={() => setWaterCount(prev => Math.max(0, prev - 1))}
-                className="w-7 h-7 rounded-lg glass-1 text-muted-foreground text-xs font-bold">−</button>
+                className="w-7 h-7 rounded-lg glass-1 text-muted-foreground text-xs font-bold" title="−" aria-label="−">−</button>
               <button onClick={() => setWaterCount(prev => prev + 1)}
-                className="w-7 h-7 rounded-lg bg-blue-400/20 text-blue-400 text-xs font-bold">+</button>
+                className="w-7 h-7 rounded-lg bg-blue-400/20 text-blue-400 text-xs font-bold" title="+" aria-label="+">+</button>
             </div>
           </div>
         </GlassCard>
@@ -472,7 +472,7 @@ export default function FoodTracker() {
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <span className="text-[10px] text-muted-foreground">{entry.time}</span>
-                      <button onClick={() => deleteEntry(entry.id)} className="text-muted-foreground hover:text-coral transition-colors">
+                      <button onClick={() => deleteEntry(entry.id)} className="text-muted-foreground hover:text-coral transition-colors" title="Delete" aria-label="Delete">
                         <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
@@ -529,7 +529,7 @@ export default function FoodTracker() {
 
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-foreground">Log {MEAL_LABELS[selectedMeal]}</h3>
-                <button onClick={() => setShowAdd(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                <button onClick={() => setShowAdd(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="Close" aria-label="Close">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -566,7 +566,7 @@ export default function FoodTracker() {
                   <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0">
                     <img src={photoPreview} alt="Food" className="w-full h-full object-cover" />
                     <button onClick={() => setPhotoPreview(null)}
-                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-obsidian/80 flex items-center justify-center">
+                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-obsidian/80 flex items-center justify-center" title="Close" aria-label="Close">
                       <X className="w-3 h-3 text-white" />
                     </button>
                   </div>
@@ -648,7 +648,7 @@ export default function FoodTracker() {
                     {isOver ? `Burn ${Math.abs(calRemaining)} excess calories` : "Activities to maintain your deficit"}
                   </p>
                 </div>
-                <button onClick={() => setShowBurn(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                <button onClick={() => setShowBurn(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="Close" aria-label="Close">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -684,7 +684,7 @@ export default function FoodTracker() {
               style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-foreground">Daily Goals</h3>
-                <button onClick={() => setShowGoals(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                <button onClick={() => setShowGoals(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="Close" aria-label="Close">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -729,7 +729,7 @@ export default function FoodTracker() {
                 <div className="flex items-center gap-2">
                   {historyDay && (
                     <button onClick={() => setHistoryDay(null)}
-                      className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                      className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="Go back" aria-label="Go back">
                       <ArrowLeft className="w-4 h-4" />
                     </button>
                   )}
@@ -740,7 +740,7 @@ export default function FoodTracker() {
                   </h3>
                 </div>
                 <button onClick={() => { setShowHistory(false); setHistoryDay(null); }}
-                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="Close" aria-label="Close">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -799,7 +799,7 @@ export default function FoodTracker() {
                                     <span className="text-[10px] text-muted-foreground">{entry.time}</span>
                                     <button onClick={() => deleteEntry(entry.id)}
                                       aria-label="Delete entry"
-                                      className="text-muted-foreground hover:text-coral transition-colors">
+                                      className="text-muted-foreground hover:text-coral transition-colors" title="Delete">
                                       <Trash2 className="w-3 h-3" />
                                     </button>
                                   </div>

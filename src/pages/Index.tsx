@@ -99,7 +99,7 @@ function EmailVerifyBanner() {
       <button
         onClick={() => navigate("/settings?tab=account")}
         className="shrink-0 px-3 py-1.5 rounded-pill text-[10px] font-semibold gradient-indigo text-primary-foreground"
-      >
+       title="Verify" aria-label="Verify">
         Verify
       </button>
       <button
@@ -379,11 +379,11 @@ const Index = () => {
             <div className="mt-3 p-3 rounded-xl border border-amber-400/20 bg-amber-400/5">
               <p className="text-[11px] text-amber leading-relaxed">
                 Your display name isn't loading.{" "}
-                <button onClick={() => { void refetchUser(); }} className="underline font-medium mr-2">
+                <button onClick={() => { void refetchUser(); }} className="underline font-medium mr-2" title="Refresh now" aria-label="Refresh now">
                   Refresh now
                 </button>
                 or{" "}
-                <button onClick={() => navigate("/profile")} className="underline font-medium">
+                <button onClick={() => navigate("/profile")} className="underline font-medium" title="set your name" aria-label="set your name">
                   set your name
                 </button>
               </p>
@@ -409,7 +409,7 @@ const Index = () => {
         <section>
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs text-muted-foreground uppercase tracking-widest">Today's Vitals</p>
-            <button onClick={() => navigate("/health-insights")} className="text-xs text-teal font-medium">View all →</button>
+            <button onClick={() => navigate("/health-insights")} className="text-xs text-teal font-medium" title="View all →" aria-label="View all →">View all →</button>
           </div>
           <BiometricsDashboard compact />
         </section>
@@ -428,7 +428,7 @@ const Index = () => {
           {geo.permitted ? (
             <span className="text-teal text-xs">Showing providers near you</span>
           ) : (
-            <button onClick={geo.requestLocation} className="text-xs text-amber">
+            <button onClick={geo.requestLocation} className="text-xs text-amber" title="Enable location for nearby providers" aria-label="Enable location for nearby providers">
               Enable location for nearby providers
             </button>
           )}
@@ -464,7 +464,7 @@ const Index = () => {
               <SearchIcon className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
               <p className="text-sm font-medium text-foreground mb-1">No providers to show yet</p>
               <p className="text-xs text-muted-foreground">Explore the provider network to find professionals near you.</p>
-              <button onClick={() => navigate("/directory")} className="mt-3 text-xs text-indigo-light font-medium">
+              <button onClick={() => navigate("/directory")} className="mt-3 text-xs text-indigo-light font-medium" title="Browse directory →" aria-label="Browse directory →">
                 Browse directory →
               </button>
             </GlassCard>
@@ -517,7 +517,7 @@ const Index = () => {
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold text-foreground">Today</h2>
-            <button onClick={() => navigate("/calendar")} className="text-xs text-teal font-medium">View Calendar →</button>
+            <button onClick={() => navigate("/calendar")} className="text-xs text-teal font-medium" title="View Calendar →" aria-label="View Calendar →">View Calendar →</button>
           </div>
           <div className="flex gap-2 overflow-x-auto scrollbar-none -mx-4 px-4 pb-1">
             {(() => {

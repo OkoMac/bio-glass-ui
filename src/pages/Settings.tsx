@@ -158,7 +158,7 @@ function ExportDataCard() {
           <button
             onClick={requestExport}
             className="w-full py-2 rounded-xl glass-1 text-xs text-foreground"
-          >
+           title="Try again" aria-label="Try again">
             Try again
           </button>
         </div>
@@ -214,7 +214,7 @@ function CookiePreferencesCard() {
       <button
         onClick={openCookieBanner}
         className="w-full py-2.5 rounded-xl gradient-indigo text-primary-foreground text-xs font-semibold"
-      >
+       title="Change preferences" aria-label="Change preferences">
         Change preferences
       </button>
     </GlassCard>
@@ -338,7 +338,7 @@ function DeleteRequestModal({
             onClick={onClose}
             disabled={submitting}
             className="flex-1 py-2.5 rounded-xl glass-1 text-xs font-semibold text-foreground disabled:opacity-50"
-          >
+           title="Keep my account" aria-label="Keep my account">
             Keep my account
           </button>
           <button
@@ -835,7 +835,7 @@ export default function Settings() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-full glass-1 flex items-center justify-center">
+            <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-full glass-1 flex items-center justify-center" title="Previous" aria-label="Previous">
               <ChevronLeft className="w-4 h-4 text-foreground" />
             </button>
             <h1 className="text-xl font-bold text-foreground">Settings</h1>
@@ -907,7 +907,7 @@ export default function Settings() {
                     <button
                       onClick={(e) => { e.stopPropagation(); removeCard(card.id); }}
                       className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-coral/10 transition-colors"
-                    >
+                     title="Close" aria-label="Close">
                       <X className="w-3 h-3 text-muted-foreground hover:text-coral" />
                     </button>
                   </div>
@@ -941,8 +941,8 @@ export default function Settings() {
                     className="w-full glass-1 rounded-xl px-3 py-2 text-sm font-data text-foreground placeholder:text-muted-foreground outline-none border border-white/5 bg-transparent"
                   />
                   <div className="flex gap-2 pt-1">
-                    <button onClick={addCard} className="flex-1 py-2 rounded-xl gradient-indigo text-primary-foreground text-xs font-semibold">Save Card</button>
-                    <button onClick={() => { setShowAddCard(false); setNewCardNumber(""); setNewCardExpiry(""); setNewCardName(""); }} className="py-2 px-3 rounded-xl glass-1 text-xs text-muted-foreground">Cancel</button>
+                    <button onClick={addCard} className="flex-1 py-2 rounded-xl gradient-indigo text-primary-foreground text-xs font-semibold" title="Save Card" aria-label="Save Card">Save Card</button>
+                    <button onClick={() => { setShowAddCard(false); setNewCardNumber(""); setNewCardExpiry(""); setNewCardName(""); }} className="py-2 px-3 rounded-xl glass-1 text-xs text-muted-foreground" title="Cancel" aria-label="Cancel">Cancel</button>
                   </div>
                 </div>
               ) : (
@@ -1091,7 +1091,7 @@ export default function Settings() {
                         onClick={sendVerificationEmail}
                         disabled={verifyBusy}
                         className="py-2 px-3 rounded-xl glass-1 text-xs text-muted-foreground disabled:opacity-50"
-                      >
+                       title="Resend" aria-label="Resend">
                         Resend
                       </button>
                     </div>

@@ -316,7 +316,7 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold text-foreground">Select Service</h2>
-                    <button onClick={onClose} aria-label="Close"><X className="w-5 h-5 text-muted-foreground" /></button>
+                    <button onClick={onClose} aria-label="Close" title="Close"><X className="w-5 h-5 text-muted-foreground" /></button>
                   </div>
                   <div className="space-y-2">
                     {provider.services.map((svc, i) => (
@@ -351,7 +351,7 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
                       <ChevronLeft className="w-4 h-4" /> Back
                     </button>
                     <h2 className="text-lg font-semibold text-foreground">Select Time</h2>
-                    <button onClick={onClose} aria-label="Close"><X className="w-5 h-5 text-muted-foreground" /></button>
+                    <button onClick={onClose} aria-label="Close" title="Close"><X className="w-5 h-5 text-muted-foreground" /></button>
                   </div>
                   {/* Day strip */}
                   <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
@@ -400,7 +400,7 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
                       <ChevronLeft className="w-4 h-4" /> Back
                     </button>
                     <h2 className="text-lg font-semibold text-foreground">Secure Payment</h2>
-                    <button onClick={onClose} aria-label="Close"><X className="w-5 h-5 text-muted-foreground" /></button>
+                    <button onClick={onClose} aria-label="Close" title="Close"><X className="w-5 h-5 text-muted-foreground" /></button>
                   </div>
                   
                   {/* Booking Summary */}

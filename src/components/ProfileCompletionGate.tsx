@@ -410,7 +410,7 @@ export default function ProfileCompletionGate({ children }: Props) {
                   onClick={() => { setDismissed(true); setOpen(false); }}
                   disabled={submitting}
                   className="flex-1 px-4 py-2 text-sm rounded-lg bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10 transition-colors disabled:opacity-50"
-                >
+                 title="Remind me later" aria-label="Remind me later">
                   Remind me later
                 </button>
               )}

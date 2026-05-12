@@ -435,7 +435,7 @@ export default function BionCalendar() {
           <button onClick={() => setCategoryFilter("all")}
             className={`px-3 py-1.5 rounded-pill text-xs font-medium border whitespace-nowrap transition-all ${
               categoryFilter === "all" ? "border-teal/40 bg-teal/10 text-teal" : "border-white/08 text-muted-foreground"
-            }`}>All</button>
+            }`} title="All" aria-label="All">All</button>
           {(Object.keys(CATEGORY_CONFIG) as EventCategory[]).map(cat => {
             const cfg = CATEGORY_CONFIG[cat];
             return (
@@ -505,7 +505,7 @@ export default function BionCalendar() {
                             <p className="text-[10px] text-muted-foreground mt-1">{event.notes}</p>
                           )}
                         </div>
-                        <button onClick={() => deleteEvent(event.id)} className="text-muted-foreground hover:text-coral text-xs shrink-0">
+                        <button onClick={() => deleteEvent(event.id)} className="text-muted-foreground hover:text-coral text-xs shrink-0" title="Close" aria-label="Close">
                           <X className="w-3 h-3" />
                         </button>
                       </div>
@@ -542,7 +542,7 @@ export default function BionCalendar() {
 
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-foreground">Add Event</h3>
-                <button onClick={() => setShowAdd(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                <button onClick={() => setShowAdd(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="Close" aria-label="Close">
                   <X className="w-4 h-4" />
                 </button>
               </div>

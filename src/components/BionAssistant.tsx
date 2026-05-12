@@ -536,7 +536,7 @@ export default function BionAssistant() {
               onClick={() => dismissNudge(true)}
               className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/10"
               aria-label="Dismiss"
-            >
+             title="Close">
               <X className="w-3 h-3" />
             </button>
             <div className="px-4 py-3 pr-8">
@@ -550,13 +550,13 @@ export default function BionAssistant() {
                 <button
                   onClick={acceptNudge}
                   className="text-[11px] font-medium text-indigo hover:underline"
-                >
+                 title="Yes, help me" aria-label="Yes, help me">
                   Yes, help me
                 </button>
                 <button
                   onClick={() => dismissNudge(true)}
                   className="text-[11px] text-muted-foreground hover:text-foreground"
-                >
+                 title="Not now" aria-label="Not now">
                   Not now
                 </button>
               </div>
@@ -655,7 +655,7 @@ export default function BionAssistant() {
                     aria-label="Talk to a human agent">
                     <UserCheck className="w-3 h-3" /> Human
                   </button>
-                  <button onClick={resetChat} className="text-[10px] text-muted-foreground hover:text-foreground px-2 py-1 glass-1 rounded-lg transition-colors">
+                  <button onClick={resetChat} className="text-[10px] text-muted-foreground hover:text-foreground px-2 py-1 glass-1 rounded-lg transition-colors" title="Clear" aria-label="Clear">
                     Clear
                   </button>
                   <button onClick={handleClose} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors" aria-label="Close" title="Close">
@@ -735,7 +735,7 @@ export default function BionAssistant() {
                     placeholder="Ask B_ anything..."
                     className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none" />
                   <button onClick={() => send(input)}
-                    className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet to-indigo flex items-center justify-center shrink-0">
+                    className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet to-indigo flex items-center justify-center shrink-0" title="Send" aria-label="Send">
                     <Send className="w-3.5 h-3.5 text-white" />
                   </button>
                 </div>
@@ -767,7 +767,7 @@ export default function BionAssistant() {
                   </div>
                 </div>
                 <button onClick={() => setShowHumanModal(false)}
-                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                  className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="Close" aria-label="Close">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -822,7 +822,7 @@ export default function BionAssistant() {
 
               <div className="flex gap-2 mt-5">
                 <button onClick={() => setShowHumanModal(false)}
-                  className="flex-1 py-2.5 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground">
+                  className="flex-1 py-2.5 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground" title="Cancel" aria-label="Cancel">
                   Cancel
                 </button>
                 <button

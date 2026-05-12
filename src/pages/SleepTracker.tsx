@@ -324,7 +324,7 @@ export default function SleepTracker() {
                     toast.success("Reminders paused");
                   }}
                   className="w-full text-[11px] text-muted-foreground/80 hover:text-muted-foreground"
-                >
+                 title="Pause reminders" aria-label="Pause reminders">
                   Pause reminders
                 </button>
               )}

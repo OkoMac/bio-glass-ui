@@ -320,7 +320,7 @@ export default function HealthProfile() {
 
         {/* Header */}
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate("/profile")} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={() => navigate("/profile")} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors" title="Go back" aria-label="Go back">
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div>
@@ -481,7 +481,7 @@ export default function HealthProfile() {
                     style={{ background: "rgba(12,12,20,0.97)", backdropFilter: "blur(60px)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-bold text-foreground">Log Today's Metrics</h3>
-                      <button onClick={() => setShowLogMetrics(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                      <button onClick={() => setShowLogMetrics(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="Close" aria-label="Close">
                         <X className="w-4 h-4" />
                       </button>
                     </div>
@@ -604,7 +604,7 @@ export default function HealthProfile() {
                   >
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-bold text-foreground">New Goal</h3>
-                      <button onClick={() => setShowAddGoal(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                      <button onClick={() => setShowAddGoal(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="Close" aria-label="Close">
                         <X className="w-4 h-4" />
                       </button>
                     </div>
@@ -694,7 +694,7 @@ export default function HealthProfile() {
                     <GlassCard className="p-4 text-center">
                       <AlertCircle className="w-5 h-5 text-muted-foreground/30 mx-auto mb-1.5" />
                       <p className="text-xs text-muted-foreground">No conditions recorded</p>
-                      <button onClick={() => setShowAddCondition(true)} className="text-[10px] text-teal mt-1.5 inline-block">Add your first condition</button>
+                      <button onClick={() => setShowAddCondition(true)} className="text-[10px] text-teal mt-1.5 inline-block" title="Add your first condition" aria-label="Add your first condition">Add your first condition</button>
                     </GlassCard>
                   </motion.div>
                 )}
@@ -722,7 +722,7 @@ export default function HealthProfile() {
                               ))}
                             </div>
                             <button onClick={() => setEditCondition(null)}
-                              className="w-full py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400">Done</button>
+                              className="w-full py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400" title="Done" aria-label="Done">Done</button>
                           </div>
                         ) : (
                           <div className="flex items-start justify-between">
@@ -734,7 +734,7 @@ export default function HealthProfile() {
                               {c.note && <p className="text-xs text-muted-foreground mt-0.5">{c.note}</p>}
                             </button>
                             <button onClick={() => setConditions(prev => prev.filter(x => x.id !== c.id))}
-                              className="w-6 h-6 flex items-center justify-center rounded-full text-muted-foreground/40 hover:text-coral hover:bg-coral/10 transition-colors shrink-0 ml-2">
+                              className="w-6 h-6 flex items-center justify-center rounded-full text-muted-foreground/40 hover:text-coral hover:bg-coral/10 transition-colors shrink-0 ml-2" title="Close" aria-label="Close">
                               <X className="w-3 h-3" />
                             </button>
                           </div>
@@ -768,9 +768,9 @@ export default function HealthProfile() {
                       </div>
                       <div className="flex gap-2">
                         <button onClick={() => { setShowAddCondition(false); setNewCondition({ label: "", note: "", severity: "none" }); }}
-                          className="flex-1 py-2 rounded-xl text-xs font-medium border border-white/08 text-muted-foreground">Cancel</button>
+                          className="flex-1 py-2 rounded-xl text-xs font-medium border border-white/08 text-muted-foreground" title="Cancel" aria-label="Cancel">Cancel</button>
                         <button onClick={handleAddCondition} disabled={!newCondition.label.trim()}
-                          className="flex-1 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 transition-opacity">Save</button>
+                          className="flex-1 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 transition-opacity" title="Save" aria-label="Save">Save</button>
                       </div>
                     </GlassCard>
                   </motion.div>
@@ -792,7 +792,7 @@ export default function HealthProfile() {
                 <GlassCard className="p-4 text-center">
                   <AlertTriangle className="w-5 h-5 text-muted-foreground/30 mx-auto mb-1.5" />
                   <p className="text-xs text-muted-foreground">No allergies recorded</p>
-                  <button onClick={() => setShowAddAllergy(true)} className="text-[10px] text-teal mt-1.5 inline-block">Add your first allergy</button>
+                  <button onClick={() => setShowAddAllergy(true)} className="text-[10px] text-teal mt-1.5 inline-block" title="Add your first allergy" aria-label="Add your first allergy">Add your first allergy</button>
                 </GlassCard>
               )}
 
@@ -803,7 +803,7 @@ export default function HealthProfile() {
                       className="px-3 py-1.5 glass-accent-coral rounded-pill text-xs text-coral inline-flex items-center gap-1.5 group">
                       {a}
                       <button onClick={() => setAllergies(prev => prev.filter((_, idx) => idx !== i))}
-                        className="w-3.5 h-3.5 flex items-center justify-center rounded-full opacity-40 group-hover:opacity-100 hover:bg-coral/20 transition-all">
+                        className="w-3.5 h-3.5 flex items-center justify-center rounded-full opacity-40 group-hover:opacity-100 hover:bg-coral/20 transition-all" title="Close" aria-label="Close">
                         <X className="w-2.5 h-2.5" />
                       </button>
                     </motion.span>
@@ -823,9 +823,9 @@ export default function HealthProfile() {
                           placeholder="Allergy name *"
                           className="flex-1 px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors" />
                         <button onClick={() => { setShowAddAllergy(false); setNewAllergy(""); }}
-                          className="px-3 py-2 rounded-xl text-xs font-medium border border-white/08 text-muted-foreground">Cancel</button>
+                          className="px-3 py-2 rounded-xl text-xs font-medium border border-white/08 text-muted-foreground" title="Cancel" aria-label="Cancel">Cancel</button>
                         <button onClick={handleAddAllergy} disabled={!newAllergy.trim()}
-                          className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 transition-opacity">Add</button>
+                          className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 transition-opacity" title="Add" aria-label="Add">Add</button>
                       </div>
                     </GlassCard>
                   </motion.div>
@@ -849,7 +849,7 @@ export default function HealthProfile() {
                     <GlassCard className="p-4 text-center">
                       <Pill className="w-5 h-5 text-muted-foreground/30 mx-auto mb-1.5" />
                       <p className="text-xs text-muted-foreground">No medications recorded</p>
-                      <button onClick={() => setShowAddMedication(true)} className="text-[10px] text-teal mt-1.5 inline-block">Add your first medication</button>
+                      <button onClick={() => setShowAddMedication(true)} className="text-[10px] text-teal mt-1.5 inline-block" title="Add your first medication" aria-label="Add your first medication">Add your first medication</button>
                     </GlassCard>
                   </motion.div>
                 )}
@@ -875,7 +875,7 @@ export default function HealthProfile() {
                                 className="w-full px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/08 focus:border-indigo/40 transition-colors" />
                             </div>
                             <button onClick={() => setEditMedication(null)}
-                              className="w-full py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400">Done</button>
+                              className="w-full py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400" title="Done" aria-label="Done">Done</button>
                           </div>
                         ) : (
                           <div className="flex items-center justify-between">
@@ -886,7 +886,7 @@ export default function HealthProfile() {
                             <div className="flex items-center gap-2">
                               <span className="text-[11px] text-muted-foreground">{m.dose}{m.dose && m.frequency ? " · " : ""}{m.frequency}</span>
                               <button onClick={() => setMedications(prev => prev.filter(x => x.id !== m.id))}
-                                className="w-6 h-6 flex items-center justify-center rounded-full text-muted-foreground/40 hover:text-coral hover:bg-coral/10 transition-colors shrink-0">
+                                className="w-6 h-6 flex items-center justify-center rounded-full text-muted-foreground/40 hover:text-coral hover:bg-coral/10 transition-colors shrink-0" title="Close" aria-label="Close">
                                 <X className="w-3 h-3" />
                               </button>
                             </div>
@@ -919,9 +919,9 @@ export default function HealthProfile() {
                       </div>
                       <div className="flex gap-2">
                         <button onClick={() => { setShowAddMedication(false); setNewMedication({ name: "", dose: "", frequency: "" }); }}
-                          className="flex-1 py-2 rounded-xl text-xs font-medium border border-white/08 text-muted-foreground">Cancel</button>
+                          className="flex-1 py-2 rounded-xl text-xs font-medium border border-white/08 text-muted-foreground" title="Cancel" aria-label="Cancel">Cancel</button>
                         <button onClick={handleAddMedication} disabled={!newMedication.name.trim()}
-                          className="flex-1 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 transition-opacity">Save</button>
+                          className="flex-1 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40 transition-opacity" title="Save" aria-label="Save">Save</button>
                       </div>
                     </GlassCard>
                   </motion.div>
@@ -985,7 +985,7 @@ export default function HealthProfile() {
                       <p className="text-sm font-semibold text-foreground capitalize">{section} Data</p>
                     </div>
                     <button onClick={() => setShowProviderPicker(section)}
-                      className="text-xs text-teal font-medium">
+                      className="text-xs text-teal font-medium" title="Manage Access" aria-label="Manage Access">
                       Manage Access
                     </button>
                   </div>
@@ -994,7 +994,7 @@ export default function HealthProfile() {
                       <Lock className="w-5 h-5 text-muted-foreground/40 mx-auto mb-1" />
                       <p className="text-xs text-muted-foreground">Only you can see your {section} data</p>
                       <button onClick={() => setShowProviderPicker(section)}
-                        className="text-[10px] text-teal mt-1">Grant access to a provider →</button>
+                        className="text-[10px] text-teal mt-1" title="Grant access to a provider →" aria-label="Grant access to a provider →">Grant access to a provider →</button>
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -1028,7 +1028,7 @@ export default function HealthProfile() {
                         <p className="text-xs text-muted-foreground">Select which providers can view your {showProviderPicker} data</p>
                       </div>
                       <button onClick={() => setShowProviderPicker(null)}
-                        className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                        className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="Close" aria-label="Close">
                         <X className="w-4 h-4" />
                       </button>
                     </div>
@@ -1099,7 +1099,7 @@ export default function HealthProfile() {
                       </p>
                       <div className="flex gap-3 mt-5 w-full">
                         <button onClick={() => setConfirmToggle(null)}
-                          className="flex-1 py-2.5 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground">
+                          className="flex-1 py-2.5 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground" title="Cancel" aria-label="Cancel">
                           Cancel
                         </button>
                         <button onClick={() => {

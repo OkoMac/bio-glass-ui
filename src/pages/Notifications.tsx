@@ -330,7 +330,7 @@ export default function Notifications() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="p-1.5 glass-1 rounded-full">
+            <button onClick={() => navigate(-1)} className="p-1.5 glass-1 rounded-full" title="Go back" aria-label="Go back">
               <ArrowLeft className="w-5 h-5 text-foreground" />
             </button>
             <div>
@@ -350,14 +350,14 @@ export default function Notifications() {
             <button
               onClick={() => setShowSettings(true)}
               className="p-1.5 glass-1 rounded-full"
-            >
+             title="Settings" aria-label="Settings">
               <Settings className="w-5 h-5 text-foreground" />
             </button>
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
                 className="px-3 py-1.5 gradient-indigo rounded-full text-sm font-medium"
-              >
+               title="Mark all read" aria-label="Mark all read">
                 Mark all read
               </button>
             )}
@@ -495,7 +495,7 @@ export default function Notifications() {
                         deleteNotification(notif.id);
                       }}
                       className="p-1.5 rounded-full hover:bg-white/10 transition-colors flex-shrink-0"
-                    >
+                     title="Delete" aria-label="Delete">
                       <Trash2 className="w-4 h-4 text-muted-foreground" />
                     </button>
                   </div>
@@ -511,7 +511,7 @@ export default function Notifications() {
             <button
               onClick={clearAll}
               className="px-4 py-2 glass-1 rounded-full text-sm font-medium text-muted-foreground"
-            >
+             title="Clear all notifications" aria-label="Clear all notifications">
               Clear all notifications
             </button>
           </div>
@@ -562,7 +562,7 @@ export default function Notifications() {
                   <button
                     onClick={() => setShowSettings(false)}
                     className="flex-1 py-2.5 glass-1 rounded-xl text-sm font-medium"
-                  >
+                   title="Close" aria-label="Close">
                     Close
                   </button>
                   <button
@@ -570,7 +570,7 @@ export default function Notifications() {
                       setShowSettings(false);
                     }}
                     className="flex-1 py-2.5 gradient-indigo rounded-xl text-sm font-medium"
-                  >
+                   title="Save" aria-label="Save">
                     Save
                   </button>
                 </div>

@@ -191,11 +191,11 @@ function ChatView({
                   : "glass-1 text-foreground rounded-bl-none"
               }`}
             >
-              {msg.type === "routine" ? (
+              {'type' in msg && msg.type === "routine" ? (
                 <div className="space-y-2">
                   <div className="font-medium">{msg.title}</div>
                   <div className="text-sm opacity-80">{msg.exercises} exercises</div>
-                  <button className="text-sm font-medium underline" onClick={() => navigate('/routines')}>View Routine</button>
+                  <button className="text-sm font-medium underline" onClick={() => navigate('/routines')} title="View Routine" aria-label="View Routine">View Routine</button>
                 </div>
               ) : msg.text?.startsWith("📎 ") && /https?:\/\/.+\.(jpg|jpeg|png|webp|gif|avif)/i.test(msg.text) ? (
                 <a href={msg.text.slice(2).trim()} target="_blank" rel="noopener noreferrer">
@@ -446,7 +446,7 @@ export default function Messages() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="Go back" aria-label="Go back">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div>
