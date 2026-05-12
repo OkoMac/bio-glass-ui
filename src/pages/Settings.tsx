@@ -41,11 +41,32 @@ const DELETION_REASONS = [
 
 async function authToken(): Promise<string | null> {
   const { data: { session } } = await supabase.auth.getSession();
-  return session?.access_token ?? null;
+  if (session?.access_token) return session.access_token;
+  // Stale-session self-heal — getSession returns null if the access token
+  // expired but the refresh token is still good. Without this, a logged-in
+  // user with a freshly-stale tab hit "Please sign in first" alerts on
+  // every action. Reported 2026-05-12 by Oko on /settings.
+  const { data: refreshed } = await supabase.auth.refreshSession();
+  return refreshed?.session?.access_token ?? null;
+}
+
+/**
+ * Differentiate "no auth token" between a real account with an expired
+ * session (transient — user needs to sign in again) and a demo account
+ * that genuinely can't perform server-side actions. Returns the human
+ * message to show, plus whether the user should be redirected to /login.
+ */
+function explainTokenLoss(userId: string | undefined): { message: string; redirect: boolean } {
+  if (!userId || userId.startsWith("demo_")) {
+    return { message: "Demo accounts can't do this — please create a real account first.", redirect: false };
+  }
+  return { message: "Your session has expired. Please sign in again.", redirect: true };
 }
 
 // ─── Data export card ────────────────────────────────────────────
 function ExportDataCard() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [state, setState] = useState<"idle" | "requesting" | "ready" | "error">("idle");
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [error, setError] = useState<string>("");
@@ -57,8 +78,10 @@ function ExportDataCard() {
     try {
       const token = await authToken();
       if (!token) {
+        const { message, redirect } = explainTokenLoss(user?.id);
         setState("error");
-        setError("Please sign in with a real account to export your data.");
+        setError(message);
+        if (redirect) setTimeout(() => navigate("/login"), 1500);
         return;
       }
       const res = await fetch(`${API}/api/popia/export`, {
@@ -202,6 +225,8 @@ function CookiePreferencesCard() {
 function DeleteRequestModal({
   userEmail, onClose, onSubmitted,
 }: { userEmail: string; onClose: () => void; onSubmitted: () => void }) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [reason, setReason] = useState<string>("");
   const [otherReason, setOtherReason] = useState("");
   const [confirmEmail, setConfirmEmail] = useState("");
@@ -219,8 +244,10 @@ function DeleteRequestModal({
     try {
       const token = await authToken();
       if (!token) {
-        setError("Please sign in with a real account to delete.");
+        const { message, redirect } = explainTokenLoss(user?.id);
+        setError(message);
         setSubmitting(false);
+        if (redirect) setTimeout(() => navigate("/login"), 1500);
         return;
       }
       const res = await fetch(`${API}/api/popia/delete-request`, {
@@ -698,7 +725,9 @@ export default function Settings() {
     try {
       const token = await authToken();
       if (!token) {
-        setVerifyError("You need a real account to verify email. Demo accounts can't verify.");
+        const { message, redirect } = explainTokenLoss(user?.id);
+        setVerifyError(message);
+        if (redirect) setTimeout(() => navigate("/login"), 1500);
         return;
       }
       const res = await trackedFetch(`${API}/api/account/verify-email`, {
@@ -730,7 +759,9 @@ export default function Settings() {
     try {
       const token = await authToken();
       if (!token) {
-        setVerifyError("You need a real account to verify email. Demo accounts can't verify.");
+        const { message, redirect } = explainTokenLoss(user?.id);
+        setVerifyError(message);
+        if (redirect) setTimeout(() => navigate("/login"), 1500);
         return;
       }
       const res = await trackedFetch(`${API}/api/account/verify-email/confirm`, {
@@ -1085,7 +1116,12 @@ export default function Settings() {
                 onClick={async () => {
                   try {
                     const token = await authToken();
-                    if (!token) { alert("Please sign in first."); return; }
+                    if (!token) {
+                      const { message, redirect } = explainTokenLoss(user?.id);
+                      alert(message);
+                      if (redirect) navigate("/login");
+                      return;
+                    }
                     const res = await fetch(`${API}/api/account/forgot-password`, {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
