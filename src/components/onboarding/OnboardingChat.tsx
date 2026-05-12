@@ -176,7 +176,7 @@ export function OnboardingChat({ role, stepTitle, crawlData, formData, onClose }
                       key={p}
                       onClick={() => send(p)}
                       className="text-[11px] px-3 py-1.5 glass-1 rounded-pill border border-white/5 text-muted-foreground hover:text-foreground hover:border-indigo/30 transition-colors"
-                     title="send(p)} className='text-[11px] px-3 py-1.5 glass-1 rounded-pill border borde…" aria-label="send(p)} className='text-[11px] px-3 py-1.5 glass-1 rounded-pill border borde…">
+                    >
                       {p}
                     </button>
                   ))}
@@ -201,7 +201,7 @@ export function OnboardingChat({ role, stepTitle, crawlData, formData, onClose }
                 onClick={() => send(input)}
                 disabled={!input.trim() || typing}
                 className="w-7 h-7 rounded-full gradient-indigo flex items-center justify-center disabled:opacity-40 shrink-0"
-               title="send(input)} disabled= className='w-7 h-7 rounded-full gradient-indigo flex i…" aria-label="send(input)} disabled= className='w-7 h-7 rounded-full gradient-indigo flex i…">
+              >
                 {typing ? <Loader2 className="w-3.5 h-3.5 animate-spin text-white" /> : <Send className="w-3.5 h-3.5 text-white" />}
               </button>
             </div>

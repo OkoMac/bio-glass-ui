@@ -285,7 +285,7 @@ function _AdminComplianceBody({ mfaProtectedFetch, buildHeaders }: { mfaProtecte
   if (!token) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
         <AdminNav />
@@ -313,7 +313,7 @@ function _AdminComplianceBody({ mfaProtectedFetch, buildHeaders }: { mfaProtecte
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <AdminNav />
@@ -325,26 +325,26 @@ function _AdminComplianceBody({ mfaProtectedFetch, buildHeaders }: { mfaProtecte
             </h1>
             <p className="text-xs text-muted-foreground">FICA holds + Corporate Beneficial-Ownership submissions</p>
           </div>
-          <button onClick={load} className="px-3 py-1.5 glass-1 rounded-full text-xs text-foreground" title="Refresh" aria-label="Refresh">Refresh</button>
+          <button onClick={load} className="px-3 py-1.5 glass-1 rounded-full text-xs text-foreground">Refresh</button>
         </header>
 
         <div className="flex gap-2">
           <button
             onClick={() => setTab("fica")}
             className={`px-4 py-2 rounded-pill text-sm font-medium ${tab === "fica" ? "gradient-indigo text-primary-foreground" : "glass-1 text-foreground"}`}
-           title="setTab('fica')} className= `} > FICA holds ·" aria-label="setTab('fica')} className= `} > FICA holds ·">
+          >
             FICA holds · {ficaHolds.length}
           </button>
           <button
             onClick={() => setTab("bo")}
             className={`px-4 py-2 rounded-pill text-sm font-medium ${tab === "bo" ? "gradient-indigo text-primary-foreground" : "glass-1 text-foreground"}`}
-           title="setTab('bo')} className= `} > BO submissions ·" aria-label="setTab('bo')} className= `} > BO submissions ·">
+          >
             BO submissions · {boSubmissions.length}
           </button>
           <button
             onClick={() => setTab("audit")}
             className={`px-4 py-2 rounded-pill text-sm font-medium ${tab === "audit" ? "gradient-indigo text-primary-foreground" : "glass-1 text-foreground"}`}
-           title="setTab('audit')} className= `} > Audit log ·" aria-label="setTab('audit')} className= `} > Audit log ·">
+          >
             Audit log · {auditEvents.length}
           </button>
         </div>
@@ -382,14 +382,14 @@ function _AdminComplianceBody({ mfaProtectedFetch, buildHeaders }: { mfaProtecte
                       disabled={busy === f.id}
                       onClick={() => releaseFicaHold(f)}
                       className="flex-1 py-2 rounded-pill bg-teal/20 text-teal text-xs font-semibold disabled:opacity-50"
-                     title="releaseFicaHold(f)} className='flex-1 py-2 rounded-pill bg-teal/20 text-teal …" aria-label="releaseFicaHold(f)} className='flex-1 py-2 rounded-pill bg-teal/20 text-teal …">
+                    >
                       {busy === f.id ? <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto" /> : "Release payout"}
                     </button>
                     <button
                       disabled={busy === f.id}
                       onClick={() => rejectFicaHold(f)}
                       className="flex-1 py-2 rounded-pill bg-coral/20 text-coral text-xs font-semibold disabled:opacity-50"
-                     title="rejectFicaHold(f)} className='flex-1 py-2 rounded-pill bg-coral/20 text-coral…" aria-label="rejectFicaHold(f)} className='flex-1 py-2 rounded-pill bg-coral/20 text-coral…">
+                    >
                       Reject
                     </button>
                   </div>
@@ -434,14 +434,14 @@ function _AdminComplianceBody({ mfaProtectedFetch, buildHeaders }: { mfaProtecte
                       disabled={busy === bo.id}
                       onClick={() => approveBo(bo)}
                       className="flex-1 py-2 rounded-pill bg-teal/20 text-teal text-xs font-semibold disabled:opacity-50"
-                     title="approveBo(bo)} className='flex-1 py-2 rounded-pill bg-teal/20 text-teal text-…" aria-label="approveBo(bo)} className='flex-1 py-2 rounded-pill bg-teal/20 text-teal text-…">
+                    >
                       {busy === bo.id ? <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto" /> : "Approve"}
                     </button>
                     <button
                       disabled={busy === bo.id}
                       onClick={() => rejectBo(bo)}
                       className="flex-1 py-2 rounded-pill bg-coral/20 text-coral text-xs font-semibold disabled:opacity-50"
-                     title="rejectBo(bo)} className='flex-1 py-2 rounded-pill bg-coral/20 text-coral text…" aria-label="rejectBo(bo)} className='flex-1 py-2 rounded-pill bg-coral/20 text-coral text…">
+                    >
                       Reject
                     </button>
                   </div>
@@ -467,7 +467,7 @@ function _AdminComplianceBody({ mfaProtectedFetch, buildHeaders }: { mfaProtecte
                 onClick={() => loadAudit(auditFilter)}
                 disabled={auditLoading}
                 className="px-3 h-9 glass-1 rounded-xl text-xs text-foreground disabled:opacity-50 flex items-center gap-1.5"
-               title="loadAudit(auditFilter)} disabled= className='px-3 h-9 glass-1 rounded-xl text…" aria-label="loadAudit(auditFilter)} disabled= className='px-3 h-9 glass-1 rounded-xl text…">
+              >
                 {auditLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Clock className="w-3.5 h-3.5" />}
                 Refresh
               </button>

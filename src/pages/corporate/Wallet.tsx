@@ -107,7 +107,7 @@ export default function CorporateWallet() {
                   topUpAmount === amt
                     ? "gradient-indigo text-primary-foreground"
                     : "glass-1 text-muted-foreground hover:text-foreground"
-                }`} title="} className= `}> R k" aria-label="} className= `}> R k">
+                }`}>
                 R{(amt / 1000).toFixed(0)}k
               </button>
             ))}

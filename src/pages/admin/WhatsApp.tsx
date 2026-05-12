@@ -154,7 +154,7 @@ export default function AdminWhatsApp() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <AdminNav />
@@ -180,7 +180,7 @@ export default function AdminWhatsApp() {
               onClick={() => { fetchThreads(); fetchStats(); if (selected) fetchDetail(selected); }}
               className="p-2 glass-1 rounded-full"
               title="Refresh"
-             aria-label="} className='p-2 glass-1 rounded-full' title='Refresh' >">
+            >
               <RefreshCw className={`w-4 h-4 text-foreground ${loading ? "animate-spin" : ""}`} />
             </button>
             {/* Clear-token escape-hatch removed — admin auth is now JWT,
@@ -291,7 +291,7 @@ export default function AdminWhatsApp() {
                       className="flex-1 glass-1 rounded-xl px-3 py-2 text-sm text-foreground bg-transparent outline-none"
                     />
                     <button onClick={stageReply} disabled={!replyText.trim() || sending}
-                      className="rounded-pill px-4 py-2 text-xs font-semibold gradient-indigo text-primary-foreground disabled:opacity-50" title="Send" aria-label="Send">
+                      className="rounded-pill px-4 py-2 text-xs font-semibold gradient-indigo text-primary-foreground disabled:opacity-50">
                       Send
                     </button>
                   </div>
@@ -329,7 +329,7 @@ export default function AdminWhatsApp() {
             <div className="flex gap-2 justify-end pt-1">
               <button onClick={() => setPendingReply(null)}
                 disabled={sending}
-                className="rounded-pill px-4 py-2 text-xs font-semibold glass-1 text-muted-foreground hover:text-foreground disabled:opacity-50" title="setPendingReply(null)} disabled= className='rounded-pill px-4 py-2 text-xs fo…" aria-label="setPendingReply(null)} disabled= className='rounded-pill px-4 py-2 text-xs fo…">
+                className="rounded-pill px-4 py-2 text-xs font-semibold glass-1 text-muted-foreground hover:text-foreground disabled:opacity-50">
                 Cancel
               </button>
               <button onClick={confirmSend}

@@ -330,10 +330,10 @@ export default function ProductDetailSheet({ product, providerId, storefrontName
                 <p className="text-xs text-muted-foreground">Quantity</p>
                 <div className="flex items-center gap-1">
                   <button onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                    className="w-8 h-8 glass-1 rounded-full flex items-center justify-center" title="setQuantity(q => Math.max(1, q - 1))} className='w-8 h-8 glass-1 rounded-full…" aria-label="setQuantity(q => Math.max(1, q - 1))} className='w-8 h-8 glass-1 rounded-full…">−</button>
+                    className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">−</button>
                   <span className="w-10 text-center text-sm font-data text-foreground">{quantity}</span>
                   <button onClick={() => setQuantity(q => Math.min(product.stock_remaining, q + 1))}
-                    className="w-8 h-8 glass-1 rounded-full flex items-center justify-center" title="setQuantity(q => Math.min(product.stock_remaining, q + 1))} className='w-8 h-…" aria-label="setQuantity(q => Math.min(product.stock_remaining, q + 1))} className='w-8 h-…">+</button>
+                    className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">+</button>
                 </div>
                 <p className="text-[11px] text-muted-foreground">{product.stock_remaining} in stock</p>
               </div>
@@ -353,7 +353,7 @@ export default function ProductDetailSheet({ product, providerId, storefrontName
                             ? "border-indigo/40 bg-indigo/10"
                             : "border-white/[0.08] glass-1"
                         }`}
-                       title="setSelectedZone(zone)} className= `} >" aria-label="setSelectedZone(zone)} className= `} >">
+                      >
                         <Icon className={`w-4 h-4 mb-1 ${selectedZone === zone ? "text-indigo" : "text-muted-foreground"}`} />
                         <p className="text-xs font-semibold text-foreground">{meta.label}</p>
                         <p className="text-[10px] text-muted-foreground">{meta.desc}</p>

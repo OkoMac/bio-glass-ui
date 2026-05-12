@@ -177,7 +177,7 @@ export default function CorporateProviders() {
                     onClick={() => removeProvider(p.id)}
                     className="p-2 rounded-xl hover:bg-coral/10 transition-all group shrink-0"
                     title="Remove provider"
-                   aria-label="removeProvider(p.id)} className='p-2 rounded-xl hover:bg-coral/10 transition-…">
+                  >
                     <Trash2 className="w-4 h-4 text-muted-foreground group-hover:text-coral" />
                   </button>
                 </div>
@@ -202,7 +202,7 @@ export default function CorporateProviders() {
                 <div className="px-5 pb-8 space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-base font-bold text-foreground">Add Provider</h3>
-                    <button onClick={() => setShowSearch(false)} className="p-1 rounded-full hover:bg-white/5" title="setShowSearch(false)} className='p-1 rounded-full hover:bg-white/5'>" aria-label="setShowSearch(false)} className='p-1 rounded-full hover:bg-white/5'>">
+                    <button onClick={() => setShowSearch(false)} className="p-1 rounded-full hover:bg-white/5">
                       <X className="w-4 h-4 text-muted-foreground" />
                     </button>
                   </div>

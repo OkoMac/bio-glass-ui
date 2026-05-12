@@ -82,7 +82,7 @@ export default function HostDashboard() {
       <div className="min-h-screen bg-obsidian text-white print:hidden">
         {/* Header */}
         <div className="px-5 pt-8 pb-4">
-          <button onClick={() => navigate(-1)} className="mb-4 p-2 -ml-2 rounded-xl hover:bg-white/5" title="navigate(-1)} className='mb-4 p-2 -ml-2 rounded-xl hover:bg-white/5'>" aria-label="navigate(-1)} className='mb-4 p-2 -ml-2 rounded-xl hover:bg-white/5'>">
+          <button onClick={() => navigate(-1)} className="mb-4 p-2 -ml-2 rounded-xl hover:bg-white/5">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-2xl font-bold mb-1">Host Dashboard</h1>
@@ -110,14 +110,14 @@ export default function HostDashboard() {
               <button
                 onClick={downloadQR}
                 className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white/5 border border-white/10 hover:border-violet/30 transition-colors"
-               title="Download" aria-label="Download">
+              >
                 <Download className="w-4 h-4 text-white/60" />
                 <span className="text-[10px] text-white/60">Download</span>
               </button>
               <button
                 onClick={printCard}
                 className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white/5 border border-white/10 hover:border-violet/30 transition-colors"
-               title="Print Card" aria-label="Print Card">
+              >
                 <Printer className="w-4 h-4 text-white/60" />
                 <span className="text-[10px] text-white/60">Print Card</span>
               </button>
@@ -140,7 +140,7 @@ export default function HostDashboard() {
           <button
             onClick={() => window.open(`/stay/${code}`, "_blank")}
             className="w-full flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-violet/30 transition-colors"
-           title="window.open(`/stay/$ `, '_blank')} className='w-full flex items-center justif…" aria-label="window.open(`/stay/$ `, '_blank')} className='w-full flex items-center justif…">
+          >
             <div className="flex items-center gap-3">
               <QrCode className="w-5 h-5 text-violet" />
               <div className="text-left">

@@ -61,7 +61,7 @@ export default function LandingHeader() {
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Close menu" : "Open menu"}
           className="md:hidden w-10 h-10 rounded-xl glass-1 flex items-center justify-center text-foreground"
-         title="setOpen((v) => !v)} aria-label= className='md:hidden w-10 h-10 rounded-xl gla…">
+        >
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>

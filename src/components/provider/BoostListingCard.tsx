@@ -108,7 +108,7 @@ export default function BoostListingCard() {
                   ? "border-2 border-amber/30 bg-amber/5 hover:bg-amber/10"
                   : "glass-1 hover:bg-white/[0.06]"
               }`}
-             title="purchase(tier.duration)} disabled= className= `} > R" aria-label="purchase(tier.duration)} disabled= className= `} > R">
+            >
               <div className="flex items-center gap-2">
                 <Icon className={`w-4 h-4 ${tier.popular ? "text-amber" : "text-muted-foreground"}`} />
                 <span className="text-xs font-medium text-foreground">{tier.label}</span>

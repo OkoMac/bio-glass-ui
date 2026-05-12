@@ -104,7 +104,7 @@ export default function Challenges() {
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-3">
-            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 mt-0.5 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='shrink-0 w-9 h-9 mt-0.5 glass-2 rounded-full flex it…" aria-label="navigate(-1)} className='shrink-0 w-9 h-9 mt-0.5 glass-2 rounded-full flex it…">
+            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 mt-0.5 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div>
@@ -226,7 +226,7 @@ export default function Challenges() {
                       {provider.challengeCount} challenge{provider.challengeCount !== 1 ? 's' : ''} • {provider.totalParticipants} participants
                     </div>
                   </div>
-                  <button className="px-3 py-1 gradient-indigo rounded-full text-xs font-medium" onClick={() => toast("Provider profile coming soon")} title="toast('Provider profile coming soon')}> View Profile" aria-label="toast('Provider profile coming soon')}> View Profile">
+                  <button className="px-3 py-1 gradient-indigo rounded-full text-xs font-medium" onClick={() => toast("Provider profile coming soon")}>
                     View Profile
                   </button>
                 </div>
@@ -475,7 +475,7 @@ function ChallengeDetailModal({ challenge, onClose, onJoin, onToggleTask }: {
                   <div className="text-xs text-muted-foreground mt-1">Certified Pretoria Service Provider</div>
                 )}
               </div>
-              <button className="px-4 py-2 gradient-indigo rounded-full text-sm font-medium" onClick={() => challenge.providerId ? navigate(`/provider/${challenge.providerId}`) : toast("Provider profile coming soon")} title="challenge.providerId ? navigate(`/provider/$ `) : toast('Provider profile com…" aria-label="challenge.providerId ? navigate(`/provider/$ `) : toast('Provider profile com…">
+              <button className="px-4 py-2 gradient-indigo rounded-full text-sm font-medium" onClick={() => challenge.providerId ? navigate(`/provider/${challenge.providerId}`) : toast("Provider profile coming soon")}>
                 View Profile
               </button>
             </div>
@@ -519,7 +519,7 @@ function ChallengeDetailModal({ challenge, onClose, onJoin, onToggleTask }: {
                   className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-colors ${
                     t.done ? "bg-teal/10 text-foreground" : "bg-white/5 text-muted-foreground hover:text-foreground"
                   }`}
-                 title="onToggleTask(i, !t.done)} className= `} >" aria-label="onToggleTask(i, !t.done)} className= `} >">
+                >
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                     t.done ? "border-teal bg-teal" : "border-white/20"
                   }`}>
@@ -534,17 +534,17 @@ function ChallengeDetailModal({ challenge, onClose, onJoin, onToggleTask }: {
           {/* Action buttons */}
           <div className="flex gap-3">
             {challenge.status === "available" && (
-              <button onClick={onJoin} className="flex-1 py-3 gradient-indigo rounded-xl text-sm font-medium" title="Join Challenge" aria-label="Join Challenge">
+              <button onClick={onJoin} className="flex-1 py-3 gradient-indigo rounded-xl text-sm font-medium">
                 Join Challenge
               </button>
             )}
             {challenge.status === "completed" && (
-              <button disabled className="flex-1 py-3 bg-teal/20 text-teal rounded-xl text-sm font-semibold cursor-default" title="✓ Completed" aria-label="✓ Completed">
+              <button disabled className="flex-1 py-3 bg-teal/20 text-teal rounded-xl text-sm font-semibold cursor-default">
                 ✓ Completed
               </button>
             )}
             {challenge.status === "locked" && (
-              <button className="flex-1 py-3 glass-1 rounded-xl text-sm font-medium opacity-50 cursor-not-allowed" title="Unlock Requirements" aria-label="Unlock Requirements">
+              <button className="flex-1 py-3 glass-1 rounded-xl text-sm font-medium opacity-50 cursor-not-allowed">
                 Unlock Requirements
               </button>
             )}

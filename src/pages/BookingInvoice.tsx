@@ -114,7 +114,7 @@ export default function BookingInvoice() {
       <div className="min-h-screen bg-obsidian flex flex-col items-center justify-center gap-4 px-6">
         <AlertCircle className="w-10 h-10 text-coral" />
         <p className="text-sm text-foreground font-medium">{error ?? "Booking not found."}</p>
-        <button onClick={() => navigate(-1)} className="text-xs text-indigo" title="navigate(-1)} className='text-xs text-indigo'>Go back" aria-label="navigate(-1)} className='text-xs text-indigo'>Go back">Go back</button>
+        <button onClick={() => navigate(-1)} className="text-xs text-indigo">Go back</button>
       </div>
     );
   }

@@ -84,7 +84,7 @@ function ConstantRow({ row, onSaved }: { row: Constant; onSaved: (updated: Const
           <button
             onClick={() => setEditing(true)}
             className="shrink-0 text-xs text-indigo hover:text-indigo/70 flex items-center gap-1"
-           title="setEditing(true)} className='shrink-0 text-xs text-indigo hover:text-indigo/7…" aria-label="setEditing(true)} className='shrink-0 text-xs text-indigo hover:text-indigo/7…">
+          >
             <Edit2 className="w-3 h-3" /> Edit
           </button>
         ) : null}
@@ -106,7 +106,7 @@ function ConstantRow({ row, onSaved }: { row: Constant; onSaved: (updated: Const
               onClick={save}
               disabled={saving}
               className="text-xs text-teal font-semibold flex items-center gap-1 px-3 py-2 rounded-lg glass-1 hover:bg-white/5 disabled:opacity-40"
-             title="Save" aria-label="Save">
+            >
               {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
               Save
             </button>
@@ -168,7 +168,7 @@ export default function AdminMarketingConstants() {
             onClick={() => navigate("/admin/dashboard")}
             className="p-2 -ml-2 text-muted-foreground hover:text-foreground"
             aria-label="Back to admin dashboard"
-           title="navigate('/admin/dashboard')} className='p-2 -ml-2 text-muted-foreground hove…">
+          >
             <ArrowLeft className="w-4 h-4" />
           </button>
           <h1 className="text-lg font-bold text-foreground">Marketing constants</h1>

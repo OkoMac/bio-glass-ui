@@ -169,7 +169,7 @@ function ChatView({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button className="p-2 rounded-full hover:bg-white/10" onClick={() => navigate(`/provider/${conversation.providerId}`)} title="navigate(`/provider/$ `)}>" aria-label="navigate(`/provider/$ `)}>">
+          <button className="p-2 rounded-full hover:bg-white/10" onClick={() => navigate(`/provider/${conversation.providerId}`)}>
             <Info className="w-5 h-5 text-foreground" />
           </button>
         </div>
@@ -195,7 +195,7 @@ function ChatView({
                 <div className="space-y-2">
                   <div className="font-medium">{msg.title}</div>
                   <div className="text-sm opacity-80">{msg.exercises} exercises</div>
-                  <button className="text-sm font-medium underline" onClick={() => navigate('/routines')} title="navigate('/routines')}>View Routine" aria-label="navigate('/routines')}>View Routine">View Routine</button>
+                  <button className="text-sm font-medium underline" onClick={() => navigate('/routines')}>View Routine</button>
                 </div>
               ) : msg.text?.startsWith("📎 ") && /https?:\/\/.+\.(jpg|jpeg|png|webp|gif|avif)/i.test(msg.text) ? (
                 <a href={msg.text.slice(2).trim()} target="_blank" rel="noopener noreferrer">
@@ -228,7 +228,7 @@ function ChatView({
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
             title="Send a photo"
-           aria-label="fileInputRef.current?.click()} disabled= title='Send a photo' >">
+          >
             {uploading
               ? <Loader2 className="w-5 h-5 text-foreground animate-spin" />
               : <Paperclip className="w-5 h-5 text-foreground" />}
@@ -446,7 +446,7 @@ export default function Messages() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…" aria-label="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…">
+            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div>

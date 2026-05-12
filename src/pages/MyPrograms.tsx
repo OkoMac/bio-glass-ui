@@ -145,7 +145,7 @@ export default function MyPrograms() {
     return (
       <div className="min-h-screen bg-obsidian flex flex-col items-center justify-center text-foreground gap-3">
         <p className="text-sm font-semibold">Sign in to see your programs</p>
-        <button onClick={() => navigate("/welcome?login=true")} className="rounded-pill px-4 py-2 gradient-indigo text-xs font-semibold text-white" title="navigate('/welcome?login=true')} className='rounded-pill px-4 py-2 gradient-i…" aria-label="navigate('/welcome?login=true')} className='rounded-pill px-4 py-2 gradient-i…">
+        <button onClick={() => navigate("/welcome?login=true")} className="rounded-pill px-4 py-2 gradient-indigo text-xs font-semibold text-white">
           Sign up / Log in
         </button>
       </div>
@@ -319,7 +319,7 @@ function MyProgramDay({ enrollmentId }: { enrollmentId: string }) {
       <div className="min-h-screen bg-obsidian flex flex-col items-center justify-center gap-3 text-foreground">
         <p className="text-sm font-semibold">Program unavailable</p>
         <p className="text-xs text-muted-foreground">{err ?? "Try again shortly."}</p>
-        <button onClick={() => navigate("/my-programs")} className="text-xs text-indigo" title="navigate('/my-programs')} className='text-xs text-indigo'>Back to my programs" aria-label="navigate('/my-programs')} className='text-xs text-indigo'>Back to my programs">Back to my programs</button>
+        <button onClick={() => navigate("/my-programs")} className="text-xs text-indigo">Back to my programs</button>
       </div>
     );
   }

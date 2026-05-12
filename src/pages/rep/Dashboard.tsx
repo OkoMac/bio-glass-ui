@@ -207,7 +207,7 @@ export default function RepDashboard() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow relative">
-      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded…" aria-label="navigate(-1)} className='absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded…">
+      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-3xl px-4 pt-20 pb-28 space-y-5">
@@ -228,7 +228,7 @@ export default function RepDashboard() {
                   : "Share your link to start earning"}
             </p>
           </div>
-          <button onClick={logout} className="text-[10px] text-muted-foreground glass-1 px-3 py-1.5 rounded-pill" title="Sign out" aria-label="Sign out">Sign out</button>
+          <button onClick={logout} className="text-[10px] text-muted-foreground glass-1 px-3 py-1.5 rounded-pill">Sign out</button>
         </div>
 
         {/* KPI Grid */}

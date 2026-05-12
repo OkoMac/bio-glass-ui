@@ -124,13 +124,13 @@ function OrderDisputeView({ orderId, onResolved }: { orderId: string; onResolved
                 <div key={i} className="relative group rounded-lg overflow-hidden border border-white/10 h-16">
                   <img src={u} alt="" className="w-full h-full object-cover" />
                   <button type="button" onClick={() => setEvidence(evidence.filter((_, j) => j !== i))}
-                    className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity" title="setEvidence(evidence.filter((_, j) => j !== i))} className='absolute top-0.5 …" aria-label="setEvidence(evidence.filter((_, j) => j !== i))} className='absolute top-0.5 …">
+                    className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                     <Trash2 className="w-2.5 h-2.5 text-white" />
                   </button>
                 </div>
               ))}
               <button type="button" onClick={() => evRef.current?.click()} disabled={uploading}
-                className="h-16 rounded-lg border border-dashed border-white/10 hover:border-coral/40 text-muted-foreground hover:text-foreground text-[9px] flex flex-col items-center justify-center disabled:opacity-50" title="evRef.current?.click()} disabled= className='h-16 rounded-lg border border-da…" aria-label="evRef.current?.click()} disabled= className='h-16 rounded-lg border border-da…">
+                className="h-16 rounded-lg border border-dashed border-white/10 hover:border-coral/40 text-muted-foreground hover:text-foreground text-[9px] flex flex-col items-center justify-center disabled:opacity-50">
                 {uploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <><span className="text-base leading-none">+</span>Add</>}
               </button>
             </div>
@@ -140,7 +140,7 @@ function OrderDisputeView({ orderId, onResolved }: { orderId: string; onResolved
           <button
             onClick={handleSubmit} disabled={submitting || statement.trim().length < 10}
             className="w-full py-2.5 rounded-xl bg-coral text-white text-xs font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-           title="Submit to B_ for review" aria-label="Submit to B_ for review">
+          >
             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             Submit to B_ for review
           </button>
@@ -175,19 +175,19 @@ function OrderDisputeView({ orderId, onResolved }: { orderId: string; onResolved
           <button
             onClick={() => handleResolve("refunded")} disabled={resolving}
             className="py-2 rounded-lg bg-teal/10 text-teal text-[11px] font-semibold disabled:opacity-50"
-           title="handleResolve('refunded')} disabled= className='py-2 rounded-lg bg-teal/10 te…" aria-label="handleResolve('refunded')} disabled= className='py-2 rounded-lg bg-teal/10 te…">
+          >
             Refund buyer
           </button>
           <button
             onClick={() => handleResolve("replaced")} disabled={resolving}
             className="py-2 rounded-lg bg-indigo/10 text-indigo text-[11px] font-semibold disabled:opacity-50"
-           title="handleResolve('replaced')} disabled= className='py-2 rounded-lg bg-indigo/10 …" aria-label="handleResolve('replaced')} disabled= className='py-2 rounded-lg bg-indigo/10 …">
+          >
             Ship replacement
           </button>
           <button
             onClick={() => handleResolve("admin_decided")} disabled={resolving}
             className="py-2 rounded-lg bg-white/5 text-muted-foreground text-[11px] font-semibold disabled:opacity-50"
-           title="handleResolve('admin_decided')} disabled= className='py-2 rounded-lg bg-white…" aria-label="handleResolve('admin_decided')} disabled= className='py-2 rounded-lg bg-white…">
+          >
             Escalate to admin
           </button>
         </div>
@@ -392,7 +392,7 @@ function BookingDisputeCard({
           <button
             onClick={handleRespond} disabled={submitting || response.trim().length < 10}
             className="w-full py-2.5 rounded-xl bg-coral text-white text-xs font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-           title="Submit to B_ for review" aria-label="Submit to B_ for review">
+          >
             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             Submit to B_ for review
           </button>
@@ -425,7 +425,7 @@ function BookingDisputeCard({
                 className={`px-2 py-1 rounded-lg border text-[11px] ${
                   refundTo === "wallet" ? "border-teal/50 bg-teal/10 text-teal" : "border-white/10 text-muted-foreground"
                 }`}
-               title="setRefundTo('wallet')} className= `} > Client wallet" aria-label="setRefundTo('wallet')} className= `} > Client wallet">
+              >
                 Client wallet
               </button>
               <button
@@ -433,7 +433,7 @@ function BookingDisputeCard({
                 className={`px-2 py-1 rounded-lg border text-[11px] ${
                   refundTo === "bank" ? "border-teal/50 bg-teal/10 text-teal" : "border-white/10 text-muted-foreground"
                 }`}
-               title="setRefundTo('bank')} className= `} > Bank" aria-label="setRefundTo('bank')} className= `} > Bank">
+              >
                 Bank
               </button>
             </div>
@@ -442,13 +442,13 @@ function BookingDisputeCard({
             <button
               onClick={handleAccept} disabled={actioning}
               className="py-2 rounded-lg bg-teal/10 text-teal text-[11px] font-semibold disabled:opacity-50"
-             title="Accept B_'s recommendation" aria-label="Accept B_'s recommendation">
+            >
               Accept B_'s recommendation
             </button>
             <button
               onClick={handleEscalate} disabled={actioning}
               className="py-2 rounded-lg bg-amber/10 text-amber text-[11px] font-semibold disabled:opacity-50"
-             title="Escalate to admin" aria-label="Escalate to admin">
+            >
               Escalate to admin
             </button>
           </div>

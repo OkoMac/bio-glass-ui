@@ -193,7 +193,7 @@ export default function BankConnectSection() {
           <button
             onClick={() => { setEditing(true); setBusinessName(user?.name ?? ""); }}
             className="text-xs text-indigo font-medium px-3 py-1.5 rounded-pill glass-1 hover:bg-white/[0.06] transition-colors shrink-0"
-           title="} className='text-xs text-indigo font-medium px-3 py-1.5 rounded-pill glass-1…" aria-label="} className='text-xs text-indigo font-medium px-3 py-1.5 rounded-pill glass-1…">
+          >
             {hasLinked ? "Change" : "Connect"}
           </button>
         )}
@@ -290,7 +290,7 @@ export default function BankConnectSection() {
                   onClick={() => { setEditing(false); setResolvedName(null); setResolveError(null); }}
                   disabled={submitting}
                   className="flex-1 py-2.5 rounded-pill glass-1 text-xs text-muted-foreground font-medium"
-                 title="} disabled= className='flex-1 py-2.5 rounded-pill glass-1 text-xs text-muted-…" aria-label="} disabled= className='flex-1 py-2.5 rounded-pill glass-1 text-xs text-muted-…">
+                >
                   Cancel
                 </button>
                 <motion.button

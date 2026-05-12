@@ -46,7 +46,7 @@ export default function ProviderClients() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <SubscriptionGate feature="clientNotifications" featureName="Client Management" description="View client profiles, track session history, and manage your client relationships. Upgrade to Pro to unlock.">
@@ -213,7 +213,7 @@ export default function ProviderClients() {
               <div className="px-5 pt-5 pb-8">
                 <div className="flex items-center justify-between mb-5">
                   <h3 className="text-base font-bold text-foreground">Invite a Client</h3>
-                  <button onClick={() => setShowInvite(false)} title="setShowInvite(false)}>" aria-label="setShowInvite(false)}>"><X className="w-5 h-5 text-muted-foreground" /></button>
+                  <button onClick={() => setShowInvite(false)}><X className="w-5 h-5 text-muted-foreground" /></button>
                 </div>
 
                 {inviteSent ? (

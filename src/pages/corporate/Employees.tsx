@@ -239,7 +239,7 @@ export default function CorporateEmployees() {
               <button key={d} onClick={() => setDept(d)}
                 className={`px-3 py-1.5 rounded-pill text-xs font-medium whitespace-nowrap transition-all ${
                   dept === d ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
-                }`} title="setDept(d)} className= `}>" aria-label="setDept(d)} className= `}>">
+                }`}>
                 {d}
               </button>
             ))}
@@ -258,7 +258,7 @@ export default function CorporateEmployees() {
               }}
               className="shrink-0 px-2 py-1.5 rounded-pill text-[10px] text-muted-foreground glass-1 hover:text-foreground transition-colors"
               title="Customise departments"
-             aria-label="catch } }} className='shrink-0 px-2 py-1.5 rounded-pill text-[10px] text-mute…">
+            >
               Edit ✏️
             </button>
           </div>
@@ -308,7 +308,7 @@ export default function CorporateEmployees() {
                         onClick={(ev) => { ev.stopPropagation(); handleRemove(e.id); }}
                         className="p-1 rounded-lg hover:bg-coral/10 transition-all group"
                         title="Remove employee"
-                       aria-label="} className='p-1 rounded-lg hover:bg-coral/10 transition-all group' title='Re…">
+                      >
                         <Trash2 className="w-3 h-3 text-muted-foreground group-hover:text-coral" />
                       </button>
                     </div>
@@ -332,7 +332,7 @@ export default function CorporateEmployees() {
               <div className="p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-bold text-foreground">Invite Employee</h3>
-                  <button onClick={() => setShowInvite(false)} className="p-1 rounded-full hover:bg-white/5" title="setShowInvite(false)} className='p-1 rounded-full hover:bg-white/5'>" aria-label="setShowInvite(false)} className='p-1 rounded-full hover:bg-white/5'>">
+                  <button onClick={() => setShowInvite(false)} className="p-1 rounded-full hover:bg-white/5">
                     <X className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </div>
@@ -369,7 +369,7 @@ export default function CorporateEmployees() {
                         <button key={amt} onClick={() => setInviteForm(prev => ({ ...prev, monthly_budget: amt }))}
                           className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
                             inviteForm.monthly_budget === amt ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
-                          }`} title="setInviteForm(prev => ( ))} className= `}> R" aria-label="setInviteForm(prev => ( ))} className= `}> R">
+                          }`}>
                           R{amt}
                         </button>
                       ))}
@@ -451,7 +451,7 @@ export default function CorporateEmployees() {
                         <button key={amt} onClick={() => setTopUpAmount(amt)}
                           className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
                             topUpAmount === amt ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
-                          }`} title="setTopUpAmount(amt)} className= `}> R" aria-label="setTopUpAmount(amt)} className= `}> R">
+                          }`}>
                           R{amt}
                         </button>
                       ))}

@@ -87,7 +87,7 @@ export default function ProviderDashboard() {
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-3">
-            <button onClick={() => navigate(-1)} className="shrink-0 md:hidden w-9 h-9 mt-0.5 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='shrink-0 md:hidden w-9 h-9 mt-0.5 glass-2 rounded-fu…" aria-label="navigate(-1)} className='shrink-0 md:hidden w-9 h-9 mt-0.5 glass-2 rounded-fu…">
+            <button onClick={() => navigate(-1)} className="shrink-0 md:hidden w-9 h-9 mt-0.5 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div>
@@ -98,7 +98,7 @@ export default function ProviderDashboard() {
               </p>
             </div>
           </div>
-          <button onClick={logout} className="text-[10px] text-muted-foreground glass-1 px-3 py-1.5 rounded-pill" title="Sign out" aria-label="Sign out">Sign out</button>
+          <button onClick={logout} className="text-[10px] text-muted-foreground glass-1 px-3 py-1.5 rounded-pill">Sign out</button>
         </div>
 
         {/* Verification / bank-connect status — surfaces anything blocking bookable state */}
@@ -161,7 +161,7 @@ export default function ProviderDashboard() {
             </div>
 
             <button onClick={() => navigate("/pro/billing")}
-              className="w-full mt-4 flex items-center justify-center gap-1.5 py-2.5 glass-1 rounded-pill text-xs font-medium text-indigo hover:bg-white/[0.04] transition-colors" title="navigate('/pro/billing')} className='w-full mt-4 flex items-center justify-ce…" aria-label="navigate('/pro/billing')} className='w-full mt-4 flex items-center justify-ce…">
+              className="w-full mt-4 flex items-center justify-center gap-1.5 py-2.5 glass-1 rounded-pill text-xs font-medium text-indigo hover:bg-white/[0.04] transition-colors">
               View payouts & bank details <ChevronRight className="w-3 h-3" />
             </button>
           </GlassCard>
@@ -175,7 +175,7 @@ export default function ProviderDashboard() {
                 <h2 className="text-base font-semibold text-foreground">Booking Requests</h2>
                 <span className="text-[10px] px-1.5 py-0.5 glass-accent-amber text-amber rounded-pill">{pending.length}</span>
               </div>
-              <button onClick={() => navigate("/pro/bookings")} className="text-xs text-indigo" title="navigate('/pro/bookings')} className='text-xs text-indigo'>View all →" aria-label="navigate('/pro/bookings')} className='text-xs text-indigo'>View all →">View all →</button>
+              <button onClick={() => navigate("/pro/bookings")} className="text-xs text-indigo">View all →</button>
             </div>
             <div className="space-y-2">
               {pending.slice(0, 3).map((b, i) => (
@@ -214,7 +214,7 @@ export default function ProviderDashboard() {
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-semibold text-foreground">Today's Schedule</h2>
-            <button onClick={() => navigate("/pro/schedule")} className="text-xs text-indigo" title="navigate('/pro/schedule')} className='text-xs text-indigo'>Full calendar →" aria-label="navigate('/pro/schedule')} className='text-xs text-indigo'>Full calendar →">Full calendar →</button>
+            <button onClick={() => navigate("/pro/schedule")} className="text-xs text-indigo">Full calendar →</button>
           </div>
           <div className="space-y-2">
             {todaySessions.length > 0 ? todaySessions.map((s, i) => (

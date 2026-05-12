@@ -91,7 +91,7 @@ export default function BicademyCertificate() {
         <button
           onClick={() => navigate(`/bicademy/${course.course_code}`)}
           className="rounded-pill px-4 py-2 text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta"
-         title="navigate(`/bicademy/$ `)} className='rounded-pill px-4 py-2 text-xs font-semi…" aria-label="navigate(`/bicademy/$ `)} className='rounded-pill px-4 py-2 text-xs font-semi…">
+        >
           Continue course
         </button>
       </div>
@@ -119,13 +119,13 @@ export default function BicademyCertificate() {
           <button
             onClick={() => navigate(`/bicademy/${course.course_code}`)}
             className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
-           title="navigate(`/bicademy/$ `)} className='flex items-center gap-2 text-xs text-mut…" aria-label="navigate(`/bicademy/$ `)} className='flex items-center gap-2 text-xs text-mut…">
+          >
             <ArrowLeft className="w-4 h-4" /> Back to course
           </button>
           <button
             onClick={handlePrint}
             className="inline-flex items-center gap-2 rounded-pill px-4 py-2 text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta"
-           title="Print / Save as PDF" aria-label="Print / Save as PDF">
+          >
             <Printer className="w-3.5 h-3.5" />
             Print / Save as PDF
           </button>

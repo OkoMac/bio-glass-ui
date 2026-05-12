@@ -122,7 +122,7 @@ function ExportDataCard() {
         <button
           onClick={requestExport}
           className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl gradient-indigo text-primary-foreground text-xs font-semibold"
-         title="Request export" aria-label="Request export">
+        >
           <Download className="w-3.5 h-3.5" />
           Request export
         </button>
@@ -158,7 +158,7 @@ function ExportDataCard() {
           <button
             onClick={requestExport}
             className="w-full py-2 rounded-xl glass-1 text-xs text-foreground"
-           title="Try again" aria-label="Try again">
+          >
             Try again
           </button>
         </div>
@@ -214,7 +214,7 @@ function CookiePreferencesCard() {
       <button
         onClick={openCookieBanner}
         className="w-full py-2.5 rounded-xl gradient-indigo text-primary-foreground text-xs font-semibold"
-       title="Change preferences" aria-label="Change preferences">
+      >
         Change preferences
       </button>
     </GlassCard>
@@ -338,7 +338,7 @@ function DeleteRequestModal({
             onClick={onClose}
             disabled={submitting}
             className="flex-1 py-2.5 rounded-xl glass-1 text-xs font-semibold text-foreground disabled:opacity-50"
-           title="Keep my account" aria-label="Keep my account">
+          >
             Keep my account
           </button>
           <button
@@ -448,7 +448,7 @@ function DeleteAccountCard({ userEmail }: { userEmail: string }) {
           <button
             onClick={() => setModalOpen(true)}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-coral/10 border border-coral/30 text-coral text-xs font-semibold"
-           title="setModalOpen(true)} className='w-full flex items-center justify-center gap-2 …" aria-label="setModalOpen(true)} className='w-full flex items-center justify-center gap-2 …">
+          >
             <Trash2 className="w-3.5 h-3.5" />
             Request deletion
           </button>
@@ -497,7 +497,7 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
     <button
       onClick={() => onChange(!value)}
       className={`w-10 h-5 rounded-pill relative transition-all ${value ? "gradient-indigo" : "bg-white/10"}`}
-     title="onChange(!value)} className= `} >" aria-label="onChange(!value)} className= `} >">
+    >
       <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${value ? "left-5" : "left-0.5"}`} />
     </button>
   );
@@ -835,7 +835,7 @@ export default function Settings() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-full glass-1 flex items-center justify-center" title="navigate(-1)} className='w-8 h-8 rounded-full glass-1 flex items-center justi…" aria-label="navigate(-1)} className='w-8 h-8 rounded-full glass-1 flex items-center justi…">
+            <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-full glass-1 flex items-center justify-center">
               <ChevronLeft className="w-4 h-4 text-foreground" />
             </button>
             <h1 className="text-xl font-bold text-foreground">Settings</h1>
@@ -860,7 +860,7 @@ export default function Settings() {
                 className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-pill text-xs font-medium transition-all ${
                   tab === t.id ? "gradient-indigo text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}
-               title="setTab(t.id)} className= `} >" aria-label="setTab(t.id)} className= `} >">
+              >
                 <Icon className="w-3.5 h-3.5 shrink-0" />
                 <span className="hidden sm:inline">{t.label}</span>
               </button>
@@ -907,7 +907,7 @@ export default function Settings() {
                     <button
                       onClick={(e) => { e.stopPropagation(); removeCard(card.id); }}
                       className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-coral/10 transition-colors"
-                     title="} className='w-6 h-6 rounded-full flex items-center justify-center hover:bg-c…" aria-label="} className='w-6 h-6 rounded-full flex items-center justify-center hover:bg-c…">
+                    >
                       <X className="w-3 h-3 text-muted-foreground hover:text-coral" />
                     </button>
                   </div>
@@ -941,12 +941,12 @@ export default function Settings() {
                     className="w-full glass-1 rounded-xl px-3 py-2 text-sm font-data text-foreground placeholder:text-muted-foreground outline-none border border-white/5 bg-transparent"
                   />
                   <div className="flex gap-2 pt-1">
-                    <button onClick={addCard} className="flex-1 py-2 rounded-xl gradient-indigo text-primary-foreground text-xs font-semibold" title="Save Card" aria-label="Save Card">Save Card</button>
-                    <button onClick={() => { setShowAddCard(false); setNewCardNumber(""); setNewCardExpiry(""); setNewCardName(""); }} className="py-2 px-3 rounded-xl glass-1 text-xs text-muted-foreground" title="} className='py-2 px-3 rounded-xl glass-1 text-xs text-muted-foreground'>Cancel" aria-label="} className='py-2 px-3 rounded-xl glass-1 text-xs text-muted-foreground'>Cancel">Cancel</button>
+                    <button onClick={addCard} className="flex-1 py-2 rounded-xl gradient-indigo text-primary-foreground text-xs font-semibold">Save Card</button>
+                    <button onClick={() => { setShowAddCard(false); setNewCardNumber(""); setNewCardExpiry(""); setNewCardName(""); }} className="py-2 px-3 rounded-xl glass-1 text-xs text-muted-foreground">Cancel</button>
                   </div>
                 </div>
               ) : (
-                <button className="w-full mt-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-white/15 text-xs text-muted-foreground hover:text-foreground hover:border-white/30 transition-colors" onClick={() => setShowAddCard(true)} title="setShowAddCard(true)}> Add new card" aria-label="setShowAddCard(true)}> Add new card">
+                <button className="w-full mt-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-white/15 text-xs text-muted-foreground hover:text-foreground hover:border-white/30 transition-colors" onClick={() => setShowAddCard(true)}>
                   <Plus className="w-3.5 h-3.5" />
                   Add new card
                 </button>
@@ -1091,7 +1091,7 @@ export default function Settings() {
                         onClick={sendVerificationEmail}
                         disabled={verifyBusy}
                         className="py-2 px-3 rounded-xl glass-1 text-xs text-muted-foreground disabled:opacity-50"
-                       title="Resend" aria-label="Resend">
+                      >
                         Resend
                       </button>
                     </div>
@@ -1158,11 +1158,11 @@ export default function Settings() {
                     else alert(json.error ?? "Could not send reset email.");
                   } catch { alert("Network error. Try again."); }
                 }}
-               title="= explainTokenLoss(user?.id); alert(message); if (redirect) navigate('/login'…" aria-label="= explainTokenLoss(user?.id); alert(message); if (redirect) navigate('/login'…">
+              >
                 <span>Change Password</span>
                 <ChevronLeft className="w-4 h-4 rotate-180 text-muted-foreground" />
               </button>
-              <button className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl glass-1 text-sm text-foreground hover:bg-white/5 transition-colors" onClick={() => alert("Social account linking coming soon.")} title="alert('Social account linking coming soon.')}> Linked Social Accounts" aria-label="alert('Social account linking coming soon.')}> Linked Social Accounts">
+              <button className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl glass-1 text-sm text-foreground hover:bg-white/5 transition-colors" onClick={() => alert("Social account linking coming soon.")}>
                 <span>Linked Social Accounts</span>
                 <ChevronLeft className="w-4 h-4 rotate-180 text-muted-foreground" />
               </button>
@@ -1189,7 +1189,7 @@ export default function Settings() {
                           ? "border border-indigo/40 bg-indigo/8 text-foreground"
                           : "glass-1 text-muted-foreground hover:text-foreground hover:bg-white/5"
                       }`}
-                     title="role !== user?.role && handleSwitchRole(role)} disabled= className= `} >" aria-label="role !== user?.role && handleSwitchRole(role)} disabled= className= `} >">
+                    >
                       <span className="capitalize">{role.replace(/_/g, " ")}</span>
                       {role === user?.role && (
                         <span className="text-[10px] px-2 py-0.5 rounded-pill glass-accent-teal text-teal font-medium">Active</span>

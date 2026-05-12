@@ -64,7 +64,7 @@ export default function ClientBilling() {
   if (!isClient) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow relative">
-        <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded…" aria-label="navigate(-1)} className='absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded…">
+        <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="mx-auto max-w-2xl px-4 pt-20 pb-28 space-y-5">
@@ -120,7 +120,7 @@ export default function ClientBilling() {
               <button
                 onClick={handleUpgrade} disabled={upgrading}
                 className="gradient-indigo rounded-pill px-4 py-2 text-sm font-semibold text-white"
-               title="Upgrade Now" aria-label="Upgrade Now">
+              >
                 Upgrade Now
               </button>
             )}
@@ -172,7 +172,7 @@ export default function ClientBilling() {
                   ? 'gradient-indigo text-white' 
                   : 'text-muted-foreground hover:text-foreground'
               }`}
-             title="setSelectedPlan('monthly')} className= `} > Monthly" aria-label="setSelectedPlan('monthly')} className= `} > Monthly">
+            >
               Monthly
             </button>
             <button
@@ -182,7 +182,7 @@ export default function ClientBilling() {
                   ? 'gradient-indigo text-white' 
                   : 'text-muted-foreground hover:text-foreground'
               }`}
-             title="setSelectedPlan('yearly')} className= `} > Yearly (Save 17%)" aria-label="setSelectedPlan('yearly')} className= `} > Yearly (Save 17%)">
+            >
               Yearly (Save 17%)
             </button>
           </div>
@@ -227,11 +227,11 @@ export default function ClientBilling() {
             </div>
             
             {currentTier === 'free' ? (
-              <button className="w-full glass-1 rounded-pill py-3 text-sm font-medium text-foreground" title="Current Plan" aria-label="Current Plan">
+              <button className="w-full glass-1 rounded-pill py-3 text-sm font-medium text-foreground">
                 Current Plan
               </button>
             ) : (
-              <button className="w-full glass-1 rounded-pill py-3 text-sm font-medium text-foreground" title="Downgrade to Free" aria-label="Downgrade to Free">
+              <button className="w-full glass-1 rounded-pill py-3 text-sm font-medium text-foreground">
                 Downgrade to Free
               </button>
             )}

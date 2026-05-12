@@ -38,7 +38,7 @@ export default function PackageBuilder() {
   if (!isEnabled('packageBuilder')) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-        <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+        <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -73,7 +73,7 @@ export default function PackageBuilder() {
   
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-6xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -86,7 +86,7 @@ export default function PackageBuilder() {
               Create session bundles to sell to clients
             </p>
           </div>
-          <button className="gradient-indigo rounded-pill px-4 py-2 text-sm font-semibold text-white flex items-center gap-2" title="New Package" aria-label="New Package">
+          <button className="gradient-indigo rounded-pill px-4 py-2 text-sm font-semibold text-white flex items-center gap-2">
             <Plus className="w-4 h-4" />
             New Package
           </button>
@@ -216,7 +216,7 @@ export default function PackageBuilder() {
                   </div>
                   
                   <div className="flex items-center gap-2 mt-4">
-                    <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground" title="Edit" aria-label="Edit">
+                    <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground">
                       Edit
                     </button>
                     <button className="flex-1 gradient-indigo rounded-pill py-2 text-sm font-semibold text-white">
@@ -262,7 +262,7 @@ export default function PackageBuilder() {
                   <div>
                     <label className="text-sm font-medium text-foreground mb-1 block">Number of Sessions</label>
                     <div className="flex items-center">
-                      <button className="w-10 h-10 glass-1 rounded-l-pill flex items-center justify-center" title="-" aria-label="-">
+                      <button className="w-10 h-10 glass-1 rounded-l-pill flex items-center justify-center">
                         <span className="text-foreground">-</span>
                       </button>
                       <input
@@ -272,7 +272,7 @@ export default function PackageBuilder() {
                         onChange={(e) => setNewPackage({...newPackage, sessions: parseInt(e.target.value) || 1})}
                         min="1"
                       />
-                      <button className="w-10 h-10 glass-1 rounded-r-pill flex items-center justify-center" title="+" aria-label="+">
+                      <button className="w-10 h-10 glass-1 rounded-r-pill flex items-center justify-center">
                         <span className="text-foreground">+</span>
                       </button>
                     </div>
@@ -281,7 +281,7 @@ export default function PackageBuilder() {
                   <div>
                     <label className="text-sm font-medium text-foreground mb-1 block">Discount %</label>
                     <div className="flex items-center">
-                      <button className="w-10 h-10 glass-1 rounded-l-pill flex items-center justify-center" title="-" aria-label="-">
+                      <button className="w-10 h-10 glass-1 rounded-l-pill flex items-center justify-center">
                         <span className="text-foreground">-</span>
                       </button>
                       <input
@@ -292,7 +292,7 @@ export default function PackageBuilder() {
                         min="0"
                         max="50"
                       />
-                      <button className="w-10 h-10 glass-1 rounded-r-pill flex items-center justify-center" title="+" aria-label="+">
+                      <button className="w-10 h-10 glass-1 rounded-r-pill flex items-center justify-center">
                         <span className="text-foreground">+</span>
                       </button>
                     </div>
@@ -343,7 +343,7 @@ export default function PackageBuilder() {
                   </div>
                 </div>
                 
-                <button className="w-full gradient-indigo rounded-pill py-3 text-sm font-semibold text-white" title="Create Package" aria-label="Create Package">
+                <button className="w-full gradient-indigo rounded-pill py-3 text-sm font-semibold text-white">
                   Create Package
                 </button>
               </div>

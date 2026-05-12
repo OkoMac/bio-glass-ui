@@ -99,13 +99,13 @@ function EmailVerifyBanner() {
       <button
         onClick={() => navigate("/settings?tab=account")}
         className="shrink-0 px-3 py-1.5 rounded-pill text-[10px] font-semibold gradient-indigo text-primary-foreground"
-       title="navigate('/settings?tab=account')} className='shrink-0 px-3 py-1.5 rounded-pi…" aria-label="navigate('/settings?tab=account')} className='shrink-0 px-3 py-1.5 rounded-pi…">
+      >
         Verify
       </button>
       <button
         onClick={() => { setDismissed(true); try { sessionStorage.setItem("bion_email_verify_dismissed", "1"); } catch {} }}
         className="shrink-0 text-muted-foreground hover:text-foreground"
-       title="catch }} className='shrink-0 text-muted-foreground hover:text-foreground' > D…" aria-label="catch }} className='shrink-0 text-muted-foreground hover:text-foreground' > D…">
+      >
         <span className="sr-only">Dismiss</span>
         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -379,11 +379,11 @@ const Index = () => {
             <div className="mt-3 p-3 rounded-xl border border-amber-400/20 bg-amber-400/5">
               <p className="text-[11px] text-amber leading-relaxed">
                 Your display name isn't loading.{" "}
-                <button onClick={() => { void refetchUser(); }} className="underline font-medium mr-2" title="} className='underline font-medium mr-2'> Refresh now" aria-label="} className='underline font-medium mr-2'> Refresh now">
+                <button onClick={() => { void refetchUser(); }} className="underline font-medium mr-2">
                   Refresh now
                 </button>
                 or{" "}
-                <button onClick={() => navigate("/profile")} className="underline font-medium" title="navigate('/profile')} className='underline font-medium'> set your name" aria-label="navigate('/profile')} className='underline font-medium'> set your name">
+                <button onClick={() => navigate("/profile")} className="underline font-medium">
                   set your name
                 </button>
               </p>
@@ -409,7 +409,7 @@ const Index = () => {
         <section>
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs text-muted-foreground uppercase tracking-widest">Today's Vitals</p>
-            <button onClick={() => navigate("/health-insights")} className="text-xs text-teal font-medium" title="navigate('/health-insights')} className='text-xs text-teal font-medium'>View …" aria-label="navigate('/health-insights')} className='text-xs text-teal font-medium'>View …">View all →</button>
+            <button onClick={() => navigate("/health-insights")} className="text-xs text-teal font-medium">View all →</button>
           </div>
           <BiometricsDashboard compact />
         </section>
@@ -428,7 +428,7 @@ const Index = () => {
           {geo.permitted ? (
             <span className="text-teal text-xs">Showing providers near you</span>
           ) : (
-            <button onClick={geo.requestLocation} className="text-xs text-amber" title="Enable location for nearby providers" aria-label="Enable location for nearby providers">
+            <button onClick={geo.requestLocation} className="text-xs text-amber">
               Enable location for nearby providers
             </button>
           )}
@@ -464,7 +464,7 @@ const Index = () => {
               <SearchIcon className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
               <p className="text-sm font-medium text-foreground mb-1">No providers to show yet</p>
               <p className="text-xs text-muted-foreground">Explore the provider network to find professionals near you.</p>
-              <button onClick={() => navigate("/directory")} className="mt-3 text-xs text-indigo-light font-medium" title="navigate('/directory')} className='mt-3 text-xs text-indigo-light font-medium…" aria-label="navigate('/directory')} className='mt-3 text-xs text-indigo-light font-medium…">
+              <button onClick={() => navigate("/directory")} className="mt-3 text-xs text-indigo-light font-medium">
                 Browse directory →
               </button>
             </GlassCard>
@@ -517,7 +517,7 @@ const Index = () => {
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold text-foreground">Today</h2>
-            <button onClick={() => navigate("/calendar")} className="text-xs text-teal font-medium" title="navigate('/calendar')} className='text-xs text-teal font-medium'>View Calendar →" aria-label="navigate('/calendar')} className='text-xs text-teal font-medium'>View Calendar →">View Calendar →</button>
+            <button onClick={() => navigate("/calendar")} className="text-xs text-teal font-medium">View Calendar →</button>
           </div>
           <div className="flex gap-2 overflow-x-auto scrollbar-none -mx-4 px-4 pb-1">
             {(() => {

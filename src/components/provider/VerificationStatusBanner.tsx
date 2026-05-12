@@ -230,7 +230,7 @@ export default function VerificationStatusBanner() {
             onClick={handleDismiss}
             aria-label="Dismiss banner"
             className="absolute top-3 right-3 w-7 h-7 rounded-full glass-1 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-           title="Close">
+          >
             <X className="w-3.5 h-3.5" />
           </button>
         )}

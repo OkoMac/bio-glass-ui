@@ -130,7 +130,7 @@ export default function AdminAlertsPanel() {
       <GlassCard className="p-4 flex items-center gap-3">
         <AlertTriangle className="w-5 h-5 text-coral shrink-0" />
         <p className="text-sm text-coral flex-1">Alerts: {err}</p>
-        <button onClick={refresh} className="text-xs text-indigo underline" title="Retry" aria-label="Retry">Retry</button>
+        <button onClick={refresh} className="text-xs text-indigo underline">Retry</button>
       </GlassCard>
     );
   }
@@ -156,7 +156,7 @@ export default function AdminAlertsPanel() {
           onClick={refresh}
           aria-label="Refresh alerts"
           className="p-1.5 glass-1 rounded-full"
-         title="Refresh">
+        >
           <RefreshCw className={`w-3.5 h-3.5 text-muted-foreground ${loading ? "animate-spin" : ""}`} />
         </button>
       </GlassCard>
@@ -184,7 +184,7 @@ export default function AdminAlertsPanel() {
             <span className={counts.info > 0 ? SEVERITY_TEXT.info : ""}>{counts.info} info</span>
           </span>
         </div>
-        <button onClick={refresh} className="p-1.5 glass-1 rounded-full" aria-label="Refresh alerts" title="Refresh">
+        <button onClick={refresh} className="p-1.5 glass-1 rounded-full" aria-label="Refresh alerts">
           <RefreshCw className={`w-3.5 h-3.5 text-muted-foreground ${loading ? "animate-spin" : ""}`} />
         </button>
       </div>

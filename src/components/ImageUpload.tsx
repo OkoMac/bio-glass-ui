@@ -59,7 +59,7 @@ export default function ImageUpload({
             onClick={() => onChange(null)}
             className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur flex items-center justify-center text-white"
             aria-label="Remove image"
-           title="onChange(null)} className='absolute top-2 right-2 w-7 h-7 rounded-full bg-bla…">
+          >
             <X className="w-3.5 h-3.5" />
           </button>
           <button
@@ -67,7 +67,7 @@ export default function ImageUpload({
             onClick={() => inputRef.current?.click()}
             className="absolute bottom-2 right-2 text-[10px] bg-black/60 hover:bg-black/80 text-white px-2 py-1 rounded-full"
             disabled={uploading}
-           title="inputRef.current?.click()} className='absolute bottom-2 right-2 text-[10px] b…" aria-label="inputRef.current?.click()} className='absolute bottom-2 right-2 text-[10px] b…">
+          >
             Replace
           </button>
         </div>
@@ -141,7 +141,7 @@ function UrlFallback({ onSet }: { onSet: (url: string) => void }) {
             if (ref.current?.value) { onSet(ref.current.value); ref.current.value = ""; }
           }}
           className="px-3 py-1.5 rounded-lg bg-white/5 text-xs text-foreground hover:bg-white/10"
-         title="}} className='px-3 py-1.5 rounded-lg bg-white/5 text-xs text-foreground hover…" aria-label="}} className='px-3 py-1.5 rounded-lg bg-white/5 text-xs text-foreground hover…">
+        >
           Use
         </button>
       </div>

@@ -166,7 +166,7 @@ export default function NudgePopup({ featureKey, onAction }: NudgePopupProps) {
                 onAction?.();
               }}
               className="w-full py-3 rounded-pill text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta"
-             title="} className='w-full py-3 rounded-pill text-sm font-semibold gradient-indigo t…" aria-label="} className='w-full py-3 rounded-pill text-sm font-semibold gradient-indigo t…">
+            >
               {content.cta?.label ?? "Got it"}
             </button>
           </div>

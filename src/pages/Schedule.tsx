@@ -197,7 +197,7 @@ const Schedule = () => {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…" aria-label="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…">
+            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <h1 className="text-2xl font-bold text-foreground">My Schedule</h1>
@@ -216,7 +216,7 @@ const Schedule = () => {
                 className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-xl transition-all ${
                   selectedDay === i ? "glass-accent-indigo" : ""
                 }`}
-               title="setSelectedDay(i)} className= `} >" aria-label="setSelectedDay(i)} className= `} >">
+              >
                 <span className="text-[10px] text-muted-foreground">{d.day}</span>
                 <span className={`text-sm font-data ${
                   i === 0 ? "text-indigo font-bold" :
@@ -275,7 +275,7 @@ const Schedule = () => {
                             onClick={() => handleRetryPayment(b.id)}
                             disabled={retryingPayment === b.id}
                             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-pill text-xs font-semibold glass-accent-amber text-amber disabled:opacity-50"
-                           title="handleRetryPayment(b.id)} disabled= className='w-full flex items-center justi…" aria-label="handleRetryPayment(b.id)} disabled= className='w-full flex items-center justi…">
+                          >
                             <CreditCard className="w-3.5 h-3.5" />
                             {retryingPayment === b.id ? "Loading..." : "Complete Payment"}
                           </button>
@@ -284,22 +284,22 @@ const Schedule = () => {
                       {b.deliveryMode === "telehealth" && (b.status === "confirmed" || b.status === "pending") && (
                         <div className="mt-3 pt-3 border-t border-white/[0.06]">
                           <button onClick={() => navigate(`/call/${b.id}`)}
-                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-pill text-xs font-semibold gradient-indigo text-primary-foreground" title="navigate(`/call/$ `)} className='w-full flex items-center justify-center gap-…" aria-label="navigate(`/call/$ `)} className='w-full flex items-center justify-center gap-…">
+                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-pill text-xs font-semibold gradient-indigo text-primary-foreground">
                             <Video className="w-3.5 h-3.5" /> Join Video Call
                           </button>
                         </div>
                       )}
                       <div className={`flex gap-2 ${b.deliveryMode === "telehealth" && (b.status === "confirmed" || b.status === "pending") ? "mt-2" : "mt-3 pt-3 border-t border-white/[0.06]"}`}>
                         <button onClick={() => openReschedule(b)}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-indigo" title="openReschedule(b)} className='flex-1 flex items-center justify-center gap-1.5…" aria-label="openReschedule(b)} className='flex-1 flex items-center justify-center gap-1.5…">
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-indigo">
                           <RotateCcw className="w-3 h-3" /> Reschedule
                         </button>
                         <button onClick={() => handleReceipt(b)}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-foreground" title="handleReceipt(b)} className='flex-1 flex items-center justify-center gap-1.5 …" aria-label="handleReceipt(b)} className='flex-1 flex items-center justify-center gap-1.5 …">
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-foreground">
                           <FileText className="w-3 h-3" /> Receipt
                         </button>
                         <button onClick={() => setCancelIntent(b)}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-coral" title="setCancelIntent(b)} className='flex-1 flex items-center justify-center gap-1.…" aria-label="setCancelIntent(b)} className='flex-1 flex items-center justify-center gap-1.…">
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-coral">
                           <XCircle className="w-3 h-3" /> Cancel
                         </button>
                       </div>
@@ -348,7 +348,7 @@ const Schedule = () => {
                             onClick={() => handleRetryPayment(b.id)}
                             disabled={retryingPayment === b.id}
                             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-pill text-xs font-semibold glass-accent-amber text-amber disabled:opacity-50"
-                           title="handleRetryPayment(b.id)} disabled= className='w-full flex items-center justi…" aria-label="handleRetryPayment(b.id)} disabled= className='w-full flex items-center justi…">
+                          >
                             <CreditCard className="w-3.5 h-3.5" />
                             {retryingPayment === b.id ? "Loading..." : "Complete Payment"}
                           </button>
@@ -357,22 +357,22 @@ const Schedule = () => {
                       {b.deliveryMode === "telehealth" && (b.status === "confirmed" || b.status === "pending") && (
                         <div className="mt-3 pt-3 border-t border-white/[0.06]">
                           <button onClick={() => navigate(`/call/${b.id}`)}
-                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-pill text-xs font-semibold gradient-indigo text-primary-foreground" title="navigate(`/call/$ `)} className='w-full flex items-center justify-center gap-…" aria-label="navigate(`/call/$ `)} className='w-full flex items-center justify-center gap-…">
+                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-pill text-xs font-semibold gradient-indigo text-primary-foreground">
                             <Video className="w-3.5 h-3.5" /> Join Video Call
                           </button>
                         </div>
                       )}
                       <div className={`flex gap-2 ${b.deliveryMode === "telehealth" && (b.status === "confirmed" || b.status === "pending") ? "mt-2" : "mt-3 pt-3 border-t border-white/[0.06]"}`}>
                         <button onClick={() => openReschedule(b)}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-indigo" title="openReschedule(b)} className='flex-1 flex items-center justify-center gap-1.5…" aria-label="openReschedule(b)} className='flex-1 flex items-center justify-center gap-1.5…">
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-indigo">
                           <RotateCcw className="w-3 h-3" /> Reschedule
                         </button>
                         <button onClick={() => handleReceipt(b)}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-foreground" title="handleReceipt(b)} className='flex-1 flex items-center justify-center gap-1.5 …" aria-label="handleReceipt(b)} className='flex-1 flex items-center justify-center gap-1.5 …">
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-foreground">
                           <FileText className="w-3 h-3" /> Receipt
                         </button>
                         <button onClick={() => setCancelIntent(b)}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-coral" title="setCancelIntent(b)} className='flex-1 flex items-center justify-center gap-1.…" aria-label="setCancelIntent(b)} className='flex-1 flex items-center justify-center gap-1.…">
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 glass-1 rounded-pill text-xs font-medium text-coral">
                           <XCircle className="w-3 h-3" /> Cancel
                         </button>
                       </div>
@@ -406,7 +406,7 @@ const Schedule = () => {
                         {b.status === "completed" && !reviewedBookingIds.has(b.id) && (
                           <button
                             onClick={() => setReviewBooking({ id: b.id, providerName: b.providerName ?? "Provider" })}
-                            className="text-[10px] text-indigo font-medium flex items-center gap-0.5 hover:text-foreground transition-colors" title="setReviewBooking( )} className='text-[10px] text-indigo font-medium flex item…" aria-label="setReviewBooking( )} className='text-[10px] text-indigo font-medium flex item…">
+                            className="text-[10px] text-indigo font-medium flex items-center gap-0.5 hover:text-foreground transition-colors">
                             <Star className="w-3 h-3" /> Leave a review
                           </button>
                         )}
@@ -471,7 +471,7 @@ const Schedule = () => {
                     <p className="text-xs text-muted-foreground">{rescheduleBooking.service} with {rescheduleBooking.providerName}</p>
                   </div>
                 </div>
-                <button onClick={() => setRescheduleBooking(null)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center" title="setRescheduleBooking(null)} className='w-8 h-8 glass-1 rounded-full flex item…" aria-label="setRescheduleBooking(null)} className='w-8 h-8 glass-1 rounded-full flex item…">
+                <button onClick={() => setRescheduleBooking(null)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
@@ -494,7 +494,7 @@ const Schedule = () => {
                     <button key={t} onClick={() => setNewTime(t)}
                       className={`py-2 rounded-xl text-xs font-medium transition-colors ${
                         newTime === t ? "gradient-indigo text-white" : "glass-1 text-foreground"
-                      }`} title="setNewTime(t)} className= `}>" aria-label="setNewTime(t)} className= `}>">
+                      }`}>
                       {t}
                     </button>
                   ))}
@@ -535,7 +535,7 @@ const Schedule = () => {
                     Rescheduling is free (up to 3 times). Cancel 24h+ before: 10% fee, 90% refunded. Cancel &lt;24h: 50% fee, 50% refunded.
                   </p>
                 </div>
-                <button onClick={() => !cancelling && setCancelIntent(null)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center shrink-0" title="!cancelling && setCancelIntent(null)} className='w-8 h-8 glass-1 rounded-full…" aria-label="!cancelling && setCancelIntent(null)} className='w-8 h-8 glass-1 rounded-full…">
+                <button onClick={() => !cancelling && setCancelIntent(null)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center shrink-0">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
@@ -622,7 +622,7 @@ const Schedule = () => {
                 <button
                   onClick={() => setCancelSuccess(null)}
                   className="w-full rounded-pill py-2.5 text-xs font-medium text-muted-foreground"
-                 title="setCancelSuccess(null)} className='w-full rounded-pill py-2.5 text-xs font-me…" aria-label="setCancelSuccess(null)} className='w-full rounded-pill py-2.5 text-xs font-me…">
+                >
                   Not now
                 </button>
                 {!cancelSuccess.voucherRestored && (

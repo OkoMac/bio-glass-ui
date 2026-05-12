@@ -154,7 +154,7 @@ export default function CatalogViewer() {
             className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/70 hover:text-white">
             {fullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
           </button>
-          <button onClick={share} className="flex items-center gap-1 text-white/80 hover:text-white text-xs px-3 py-1.5 rounded-pill bg-white/5 hover:bg-white/10" title="Share" aria-label="Share">
+          <button onClick={share} className="flex items-center gap-1 text-white/80 hover:text-white text-xs px-3 py-1.5 rounded-pill bg-white/5 hover:bg-white/10">
             <Share2 className="w-3.5 h-3.5" /> Share
           </button>
         </div>
@@ -173,7 +173,7 @@ export default function CatalogViewer() {
               onClick={() => flip(-1)}
               className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/5 backdrop-blur hover:bg-white/15 items-center justify-center transition-all hover:scale-110"
               aria-label="Previous page"
-             title="flip(-1)} className='hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 …">
+            >
               <ChevronLeft className="w-6 h-6 text-white" />
             </button>
 
@@ -221,7 +221,7 @@ export default function CatalogViewer() {
               onClick={() => flip(1)}
               className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/5 backdrop-blur hover:bg-white/15 items-center justify-center transition-all hover:scale-110"
               aria-label="Next page"
-             title="flip(1)} className='hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 …">
+            >
               <ChevronRight className="w-6 h-6 text-white" />
             </button>
           </>

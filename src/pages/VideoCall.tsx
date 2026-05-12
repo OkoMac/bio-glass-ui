@@ -69,7 +69,7 @@ export default function VideoCall() {
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-24">
       <div className="w-full px-4 md:px-8 xl:px-12 pt-20 space-y-5">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…" aria-label="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…">
+          <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
             <ArrowLeft className="w-4 h-4" />
           </button>
           <h1 className="text-2xl font-bold text-foreground">Video Consultation</h1>
@@ -83,7 +83,7 @@ export default function VideoCall() {
         ) : error ? (
           <GlassCard className="p-8 text-center">
             <p className="text-coral text-sm mb-3">{error}</p>
-            <button onClick={() => navigate(-1)} className="px-4 py-2 glass-1 rounded-pill text-sm text-foreground" title="navigate(-1)} className='px-4 py-2 glass-1 rounded-pill text-sm text-foregrou…" aria-label="navigate(-1)} className='px-4 py-2 glass-1 rounded-pill text-sm text-foregrou…">
+            <button onClick={() => navigate(-1)} className="px-4 py-2 glass-1 rounded-pill text-sm text-foreground">
               Go Back
             </button>
           </GlassCard>
@@ -111,7 +111,7 @@ export default function VideoCall() {
               <button
                 onClick={() => navigate(-1)}
                 className="flex-1 flex items-center justify-center gap-2 py-3 glass-1 rounded-pill text-sm font-medium text-foreground"
-               title="navigate(-1)} className='flex-1 flex items-center justify-center gap-2 py-3 g…" aria-label="navigate(-1)} className='flex-1 flex items-center justify-center gap-2 py-3 g…">
+              >
                 <ArrowLeft className="w-4 h-4" /> Back to Booking
               </button>
             </div>

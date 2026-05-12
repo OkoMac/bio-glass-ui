@@ -156,7 +156,7 @@ export function AdminMfaProvider({ children }: { children: ReactNode }) {
                     <h3 className="text-lg font-bold text-foreground">Admin verification</h3>
                   </div>
                   <button onClick={cancel} aria-label="Cancel"
-                    className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" title="Close">
+                    className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
@@ -188,16 +188,16 @@ export function AdminMfaProvider({ children }: { children: ReactNode }) {
                     {error && <p className="text-xs text-coral mb-3 text-center">{error}</p>}
                     <div className="flex gap-2">
                       <button onClick={cancel}
-                        className="flex-1 py-2.5 rounded-pill glass-1 text-xs font-semibold text-muted-foreground hover:text-foreground" title="Cancel" aria-label="Cancel">
+                        className="flex-1 py-2.5 rounded-pill glass-1 text-xs font-semibold text-muted-foreground hover:text-foreground">
                         Cancel
                       </button>
                       <button onClick={() => void verify()} disabled={code.length < 6}
-                        className="flex-1 py-2.5 rounded-pill text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40" title="void verify()} disabled={code.length Verify" aria-label="void verify()} disabled={code.length Verify">
+                        className="flex-1 py-2.5 rounded-pill text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 disabled:opacity-40">
                         Verify
                       </button>
                     </div>
                     <button onClick={() => void requestCode()}
-                      className="w-full mt-3 text-[10px] text-muted-foreground hover:text-teal" title="void requestCode()} className='w-full mt-3 text-[10px] text-muted-foreground …" aria-label="void requestCode()} className='w-full mt-3 text-[10px] text-muted-foreground …">
+                      className="w-full mt-3 text-[10px] text-muted-foreground hover:text-teal">
                       Resend code
                     </button>
                   </>

@@ -30,7 +30,7 @@ export default function ProgressTracker() {
   if (!isEnabled('progressTracking')) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-        <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+        <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -54,7 +54,7 @@ export default function ProgressTracker() {
   
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-6xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -68,11 +68,11 @@ export default function ProgressTracker() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="glass-1 rounded-pill px-4 py-2 text-sm font-medium text-foreground flex items-center gap-2" title="Export Data" aria-label="Export Data">
+            <button className="glass-1 rounded-pill px-4 py-2 text-sm font-medium text-foreground flex items-center gap-2">
               <Download className="w-4 h-4" />
               Export Data
             </button>
-            <button className="gradient-indigo rounded-pill px-4 py-2 text-sm font-semibold text-white flex items-center gap-2" title="Add Client" aria-label="Add Client">
+            <button className="gradient-indigo rounded-pill px-4 py-2 text-sm font-semibold text-white flex items-center gap-2">
               <Plus className="w-4 h-4" />
               Add Client
             </button>
@@ -161,7 +161,7 @@ export default function ProgressTracker() {
                     <p className="text-xs text-muted-foreground">Client body measurements over time</p>
                   </div>
                 </div>
-                <button className="glass-1 rounded-pill px-3 py-1.5 text-xs font-medium text-foreground" title="View All" aria-label="View All">
+                <button className="glass-1 rounded-pill px-3 py-1.5 text-xs font-medium text-foreground">
                   View All
                 </button>
               </div>
@@ -216,7 +216,7 @@ export default function ProgressTracker() {
                 </div>
               )}
               
-              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground mt-4 flex items-center justify-center gap-2" title="Log New Measurement" aria-label="Log New Measurement">
+              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground mt-4 flex items-center justify-center gap-2">
                 <Plus className="w-4 h-4" />
                 Log New Measurement
               </button>
@@ -255,11 +255,11 @@ export default function ProgressTracker() {
               </div>
               
               <div className="space-y-2">
-                <button className="w-full gradient-indigo rounded-pill py-2.5 text-sm font-semibold text-white flex items-center justify-center gap-2" title="Request Progress Photos" aria-label="Request Progress Photos">
+                <button className="w-full gradient-indigo rounded-pill py-2.5 text-sm font-semibold text-white flex items-center justify-center gap-2">
                   <Camera className="w-4 h-4" />
                   Request Progress Photos
                 </button>
-                <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="Share Transformation" aria-label="Share Transformation">
+                <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                   <Share2 className="w-4 h-4" />
                   Share Transformation
                 </button>

@@ -354,7 +354,7 @@ function EarningsCalculator() {
                     mix === m ? "gradient-indigo text-primary-foreground shadow-cta"
                               : "glass-2 text-muted-foreground hover:text-foreground"
                   }`}
-                 title="setMix(m)} className= `} >" aria-label="setMix(m)} className= `} >">
+                >
                   {m === "pro" ? "100% Pro" : m === "elite" ? "100% Elite" : "50 / 50 mix"}
                 </button>
               ))}

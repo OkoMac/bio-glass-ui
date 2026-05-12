@@ -199,7 +199,7 @@ export default function ProviderServices() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -257,7 +257,7 @@ export default function ProviderServices() {
                     onClick={() => setAddOpen(false)}
                     className="w-7 h-7 glass-1 rounded-full flex items-center justify-center"
                     aria-label="Close"
-                   title="setAddOpen(false)} className='w-7 h-7 glass-1 rounded-full flex items-center …">
+                  >
                     <X className="w-3.5 h-3.5 text-muted-foreground" />
                   </button>
                 </div>
@@ -270,7 +270,7 @@ export default function ProviderServices() {
                   <button
                     onClick={() => setAddOpen(false)}
                     className="flex-1 py-2 glass-1 rounded-pill text-xs text-muted-foreground"
-                   title="setAddOpen(false)} className='flex-1 py-2 glass-1 rounded-pill text-xs text-m…" aria-label="setAddOpen(false)} className='flex-1 py-2 glass-1 rounded-pill text-xs text-m…">
+                  >
                     Cancel
                   </button>
                   <motion.button
@@ -308,7 +308,7 @@ export default function ProviderServices() {
             <button
               onClick={() => { setAddOpen(true); setForm(emptyForm); }}
               className="inline-flex items-center gap-1.5 rounded-pill px-4 py-2 gradient-indigo text-primary-foreground text-xs font-semibold"
-             title="} className='inline-flex items-center gap-1.5 rounded-pill px-4 py-2 gradient…" aria-label="} className='inline-flex items-center gap-1.5 rounded-pill px-4 py-2 gradient…">
+            >
               <Plus className="w-3.5 h-3.5" /> Add your first service
             </button>
           </GlassCard>
@@ -344,7 +344,7 @@ export default function ProviderServices() {
                         <button
                           onClick={() => { setEditId(null); setForm(emptyForm); }}
                           className="flex-1 py-2 glass-1 rounded-pill text-xs text-muted-foreground"
-                         title="} className='flex-1 py-2 glass-1 rounded-pill text-xs text-muted-foreground' …" aria-label="} className='flex-1 py-2 glass-1 rounded-pill text-xs text-muted-foreground' …">
+                        >
                           Cancel
                         </button>
                         <motion.button
@@ -407,7 +407,7 @@ export default function ProviderServices() {
                             className={`w-10 h-5 rounded-pill relative transition-all ${
                               svc.active ? "bg-teal" : "bg-white/10"
                             }`}
-                           title="handleToggle(svc)} aria-label= className= `} >">
+                          >
                             <span
                               className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${
                                 svc.active ? "left-5" : "left-0.5"
@@ -445,14 +445,14 @@ export default function ProviderServices() {
                             <button
                               onClick={() => setDeleteId(null)}
                               className="px-2.5 py-1 glass-1 rounded-pill text-[11px] text-muted-foreground"
-                             title="setDeleteId(null)} className='px-2.5 py-1 glass-1 rounded-pill text-[11px] te…" aria-label="setDeleteId(null)} className='px-2.5 py-1 glass-1 rounded-pill text-[11px] te…">
+                            >
                               Keep
                             </button>
                             <button
                               onClick={() => deleteService(svc.id)}
                               disabled={saving}
                               className="px-2.5 py-1 rounded-pill text-[11px] text-white bg-coral/30 hover:bg-coral/50 transition-colors disabled:opacity-40"
-                             title="deleteService(svc.id)} disabled= className='px-2.5 py-1 rounded-pill text-[11…" aria-label="deleteService(svc.id)} disabled= className='px-2.5 py-1 rounded-pill text-[11…">
+                            >
                               Remove
                             </button>
                           </motion.div>
@@ -502,7 +502,7 @@ export default function ProviderServices() {
                 <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                   <Users className="w-4 h-4 text-indigo" /> Create Group Session
                 </h3>
-                <button onClick={() => setGroupOpen(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center" title="setGroupOpen(false)} className='w-8 h-8 glass-1 rounded-full flex items-cente…" aria-label="setGroupOpen(false)} className='w-8 h-8 glass-1 rounded-full flex items-cente…">
+                <button onClick={() => setGroupOpen(false)} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
@@ -704,7 +704,7 @@ function ServiceForm({
                   ? "gradient-indigo text-primary-foreground"
                   : "glass-1 text-muted-foreground"
               }`}
-             title="setForm(p => ( ))} className= `} >" aria-label="setForm(p => ( ))} className= `} >">
+            >
               {c.label}
             </button>
           ))}
@@ -726,7 +726,7 @@ function ServiceForm({
                   ? "gradient-indigo text-primary-foreground"
                   : "glass-1 text-muted-foreground"
               }`}
-             title="setForm(p => ( ))} className= `} >" aria-label="setForm(p => ( ))} className= `} >">
+            >
               {dm.label}
             </button>
           ))}
@@ -748,7 +748,7 @@ function ServiceForm({
                     ? "gradient-indigo text-primary-foreground"
                     : "glass-1 text-muted-foreground"
                 }`}
-               title="setForm(p => ( ))} className= `} > {d" aria-label="setForm(p => ( ))} className= `} > {d">
+              >
                 {d < 60 ? `${d}m` : d % 60 === 0 ? `${d / 60}h` : `${Math.floor(d / 60)}h${d % 60}`}
               </button>
             ))}
@@ -794,7 +794,7 @@ function ServiceForm({
           onClick={() => setForm(p => ({ ...p, active: !p.active }))}
           className={`w-10 h-5 rounded-pill relative transition-all ${form.active ? "bg-teal" : "bg-white/10"}`}
           aria-label={form.active ? "Deactivate" : "Activate"}
-         title="setForm(p => ( ))} className= `} aria-label= >">
+        >
           <span
             className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${
               form.active ? "left-5" : "left-0.5"

@@ -307,7 +307,7 @@ export default function CorporateDashboard() {
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold text-foreground">Top Providers</h2>
               <button onClick={() => navigate("/corporate/analytics")}
-                className="text-[11px] text-indigo font-medium" title="navigate('/corporate/analytics')} className='text-[11px] text-indigo font-med…" aria-label="navigate('/corporate/analytics')} className='text-[11px] text-indigo font-med…">View all →</button>
+                className="text-[11px] text-indigo font-medium">View all →</button>
             </div>
             {analytics.topProviders.length === 0 ? (
               <GlassCard className="p-4 text-center">
@@ -343,7 +343,7 @@ export default function CorporateDashboard() {
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold text-foreground">Recent Activity</h2>
               <button onClick={() => navigate("/corporate/employees")}
-                className="text-[11px] text-indigo font-medium" title="navigate('/corporate/employees')} className='text-[11px] text-indigo font-med…" aria-label="navigate('/corporate/employees')} className='text-[11px] text-indigo font-med…">All employees →</button>
+                className="text-[11px] text-indigo font-medium">All employees →</button>
             </div>
             {analytics.recentActivity.length === 0 ? (
               <GlassCard className="p-4 text-center">
@@ -468,7 +468,7 @@ export default function CorporateDashboard() {
               <div className="p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-bold text-foreground">Link Sales Rep</h3>
-                  <button onClick={() => setShowRepModal(false)} className="p-1 rounded-full hover:bg-white/5" title="setShowRepModal(false)} className='p-1 rounded-full hover:bg-white/5'>" aria-label="setShowRepModal(false)} className='p-1 rounded-full hover:bg-white/5'>">
+                  <button onClick={() => setShowRepModal(false)} className="p-1 rounded-full hover:bg-white/5">
                     <X className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </div>

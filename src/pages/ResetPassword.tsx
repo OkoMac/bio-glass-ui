@@ -85,7 +85,7 @@ export default function ResetPassword() {
           <button
             onClick={() => navigate("/welcome?login=true", { replace: true })}
             className="w-full rounded-pill py-3 text-sm font-semibold gradient-indigo text-primary-foreground"
-           title="navigate('/welcome?login=true', )} className='w-full rounded-pill py-3 text-s…" aria-label="navigate('/welcome?login=true', )} className='w-full rounded-pill py-3 text-s…">
+          >
             Sign in
           </button>
         </motion.div>
@@ -122,7 +122,7 @@ export default function ResetPassword() {
             <button
               onClick={() => navigate("/welcome?login=true")}
               className="w-full rounded-pill py-3 text-sm font-semibold gradient-indigo text-primary-foreground"
-             title="navigate('/welcome?login=true')} className='w-full rounded-pill py-3 text-sm …" aria-label="navigate('/welcome?login=true')} className='w-full rounded-pill py-3 text-sm …">
+            >
               Back to sign in
             </button>
           </div>
@@ -140,7 +140,7 @@ export default function ResetPassword() {
                 className="w-full glass-1 rounded-xl px-4 py-3 pr-10 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/5"
               />
               <button type="button" onClick={() => setShowPw(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" title="setShowPw(v => !v)} className='absolute right-3 top-1/2 -translate-y-1/2 text…" aria-label="setShowPw(v => !v)} className='absolute right-3 top-1/2 -translate-y-1/2 text…">
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                 {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
@@ -169,7 +169,7 @@ export default function ResetPassword() {
         <button
           onClick={() => navigate("/welcome?login=true")}
           className="w-full text-center text-xs text-muted-foreground underline"
-         title="navigate('/welcome?login=true')} className='w-full text-center text-xs text-m…" aria-label="navigate('/welcome?login=true')} className='w-full text-center text-xs text-m…">
+        >
           Back to sign in
         </button>
       </motion.div>

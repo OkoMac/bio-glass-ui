@@ -175,7 +175,7 @@ export default function ProviderVerification() {
                 <button
                   onClick={() => selfieRef.current?.click()}
                   className="text-xs text-indigo font-medium ml-auto"
-                 title="selfieRef.current?.click()} className='text-xs text-indigo font-medium ml-aut…" aria-label="selfieRef.current?.click()} className='text-xs text-indigo font-medium ml-aut…">
+                >
                   Replace
                 </button>
               )}
@@ -223,7 +223,7 @@ export default function ProviderVerification() {
                 <button
                   onClick={() => qualRef.current?.click()}
                   className="text-xs text-indigo font-medium"
-                 title="qualRef.current?.click()} className='text-xs text-indigo font-medium' > Replace" aria-label="qualRef.current?.click()} className='text-xs text-indigo font-medium' > Replace">
+                >
                   Replace
                 </button>
               )}

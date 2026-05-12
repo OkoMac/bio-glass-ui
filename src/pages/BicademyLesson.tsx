@@ -40,7 +40,7 @@ export default function BicademyLesson() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
         <p className="text-sm text-muted-foreground">Lesson not found.</p>
-        <button onClick={() => navigate(`/bicademy/${code}`)} className="mt-3 text-xs text-indigo" title="navigate(`/bicademy/$ `)} className='mt-3 text-xs text-indigo'>← Back" aria-label="navigate(`/bicademy/$ `)} className='mt-3 text-xs text-indigo'>← Back">← Back</button>
+        <button onClick={() => navigate(`/bicademy/${code}`)} className="mt-3 text-xs text-indigo">← Back</button>
       </div>
     );
   }
@@ -75,7 +75,7 @@ export default function BicademyLesson() {
         <button
           onClick={() => navigate(`/bicademy/${code}`)}
           className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
-         title="navigate(`/bicademy/$ `)} className='flex items-center gap-2 text-xs text-mut…" aria-label="navigate(`/bicademy/$ `)} className='flex items-center gap-2 text-xs text-mut…">
+        >
           <ArrowLeft className="w-4 h-4" /> {course.course_code}
         </button>
 
@@ -142,14 +142,14 @@ export default function BicademyLesson() {
             onClick={() => prevLesson && navigate(`/bicademy/${code}/lesson/${prevLesson.lesson_number}`)}
             disabled={!prevLesson}
             className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground disabled:opacity-30"
-           title="prevLesson && navigate(`/bicademy/$ /lesson/$ `)} disabled= className='flex i…" aria-label="prevLesson && navigate(`/bicademy/$ /lesson/$ `)} disabled= className='flex i…">
+          >
             <ChevronLeft className="w-4 h-4" /> Previous
           </button>
           <button
             onClick={handleComplete}
             disabled={saving}
             className="flex-1 max-w-xs py-3 rounded-pill bg-gradient-to-r from-indigo to-teal text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-           title=": <> }" aria-label=": <> }">
+          >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" />
               : done.has(lesson.id) ? <><CheckCircle className="w-4 h-4" /> {isLastLesson ? "Back to course" : "Next lesson"}</>
               : <>{isLastLesson ? "Complete course" : "Mark done & continue"} <ChevronRight className="w-4 h-4" /></>}

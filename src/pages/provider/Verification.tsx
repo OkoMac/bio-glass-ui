@@ -440,7 +440,7 @@ export default function ProviderVerification() {
               placeholder="e.g. MP 0123456 (HPCSA)"
               className="flex-1 px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-indigo/40 transition-colors" />
             <button onClick={saveRegNumber}
-              className="px-4 py-2.5 rounded-xl gradient-indigo text-white text-xs font-semibold" title="Save" aria-label="Save">
+              className="px-4 py-2.5 rounded-xl gradient-indigo text-white text-xs font-semibold">
               Save
             </button>
           </div>
@@ -499,7 +499,7 @@ export default function ProviderVerification() {
                           </a>
                         )}
                         <button onClick={() => deleteDoc(uploaded)}
-                          className="text-muted-foreground hover:text-coral transition-colors" title="deleteDoc(uploaded)} className='text-muted-foreground hover:text-coral transi…" aria-label="deleteDoc(uploaded)} className='text-muted-foreground hover:text-coral transi…">
+                          className="text-muted-foreground hover:text-coral transition-colors">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>

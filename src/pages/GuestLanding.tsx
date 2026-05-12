@@ -86,7 +86,7 @@ export default function GuestLanding() {
         <button
           onClick={() => navigate("/")}
           className="px-6 py-3 bg-violet rounded-xl font-semibold"
-         title="navigate('/')} className='px-6 py-3 bg-violet rounded-xl font-semibold' > Bro…" aria-label="navigate('/')} className='px-6 py-3 bg-violet rounded-xl font-semibold' > Bro…">
+        >
           Browse BION Directory
         </button>
       </div>
@@ -138,7 +138,7 @@ export default function GuestLanding() {
               key={action.category}
               onClick={() => navigate(`/directory?category=${action.category}&suburb=${encodeURIComponent(suburb)}`)}
               className="group relative overflow-hidden rounded-2xl p-4 text-left transition-transform active:scale-95"
-             title="navigate(`/directory?category=$ &suburb=$ `)} className='group relative overf…" aria-label="navigate(`/directory?category=$ &suburb=$ `)} className='group relative overf…">
+            >
               <div className={`absolute inset-0 bg-gradient-to-br ${action.color} opacity-20 group-hover:opacity-30 transition-opacity`} />
               <div className="absolute inset-0 border border-white/10 rounded-2xl" />
               <div className="relative">
@@ -158,7 +158,7 @@ export default function GuestLanding() {
             <button
               onClick={() => navigate(`/directory?suburb=${encodeURIComponent(suburb)}`)}
               className="text-xs text-violet flex items-center gap-1"
-             title="navigate(`/directory?suburb=$ `)} className='text-xs text-violet flex items-c…" aria-label="navigate(`/directory?suburb=$ `)} className='text-xs text-violet flex items-c…">
+            >
               See all <ChevronRight className="w-3 h-3" />
             </button>
           </div>
@@ -225,7 +225,7 @@ export default function GuestLanding() {
             <button
               onClick={() => navigate("/")}
               className="px-4 py-2 bg-violet rounded-lg text-xs font-semibold"
-             title="navigate('/')} className='px-4 py-2 bg-violet rounded-lg text-xs font-semibol…" aria-label="navigate('/')} className='px-4 py-2 bg-violet rounded-lg text-xs font-semibol…">
+            >
               Open BION
             </button>
           </div>

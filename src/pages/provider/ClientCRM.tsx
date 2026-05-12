@@ -31,7 +31,7 @@ export default function ClientCRM() {
   if (!isEnabled('providerDashboardV2')) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-        <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+        <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -88,7 +88,7 @@ export default function ClientCRM() {
               Manage your clients, track history, and automate follow-ups
             </p>
           </div>
-          <button className="gradient-indigo rounded-pill px-4 py-2 text-sm font-semibold text-white flex items-center gap-2" title="Add Client" aria-label="Add Client">
+          <button className="gradient-indigo rounded-pill px-4 py-2 text-sm font-semibold text-white flex items-center gap-2">
             <Plus className="w-4 h-4" />
             Add Client
           </button>
@@ -160,7 +160,7 @@ export default function ClientCRM() {
                       ? 'gradient-indigo text-white' 
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
-                 title="setFilter('all')} className= `} > All ( )" aria-label="setFilter('all')} className= `} > All ( )">
+                >
                   All ({stats.total})
                 </button>
                 <button
@@ -170,7 +170,7 @@ export default function ClientCRM() {
                       ? 'gradient-teal text-white' 
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
-                 title="setFilter('active')} className= `} > Active ( )" aria-label="setFilter('active')} className= `} > Active ( )">
+                >
                   Active ({stats.active})
                 </button>
                 <button
@@ -180,7 +180,7 @@ export default function ClientCRM() {
                       ? 'gradient-amber text-white' 
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
-                 title="setFilter('lapsing')} className= `} > Lapsing ( )" aria-label="setFilter('lapsing')} className= `} > Lapsing ( )">
+                >
                   Lapsing ({stats.lapsing})
                 </button>
                 <button
@@ -190,7 +190,7 @@ export default function ClientCRM() {
                       ? 'gradient-red text-white' 
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
-                 title="setFilter('lapsed')} className= `} > Lapsed ( )" aria-label="setFilter('lapsed')} className= `} > Lapsed ( )">
+                >
                   Lapsed ({stats.lapsed})
                 </button>
               </div>
@@ -306,15 +306,15 @@ export default function ClientCRM() {
                 )}
                 
                 <div className="flex items-center gap-2">
-                  <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="Message" aria-label="Message">
+                  <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                     <MessageSquare className="w-4 h-4" />
                     Message
                   </button>
-                  <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="Book Session" aria-label="Book Session">
+                  <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                     <Calendar className="w-4 h-4" />
                     Book Session
                   </button>
-                  <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="Edit" aria-label="Edit">
+                  <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                     <Edit className="w-4 h-4" />
                     Edit
                   </button>
@@ -346,7 +346,7 @@ export default function ClientCRM() {
                     <p className="text-xs text-muted-foreground">Proactive client engagement</p>
                   </div>
                 </div>
-                <button className="glass-1 rounded-pill px-3 py-1.5 text-xs font-medium text-foreground" title="Configure" aria-label="Configure">
+                <button className="glass-1 rounded-pill px-3 py-1.5 text-xs font-medium text-foreground">
                   Configure
                 </button>
               </div>
@@ -391,7 +391,7 @@ export default function ClientCRM() {
                   </p>
                 </div>
                 
-                <button className="w-full gradient-indigo rounded-pill py-2.5 text-sm font-semibold text-white" title="Run Follow-up Campaign" aria-label="Run Follow-up Campaign">
+                <button className="w-full gradient-indigo rounded-pill py-2.5 text-sm font-semibold text-white">
                   Run Follow-up Campaign
                 </button>
               </div>
@@ -413,22 +413,22 @@ export default function ClientCRM() {
             </div>
             
             <div className="space-y-3">
-              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="Email All Clients" aria-label="Email All Clients">
+              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                 <Mail className="w-4 h-4" />
                 Email All Clients
               </button>
               
-              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="WhatsApp Broadcast" aria-label="WhatsApp Broadcast">
+              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                 <MessageSquare className="w-4 h-4" />
                 WhatsApp Broadcast
               </button>
               
-              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="Export Client Data" aria-label="Export Client Data">
+              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                 <TrendingUp className="w-4 h-4" />
                 Export Client Data
               </button>
               
-              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="Request Reviews" aria-label="Request Reviews">
+              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                 <Star className="w-4 h-4" />
                 Request Reviews
               </button>

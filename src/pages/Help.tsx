@@ -122,7 +122,7 @@ export default function Help() {
         {/* Hero */}
         <header className="space-y-2">
           <div className="flex items-center gap-2">
-            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…" aria-label="navigate(-1)} className='shrink-0 w-9 h-9 glass-2 rounded-full flex items-cen…">
+            <button onClick={() => navigate(-1)} className="shrink-0 w-9 h-9 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <HelpCircle className="w-6 h-6 text-indigo" />
@@ -135,14 +135,14 @@ export default function Help() {
             <button
               onClick={() => setShowTicketForm(true)}
               className="rounded-pill px-4 py-2 text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta flex items-center gap-1.5"
-             title="setShowTicketForm(true)} className='rounded-pill px-4 py-2 text-xs font-semib…" aria-label="setShowTicketForm(true)} className='rounded-pill px-4 py-2 text-xs font-semib…">
+            >
               <MessageSquare className="w-3.5 h-3.5" /> Raise a ticket
             </button>
             {user && (
               <button
                 onClick={() => navigate("/my-tickets")}
                 className="rounded-pill px-4 py-2 text-xs font-medium glass-1 text-foreground"
-               title="navigate('/my-tickets')} className='rounded-pill px-4 py-2 text-xs font-mediu…" aria-label="navigate('/my-tickets')} className='rounded-pill px-4 py-2 text-xs font-mediu…">
+              >
                 My tickets
               </button>
             )}
@@ -202,7 +202,7 @@ export default function Help() {
                   className={`w-full glass-1 rounded-xl px-3 py-2.5 text-sm text-foreground bg-transparent outline-none ${missing.has("body") ? "border border-coral ring-1 ring-coral/40" : ""}`} />
                 <div className="flex gap-2">
                   <button onClick={() => setShowTicketForm(false)} disabled={submitting}
-                    className="flex-1 rounded-pill py-2.5 text-xs font-medium glass-1 text-muted-foreground" title="setShowTicketForm(false)} disabled= className='flex-1 rounded-pill py-2.5 tex…" aria-label="setShowTicketForm(false)} disabled= className='flex-1 rounded-pill py-2.5 tex…">
+                    className="flex-1 rounded-pill py-2.5 text-xs font-medium glass-1 text-muted-foreground">
                     Cancel
                   </button>
                   <motion.button whileTap={{ scale: 0.97 }} onClick={submitTicket} disabled={submitting}
@@ -233,7 +233,7 @@ export default function Help() {
               <button
                 onClick={() => setExpandedFaq(expandedFaq === i ? null : i)}
                 className="w-full p-4 flex items-center justify-between text-left"
-               title="setExpandedFaq(expandedFaq === i ? null : i)} className='w-full p-4 flex item…" aria-label="setExpandedFaq(expandedFaq === i ? null : i)} className='w-full p-4 flex item…">
+              >
                 <p className="text-sm font-medium text-foreground pr-3">{f.q}</p>
                 <ChevronDown className={`w-4 h-4 text-muted-foreground shrink-0 transition-transform ${expandedFaq === i ? "rotate-180" : ""}`} />
               </button>

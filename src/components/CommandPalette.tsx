@@ -161,7 +161,7 @@ export default function CommandPalette() {
                       className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
                         i === selectedIdx ? "bg-white/[0.06]" : ""
                       }`}
-                     title="go(r)} onMouseEnter= className= `} >" aria-label="go(r)} onMouseEnter= className= `} >">
+                    >
                       <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
                         r.type === "provider" ? "bg-teal/10" : "bg-indigo/10"
                       }`}>

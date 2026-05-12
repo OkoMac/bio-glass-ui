@@ -105,7 +105,7 @@ export default function EnablePushCard({ role, profileId, className }: EnablePus
               onClick={handleDismiss}
               aria-label="Dismiss"
               className="shrink-0 w-7 h-7 rounded-full glass-1 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-             title="Close">
+            >
               <X className="w-3.5 h-3.5" />
             </button>
           </div>

@@ -80,7 +80,7 @@ export default function StitchCheckoutButton({
         onClick={pay}
         disabled={busy || amountRand <= 0}
         className="w-full bg-gradient-to-br from-indigo to-violet text-white font-semibold rounded-xl py-3.5 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
-       title="`}" aria-label="`}">
+      >
         {busy ? (
           <Loader2 className="w-4 h-4 animate-spin" />
         ) : (

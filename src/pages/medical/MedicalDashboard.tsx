@@ -36,7 +36,7 @@ export default function MedicalDashboard() {
   if (!isEnabled('medicalVertical')) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
         <div className="mx-auto max-w-2xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -67,7 +67,7 @@ export default function MedicalDashboard() {
   
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-6xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -80,7 +80,7 @@ export default function MedicalDashboard() {
               HIPAA-compliant tools for medical and allied health providers
             </p>
           </div>
-          <button className="gradient-indigo rounded-pill px-4 py-2 text-sm font-semibold text-white flex items-center gap-2" title="New Patient" aria-label="New Patient">
+          <button className="gradient-indigo rounded-pill px-4 py-2 text-sm font-semibold text-white flex items-center gap-2">
             <Plus className="w-4 h-4" />
             New Patient
           </button>
@@ -215,13 +215,13 @@ export default function MedicalDashboard() {
                   )}
 
                   <div className="flex items-center gap-2">
-                    <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground" title="SOAP Notes" aria-label="SOAP Notes">
+                    <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground">
                       SOAP Notes
                     </button>
-                    <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground" title="Prescriptions" aria-label="Prescriptions">
+                    <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground">
                       Prescriptions
                     </button>
-                    <button className="flex-1 gradient-indigo rounded-pill py-2 text-sm font-semibold text-white" title="Medical Claim" aria-label="Medical Claim">
+                    <button className="flex-1 gradient-indigo rounded-pill py-2 text-sm font-semibold text-white">
                       Medical Claim
                     </button>
                   </div>
@@ -246,7 +246,7 @@ export default function MedicalDashboard() {
                     <p className="text-xs text-muted-foreground">Subjective, Objective, Assessment, Plan documentation</p>
                   </div>
                 </div>
-                <button className="glass-1 rounded-pill px-3 py-1.5 text-xs font-medium text-foreground" title="New Note" aria-label="New Note">
+                <button className="glass-1 rounded-pill px-3 py-1.5 text-xs font-medium text-foreground">
                   New Note
                 </button>
               </div>
@@ -296,13 +296,13 @@ export default function MedicalDashboard() {
                       </div>
 
                       <div className="flex items-center gap-2 mt-3">
-                        <button className="flex-1 glass-1 rounded-pill py-1.5 text-xs font-medium text-foreground" title="Edit" aria-label="Edit">
+                        <button className="flex-1 glass-1 rounded-pill py-1.5 text-xs font-medium text-foreground">
                           Edit
                         </button>
-                        <button className="flex-1 glass-1 rounded-pill py-1.5 text-xs font-medium text-foreground" title="Print" aria-label="Print">
+                        <button className="flex-1 glass-1 rounded-pill py-1.5 text-xs font-medium text-foreground">
                           Print
                         </button>
-                        <button className="flex-1 gradient-indigo rounded-pill py-1.5 text-xs font-semibold text-white" title="Sign & Lock" aria-label="Sign & Lock">
+                        <button className="flex-1 gradient-indigo rounded-pill py-1.5 text-xs font-semibold text-white">
                           Sign & Lock
                         </button>
                       </div>
@@ -310,7 +310,7 @@ export default function MedicalDashboard() {
                   ))
                 )}
 
-                <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="Create New SOAP Note" aria-label="Create New SOAP Note">
+                <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                   <Plus className="w-4 h-4" />
                   Create New SOAP Note
                 </button>
@@ -333,22 +333,22 @@ export default function MedicalDashboard() {
             </div>
             
             <div className="space-y-3">
-              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="Prescription Manager" aria-label="Prescription Manager">
+              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                 <Pill className="w-4 h-4" />
                 Prescription Manager
               </button>
               
-              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="Medical Aid Claims" aria-label="Medical Aid Claims">
+              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                 <Shield className="w-4 h-4" />
                 Medical Aid Claims
               </button>
               
-              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="Treatment Plans" aria-label="Treatment Plans">
+              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                 <Clipboard className="w-4 h-4" />
                 Treatment Plans
               </button>
               
-              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="Patient Education" aria-label="Patient Education">
+              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                 <Heart className="w-4 h-4" />
                 Patient Education
               </button>

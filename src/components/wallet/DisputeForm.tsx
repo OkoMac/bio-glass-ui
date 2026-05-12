@@ -165,7 +165,7 @@ function OrderDisputeView({ orderId, onClose }: { orderId: string; onClose: () =
                   <button
                     onClick={handleAcceptReplacement}
                     className="w-full mt-2 py-2 rounded-xl bg-indigo text-white text-xs font-semibold"
-                   title="Accept replacement" aria-label="Accept replacement">
+                  >
                     Accept replacement
                   </button>
                 )}
@@ -196,7 +196,7 @@ function OrderDisputeView({ orderId, onClose }: { orderId: string; onClose: () =
                         ? "border-coral/50 bg-coral/10 text-foreground"
                         : "border-white/5 bg-white/[0.02] text-muted-foreground hover:text-foreground"
                     }`}
-                   title="setReason(r.value)} className= `} >" aria-label="setReason(r.value)} className= `} >">
+                  >
                     {r.label}
                   </button>
                 ))}
@@ -224,7 +224,7 @@ function OrderDisputeView({ orderId, onClose }: { orderId: string; onClose: () =
                       type="button"
                       onClick={() => setEvidence(evidence.filter((_, j) => j !== i))}
                       className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity"
-                     title="setEvidence(evidence.filter((_, j) => j !== i))} className='absolute top-1 ri…" aria-label="setEvidence(evidence.filter((_, j) => j !== i))} className='absolute top-1 ri…">
+                    >
                       <Trash2 className="w-2.5 h-2.5 text-white" />
                     </button>
                   </div>
@@ -234,7 +234,7 @@ function OrderDisputeView({ orderId, onClose }: { orderId: string; onClose: () =
                   onClick={() => evidenceInputRef.current?.click()}
                   disabled={uploading}
                   className="h-20 rounded-lg border border-dashed border-white/10 hover:border-coral/40 hover:bg-white/[0.02] text-muted-foreground hover:text-foreground text-[10px] flex flex-col items-center justify-center gap-1 disabled:opacity-50"
-                 title="evidenceInputRef.current?.click()} disabled= className='h-20 rounded-lg borde…" aria-label="evidenceInputRef.current?.click()} disabled= className='h-20 rounded-lg borde…">
+                >
                   {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     : <><span className="text-lg leading-none">+</span><span>Add photo</span></>}
                 </button>
@@ -259,7 +259,7 @@ function OrderDisputeView({ orderId, onClose }: { orderId: string; onClose: () =
             <button
               onClick={handleSubmit} disabled={submitting || statement.trim().length < 10}
               className="w-full py-3 rounded-xl bg-coral text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-             title="Open dispute" aria-label="Open dispute">
+            >
               {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               Open dispute
             </button>
@@ -469,7 +469,7 @@ function BookingDisputeView({ bookingId, onClose }: { bookingId: string; onClose
                         ? "border-coral/50 bg-coral/10 text-foreground"
                         : "border-white/5 bg-white/[0.02] text-muted-foreground hover:text-foreground"
                     }`}
-                   title="setReason(r.value)} className= `} >" aria-label="setReason(r.value)} className= `} >">
+                  >
                     {r.label}
                   </button>
                 ))}
@@ -497,7 +497,7 @@ function BookingDisputeView({ bookingId, onClose }: { bookingId: string; onClose
                       type="button"
                       onClick={() => setEvidence(evidence.filter((_, j) => j !== i))}
                       className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity"
-                     title="setEvidence(evidence.filter((_, j) => j !== i))} className='absolute top-1 ri…" aria-label="setEvidence(evidence.filter((_, j) => j !== i))} className='absolute top-1 ri…">
+                    >
                       <Trash2 className="w-2.5 h-2.5 text-white" />
                     </button>
                   </div>
@@ -507,7 +507,7 @@ function BookingDisputeView({ bookingId, onClose }: { bookingId: string; onClose
                   onClick={() => evidenceInputRef.current?.click()}
                   disabled={uploading}
                   className="h-20 rounded-lg border border-dashed border-white/10 hover:border-coral/40 hover:bg-white/[0.02] text-muted-foreground hover:text-foreground text-[10px] flex flex-col items-center justify-center gap-1 disabled:opacity-50"
-                 title="evidenceInputRef.current?.click()} disabled= className='h-20 rounded-lg borde…" aria-label="evidenceInputRef.current?.click()} disabled= className='h-20 rounded-lg borde…">
+                >
                   {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> :
                     <><span className="text-lg leading-none">+</span><span>Add photo</span></>}
                 </button>
@@ -532,7 +532,7 @@ function BookingDisputeView({ bookingId, onClose }: { bookingId: string; onClose
             <button
               onClick={handleSubmit} disabled={submitting || statement.trim().length < 10}
               className="w-full py-3 rounded-xl bg-coral text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-             title="Open dispute" aria-label="Open dispute">
+            >
               {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               Open dispute
             </button>

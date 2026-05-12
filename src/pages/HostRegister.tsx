@@ -66,7 +66,7 @@ export default function HostRegister() {
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-violet/20 to-obsidian" />
         <div className="relative px-5 pt-8 pb-6">
-          <button onClick={() => navigate(-1)} className="mb-6 p-2 -ml-2 rounded-xl hover:bg-white/5" title="navigate(-1)} className='mb-6 p-2 -ml-2 rounded-xl hover:bg-white/5'>" aria-label="navigate(-1)} className='mb-6 p-2 -ml-2 rounded-xl hover:bg-white/5'>">
+          <button onClick={() => navigate(-1)} className="mb-6 p-2 -ml-2 rounded-xl hover:bg-white/5">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2 mb-4">
@@ -100,7 +100,7 @@ export default function HostRegister() {
                     ? "border-violet bg-violet/10"
                     : "border-white/10 bg-white/5 hover:border-white/20"
                 }`}
-               title="update('propertyType', pt.value)} className= `} >" aria-label="update('propertyType', pt.value)} className= `} >">
+              >
                 <pt.icon className={`w-5 h-5 mx-auto mb-1 ${form.propertyType === pt.value ? "text-violet" : "text-white/50"}`} />
                 <span className="text-xs font-semibold">{pt.label}</span>
               </button>

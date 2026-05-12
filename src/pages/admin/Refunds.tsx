@@ -147,7 +147,7 @@ function AdminRefundsInner() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <AdminNav />
@@ -176,7 +176,7 @@ function AdminRefundsInner() {
               onClick={search}
               disabled={searching || !query.trim()}
               className="rounded-pill px-4 py-2 text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta disabled:opacity-50 flex items-center gap-1.5"
-             title="Search" aria-label="Search">
+            >
               {searching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
               Search
             </button>
@@ -234,7 +234,7 @@ function AdminRefundsInner() {
                   <button key={c} onClick={() => setChannel(c)}
                     className={`py-2.5 rounded-xl text-xs font-semibold ${
                       channel === c ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
-                    }`} title="setChannel(c)} className= `}>" aria-label="setChannel(c)} className= `}>">
+                    }`}>
                     {c === "wallet" ? "BION Wallet (instant)" : "Bank (5-10 days)"}
                   </button>
                 ))}
@@ -313,7 +313,7 @@ function AdminRefundsInner() {
               <button
                 onClick={() => { setSelected(null); setNote(""); setLastBreakdown(null); }}
                 className="flex-1 rounded-pill py-3 text-xs font-medium glass-1 text-muted-foreground"
-               title="} className='flex-1 rounded-pill py-3 text-xs font-medium glass-1 text-muted-…" aria-label="} className='flex-1 rounded-pill py-3 text-xs font-medium glass-1 text-muted-…">
+              >
                 Cancel
               </button>
               <button

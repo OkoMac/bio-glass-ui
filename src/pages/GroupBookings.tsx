@@ -128,7 +128,7 @@ export default function GroupBookings() {
       <div className="max-w-3xl mx-auto px-4 md:px-8 pt-20 space-y-5">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="glass-2 rounded-full w-10 h-10 flex items-center justify-center" title="navigate(-1)} className='glass-2 rounded-full w-10 h-10 flex items-center jus…" aria-label="navigate(-1)} className='glass-2 rounded-full w-10 h-10 flex items-center jus…">
+          <button onClick={() => navigate(-1)} className="glass-2 rounded-full w-10 h-10 flex items-center justify-center">
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <div>
@@ -148,7 +148,7 @@ export default function GroupBookings() {
                   ? "gradient-indigo text-primary-foreground"
                   : "glass-1 text-muted-foreground hover:text-foreground"
               }`}
-             title="setCategory(c.key)} className= `} >" aria-label="setCategory(c.key)} className= `} >">
+            >
               {c.label}
             </button>
           ))}
@@ -194,7 +194,7 @@ export default function GroupBookings() {
                           <button
                             onClick={() => navigate(`/provider/${session.provider!.id}`)}
                             className="text-[11px] text-indigo hover:underline mt-1"
-                           title="navigate(`/provider/$ `)} className='text-[11px] text-indigo hover:underline …" aria-label="navigate(`/provider/$ `)} className='text-[11px] text-indigo hover:underline …">
+                          >
                             {session.provider.full_name}
                           </button>
                         )}
@@ -229,7 +229,7 @@ export default function GroupBookings() {
                           <button
                             onClick={() => shareSession(session)}
                             className="w-8 h-8 glass-1 rounded-full flex items-center justify-center hover:bg-white/[0.06]"
-                           title="shareSession(session)} className='w-8 h-8 glass-1 rounded-full flex items-cen…" aria-label="shareSession(session)} className='w-8 h-8 glass-1 rounded-full flex items-cen…">
+                          >
                             <Share2 className="w-3.5 h-3.5 text-muted-foreground" />
                           </button>
                           <motion.button

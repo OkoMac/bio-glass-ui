@@ -192,7 +192,7 @@ export default function BionTips({ context, className }: BionTipsProps) {
                 <button
                   onClick={() => navigate(currentTip.action!)}
                   className="mt-2.5 inline-flex items-center gap-1 text-[11px] font-medium text-indigo hover:text-indigo/80 transition-colors"
-                 title="navigate(currentTip.action!)} className='mt-2.5 inline-flex items-center gap-…" aria-label="navigate(currentTip.action!)} className='mt-2.5 inline-flex items-center gap-…">
+                >
                   Let's go
                   <ChevronRight className="w-3 h-3" />
                 </button>
@@ -204,7 +204,7 @@ export default function BionTips({ context, className }: BionTipsProps) {
               onClick={() => handleDismiss(currentTip.id)}
               aria-label="Dismiss tip"
               className="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/[0.06] transition-colors"
-             title="handleDismiss(currentTip.id)} aria-label='Dismiss tip' className='absolute to…">
+            >
               <X className="w-3.5 h-3.5" />
             </button>
           </div>

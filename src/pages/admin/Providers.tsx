@@ -126,7 +126,7 @@ export default function AdminProviders() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-5xl xl:max-w-7xl px-4 md:px-8 pt-24 pb-10 md:pt-8 space-y-5">
@@ -142,7 +142,7 @@ export default function AdminProviders() {
           <button
             onClick={() => navigate("/welcome")}
             className="flex items-center gap-2 px-3 md:px-4 py-2.5 rounded-pill text-[11px] md:text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta"
-           title="navigate('/welcome')} className='flex items-center gap-2 px-3 md:px-4 py-2.5 …" aria-label="navigate('/welcome')} className='flex items-center gap-2 px-3 md:px-4 py-2.5 …">
+          >
             <UserPlus className="w-3.5 h-3.5" />
             Add Provider
           </button>
@@ -158,7 +158,7 @@ export default function AdminProviders() {
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
           />
           {search && (
-            <button onClick={() => setSearch("")} title="setSearch('')}>" aria-label="setSearch('')}>">
+            <button onClick={() => setSearch("")}>
               <X className="w-4 h-4 text-muted-foreground" />
             </button>
           )}
@@ -175,7 +175,7 @@ export default function AdminProviders() {
                   ? "gradient-indigo text-primary-foreground shadow-cta"
                   : "glass-1 text-muted-foreground hover:text-foreground"
               }`}
-             title="} className= `} >" aria-label="} className= `} >">
+            >
               {tab}
             </button>
           ))}
@@ -183,7 +183,7 @@ export default function AdminProviders() {
             <button
               onClick={() => setSelectedCategoryId(null)}
               className="shrink-0 rounded-pill px-3 py-1.5 text-xs font-medium glass-accent-teal text-teal flex items-center gap-1"
-             title="setSelectedCategoryId(null)} className='shrink-0 rounded-pill px-3 py-1.5 tex…" aria-label="setSelectedCategoryId(null)} className='shrink-0 rounded-pill px-3 py-1.5 tex…">
+            >
               {selectedCat.name} <X className="w-3 h-3" />
             </button>
           )}
@@ -238,14 +238,14 @@ export default function AdminProviders() {
                           onClick={() => setSelectedProvider(selectedProvider?.id === p.id ? null : p)}
                           className="p-2 rounded-xl glass-1 hover:bg-white/[0.08] transition-colors"
                           title="Details"
-                         aria-label="setSelectedProvider(selectedProvider?.id === p.id ? null : p)} className='p-2…">
+                        >
                           <Settings className="w-4 h-4 text-muted-foreground" />
                         </button>
                         <button
                           onClick={() => navigate(`/provider/${p.id}`)}
                           className="p-2 rounded-xl glass-1 hover:bg-white/[0.08] transition-colors"
                           title="View Profile"
-                         aria-label="navigate(`/provider/$ `)} className='p-2 rounded-xl glass-1 hover:bg-white/[0…">
+                        >
                           <Eye className="w-4 h-4 text-muted-foreground" />
                         </button>
                       </div>
@@ -310,7 +310,7 @@ export default function AdminProviders() {
                               <button
                                 onClick={() => navigate(`/provider/${p.id}`)}
                                 className="px-3 py-1.5 text-xs glass-accent-teal rounded-pill text-teal flex items-center gap-1"
-                               title="navigate(`/provider/$ `)} className='px-3 py-1.5 text-xs glass-accent-teal ro…" aria-label="navigate(`/provider/$ `)} className='px-3 py-1.5 text-xs glass-accent-teal ro…">
+                              >
                                 <Eye className="w-3 h-3" /> Full Profile
                               </button>
                               <button
@@ -328,13 +328,13 @@ export default function AdminProviders() {
                                   else { import("sonner").then(({ toast }) => toast.success("Provider suspended")); }
                                 }}
                                 className="px-3 py-1.5 text-xs glass-accent-amber rounded-pill text-amber flex items-center gap-1"
-                               title="= await supabase.from('profiles').update( as any).eq('id', p.id); // Slice 4 …" aria-label="= await supabase.from('profiles').update( as any).eq('id', p.id); // Slice 4 …">
+                              >
                                 <Pause className="w-3 h-3" /> Suspend
                               </button>
                               <button
                                 onClick={() => navigate("/admin/b-inbox")}
                                 className="px-3 py-1.5 text-xs glass-1 rounded-pill text-muted-foreground flex items-center gap-1"
-                               title="navigate('/admin/b-inbox')} className='px-3 py-1.5 text-xs glass-1 rounded-pi…" aria-label="navigate('/admin/b-inbox')} className='px-3 py-1.5 text-xs glass-1 rounded-pi…">
+                              >
                                 <MessageSquare className="w-3 h-3" /> Message
                               </button>
                             </div>
@@ -354,7 +354,7 @@ export default function AdminProviders() {
               <button
                 onClick={() => setVisibleCount((c) => c + 20)}
                 className="px-8 py-3 rounded-pill glass-2 text-sm font-medium text-foreground hover:bg-white/[0.08] transition-all"
-               title="setVisibleCount((c) => c + 20)} className='px-8 py-3 rounded-pill glass-2 tex…" aria-label="setVisibleCount((c) => c + 20)} className='px-8 py-3 rounded-pill glass-2 tex…">
+              >
                 Load more ({filteredProviders.length - visibleCount} remaining)
               </button>
             </div>
@@ -371,7 +371,7 @@ export default function AdminProviders() {
               <Search className="w-8 h-8 text-muted-foreground/40 mx-auto mb-3" />
               <p className="text-sm font-medium text-foreground">No providers found</p>
               <p className="text-xs text-muted-foreground mt-1">Try adjusting your search or filters</p>
-              <button onClick={() => { setSearch(""); setSelectedCategoryId(null); setActiveFilter("All"); }} className="text-xs text-indigo mt-2" title="} className='text-xs text-indigo mt-2'> Clear all filters" aria-label="} className='text-xs text-indigo mt-2'> Clear all filters">
+              <button onClick={() => { setSearch(""); setSelectedCategoryId(null); setActiveFilter("All"); }} className="text-xs text-indigo mt-2">
                 Clear all filters
               </button>
             </GlassCard>

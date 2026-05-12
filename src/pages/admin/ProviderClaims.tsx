@@ -168,7 +168,7 @@ export default function AdminProviderClaims() {
   // ─── Main view ─────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-5xl px-4 pt-24 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -188,7 +188,7 @@ export default function AdminProviderClaims() {
             <button
               onClick={load}
               className="text-xs text-teal font-medium px-3 py-1.5 rounded-pill border border-teal/20 bg-teal/5 hover:bg-teal/10 transition-colors"
-             title="Refresh" aria-label="Refresh">
+            >
               Refresh
             </button>
           </div>
@@ -288,7 +288,7 @@ export default function AdminProviderClaims() {
                       }}
                       disabled={busy === c.id}
                       className="flex-1 lg:flex-none px-3 py-2 rounded-xl bg-teal/10 border border-teal/30 text-teal hover:bg-teal/20 flex items-center justify-center gap-1.5 text-xs font-medium transition-colors disabled:opacity-50"
-                     title="} disabled= className='flex-1 lg:flex-none px-3 py-2 rounded-xl bg-teal/10 bo…" aria-label="} disabled= className='flex-1 lg:flex-none px-3 py-2 rounded-xl bg-teal/10 bo…">
+                    >
                       <CheckCircle className="w-3.5 h-3.5" />
                       Approve
                     </button>
@@ -299,7 +299,7 @@ export default function AdminProviderClaims() {
                       }}
                       disabled={busy === c.id}
                       className="flex-1 lg:flex-none px-3 py-2 rounded-xl bg-coral/10 border border-coral/30 text-coral hover:bg-coral/20 flex items-center justify-center gap-1.5 text-xs font-medium transition-colors disabled:opacity-50"
-                     title="} disabled= className='flex-1 lg:flex-none px-3 py-2 rounded-xl bg-coral/10 b…" aria-label="} disabled= className='flex-1 lg:flex-none px-3 py-2 rounded-xl bg-coral/10 b…">
+                    >
                       <XCircle className="w-3.5 h-3.5" />
                       Reject
                     </button>
@@ -373,14 +373,14 @@ export default function AdminProviderClaims() {
                   onClick={() => setApproveModal(null)}
                   disabled={busy === approveModal.id}
                   className="flex-1 py-2.5 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground"
-                 title="setApproveModal(null)} disabled= className='flex-1 py-2.5 rounded-2xl text-sm…" aria-label="setApproveModal(null)} disabled= className='flex-1 py-2.5 rounded-2xl text-sm…">
+                >
                   Cancel
                 </button>
                 <button
                   onClick={approve}
                   disabled={busy === approveModal.id}
                   className="flex-1 py-2.5 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-500 disabled:opacity-50 flex items-center justify-center gap-1.5"
-                 title="Approve" aria-label="Approve">
+                >
                   {busy === approveModal.id
                     ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     : <CheckCircle className="w-3.5 h-3.5" />}
@@ -433,14 +433,14 @@ export default function AdminProviderClaims() {
                   onClick={() => setRejectModal(null)}
                   disabled={busy === rejectModal.id}
                   className="flex-1 py-2.5 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground"
-                 title="setRejectModal(null)} disabled= className='flex-1 py-2.5 rounded-2xl text-sm …" aria-label="setRejectModal(null)} disabled= className='flex-1 py-2.5 rounded-2xl text-sm …">
+                >
                   Cancel
                 </button>
                 <button
                   onClick={reject}
                   disabled={busy === rejectModal.id || !rejectReason.trim()}
                   className="flex-1 py-2.5 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-coral to-red-500 disabled:opacity-50 flex items-center justify-center gap-1.5"
-                 title="Confirm reject" aria-label="Confirm reject">
+                >
                   {busy === rejectModal.id
                     ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     : <XCircle className="w-3.5 h-3.5" />}

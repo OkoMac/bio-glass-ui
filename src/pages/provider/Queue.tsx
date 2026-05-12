@@ -101,7 +101,7 @@ export default function Queue() {
       <button
         onClick={() => navigate(-1)}
         className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors"
-       title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      >
         <ArrowLeft className="w-5 h-5" />
       </button>
 
@@ -209,7 +209,7 @@ export default function Queue() {
                             onClick={() => updateStatus(entry.id, "in_progress")}
                             disabled={updating === entry.id}
                             className="px-3 py-1.5 rounded-pill text-[11px] font-semibold gradient-indigo text-primary-foreground flex items-center gap-1"
-                           title="updateStatus(entry.id, 'in_progress')} disabled= className='px-3 py-1.5 round…" aria-label="updateStatus(entry.id, 'in_progress')} disabled= className='px-3 py-1.5 round…">
+                          >
                             {updating === entry.id ? (
                               <Loader2 className="w-3 h-3 animate-spin" />
                             ) : (
@@ -224,7 +224,7 @@ export default function Queue() {
                               onClick={() => updateStatus(entry.id, "completed")}
                               disabled={updating === entry.id}
                               className="px-3 py-1.5 rounded-pill text-[11px] font-semibold bg-teal/20 text-teal flex items-center gap-1"
-                             title="updateStatus(entry.id, 'completed')} disabled= className='px-3 py-1.5 rounded…" aria-label="updateStatus(entry.id, 'completed')} disabled= className='px-3 py-1.5 rounded…">
+                            >
                               {updating === entry.id ? (
                                 <Loader2 className="w-3 h-3 animate-spin" />
                               ) : (
@@ -236,7 +236,7 @@ export default function Queue() {
                               onClick={() => updateStatus(entry.id, "no_show")}
                               disabled={updating === entry.id}
                               className="px-2 py-1.5 rounded-pill text-[11px] font-semibold bg-coral/20 text-coral flex items-center gap-1"
-                             title="updateStatus(entry.id, 'no_show')} disabled= className='px-2 py-1.5 rounded-p…" aria-label="updateStatus(entry.id, 'no_show')} disabled= className='px-2 py-1.5 rounded-p…">
+                            >
                               <AlertTriangle className="w-3 h-3" />
                             </button>
                           </>
@@ -246,7 +246,7 @@ export default function Queue() {
                             onClick={() => updateStatus(entry.id, "no_show")}
                             disabled={updating === entry.id}
                             className="px-2 py-1.5 rounded-pill text-[11px] glass-1 text-muted-foreground"
-                           title="updateStatus(entry.id, 'no_show')} disabled= className='px-2 py-1.5 rounded-p…" aria-label="updateStatus(entry.id, 'no_show')} disabled= className='px-2 py-1.5 rounded-p…">
+                          >
                             <XCircle className="w-3 h-3" />
                           </button>
                         )}

@@ -36,7 +36,7 @@ export default function BeautyDashboard() {
   if (!isEnabled('beautyVertical')) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
         <div className="mx-auto max-w-2xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -67,7 +67,7 @@ export default function BeautyDashboard() {
   
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-6xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -80,7 +80,7 @@ export default function BeautyDashboard() {
               Specialized tools for beauty service providers
             </p>
           </div>
-          <button className="gradient-indigo rounded-pill px-4 py-2 text-sm font-semibold text-white flex items-center gap-2" title="New Client" aria-label="New Client">
+          <button className="gradient-indigo rounded-pill px-4 py-2 text-sm font-semibold text-white flex items-center gap-2">
             <Plus className="w-4 h-4" />
             New Client
           </button>
@@ -217,13 +217,13 @@ export default function BeautyDashboard() {
                   )}
 
                   <div className="flex items-center gap-2">
-                    <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground" title="View History" aria-label="View History">
+                    <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground">
                       View History
                     </button>
-                    <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground" title="Book Next" aria-label="Book Next">
+                    <button className="flex-1 glass-1 rounded-pill py-2 text-sm font-medium text-foreground">
                       Book Next
                     </button>
-                    <button className="flex-1 gradient-indigo rounded-pill py-2 text-sm font-semibold text-white" title="Edit Profile" aria-label="Edit Profile">
+                    <button className="flex-1 gradient-indigo rounded-pill py-2 text-sm font-semibold text-white">
                       Edit Profile
                     </button>
                   </div>
@@ -248,7 +248,7 @@ export default function BeautyDashboard() {
                     <p className="text-xs text-muted-foreground">Track and manage color formulas</p>
                   </div>
                 </div>
-                <button className="glass-1 rounded-pill px-3 py-1.5 text-xs font-medium text-foreground" title="Add Formula" aria-label="Add Formula">
+                <button className="glass-1 rounded-pill px-3 py-1.5 text-xs font-medium text-foreground">
                   Add Formula
                 </button>
               </div>
@@ -287,10 +287,10 @@ export default function BeautyDashboard() {
                         </div>
 
                         <div className="flex items-center gap-2">
-                          <button className="glass-1 rounded-pill px-3 py-1 text-xs font-medium text-foreground" title="Edit" aria-label="Edit">
+                          <button className="glass-1 rounded-pill px-3 py-1 text-xs font-medium text-foreground">
                             Edit
                           </button>
-                          <button className="gradient-indigo rounded-pill px-3 py-1 text-xs font-semibold text-white" title="Use Again" aria-label="Use Again">
+                          <button className="gradient-indigo rounded-pill px-3 py-1 text-xs font-semibold text-white">
                             Use Again
                           </button>
                         </div>
@@ -306,7 +306,7 @@ export default function BeautyDashboard() {
                   ))
                 )}
 
-                <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="Add New Formula" aria-label="Add New Formula">
+                <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                   <Plus className="w-4 h-4" />
                   Add New Formula
                 </button>
@@ -329,22 +329,22 @@ export default function BeautyDashboard() {
             </div>
             
             <div className="space-y-3">
-              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="Service History Cards" aria-label="Service History Cards">
+              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                 <Scissors className="w-4 h-4" />
                 Service History Cards
               </button>
               
-              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="Skin Profile Analysis" aria-label="Skin Profile Analysis">
+              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                 <Sparkles className="w-4 h-4" />
                 Skin Profile Analysis
               </button>
               
-              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="Product Recommendations" aria-label="Product Recommendations">
+              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                 <Package className="w-4 h-4" />
                 Product Recommendations
               </button>
               
-              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2" title="Before/After Gallery" aria-label="Before/After Gallery">
+              <button className="w-full glass-1 rounded-pill py-2.5 text-sm font-medium text-foreground flex items-center justify-center gap-2">
                 <Star className="w-4 h-4" />
                 Before/After Gallery
               </button>

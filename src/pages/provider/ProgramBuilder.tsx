@@ -82,7 +82,7 @@ function DayEditor({
           onClick={onDelete}
           className="text-muted-foreground/50 hover:text-coral transition-colors"
           aria-label="Remove day"
-         title="Delete">
+        >
           <Trash2 className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -170,7 +170,7 @@ function NewProgramForm({
               className={`rounded-pill px-3 py-1.5 text-[11px] font-medium ${
                 vertical === v.key ? `${v.gradient} text-primary-foreground` : "glass-1 text-muted-foreground"
               }`}
-             title="setVertical(v.key)} className= text-primary-foreground` : 'glass-1 text-muted…" aria-label="setVertical(v.key)} className= text-primary-foreground` : 'glass-1 text-muted…">
+            >
               {v.label}
             </button>
           ))}
@@ -206,7 +206,7 @@ function NewProgramForm({
         <button
           onClick={onCancel}
           className="flex-1 glass-1 rounded-pill py-3 text-sm text-muted-foreground"
-         title="Cancel" aria-label="Cancel">
+        >
           Cancel
         </button>
         <motion.button
@@ -408,7 +408,7 @@ function ProgramEditor({
               className={`rounded-pill px-3 py-1.5 text-[11px] font-medium ${
                 meta.vertical === v.key ? `${v.gradient} text-primary-foreground` : "glass-1 text-muted-foreground"
               }`}
-             title="setMeta( )} className= text-primary-foreground` : 'glass-1 text-muted-foregro…" aria-label="setMeta( )} className= text-primary-foreground` : 'glass-1 text-muted-foregro…">
+            >
               {v.label}
             </button>
           ))}
@@ -546,7 +546,7 @@ export default function ProgramBuilder() {
             <button
               onClick={() => navigate(getUpgradeUrl())}
               className="w-full gradient-indigo rounded-pill py-3.5 text-sm font-semibold text-white flex items-center justify-center gap-2"
-             title="navigate(getUpgradeUrl())} className='w-full gradient-indigo rounded-pill py-…" aria-label="navigate(getUpgradeUrl())} className='w-full gradient-indigo rounded-pill py-…">
+            >
               <CreditCard className="w-4 h-4" />
               Upgrade to Pro
             </button>

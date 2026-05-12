@@ -95,7 +95,7 @@ export default function BookingRequestForm({ providerName = "", onClose }: Props
               <p className="text-sm text-muted-foreground">
                 Our sales team will contact the provider and get back to you within 24 hours.
               </p>
-              <button onClick={onClose} className="rounded-pill px-6 py-3 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta" title="Done" aria-label="Done">
+              <button onClick={onClose} className="rounded-pill px-6 py-3 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta">
                 Done
               </button>
             </motion.div>

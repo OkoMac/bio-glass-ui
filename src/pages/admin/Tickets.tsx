@@ -150,7 +150,7 @@ export default function AdminTickets() {
               <button
                 onClick={load}
                 className="rounded-pill px-3 py-2 text-xs font-medium glass-1 text-foreground flex items-center gap-1.5"
-               title="Refresh" aria-label="Refresh">
+              >
                 <RefreshCcw className="w-3.5 h-3.5" /> Refresh
               </button>
             </div>
@@ -165,7 +165,7 @@ export default function AdminTickets() {
                 className={`rounded-pill px-4 py-2 text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 ${
                   tab === t.key ? "gradient-indigo text-primary-foreground shadow-cta" : "glass-1 text-muted-foreground"
                 }`}
-               title="setTab(t.key)} className= `} > )}" aria-label="setTab(t.key)} className= `} > )}">
+              >
                 {t.icon} {t.label}
                 {t.key !== "all" && (counts[t.key] ?? 0) > 0 && (
                   <span className={`ml-1 text-[10px] rounded-pill px-1.5 py-0.5 ${tab === t.key ? "bg-white/20" : "bg-white/[0.06]"}`}>
@@ -190,7 +190,7 @@ export default function AdminTickets() {
                      : "gradient-indigo text-primary-foreground")
                     : "glass-1 text-muted-foreground"
                 }`}
-               title="setPriorityFilter(p)} className= `} >" aria-label="setPriorityFilter(p)} className= `} >">
+              >
                 {p === "all" ? "All" : p}
               </button>
             ))}
@@ -209,7 +209,7 @@ export default function AdminTickets() {
                     : "glass-1 text-muted-foreground"
                 }`}
                 title={s === "sentry" ? "Tickets originated from Sentry alerts" : s === "auto" ? "Auto-tickets from frontend crashes / API errors" : s === "user" ? "Human-submitted tickets only" : "All ticket sources"}
-               aria-label="setSourceFilter(s)} className= `} title= >">
+              >
                 {s === "all" ? "All" : s}
               </button>
             ))}
@@ -444,7 +444,7 @@ function TicketDetail({
             onClick={() => setConfirmResolve(true)}
             disabled={statusBusy === "resolved"}
             className="rounded-pill px-4 py-2 text-xs font-semibold bg-teal/20 text-teal border border-teal/40 flex items-center gap-1.5 shrink-0 hover:bg-teal/30 transition-colors disabled:opacity-50"
-           title="setConfirmResolve(true)} disabled= className='rounded-pill px-4 py-2 text-xs …" aria-label="setConfirmResolve(true)} disabled= className='rounded-pill px-4 py-2 text-xs …">
+          >
             <CheckCircle2 className="w-4 h-4" /> Mark resolved
           </button>
         )}
@@ -474,14 +474,14 @@ function TicketDetail({
               onClick={() => { setConfirmResolve(false); setNote(""); }}
               disabled={statusBusy === "resolved"}
               className="flex-1 rounded-pill py-2 text-xs font-medium glass-1 text-muted-foreground"
-             title="} disabled= className='flex-1 rounded-pill py-2 text-xs font-medium glass-1 t…" aria-label="} disabled= className='flex-1 rounded-pill py-2 text-xs font-medium glass-1 t…">
+            >
               Cancel
             </button>
             <button
               onClick={async () => { await changeStatus("resolved"); setConfirmResolve(false); }}
               disabled={statusBusy === "resolved"}
               className="flex-1 rounded-pill py-2 text-xs font-semibold bg-teal/30 text-teal border border-teal/40 flex items-center justify-center gap-1.5 disabled:opacity-50"
-             title="} disabled= className='flex-1 rounded-pill py-2 text-xs font-semibold bg-teal…" aria-label="} disabled= className='flex-1 rounded-pill py-2 text-xs font-semibold bg-teal…">
+            >
               {statusBusy === "resolved" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
               {statusBusy === "resolved" ? "Resolving…" : "Confirm resolve"}
             </button>
@@ -571,7 +571,7 @@ function TicketDetail({
               onClick={() => changeStatus(o.value)}
               disabled={statusBusy === o.value || ticket.status === o.value}
               className={`rounded-pill px-3 py-1.5 text-xs font-semibold ${o.tone} disabled:opacity-40`}
-             title="changeStatus(o.value)} disabled= className= disabled:opacity-40`} >" aria-label="changeStatus(o.value)} disabled= className= disabled:opacity-40`} >">
+            >
               {statusBusy === o.value ? "…" : o.label}
             </button>
           ))}

@@ -121,7 +121,7 @@ export default function AffiliateDashboard() {
       <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-32">
         <div className="w-full px-4 md:px-8 xl:px-12 pt-20 space-y-6">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="w-9 h-9 glass-2 rounded-full flex items-center justify-center" title="navigate(-1)} className='w-9 h-9 glass-2 rounded-full flex items-center justi…" aria-label="navigate(-1)} className='w-9 h-9 glass-2 rounded-full flex items-center justi…">
+            <button onClick={() => navigate(-1)} className="w-9 h-9 glass-2 rounded-full flex items-center justify-center">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <h1 className="text-xl font-bold text-foreground">Affiliate Program</h1>
@@ -173,7 +173,7 @@ export default function AffiliateDashboard() {
       <div className="w-full px-4 md:px-8 xl:px-12 pt-20 space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="w-9 h-9 glass-2 rounded-full flex items-center justify-center" title="navigate(-1)} className='w-9 h-9 glass-2 rounded-full flex items-center justi…" aria-label="navigate(-1)} className='w-9 h-9 glass-2 rounded-full flex items-center justi…">
+          <button onClick={() => navigate(-1)} className="w-9 h-9 glass-2 rounded-full flex items-center justify-center">
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div className="flex-1">

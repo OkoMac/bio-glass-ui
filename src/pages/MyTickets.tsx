@@ -102,7 +102,7 @@ function TicketListView() {
       <div className="max-w-3xl mx-auto px-4 pt-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <button onClick={() => navigate(-1)} className="w-9 h-9 rounded-xl glass-1 flex items-center justify-center text-foreground" title="navigate(-1)} className='w-9 h-9 rounded-xl glass-1 flex items-center justify…" aria-label="navigate(-1)} className='w-9 h-9 rounded-xl glass-1 flex items-center justify…">
+            <button onClick={() => navigate(-1)} className="w-9 h-9 rounded-xl glass-1 flex items-center justify-center text-foreground">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div>
@@ -237,7 +237,7 @@ function TicketDetailView({ id }: { id: string }) {
     return (
       <div className="min-h-screen bg-obsidian bg-obsidian-glow flex flex-col items-center justify-center p-8">
         <p className="text-sm text-muted-foreground mb-4">Ticket not found.</p>
-        <button onClick={() => navigate("/my-tickets")} className="rounded-pill px-4 py-2 text-xs font-semibold glass-1 text-foreground" title="navigate('/my-tickets')} className='rounded-pill px-4 py-2 text-xs font-semib…" aria-label="navigate('/my-tickets')} className='rounded-pill px-4 py-2 text-xs font-semib…">
+        <button onClick={() => navigate("/my-tickets")} className="rounded-pill px-4 py-2 text-xs font-semibold glass-1 text-foreground">
           Back to tickets
         </button>
       </div>
@@ -251,7 +251,7 @@ function TicketDetailView({ id }: { id: string }) {
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-32">
       <div className="max-w-3xl mx-auto px-4 pt-8 space-y-5">
         <div className="flex items-center gap-2">
-          <button onClick={() => navigate("/my-tickets")} className="w-9 h-9 rounded-xl glass-1 flex items-center justify-center text-foreground" title="navigate('/my-tickets')} className='w-9 h-9 rounded-xl glass-1 flex items-cen…" aria-label="navigate('/my-tickets')} className='w-9 h-9 rounded-xl glass-1 flex items-cen…">
+          <button onClick={() => navigate("/my-tickets")} className="w-9 h-9 rounded-xl glass-1 flex items-center justify-center text-foreground">
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div className="min-w-0 flex-1">

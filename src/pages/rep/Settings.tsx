@@ -30,7 +30,7 @@ export default function RepSettings() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-28 relative">
-      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded…" aria-label="navigate(-1)} className='absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded…">
+      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="max-w-lg mx-auto pt-8 px-4 space-y-5">
@@ -74,14 +74,14 @@ export default function RepSettings() {
           <button
             onClick={() => navigate("/rep/agreement")}
             className="w-full flex items-center gap-3 p-4 text-left hover:bg-white/[0.02] transition-colors"
-           title="navigate('/rep/agreement')} className='w-full flex items-center gap-3 p-4 tex…" aria-label="navigate('/rep/agreement')} className='w-full flex items-center gap-3 p-4 tex…">
+          >
             <Shield className="w-4 h-4 text-muted-foreground" />
             <span className="text-sm text-foreground">View Agreement</span>
           </button>
           <button
             onClick={() => navigate("/bicademy")}
             className="w-full flex items-center gap-3 p-4 text-left hover:bg-white/[0.02] transition-colors"
-           title="navigate('/bicademy')} className='w-full flex items-center gap-3 p-4 text-lef…" aria-label="navigate('/bicademy')} className='w-full flex items-center gap-3 p-4 text-lef…">
+          >
             <User className="w-4 h-4 text-muted-foreground" />
             <span className="text-sm text-foreground">Ranger Training</span>
           </button>
@@ -91,7 +91,7 @@ export default function RepSettings() {
         <button
           onClick={handleSignOut}
           className="w-full rounded-2xl py-3 text-sm font-medium text-coral glass-1 flex items-center justify-center gap-2"
-         title="Sign Out" aria-label="Sign Out">
+        >
           <LogOut className="w-4 h-4" />
           Sign Out
         </button>

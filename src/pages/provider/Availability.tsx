@@ -239,7 +239,7 @@ export default function ProviderAvailability() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-2xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
@@ -276,7 +276,7 @@ export default function ProviderAvailability() {
                     className={`text-[10px] px-2 py-1 rounded-pill transition-all ${
                       buffer === b ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
                     }`}
-                   title="setBuffer(b)} className= `} >" aria-label="setBuffer(b)} className= `} >">
+                  >
                     {b}
                   </button>
                 ))}
@@ -293,7 +293,7 @@ export default function ProviderAvailability() {
                     className={`text-[10px] px-2 py-1 rounded-pill transition-all ${
                       advance === a ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
                     }`}
-                   title="setAdvance(a)} className= `} >" aria-label="setAdvance(a)} className= `} >">
+                  >
                     {a}
                   </button>
                 ))}
@@ -319,7 +319,7 @@ export default function ProviderAvailability() {
                     className={`w-9 h-5 rounded-full transition-all flex items-center px-0.5 shrink-0 ${
                       schedule[day].enabled ? "bg-indigo-500" : "bg-white/10"
                     }`}
-                   title="} className= `} >" aria-label="} className= `} >">
+                  >
                     <motion.div
                       animate={{ x: schedule[day].enabled ? 16 : 0 }}
                       className="w-4 h-4 rounded-full bg-white shadow-sm"
@@ -372,7 +372,7 @@ export default function ProviderAvailability() {
                           >
                             {TIME_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
                           </select>
-                          <button onClick={() => removeBlock(day, bi)} className="p-1 text-muted-foreground hover:text-coral transition-colors" title="removeBlock(day, bi)} className='p-1 text-muted-foreground hover:text-coral t…" aria-label="removeBlock(day, bi)} className='p-1 text-muted-foreground hover:text-coral t…">
+                          <button onClick={() => removeBlock(day, bi)} className="p-1 text-muted-foreground hover:text-coral transition-colors">
                             <X className="w-3.5 h-3.5" />
                           </button>
                         </div>
@@ -380,7 +380,7 @@ export default function ProviderAvailability() {
                       <button
                         onClick={() => addBlock(day)}
                         className="flex items-center gap-1.5 text-[11px] text-indigo mt-2 hover:opacity-70 transition-opacity"
-                       title="addBlock(day)} className='flex items-center gap-1.5 text-[11px] text-indigo m…" aria-label="addBlock(day)} className='flex items-center gap-1.5 text-[11px] text-indigo m…">
+                      >
                         <Plus className="w-3.5 h-3.5" /> Add time block
                       </button>
                     </motion.div>
@@ -435,10 +435,10 @@ export default function ProviderAvailability() {
                     />
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={addException} className="flex-1 gradient-indigo rounded-pill py-2 text-sm font-semibold text-primary-foreground" title="Block date" aria-label="Block date">
+                    <button onClick={addException} className="flex-1 gradient-indigo rounded-pill py-2 text-sm font-semibold text-primary-foreground">
                       Block date
                     </button>
-                    <button onClick={() => setAddingException(false)} className="flex-1 glass-1 rounded-pill py-2 text-sm text-muted-foreground" title="setAddingException(false)} className='flex-1 glass-1 rounded-pill py-2 text-s…" aria-label="setAddingException(false)} className='flex-1 glass-1 rounded-pill py-2 text-s…">
+                    <button onClick={() => setAddingException(false)} className="flex-1 glass-1 rounded-pill py-2 text-sm text-muted-foreground">
                       Cancel
                     </button>
                   </div>
@@ -467,7 +467,7 @@ export default function ProviderAvailability() {
                       <p className="text-[10px] text-muted-foreground">{ex.label}</p>
                     </div>
                   </div>
-                  <button onClick={() => removeException(i)} className="p-1.5 text-muted-foreground hover:text-coral transition-colors" title="removeException(i)} className='p-1.5 text-muted-foreground hover:text-coral t…" aria-label="removeException(i)} className='p-1.5 text-muted-foreground hover:text-coral t…">
+                  <button onClick={() => removeException(i)} className="p-1.5 text-muted-foreground hover:text-coral transition-colors">
                     <X className="w-4 h-4" />
                   </button>
                 </GlassCard>

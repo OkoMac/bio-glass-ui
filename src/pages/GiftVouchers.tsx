@@ -172,7 +172,7 @@ export default function GiftVouchers() {
       <div className="max-w-xl mx-auto px-4 md:px-8 pt-20 space-y-5">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="glass-2 rounded-full w-10 h-10 flex items-center justify-center" title="navigate(-1)} className='glass-2 rounded-full w-10 h-10 flex items-center jus…" aria-label="navigate(-1)} className='glass-2 rounded-full w-10 h-10 flex items-center jus…">
+          <button onClick={() => navigate(-1)} className="glass-2 rounded-full w-10 h-10 flex items-center justify-center">
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <div>
@@ -192,7 +192,7 @@ export default function GiftVouchers() {
                   ? "gradient-indigo text-primary-foreground"
                   : "glass-1 text-muted-foreground hover:text-foreground"
               }`}
-             title="setTab(t)} className= `} >" aria-label="setTab(t)} className= `} >">
+            >
               {t === "buy" ? "Send a Gift" : "My Vouchers"}
             </button>
           ))}
@@ -233,7 +233,7 @@ export default function GiftVouchers() {
                         ? "gradient-indigo text-primary-foreground shadow-cta"
                         : "glass-1 text-muted-foreground hover:text-foreground"
                     }`}
-                   title="} className= `} > R" aria-label="} className= `} > R">
+                  >
                     R{a}
                   </button>
                 ))}
@@ -244,7 +244,7 @@ export default function GiftVouchers() {
                   className={`rounded-xl py-2 px-3 text-xs font-medium transition-colors ${
                     isCustom ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
                   }`}
-                 title="setIsCustom(true)} className= `} > Custom" aria-label="setIsCustom(true)} className= `} > Custom">
+                >
                   Custom
                 </button>
                 {isCustom && (
@@ -339,7 +339,7 @@ export default function GiftVouchers() {
                   <button
                     onClick={() => { navigator.clipboard.writeText(sentCode); toast.success("Copied!"); }}
                     className="w-7 h-7 glass-1 rounded-full flex items-center justify-center"
-                   title="} className='w-7 h-7 glass-1 rounded-full flex items-center justify-center' >" aria-label="} className='w-7 h-7 glass-1 rounded-full flex items-center justify-center' >">
+                  >
                     <Copy className="w-3.5 h-3.5 text-muted-foreground" />
                   </button>
                 </div>
@@ -347,7 +347,7 @@ export default function GiftVouchers() {
               <button
                 onClick={resetForm}
                 className="rounded-pill px-6 py-2.5 gradient-indigo text-primary-foreground text-xs font-semibold"
-               title="Send Another Gift" aria-label="Send Another Gift">
+              >
                 Send Another Gift
               </button>
             </GlassCard>
@@ -391,7 +391,7 @@ export default function GiftVouchers() {
                 <button
                   onClick={() => navigate("/welcome?login=true&redirect=/gift-vouchers")}
                   className="rounded-pill px-5 py-2 gradient-indigo text-primary-foreground text-xs font-semibold"
-                 title="navigate('/welcome?login=true&redirect=/gift-vouchers')} className='rounded-p…" aria-label="navigate('/welcome?login=true&redirect=/gift-vouchers')} className='rounded-p…">
+                >
                   Sign in
                 </button>
               </GlassCard>
@@ -432,7 +432,7 @@ export default function GiftVouchers() {
                     <button
                       onClick={() => setTab("buy")}
                       className="mt-3 rounded-pill px-5 py-2 gradient-indigo text-primary-foreground text-xs font-semibold"
-                     title="setTab('buy')} className='mt-3 rounded-pill px-5 py-2 gradient-indigo text-pr…" aria-label="setTab('buy')} className='mt-3 rounded-pill px-5 py-2 gradient-indigo text-pr…">
+                    >
                       Send your first gift
                     </button>
                   </GlassCard>

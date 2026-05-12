@@ -119,7 +119,7 @@ export default function ProviderOrders() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 pb-32 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-5xl px-4 md:px-8 pt-20 md:pt-8 space-y-5">
@@ -155,7 +155,7 @@ export default function ProviderOrders() {
               className={`flex-1 rounded-pill py-2 text-xs font-medium capitalize transition-all ${
                 filter === f ? "gradient-indigo text-white" : "text-muted-foreground"
               }`}
-             title="setFilter(f)} className= `} >" aria-label="setFilter(f)} className= `} >">
+            >
               {f}
             </button>
           ))}
@@ -178,7 +178,7 @@ export default function ProviderOrders() {
           <div className="space-y-2">
             {filtered.map(o => (
               <button key={o.id} onClick={() => setSelectedOrder(o)}
-                className="w-full text-left glass-1 rounded-2xl p-4 hover:bg-white/[0.04] transition-colors" title="setSelectedOrder(o)} className='w-full text-left glass-1 rounded-2xl p-4 hove…" aria-label="setSelectedOrder(o)} className='w-full text-left glass-1 rounded-2xl p-4 hove…">
+                className="w-full text-left glass-1 rounded-2xl p-4 hover:bg-white/[0.04] transition-colors">
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <p className="text-sm font-semibold text-foreground">
@@ -299,7 +299,7 @@ function OrderDetailModal({ order, onClose, tracking, setTracking, updating, onU
         {order.status === "paid" && (
           <button onClick={() => onUpdate(order.id, "preparing")}
             disabled={updating}
-            className="w-full rounded-pill py-3 gradient-indigo text-white text-sm font-semibold" title="onUpdate(order.id, 'preparing')} disabled= className='w-full rounded-pill py-…" aria-label="onUpdate(order.id, 'preparing')} disabled= className='w-full rounded-pill py-…">
+            className="w-full rounded-pill py-3 gradient-indigo text-white text-sm font-semibold">
             Start preparing
           </button>
         )}
@@ -309,7 +309,7 @@ function OrderDetailModal({ order, onClose, tracking, setTracking, updating, onU
             {order.pickup_at_provider ? (
               <button onClick={() => onUpdate(order.id, "ready_for_pickup")}
                 disabled={updating}
-                className="w-full rounded-pill py-3 gradient-indigo text-white text-sm font-semibold" title="onUpdate(order.id, 'ready_for_pickup')} disabled= className='w-full rounded-p…" aria-label="onUpdate(order.id, 'ready_for_pickup')} disabled= className='w-full rounded-p…">
+                className="w-full rounded-pill py-3 gradient-indigo text-white text-sm font-semibold">
                 Mark ready for pickup
               </button>
             ) : (
@@ -319,7 +319,7 @@ function OrderDetailModal({ order, onClose, tracking, setTracking, updating, onU
                   className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground outline-none border border-white/[0.08]" />
                 <button onClick={() => onUpdate(order.id, "shipped", { tracking_number: tracking || null })}
                   disabled={updating}
-                  className="w-full rounded-pill py-3 gradient-indigo text-white text-sm font-semibold" title="onUpdate(order.id, 'shipped', )} disabled= className='w-full rounded-pill py-…" aria-label="onUpdate(order.id, 'shipped', )} disabled= className='w-full rounded-pill py-…">
+                  className="w-full rounded-pill py-3 gradient-indigo text-white text-sm font-semibold">
                   {updating ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Mark shipped"}
                 </button>
               </div>
@@ -330,7 +330,7 @@ function OrderDetailModal({ order, onClose, tracking, setTracking, updating, onU
         {(order.status === "shipped" || order.status === "ready_for_pickup") && (
           <button onClick={() => onUpdate(order.id, "delivered")}
             disabled={updating}
-            className="w-full rounded-pill py-3 gradient-indigo text-white text-sm font-semibold" title="onUpdate(order.id, 'delivered')} disabled= className='w-full rounded-pill py-…" aria-label="onUpdate(order.id, 'delivered')} disabled= className='w-full rounded-pill py-…">
+            className="w-full rounded-pill py-3 gradient-indigo text-white text-sm font-semibold">
             Mark delivered
           </button>
         )}

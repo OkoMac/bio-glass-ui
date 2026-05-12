@@ -411,7 +411,7 @@ export default function OnboardingChecklistCard({ role, className }: OnboardingC
             onClick={handleDismiss}
             aria-label="Dismiss checklist"
             className="absolute top-3 right-3 w-7 h-7 rounded-full glass-1 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-           title="Close">
+          >
             <X className="w-3.5 h-3.5" />
           </button>
 
@@ -462,7 +462,7 @@ export default function OnboardingChecklistCard({ role, className }: OnboardingC
                         ? "opacity-60 cursor-default"
                         : "hover:bg-white/[0.03] cursor-pointer"
                     }`}
-                   title="handleItemClick(item)} disabled= className= `} > )}" aria-label="handleItemClick(item)} disabled= className= `} > )}">
+                  >
                     {item.done ? (
                       <Icon className="w-4 h-4 shrink-0 text-teal" />
                     ) : (

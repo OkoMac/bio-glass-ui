@@ -169,7 +169,7 @@ export default function Referrals() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
 
@@ -185,7 +185,7 @@ export default function Referrals() {
           <button
             onClick={() => setShowForm(true)}
             className="px-4 py-2 rounded-pill text-sm font-semibold gradient-indigo text-primary-foreground flex items-center gap-1.5"
-           title="setShowForm(true)} className='px-4 py-2 rounded-pill text-sm font-semibold gr…" aria-label="setShowForm(true)} className='px-4 py-2 rounded-pill text-sm font-semibold gr…">
+          >
             <Plus className="w-3.5 h-3.5" /> Refer Client
           </button>
         </div>
@@ -199,7 +199,7 @@ export default function Referrals() {
               className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-pill text-xs font-medium transition-all ${
                 tab === t ? "gradient-indigo text-primary-foreground" : "text-muted-foreground"
               }`}
-             title="setTab(t)} className= `} > )` : `Outgoing ($ )`}" aria-label="setTab(t)} className= `} > )` : `Outgoing ($ )`}">
+            >
               {t === "incoming" ? <Inbox className="w-3.5 h-3.5" /> : <Send className="w-3.5 h-3.5" />}
               {t === "incoming" ? `Incoming (${incoming.length})` : `Outgoing (${outgoing.length})`}
             </button>
@@ -261,7 +261,7 @@ export default function Referrals() {
                       onClick={() => updateStatus(ref.id, "accepted")}
                       disabled={updating === ref.id}
                       className="flex-1 py-2 rounded-pill text-xs font-semibold bg-teal/20 text-teal flex items-center justify-center gap-1"
-                     title="updateStatus(ref.id, 'accepted')} disabled= className='flex-1 py-2 rounded-pi…" aria-label="updateStatus(ref.id, 'accepted')} disabled= className='flex-1 py-2 rounded-pi…">
+                    >
                       {updating === ref.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle className="w-3 h-3" />}
                       Accept
                     </button>
@@ -269,7 +269,7 @@ export default function Referrals() {
                       onClick={() => updateStatus(ref.id, "declined")}
                       disabled={updating === ref.id}
                       className="flex-1 py-2 rounded-pill text-xs font-semibold bg-coral/20 text-coral flex items-center justify-center gap-1"
-                     title="updateStatus(ref.id, 'declined')} disabled= className='flex-1 py-2 rounded-pi…" aria-label="updateStatus(ref.id, 'declined')} disabled= className='flex-1 py-2 rounded-pi…">
+                    >
                       <XCircle className="w-3 h-3" /> Decline
                     </button>
                   </div>
@@ -280,7 +280,7 @@ export default function Referrals() {
                       onClick={() => updateStatus(ref.id, "completed")}
                       disabled={updating === ref.id}
                       className="w-full py-2 rounded-pill text-xs font-semibold gradient-indigo text-primary-foreground flex items-center justify-center gap-1"
-                     title="updateStatus(ref.id, 'completed')} disabled= className='w-full py-2 rounded-p…" aria-label="updateStatus(ref.id, 'completed')} disabled= className='w-full py-2 rounded-p…">
+                    >
                       <CheckCircle className="w-3 h-3" /> Mark Completed
                     </button>
                   </div>
@@ -310,7 +310,7 @@ export default function Referrals() {
             >
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-bold text-foreground">Refer a Client</h2>
-                <button onClick={() => setShowForm(false)} className="text-muted-foreground" title="setShowForm(false)} className='text-muted-foreground'>" aria-label="setShowForm(false)} className='text-muted-foreground'>">
+                <button onClick={() => setShowForm(false)} className="text-muted-foreground">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -333,7 +333,7 @@ export default function Referrals() {
                   {selectedProvider ? (
                     <div className="flex items-center gap-2 glass-1 rounded-xl px-3 py-2">
                       <p className="text-sm text-foreground flex-1">{selectedProvider.full_name}</p>
-                      <button onClick={() => { setSelectedProvider(null); setProviderSearch(""); }} className="text-muted-foreground" title="} className='text-muted-foreground'>" aria-label="} className='text-muted-foreground'>">
+                      <button onClick={() => { setSelectedProvider(null); setProviderSearch(""); }} className="text-muted-foreground">
                         <X className="w-4 h-4" />
                       </button>
                     </div>
@@ -353,7 +353,7 @@ export default function Referrals() {
                               key={p.id}
                               onClick={() => { setSelectedProvider(p); setSearchResults([]); }}
                               className="w-full text-left px-3 py-2 hover:bg-white/5 transition-colors"
-                             title="} className='w-full text-left px-3 py-2 hover:bg-white/5 transition-colors' > }" aria-label="} className='w-full text-left px-3 py-2 hover:bg-white/5 transition-colors' > }">
+                            >
                               <p className="text-sm text-foreground">{p.full_name}</p>
                               {p.specialty && <p className="text-[10px] text-muted-foreground">{p.specialty}</p>}
                             </button>
@@ -397,7 +397,7 @@ export default function Referrals() {
                         className={`flex-1 py-2 rounded-pill text-[11px] font-semibold transition-all capitalize ${
                           urgency === u ? URGENCY_COLORS[u] : "glass-1 text-muted-foreground"
                         }`}
-                       title="setUrgency(u)} className= `} >" aria-label="setUrgency(u)} className= `} >">
+                      >
                         {u}
                       </button>
                     ))}
@@ -408,7 +408,7 @@ export default function Referrals() {
                   onClick={submitReferral}
                   disabled={submitting || !selectedProvider || !clientId || !reason}
                   className="w-full py-3 rounded-pill text-sm font-semibold gradient-indigo text-primary-foreground disabled:opacity-40 flex items-center justify-center gap-2"
-                 title="Send Referral" aria-label="Send Referral">
+                >
                   {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   Send Referral
                 </button>

@@ -14,7 +14,7 @@ interface TooltipProps {
  *
  * Usage:
  *   <Tooltip text="Open notifications">
- *     <button title="..." aria-label="...">...</button>
+ *     <button>...</button>
  *   </Tooltip>
  */
 export default function Tooltip({ text, children, side = "bottom", delay = 400 }: TooltipProps) {

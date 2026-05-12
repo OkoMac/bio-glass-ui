@@ -17,7 +17,7 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
   return (
     <button
       onClick={() => onChange(!value)}
-      className={`w-10 h-5 rounded-pill relative transition-all ${value ? "bg-amber" : "bg-white/10"}`} title="onChange(!value)} className= `}>" aria-label="onChange(!value)} className= `}>">
+      className={`w-10 h-5 rounded-pill relative transition-all ${value ? "bg-amber" : "bg-white/10"}`}>
       <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${value ? "left-5" : "left-0.5"}`}/>
     </button>
   );
@@ -108,7 +108,7 @@ export default function CorporateSettings() {
                 onClick={() => setTab(t.id)}
                 className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-pill text-xs font-medium transition-all ${
                   tab === t.id ? "gradient-indigo text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-                }`} title="setTab(t.id)} className= `}>" aria-label="setTab(t.id)} className= `}>">
+                }`}>
                 <Icon className="w-3.5 h-3.5 shrink-0"/>
                 <span className="hidden sm:inline">{t.label}</span>
               </button>
@@ -215,7 +215,7 @@ export default function CorporateSettings() {
                         on
                           ? "bg-amber/15 border-amber/40 text-amber"
                           : "glass-1 border-white/5 text-muted-foreground hover:text-foreground"
-                      }`} title="toggleCategory(cat)} className= `}>" aria-label="toggleCategory(cat)} className= `}>">
+                      }`}>
                       {cat}
                     </button>
                   );
@@ -296,7 +296,7 @@ export default function CorporateSettings() {
                 <label className="text-[10px] text-muted-foreground">Payment Method</label>
                 <div className="mt-1 glass-1 rounded-xl px-4 py-2.5 flex items-center justify-between">
                   <p className="text-sm text-foreground">{paymentMethod}</p>
-                  <button onClick={() => alert("Payment method management coming soon.")} className="text-[10px] text-amber font-medium" title="alert('Payment method management coming soon.')} className='text-[10px] text-…" aria-label="alert('Payment method management coming soon.')} className='text-[10px] text-…">Change</button>
+                  <button onClick={() => alert("Payment method management coming soon.")} className="text-[10px] text-amber font-medium">Change</button>
                 </div>
               </div>
             </GlassCard>
@@ -332,7 +332,7 @@ export default function CorporateSettings() {
                 <button
                   onClick={() => alert("Plan upgrade coming soon. Contact sales@bionhealth.co.za.")}
                   className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
-                 title="alert('Plan upgrade coming soon. Contact sales@bionhealth.co.za.')} className…" aria-label="alert('Plan upgrade coming soon. Contact sales@bionhealth.co.za.')} className…">
+                >
                   Upgrade
                 </button>
               </div>

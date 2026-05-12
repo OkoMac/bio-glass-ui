@@ -55,7 +55,7 @@ export default function MarketingLevyCard() {
         <button
           onClick={() => setBoostOpen(!boostOpen)}
           className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-coral/10 text-coral text-xs font-medium hover:bg-coral/20 transition-colors"
-         title="setBoostOpen(!boostOpen)} className='flex items-center gap-1 px-3 py-1.5 roun…" aria-label="setBoostOpen(!boostOpen)} className='flex items-center gap-1 px-3 py-1.5 roun…">
+        >
           <Plus className="w-3 h-3" /> Boost
         </button>
       </div>
@@ -112,11 +112,11 @@ export default function MarketingLevyCard() {
             </p>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => setBoostOpen(false)} className="flex-1 py-2 rounded-lg bg-white/5 text-xs text-muted-foreground" title="setBoostOpen(false)} className='flex-1 py-2 rounded-lg bg-white/5 text-xs tex…" aria-label="setBoostOpen(false)} className='flex-1 py-2 rounded-lg bg-white/5 text-xs tex…">Cancel</button>
+            <button onClick={() => setBoostOpen(false)} className="flex-1 py-2 rounded-lg bg-white/5 text-xs text-muted-foreground">Cancel</button>
             <button
               onClick={handleBoost} disabled={submitting || boostAmount < 100}
               className="flex-1 py-2 rounded-lg bg-coral text-white text-xs font-semibold disabled:opacity-50"
-             title="`}" aria-label="`}">
+            >
               {submitting ? "Processing…" : `Boost R${boostAmount}`}
             </button>
           </div>

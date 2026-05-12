@@ -110,7 +110,7 @@ function PeriodSelector({ value, onChange }: { value: Period; onChange: (p: Peri
               ? "bg-indigo-500/20 text-indigo-300 shadow-sm"
               : "text-muted-foreground hover:text-foreground hover:bg-white/[0.04]"
           }`}
-         title="onChange(o.value)} className= `} >" aria-label="onChange(o.value)} className= `} >">
+        >
           {o.label}
         </button>
       ))}
@@ -246,7 +246,7 @@ export default function ProviderAnalytics() {
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
       {/* Layer 4 nudge — BIONBoost Pro value prop on first analytics visit */}
       <NudgePopup featureKey="provider_boost" />
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors" title="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…" aria-label="navigate(-1)} className='md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass…">
+      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="mx-auto max-w-3xl xl:max-w-7xl px-4 pt-20 pb-28 md:pb-8 md:pt-8 space-y-5">
