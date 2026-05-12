@@ -500,10 +500,11 @@ export default function Routines() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  // Seed with the workout template so the editable list isn't empty on
-  // first modal open — user instantly sees rows with X to remove and
-  // an input to add more, no read-only step in between.
-  const [customExercises, setCustomExercises] = useState<Exercise[]>(() => EXERCISE_TEMPLATES.workout ?? []);
+  // Start empty so the user builds their own routine. The template
+  // shows up as tappable suggestion chips below — Oko was rightly
+  // angry 2026-05-12 about me pre-selecting all 5 cardio activities
+  // and forcing him to delete the ones he didn't want.
+  const [customExercises, setCustomExercises] = useState<Exercise[]>([]);
   const [newExName, setNewExName] = useState("");
   const [newExSets, setNewExSets] = useState("");
   // Validation flags painted onto inputs after a failed Create attempt.
@@ -597,7 +598,7 @@ export default function Routines() {
     };
     syncAddRoutine(routine);
     setNewRoutine({ title: "", type: "workout", schedule: "", totalDays: 28 });
-    setCustomExercises(EXERCISE_TEMPLATES.workout ?? []);
+    setCustomExercises([]);
     setCreateErrors({});
     setShowCreate(false);
     setExpanded(routine.id);
@@ -1011,14 +1012,11 @@ export default function Routines() {
                   <div className="flex gap-2 flex-wrap">
                     {(["workout", "cardio", "rehab", "meal", "skincare", "medication", "wellness", "beauty", "custom"] as const).map(t => (
                       <button key={t} onClick={() => {
-                        // Load the type's template into the editable
-                        // list immediately so the user sees actionable
-                        // rows (with X to remove, Add input below) the
-                        // moment they pick a type. Previously the
-                        // template appeared as a read-only preview with
-                        // open-circle bullets that looked tappable but
-                        // weren't — Oko hit this on Cardio 2026-05-12.
-                        setCustomExercises(EXERCISE_TEMPLATES[t] ?? []);
+                        // Type chip = category hint only. Clears the
+                        // user's selections so suggestions for the
+                        // new type show fresh; the user builds their
+                        // own routine by tapping suggestion chips.
+                        if (t !== newRoutine.type) setCustomExercises([]);
                         setNewRoutine(prev => ({ ...prev, type: t }));
                       }}
                         className={`px-3 py-1.5 rounded-pill text-xs font-medium border flex items-center gap-1.5 transition-all ${
@@ -1093,43 +1091,76 @@ export default function Routines() {
                   </div>
                 </div>
 
-                {/* Editable item list — always rendered. Type chip selection
-                    auto-loads its template into customExercises so users
-                    can immediately remove items they don't want or add
-                    new ones via the input below. */}
+                {/* User-built list. Starts empty. Suggestion chips below
+                    are TAPPABLE — tap once to add, tap × on the activity
+                    to remove. The user controls what's in their routine.
+                    Reported 2026-05-12 by Oko: "the whole fucking point
+                    is to be able to determine my own schedule". */}
                 <div>
                   <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5 block">
-                    {newRoutine.type === "custom" ? "Add Exercises" : `${typeLabel[newRoutine.type]} — tap × to remove, add new below`}
+                    Your {typeVocab[newRoutine.type]?.itemNoun ?? "activities"}
                   </label>
 
                   <div className="space-y-2">
-                    {customExercises.map((ex, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs p-2 rounded-lg bg-white/[0.03]">
-                        <CheckCircle className="w-3 h-3 text-teal shrink-0" />
-                        <span className="flex-1 text-foreground">{ex.name}</span>
-                        <span className="text-[10px] text-muted-foreground">{ex.sets}</span>
-                        <button onClick={() => setCustomExercises(prev => prev.filter((_, j) => j !== i))}
-                          className="w-6 h-6 rounded-full flex items-center justify-center text-coral/60 hover:text-coral hover:bg-coral/10">
-                          <X className="w-3 h-3" />
-                        </button>
+                    {customExercises.length === 0 ? (
+                      <div className="p-3 rounded-xl border border-dashed border-white/[0.08] text-center">
+                        <p className="text-[11px] text-muted-foreground">Nothing added yet. Tap a suggestion below or type your own.</p>
                       </div>
-                    ))}
-                    {customExercises.length === 0 && newRoutine.type !== "custom" && (
-                      <p className="text-[10px] text-muted-foreground italic px-1">
-                        No items yet — add some below or reselect <span className="text-teal">{typeLabel[newRoutine.type]}</span> to reload the defaults.
-                      </p>
+                    ) : (
+                      customExercises.map((ex, i) => (
+                        <div key={i} className="flex items-center gap-2 text-xs p-2 rounded-lg bg-white/[0.03]">
+                          <CheckCircle className="w-3 h-3 text-teal shrink-0" />
+                          <span className="flex-1 text-foreground">{ex.name}</span>
+                          <span className="text-[10px] text-muted-foreground">{ex.sets}</span>
+                          <button onClick={() => setCustomExercises(prev => prev.filter((_, j) => j !== i))}
+                            className="w-6 h-6 rounded-full flex items-center justify-center text-coral/60 hover:text-coral hover:bg-coral/10"
+                            aria-label={`Remove ${ex.name}`}>
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))
                     )}
-                    <div className="flex gap-2">
+
+                    {/* Suggestion chips — tap to add. Greyed out once
+                        already in the list so the user doesn't double-add
+                        by accident. Hidden for `custom` because there are
+                        no preset suggestions for that type. */}
+                    {newRoutine.type !== "custom" && (EXERCISE_TEMPLATES[newRoutine.type]?.length ?? 0) > 0 && (
+                      <div className="pt-1">
+                        <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1.5">Suggestions — tap to add</p>
+                        <div className="flex gap-1.5 flex-wrap">
+                          {(EXERCISE_TEMPLATES[newRoutine.type] ?? []).map(sug => {
+                            const already = customExercises.some(ex => ex.name.toLowerCase() === sug.name.toLowerCase());
+                            return (
+                              <button key={sug.name} type="button"
+                                disabled={already}
+                                onClick={() => setCustomExercises(prev => [...prev, { ...sug }])}
+                                className={`px-2.5 py-1.5 rounded-full text-[11px] border transition-colors ${
+                                  already
+                                    ? "border-white/04 text-muted-foreground/40 cursor-not-allowed"
+                                    : "border-white/08 text-foreground hover:border-teal/40 hover:bg-teal/10 hover:text-teal"
+                                }`}>
+                                {already ? "✓ " : "+ "}{sug.name} <span className="opacity-50">· {sug.sets}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Custom add */}
+                    <div className="flex gap-2 pt-1">
                       <input value={newExName} onChange={e => setNewExName(e.target.value)}
                         placeholder={
-                          newRoutine.type === "meal" ? "Meal name (e.g. Breakfast)"
-                          : newRoutine.type === "medication" ? "Medication name"
-                          : newRoutine.type === "skincare" ? "Step name (e.g. Cleanser)"
-                          : newRoutine.type === "wellness" ? "Practice name (e.g. Meditation)"
-                          : newRoutine.type === "beauty" ? "Ritual name"
-                          : newRoutine.type === "rehab" ? "Movement name"
-                          : newRoutine.type === "cardio" ? "Activity (e.g. Running, Swimming, Hiking)"
-                          : "Exercise name"
+                          newRoutine.type === "meal" ? "Or type a meal name…"
+                          : newRoutine.type === "medication" ? "Or type a medication…"
+                          : newRoutine.type === "skincare" ? "Or type a step…"
+                          : newRoutine.type === "wellness" ? "Or type a practice…"
+                          : newRoutine.type === "beauty" ? "Or type a ritual…"
+                          : newRoutine.type === "rehab" ? "Or type a movement…"
+                          : newRoutine.type === "cardio" ? "Or type an activity…"
+                          : newRoutine.type === "custom" ? "Item name"
+                          : "Or type an exercise…"
                         }
                         onKeyDown={e => e.key === "Enter" && addCustomExercise()}
                         className="flex-1 px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/08" />
@@ -1147,8 +1178,8 @@ export default function Routines() {
                         className="w-20 px-3 py-2 glass-1 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none border border-white/08" />
                       <button onClick={addCustomExercise}
                         disabled={!newExName.trim()}
-                        aria-label={newExName.trim() ? "Add exercise" : "Type an exercise name first"}
-                        title={newExName.trim() ? "Add exercise" : "Type an exercise name first"}
+                        aria-label={newExName.trim() ? "Add" : "Type a name first"}
+                        title={newExName.trim() ? "Add" : "Type a name first"}
                         className="w-9 h-9 rounded-xl bg-teal/20 text-teal flex items-center justify-center shrink-0 disabled:opacity-40 disabled:cursor-not-allowed">
                         <Plus className="w-4 h-4" />
                       </button>
@@ -1157,10 +1188,20 @@ export default function Routines() {
                 </div>
               </div>
 
-              <motion.button whileTap={{ scale: 0.97 }} onClick={handleCreateRoutine}
-                className="w-full mt-5 py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 transition-opacity">
-                Create Routine
-              </motion.button>
+              {/* Footer actions — Cancel beside Create so the user has a
+                  clear exit even if they overlook the X at the top.
+                  Reported 2026-05-12 by Oko: "I need to be able to exit
+                  routine edit mode". */}
+              <div className="flex gap-2 mt-5">
+                <button onClick={() => { setShowCreate(false); setCreateErrors({}); }}
+                  className="px-5 py-3 rounded-2xl text-sm font-semibold text-muted-foreground bg-white/[0.03] border border-white/[0.08] hover:text-foreground hover:bg-white/[0.06] transition-colors">
+                  Cancel
+                </button>
+                <motion.button whileTap={{ scale: 0.97 }} onClick={handleCreateRoutine}
+                  className="flex-1 py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 transition-opacity">
+                  Create Routine
+                </motion.button>
+              </div>
               {(createErrors.title || createErrors.schedule) && (
                 <p className="text-[11px] text-coral text-center mt-2">
                   Fill in the highlighted field{createErrors.title && createErrors.schedule ? "s" : ""} to continue.
