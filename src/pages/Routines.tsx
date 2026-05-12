@@ -621,7 +621,7 @@ export default function Routines() {
   // importing=true. Reported 2026-05-04 — a "Parkrun every Saturday
   // 5km" import got stuck on "Reading… / Extracting…" forever.
   const importAbortRef = useRef<AbortController | null>(null);
-  const runImport = async (opts: { text?: string; imageDataUrl?: string }) => {
+  const runImport = async (opts: { text?: string; imageDataUrl?: string; documentDataUrl?: string; documentFilename?: string }) => {
     setImporting(true);
     importAbortRef.current = new AbortController();
     // Hard 60-second cap — if the backend hasn't responded by then the
@@ -694,16 +694,49 @@ export default function Routines() {
     setShowImport(false);
   }, []);
 
-  const importPhoto = async (file: File) => {
-    if (!file.type.startsWith("image/")) return;
-    const dataUrl: string = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result));
-      reader.onerror = () => reject(new Error("Could not read image"));
-      reader.readAsDataURL(file);
-    });
-    await runImport({ imageDataUrl: dataUrl });
+  const importFile = async (file: File) => {
+    const MAX_BYTES = 20 * 1024 * 1024; // 20 MB upper bound
+    if (file.size > MAX_BYTES) {
+      const { toast } = await import("sonner");
+      toast.error("File too large (max 20 MB)");
+      return;
+    }
+    const name = file.name.toLowerCase();
+    const isText = file.type.startsWith("text/")
+      || /\.(txt|md|markdown|csv|log)$/i.test(name);
+    const isPdf  = file.type === "application/pdf" || /\.pdf$/i.test(name);
+    const isImage = file.type.startsWith("image/");
+
+    if (isText) {
+      const text = await file.text();
+      await runImport({ text: text.slice(0, 10_000) });
+      return;
+    }
+    if (isImage) {
+      const dataUrl: string = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error("Could not read image"));
+        reader.readAsDataURL(file);
+      });
+      await runImport({ imageDataUrl: dataUrl });
+      return;
+    }
+    if (isPdf) {
+      const dataUrl: string = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error("Could not read PDF"));
+        reader.readAsDataURL(file);
+      });
+      await runImport({ documentDataUrl: dataUrl, documentFilename: file.name });
+      return;
+    }
+    const { toast } = await import("sonner");
+    toast.error("Unsupported file. Use a photo, PDF, or text file.");
   };
+  // Back-compat alias
+  const importPhoto = importFile;
 
   const filtered = routines.filter(r =>
     filter === "all" ? true : filter === "self" ? r.createdBy === "self" : r.createdBy === "provider"
@@ -1236,25 +1269,39 @@ export default function Routines() {
                 </button>
               </div>
               <p className="text-xs text-muted-foreground mb-4">
-                Paste your programme below — or snap a photo of a written plan — and B_ will fill the exercises for you. You can edit each row before saving.
+                Paste your programme — or snap a photo, or upload a document (PDF, TXT, MD, CSV). B_ extracts the items and fills the form. You can edit each row before saving.
               </p>
 
-              <div className="flex gap-2 mb-3">
-                <label className="flex-1 cursor-pointer rounded-pill px-3 py-2.5 text-xs font-semibold gradient-indigo text-primary-foreground flex items-center justify-center gap-1.5 shadow-cta">
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <label className="cursor-pointer rounded-pill px-3 py-2.5 text-xs font-semibold gradient-indigo text-primary-foreground flex items-center justify-center gap-1.5 shadow-cta">
                   {importing ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Reading…</>
                   ) : (
-                    <><Camera className="w-4 h-4" /> Scan a photo</>
+                    <><Camera className="w-4 h-4" /> Scan / photo</>
                   )}
                   <input
                     type="file"
                     accept="image/*"
                     capture="environment"
                     disabled={importing}
-                    className="hidden"
+                    className="sr-only"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
-                      if (file) importPhoto(file);
+                      if (file) importFile(file);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+                <label className="cursor-pointer rounded-pill px-3 py-2.5 text-xs font-semibold glass-1 text-foreground flex items-center justify-center gap-1.5 border border-white/[0.08]">
+                  <Sparkles className="w-4 h-4 text-indigo" /> Upload file
+                  <input
+                    type="file"
+                    accept="application/pdf,.pdf,text/plain,.txt,text/markdown,.md,.markdown,text/csv,.csv,image/*"
+                    disabled={importing}
+                    className="sr-only"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) importFile(file);
                       e.target.value = "";
                     }}
                   />
