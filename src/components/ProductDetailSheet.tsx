@@ -200,7 +200,7 @@ export default function ProductDetailSheet({ product, providerId, storefrontName
             {step === "success" && "Order confirmed!"}
           </h3>
           <button onClick={onClose} disabled={step === "processing"}
-            className="w-8 h-8 glass-1 rounded-full flex items-center justify-center disabled:opacity-30">
+            className="w-8 h-8 glass-1 rounded-full flex items-center justify-center disabled:opacity-30" aria-label="Close" title="Close">
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>

@@ -163,7 +163,7 @@ export default function BicademyAssessment() {
                     onClick={handleSubmit}
                     disabled={submitting || Object.keys(answers).length !== questions.length}
                     className="flex-1 max-w-xs py-2.5 rounded-pill bg-gradient-to-r from-indigo to-teal text-white text-xs font-semibold flex items-center justify-center gap-2 disabled:opacity-40"
-                  >
+                   aria-label="Loading" title="Loading">
                     {submitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <>Submit</>}
                   </button>
                 )}

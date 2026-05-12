@@ -438,7 +438,7 @@ function ChallengeDetailModal({ challenge, onClose, onJoin, onToggleTask }: {
                 </div>
               </div>
             </div>
-            <button onClick={onClose} className="p-1.5 rounded-full hover:bg-white/10">
+            <button onClick={onClose} className="p-1.5 rounded-full hover:bg-white/10" aria-label="Close" title="Close">
               <X className="w-5 h-5 text-foreground" />
             </button>
           </div>

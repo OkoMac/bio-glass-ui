@@ -86,7 +86,7 @@ export default function ReviewForm({
             <button
               onClick={onClose}
               className="absolute top-4 right-4 p-1 rounded-full text-muted hover:text-foreground transition-colors"
-            >
+             aria-label="Close" title="Close">
               <X size={20} />
             </button>
 

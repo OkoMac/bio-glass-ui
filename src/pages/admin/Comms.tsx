@@ -307,7 +307,7 @@ function TemplateEditor({
     <GlassCard className="p-5 space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <button onClick={onClose} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
+          <button onClick={onClose} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center" aria-label="Go back" title="Go back">
             <ArrowLeft className="w-4 h-4 text-foreground" />
           </button>
           <div>

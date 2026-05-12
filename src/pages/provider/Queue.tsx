@@ -117,7 +117,7 @@ export default function Queue() {
           <button
             onClick={fetchQueue}
             className="glass-1 rounded-xl p-2 text-muted-foreground hover:text-foreground transition-colors"
-          >
+           aria-label="Refresh" title="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>

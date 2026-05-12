@@ -133,7 +133,7 @@ export default function NudgePopup({ featureKey, onAction }: NudgePopupProps) {
           <button
             onClick={dismiss}
             className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full glass-1 text-muted-foreground hover:text-foreground transition-colors z-10"
-          >
+           aria-label="Close" title="Close">
             <X className="w-4 h-4" />
           </button>
 

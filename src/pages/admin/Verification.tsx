@@ -676,7 +676,7 @@ function AdminVerificationInner() {
                 </p>
               </div>
               <button onClick={loadPending} disabled={pendingLoading}
-                className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1">
+                className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1" aria-label="Loading" title="Loading">
                 {pendingLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "Refresh"}
               </button>
             </div>
@@ -761,7 +761,7 @@ function AdminVerificationInner() {
                   </button>
                 )}
                 <button onClick={loadOrphans} disabled={orphansLoading}
-                  className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1">
+                  className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1" aria-label="Loading" title="Loading">
                   {orphansLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "Refresh"}
                 </button>
               </div>

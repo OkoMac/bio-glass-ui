@@ -659,7 +659,7 @@ export default function BionAssistant() {
                   <button onClick={resetChat} className="text-[10px] text-muted-foreground hover:text-foreground px-2 py-1 glass-1 rounded-lg transition-colors">
                     Clear
                   </button>
-                  <button onClick={handleClose} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+                  <button onClick={handleClose} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors" aria-label="Close" title="Close">
                     <X className="w-4 h-4" />
                   </button>
                 </div>

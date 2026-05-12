@@ -82,7 +82,7 @@ export default function CampaignBanner() {
         <button
           onClick={handleDismiss}
           className="absolute top-2 right-2 w-6 h-6 rounded-full glass-2 flex items-center justify-center text-muted-foreground hover:text-foreground z-10"
-        >
+         aria-label="Close" title="Close">
           <X className="w-3 h-3" />
         </button>
 

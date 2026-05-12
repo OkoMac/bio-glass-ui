@@ -382,11 +382,11 @@ export default function BionCalendar() {
         {/* Month navigation */}
         <GlassCard className="p-4">
           <div className="flex items-center justify-between mb-4">
-            <button onClick={prevMonth} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
+            <button onClick={prevMonth} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center" aria-label="Previous" title="Previous">
               <ChevronLeft className="w-4 h-4 text-foreground" />
             </button>
             <h2 className="text-sm font-bold text-foreground">{monthName}</h2>
-            <button onClick={nextMonth} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
+            <button onClick={nextMonth} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center" aria-label="Next" title="Next">
               <ChevronRight className="w-4 h-4 text-foreground" />
             </button>
           </div>

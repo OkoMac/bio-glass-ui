@@ -411,7 +411,7 @@ export default function Locations() {
                   onClick={saveLocation}
                   disabled={saving || !name.trim()}
                   className="w-full py-3 rounded-pill text-sm font-semibold gradient-indigo text-primary-foreground disabled:opacity-40 flex items-center justify-center gap-2"
-                >
+                 aria-label="Loading" title="Loading">
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   {editingId ? "Update Location" : "Add Location"}
                 </button>

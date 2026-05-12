@@ -147,7 +147,7 @@ function ChatView({
       {/* Header */}
       <div className="glass-2 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-white/10">
+          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-white/10" aria-label="Previous" title="Previous">
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
           <BioAvatar
@@ -254,7 +254,7 @@ function ChatView({
             onClick={sendMessage}
             disabled={sending || !draft.trim()}
             className={`p-3 rounded-full ${draft.trim() ? "gradient-indigo" : "glass-1 opacity-50"}`}
-          >
+           aria-label="Send" title="Send">
             <Send className={`w-5 h-5 ${draft.trim() ? "text-primary-foreground" : "text-foreground"}`} />
           </button>
         </div>

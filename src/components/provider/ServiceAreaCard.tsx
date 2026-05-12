@@ -117,7 +117,7 @@ export default function ServiceAreaCard() {
           className={`flex-1 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
             pinned ? "bg-teal/10 text-teal border border-teal/30" : "bg-white/5 text-foreground hover:bg-white/10"
           }`}
-        >
+         aria-label="Loading" title="Loading">
           {pinning ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
             : pinned ? <Check className="w-3.5 h-3.5" /> : <Target className="w-3.5 h-3.5" />}
           {pinned ? "Location pinned" : "Pin my location"}

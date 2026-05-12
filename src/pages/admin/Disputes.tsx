@@ -247,7 +247,7 @@ function BookingDetail({
               {days}d elapsed of 7d target · status: {row.status.replace(/_/g, " ")}
             </p>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center" aria-label="Close" title="Close">
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
@@ -597,7 +597,7 @@ function OrderDisputeDetail({ row, onClose, onResolve }: {
             <p className="text-xs font-mono text-muted-foreground">#{row.id.slice(0, 8)}</p>
             <h2 className="text-lg font-bold text-foreground capitalize mt-1">{row.reason.replace(/_/g, " ")}</h2>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center" aria-label="Close" title="Close">
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>

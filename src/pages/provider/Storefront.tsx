@@ -321,7 +321,7 @@ function SetupModal(props: any) {
       >
         <div className="flex items-center justify-between">
           <h3 className="text-base font-bold text-foreground">Storefront settings</h3>
-          <button onClick={props.onClose} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
+          <button onClick={props.onClose} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center" aria-label="Close" title="Close">
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
@@ -359,7 +359,7 @@ function ProductModal(props: any) {
       >
         <div className="flex items-center justify-between">
           <h3 className="text-base font-bold text-foreground">Add product</h3>
-          <button onClick={props.onClose} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
+          <button onClick={props.onClose} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center" aria-label="Close" title="Close">
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>

@@ -505,7 +505,7 @@ function PitchLine({ text }: { text: string }) {
         className={`shrink-0 rounded-pill px-3 py-1.5 text-xs font-semibold transition-colors inline-flex items-center gap-1.5 ${
           copied ? "glass-accent-teal text-teal" : "glass-2 text-muted-foreground hover:text-foreground"
         }`}
-      >
+       aria-label="Confirm" title="Confirm">
         {copied ? (<><Check className="w-3 h-3" /> Copied</>) : (<><Copy className="w-3 h-3" /> Copy</>)}
       </button>
     </div>

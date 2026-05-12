@@ -498,7 +498,7 @@ export default function MedicalCard() {
                 onClick={saveJournalEntry}
                 disabled={!journalDraft.trim() || journalSaving}
                 className="w-full py-2.5 rounded-pill text-xs font-semibold gradient-indigo text-primary-foreground shadow-cta disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
-              >
+               aria-label="Loading" title="Loading">
                 {journalSaving ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving…</> : <>Save today's entry</>}
               </button>
             </div>

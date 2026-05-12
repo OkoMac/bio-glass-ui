@@ -326,7 +326,7 @@ export default function ClientBilling() {
               <button
                 onClick={handleUpgrade} disabled={upgrading}
                 className="w-full gradient-indigo rounded-pill py-3 text-sm font-semibold text-white flex items-center justify-center gap-2"
-              >
+               aria-label="Loading" title="Loading">
                 {upgrading ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Redirecting to Paystack...</>
                 ) : (
@@ -465,7 +465,7 @@ export default function ClientBilling() {
             <button
               onClick={handleUpgrade} disabled={upgrading}
               className="gradient-indigo rounded-pill px-6 py-3 text-sm font-semibold text-white inline-flex items-center gap-2 disabled:opacity-40"
-            >
+             aria-label="Loading" title="Loading">
               {upgrading ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Redirecting...</>
               ) : (

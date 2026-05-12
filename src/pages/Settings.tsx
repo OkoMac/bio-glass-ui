@@ -283,7 +283,7 @@ function DeleteRequestModal({
             <AlertTriangle className="w-5 h-5 text-coral" />
             <h3 className="text-base font-semibold text-foreground">Request account deletion</h3>
           </div>
-          <button onClick={onClose} className="w-7 h-7 rounded-full glass-1 flex items-center justify-center">
+          <button onClick={onClose} className="w-7 h-7 rounded-full glass-1 flex items-center justify-center" aria-label="Close" title="Close">
             <X className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
         </div>
@@ -345,7 +345,7 @@ function DeleteRequestModal({
             onClick={submit}
             disabled={!canSubmit || submitting}
             className="flex-1 py-2.5 rounded-xl bg-coral text-white text-xs font-semibold flex items-center justify-center gap-1.5 disabled:opacity-50"
-          >
+           aria-label="Loading" title="Loading">
             {submitting ? <><Loader2 className="w-3 h-3 animate-spin" /> Submitting…</> : "Request deletion"}
           </button>
         </div>
@@ -1038,7 +1038,7 @@ export default function Settings() {
                     onClick={sendVerificationEmail}
                     disabled={verifyBusy}
                     className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl gradient-indigo text-primary-foreground text-xs font-semibold disabled:opacity-50"
-                  >
+                   aria-label="Loading" title="Loading">
                     {verifyBusy ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Sending...</> : "Send verification code"}
                   </button>
                 )}

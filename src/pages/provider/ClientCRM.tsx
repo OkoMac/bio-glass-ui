@@ -195,7 +195,7 @@ export default function ClientCRM() {
                 </button>
               </div>
               
-              <button className="glass-1 rounded-pill p-2">
+              <button className="glass-1 rounded-pill p-2" aria-label="Filter" title="Filter">
                 <Filter className="w-4 h-4 text-foreground" />
               </button>
             </div>

@@ -371,7 +371,7 @@ export default function GiftVouchers() {
                   onClick={handleCheckVoucher}
                   disabled={checking || !redeemCode.trim()}
                   className="rounded-xl px-4 py-2.5 gradient-indigo text-primary-foreground text-xs font-semibold disabled:opacity-50"
-                >
+                 aria-label="Loading" title="Loading">
                   {checking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Check"}
                 </button>
               </div>

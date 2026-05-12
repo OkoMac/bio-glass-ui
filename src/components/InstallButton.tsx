@@ -249,7 +249,7 @@ export function InstallModal({
                 <h3 className="text-base font-bold text-foreground">Install BION</h3>
               </div>
               <button onClick={onClose}
-                className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground">
+                className="w-8 h-8 glass-1 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground" aria-label="Close" title="Close">
                 <X className="w-4 h-4" />
               </button>
             </div>

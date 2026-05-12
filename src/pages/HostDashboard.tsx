@@ -103,7 +103,7 @@ export default function HostDashboard() {
               <button
                 onClick={copyLink}
                 className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white/5 border border-white/10 hover:border-violet/30 transition-colors"
-              >
+               aria-label="Confirm" title="Confirm">
                 {copied ? <CheckCircle className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-white/60" />}
                 <span className="text-[10px] text-white/60">{copied ? "Copied!" : "Copy Link"}</span>
               </button>

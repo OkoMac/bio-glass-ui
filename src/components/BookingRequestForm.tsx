@@ -77,7 +77,7 @@ export default function BookingRequestForm({ providerName = "", onClose }: Props
           <h2 className="text-lg font-bold text-foreground">
             {done ? "Request Submitted!" : "Request a Booking"}
           </h2>
-          <button onClick={onClose} className="p-2 glass-1 rounded-full">
+          <button onClick={onClose} className="p-2 glass-1 rounded-full" aria-label="Close" title="Close">
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
@@ -183,7 +183,7 @@ export default function BookingRequestForm({ providerName = "", onClose }: Props
               </div>
 
               <button onClick={handleSubmit} disabled={busy}
-                className="w-full rounded-pill py-4 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta flex items-center justify-center gap-2 disabled:opacity-60">
+                className="w-full rounded-pill py-4 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta flex items-center justify-center gap-2 disabled:opacity-60" aria-label="Loading" title="Loading">
                 {busy ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</> : <><Send className="w-4 h-4" /> Submit Booking Request</>}
               </button>
 

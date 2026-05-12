@@ -432,7 +432,7 @@ function TicketDetail({
   return (
     <div className="max-w-4xl mx-auto pt-24 md:pt-8 pb-20 px-4 space-y-5">
       <div className="flex items-center gap-2">
-        <button onClick={onBack} className="w-9 h-9 rounded-xl glass-1 flex items-center justify-center text-foreground">
+        <button onClick={onBack} className="w-9 h-9 rounded-xl glass-1 flex items-center justify-center text-foreground" aria-label="Go back" title="Go back">
           <ArrowLeft className="w-4 h-4" />
         </button>
         <div className="min-w-0 flex-1">

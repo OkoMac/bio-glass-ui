@@ -218,7 +218,7 @@ export default function AdminCampaigns() {
               onClick={createCampaign}
               disabled={saving || !form.title || !form.endDate}
               className="w-full py-2.5 rounded-pill text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta disabled:opacity-50"
-            >
+             aria-label="Loading" title="Loading">
               {saving ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Create Campaign"}
             </button>
           </GlassCard>

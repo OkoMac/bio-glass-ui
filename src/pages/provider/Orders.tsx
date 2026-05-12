@@ -239,7 +239,7 @@ function OrderDetailModal({ order, onClose, tracking, setTracking, updating, onU
       >
         <div className="flex items-center justify-between">
           <h3 className="text-base font-bold text-foreground">Order #{order.id.slice(0, 8)}</h3>
-          <button onClick={onClose} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center">
+          <button onClick={onClose} className="w-8 h-8 glass-1 rounded-full flex items-center justify-center" aria-label="Close" title="Close">
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>

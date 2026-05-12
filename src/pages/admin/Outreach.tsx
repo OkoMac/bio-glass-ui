@@ -113,7 +113,7 @@ export default function AdminOutreach() {
             <h1 className="text-xl font-bold text-foreground">Provider Outreach</h1>
             <p className="text-xs text-muted-foreground">Email & WhatsApp campaigns to onboard providers</p>
           </div>
-          <button onClick={fetchAll} className="w-9 h-9 glass-2 rounded-full flex items-center justify-center">
+          <button onClick={fetchAll} className="w-9 h-9 glass-2 rounded-full flex items-center justify-center" aria-label="Refresh" title="Refresh">
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
         </div>

@@ -153,7 +153,7 @@ export default function AffiliateDashboard() {
               onClick={register}
               disabled={registering}
               className="px-6 py-3 rounded-pill text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta"
-            >
+             aria-label="Loading" title="Loading">
               {registering ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Join Affiliate Program"}
             </button>
           </GlassCard>
@@ -244,13 +244,13 @@ export default function AffiliateDashboard() {
               className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
                 copied ? "bg-teal/20 text-teal" : "glass-2 text-foreground hover:bg-white/[0.06]"
               }`}
-            >
+             aria-label="Confirm" title="Confirm">
               {copied ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             </button>
             <button
               onClick={shareWhatsApp}
               className="shrink-0 w-9 h-9 rounded-full bg-[#25D366]/20 text-[#25D366] flex items-center justify-center hover:bg-[#25D366]/30"
-            >
+             aria-label="Share" title="Share">
               <Share2 className="w-4 h-4" />
             </button>
           </div>
@@ -268,7 +268,7 @@ export default function AffiliateDashboard() {
                 onClick={withdraw}
                 disabled={withdrawing}
                 className="px-4 py-2 rounded-pill text-xs font-semibold gradient-teal text-primary-foreground"
-              >
+               aria-label="Loading" title="Loading">
                 {withdrawing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Withdraw to Wallet"}
               </button>
             </div>

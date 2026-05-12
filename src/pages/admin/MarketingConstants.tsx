@@ -114,7 +114,7 @@ function ConstantRow({ row, onSaved }: { row: Constant; onSaved: (updated: Const
               onClick={reset}
               disabled={saving}
               className="text-xs text-muted-foreground px-3 py-2 rounded-lg glass-1 hover:bg-white/5"
-            >
+             aria-label="Close" title="Close">
               <X className="w-3 h-3" />
             </button>
           </div>

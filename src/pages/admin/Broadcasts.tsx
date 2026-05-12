@@ -202,7 +202,7 @@ function AdminBroadcastsInner() {
               onClick={createBroadcast}
               disabled={saving || !form.message}
               className="w-full py-2.5 rounded-pill text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta disabled:opacity-50"
-            >
+             aria-label="Loading" title="Loading">
               {saving ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : form.scheduledAt ? "Schedule Broadcast" : "Create & Send Now"}
             </button>
           </GlassCard>

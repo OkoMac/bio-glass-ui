@@ -139,7 +139,7 @@ export function OnboardingChat({ role, stepTitle, crawlData, formData, onClose }
               <p className="text-sm font-semibold text-foreground">BION Assistant</p>
               <p className="text-[10px] text-muted-foreground">Onboarding help · Privacy-aware</p>
             </div>
-            <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+            <button onClick={onClose} className="text-muted-foreground hover:text-foreground" aria-label="Close" title="Close">
               <X className="w-4 h-4" />
             </button>
           </div>

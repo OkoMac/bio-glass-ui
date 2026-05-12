@@ -118,7 +118,7 @@ function OrderDisputeView({ orderId, onClose }: { orderId: string; onClose: () =
               <p className="text-[11px] text-muted-foreground">B_ mediates after both sides respond</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center" aria-label="Close" title="Close">
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
@@ -359,7 +359,7 @@ function BookingDisputeView({ bookingId, onClose }: { bookingId: string; onClose
               <p className="text-[11px] text-muted-foreground">B_ mediates · 7-day target</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center" aria-label="Close" title="Close">
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
