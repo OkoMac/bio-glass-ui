@@ -310,15 +310,27 @@ export async function signUpWithEmail(
   }
 }
 
-/** Sign in / sign up with Google OAuth — Supabase handles the redirect */
+/** Sign in / sign up with Google OAuth — Supabase handles the redirect.
+ *  Errors are surfaced via toast + console so the user (and Sentry) can see
+ *  why a click didn't take them to Google. Pre-fix the call was fire-and-
+ *  forget; silent failures looked identical to "nothing happened" for
+ *  Oko 2026-05-12. */
 export async function signInWithGoogle(): Promise<void> {
-  await supabase.auth.signInWithOAuth({
+  const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
       redirectTo: `${window.location.origin}/`,
       queryParams: { prompt: "select_account" },
     },
   });
+  if (error) {
+    console.error("[auth] Google sign-in failed:", error);
+    try {
+      const { toast } = await import("sonner");
+      toast.error(`Google sign-in failed: ${error.message}`);
+    } catch { /* sonner not loaded */ }
+    throw error;
+  }
 }
 
 /** Sign out from Supabase */
