@@ -5,68 +5,162 @@
   "redirects": [
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "bionhealth.co.za" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "bionhealth.co.za"
+        }
+      ],
       "destination": "https://www.bionhealth.co.za/:path*",
       "statusCode": 301
     }
   ],
   "rewrites": [
-    { "source": "/provider/:slug", "destination": "/api/ssr/provider?slug=:slug" },
-    { "source": "/_proxy/:path*", "destination": "https://bion-backend.onrender.com/:path*" },
-    { "source": "/welcome", "destination": "/welcome.html" },
-    { "source": "/tools", "destination": "/tools.html" },
-    { "source": "/tools/bmi-calculator", "destination": "/tools-bmi-calculator.html" },
-    { "source": "/tools/calorie-calculator", "destination": "/tools-calorie-calculator.html" },
-    { "source": "/blog", "destination": "/blog.html" },
-    { "source": "/blog/how-many-calories-should-i-eat", "destination": "/blog-how-many-calories-should-i-eat.html" },
-    { "source": "/blog/what-is-bmi", "destination": "/blog-what-is-bmi.html" },
-    { "source": "/blog/how-much-water-should-i-drink", "destination": "/blog-how-much-water-should-i-drink.html" },
-    { "source": "/blog/how-to-improve-sleep", "destination": "/blog-how-to-improve-sleep.html" },
-    { "source": "/blog/find-health-provider-near-me", "destination": "/blog-find-health-provider-near-me.html" },
-    { "source": "/blog/calories-in-boerewors", "destination": "/blog-calories-in-boerewors.html" },
-    { "source": "/legal/privacy", "destination": "/legal-privacy.html" },
-    { "source": "/legal/terms", "destination": "/legal-terms.html" },
-    { "source": "/for-providers", "destination": "/for-providers.html" },
-    { "source": "/for-corporate", "destination": "/for-corporate.html" },
-    { "source": "/(.*)", "destination": "/" }
+    {
+      "source": "/provider/:slug",
+      "destination": "/api/ssr/provider?slug=:slug"
+    },
+    {
+      "source": "/_proxy/:path*",
+      "destination": "https://bion-backend.onrender.com/:path*"
+    },
+    {
+      "source": "/tools",
+      "destination": "/tools.html"
+    },
+    {
+      "source": "/tools/bmi-calculator",
+      "destination": "/tools-bmi-calculator.html"
+    },
+    {
+      "source": "/tools/calorie-calculator",
+      "destination": "/tools-calorie-calculator.html"
+    },
+    {
+      "source": "/blog",
+      "destination": "/blog.html"
+    },
+    {
+      "source": "/blog/how-many-calories-should-i-eat",
+      "destination": "/blog-how-many-calories-should-i-eat.html"
+    },
+    {
+      "source": "/blog/what-is-bmi",
+      "destination": "/blog-what-is-bmi.html"
+    },
+    {
+      "source": "/blog/how-much-water-should-i-drink",
+      "destination": "/blog-how-much-water-should-i-drink.html"
+    },
+    {
+      "source": "/blog/how-to-improve-sleep",
+      "destination": "/blog-how-to-improve-sleep.html"
+    },
+    {
+      "source": "/blog/find-health-provider-near-me",
+      "destination": "/blog-find-health-provider-near-me.html"
+    },
+    {
+      "source": "/blog/calories-in-boerewors",
+      "destination": "/blog-calories-in-boerewors.html"
+    },
+    {
+      "source": "/legal/privacy",
+      "destination": "/legal-privacy.html"
+    },
+    {
+      "source": "/legal/terms",
+      "destination": "/legal-terms.html"
+    },
+    {
+      "source": "/for-providers",
+      "destination": "/for-providers.html"
+    },
+    {
+      "source": "/for-corporate",
+      "destination": "/for-corporate.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(self), microphone=(self), geolocation=(self)" },
-        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(self), microphone=(self), geolocation=(self)"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains; preload"
+        }
       ]
     },
     {
       "source": "/assets/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     },
     {
       "source": "/sw.js",
       "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-        { "key": "Service-Worker-Allowed", "value": "/" }
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
       ]
     },
     {
       "source": "/.well-known/apple-app-site-association",
       "headers": [
-        { "key": "Content-Type", "value": "application/json" },
-        { "key": "Cache-Control", "value": "public, max-age=3600" }
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
       ]
     },
     {
       "source": "/.well-known/assetlinks.json",
       "headers": [
-        { "key": "Content-Type", "value": "application/json" },
-        { "key": "Cache-Control", "value": "public, max-age=3600" }
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
       ]
     }
   ]
