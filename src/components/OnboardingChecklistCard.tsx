@@ -73,12 +73,17 @@ function buildClientItems(
   s: ComputedSignals,
   push: ReturnType<typeof usePushNotifications>,
 ): ChecklistItem[] {
+  // Each `to` deep-links to the screen + tab + field that satisfies the
+  // item. Going to bare `/settings` lands the user on the Notifications
+  // tab and they have to hunt for the phone field — Oko 2026-05-12:
+  // "the complete profile options should take me straight to the
+  // relevant page".
   const items: ChecklistItem[] = [
-    { id: "phone",        label: "B_ says: Add your phone so I can send you reminders",                 done: s.hasPhone,       to: "/settings" },
-    { id: "phoneVerify",  label: "B_ says: Verify your number — it keeps your account secure",          done: s.phoneVerified,  to: "/settings" },
-    { id: "location",     label: "B_ says: Set your city so I can find providers near you",             done: s.hasLocation,    to: "/settings" },
+    { id: "phone",        label: "B_ says: Add your phone so I can send you reminders",                 done: s.hasPhone,       to: "/settings?tab=account&focus=phone" },
+    { id: "phoneVerify",  label: "B_ says: Verify your number — it keeps your account secure",          done: s.phoneVerified,  to: "/settings?tab=account&focus=phone-verify" },
+    { id: "location",     label: "B_ says: Set your city so I can find providers near you",             done: s.hasLocation,    to: "/settings?tab=account&focus=location" },
     { id: "firstBooking", label: "B_ says: Book a session — I'll remind you and track your progress",   done: s.hasBooking,     to: "/directory" },
-    { id: "firstLog",     label: "B_ says: Log your first metric — I'll start building your wellness insights", done: s.hasHealthLog,   to: "/progress" },
+    { id: "firstLog",     label: "B_ says: Log your first metric — I'll start building your wellness insights", done: s.hasHealthLog,   to: "/health-profile?tab=metrics" },
   ];
   // Push opt-in — only include when the browser can still ask.
   // (If permission is already granted/denied, there's nothing for the user to do.)

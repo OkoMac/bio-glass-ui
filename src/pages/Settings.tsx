@@ -629,6 +629,31 @@ export default function Settings() {
   const [tab, setTab]     = useState<Tab>(initialTab);
   const [saved, setSaved] = useState(false);
 
+  // ?focus=phone|phone-verify|location|email — when arrived via the
+  // "Complete your profile" checklist on /, scroll the target field
+  // into view and focus its input. Defers until after the tab content
+  // has mounted so the element exists in the DOM. Reported 2026-05-12
+  // by Oko: "the complete profile options should take me straight to
+  // the relevant page".
+  const focus = params.get("focus");
+  useEffect(() => {
+    if (!focus) return;
+    const t = setTimeout(() => {
+      const el = document.getElementById(`profile-${focus}`);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      const input = el.querySelector<HTMLInputElement>("input, textarea, button");
+      if (input) {
+        try { input.focus({ preventScroll: true }); } catch { /* */ }
+      }
+      // Soft pulse around the field so the eye lands on it
+      el.style.transition = "box-shadow 0.3s ease-out";
+      el.style.boxShadow = "0 0 0 3px hsl(239 84% 67% / 0.4)";
+      setTimeout(() => { el.style.boxShadow = ""; }, 1500);
+    }, 220);
+    return () => clearTimeout(t);
+  }, [focus, tab]);
+
   /* ── Notification prefs — now managed by NotificationSettings component ── */
 
   /* ── Payment ── */
@@ -1019,7 +1044,7 @@ export default function Settings() {
 
             {/* Email verification banner */}
             {emailVerified === false && verifyStep !== "verified" && (
-              <GlassCard className="p-4 border border-amber-400/30 space-y-3">
+              <GlassCard className="p-4 border border-amber-400/30 space-y-3" id="profile-phone-verify">
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-amber-400" />
                   <h2 className="text-sm font-semibold text-amber-400">Verify your email</h2>
@@ -1093,17 +1118,18 @@ export default function Settings() {
                 <h2 className="text-sm font-semibold text-foreground">Profile Details</h2>
               </div>
               {[
-                { label: "Full Name",     value: name,  set: setName,  type: "text"  },
-                { label: "Email Address", value: email, set: setEmail, type: "email" },
-                { label: "Phone Number",  value: phone, set: setPhone, type: "tel"   },
+                { label: "Full Name",     value: name,  set: setName,  type: "text",  anchor: "name"     },
+                { label: "Email Address", value: email, set: setEmail, type: "email", anchor: "email"    },
+                { label: "Phone Number",  value: phone, set: setPhone, type: "tel",   anchor: "phone"    },
               ].map(field => (
-                <div key={field.label}>
+                <div key={field.label} id={`profile-${field.anchor}`}>
                   <label className="text-[10px] text-muted-foreground">{field.label}</label>
                   <input
                     type={field.type}
                     value={field.value}
                     onChange={e => field.set(e.target.value)}
-                    className="w-full mt-1 glass-1 rounded-xl px-4 py-2.5 text-sm text-foreground outline-none border border-white/5 bg-transparent"
+                    data-focus-id={field.anchor}
+                    className="w-full mt-1 glass-1 rounded-xl px-4 py-2.5 text-sm text-foreground outline-none border border-white/5 bg-transparent focus:border-indigo/40 transition-colors"
                   />
                 </div>
               ))}
