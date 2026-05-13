@@ -550,7 +550,7 @@ export default function Directory() {
                 </button>
               )}
               <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-                <img src="/bion-logo-white-sm.png" alt="BION" className="h-10 md:h-14 w-auto" />
+                <img src="/bion-logo-white-sm.png" alt="BION" className="h-5 md:h-7 w-auto" />
               </motion.div>
             </div>
             <div className="flex items-center gap-2">
