@@ -535,13 +535,8 @@ export default function Directory() {
     <div className="min-h-screen bg-obsidian bg-obsidian-glow">
       {/* ── Sticky header ────────────────────────────── */}
       <div className="sticky top-0 z-40 bg-obsidian/80 backdrop-blur-xl border-b border-white/[0.06]">
-        <div className="w-full px-4 md:px-8 xl:px-12">
-          {/* Logo row — big, flush, no vertical padding */}
-          <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} className="flex justify-start leading-none">
-            <img src="/bion-logo-white-sm.png" alt="BION" className="block h-24 md:h-32 w-auto" />
-          </motion.div>
-          {/* Controls row — compact under the logo */}
-          <div className="flex items-center justify-between pb-2">
+        <div className="w-full px-4 md:px-8 xl:px-12 py-3">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {backLabel ? (
                 <button onClick={() => navigate(-1)} aria-label={backLabel}
@@ -554,6 +549,9 @@ export default function Directory() {
                   <ArrowLeft className="w-4 h-4" aria-hidden="true" />
                 </button>
               )}
+              <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
+                <img src="/bion-logo-white-sm.png" alt="BION" className="h-12 md:h-16 w-auto" />
+              </motion.div>
             </div>
             <div className="flex items-center gap-2">
               <button
