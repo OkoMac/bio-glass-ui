@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import RepNav from "@/components/RepNav";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Users, ArrowLeft, MapPin, TrendingUp, Search,
 } from "lucide-react";
@@ -14,16 +15,26 @@ interface RepProvider {
   service: string;
   location: string;
   status: "active" | "pending";
-  monthlyRevenue: number;
-  monthlyCommission: number;
   signedDate: string;
+  monthlyRevenue?: number;
+  monthlyCommission?: number;
 }
 
-function getRepProviders(): RepProvider[] {
+const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+
+async function fetchAttributedProviders(): Promise<RepProvider[]> {
   try {
-    const raw = localStorage.getItem("bion_rep_providers");
-    return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) return [];
+    const res = await fetch(`${API}/api/ranger-crm/attributed-providers`, {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    });
+    if (!res.ok) return [];
+    const body = await res.json();
+    return body?.data ?? [];
+  } catch {
+    return [];
+  }
 }
 
 export default function RepProviders() {
@@ -33,7 +44,12 @@ export default function RepProviders() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    setProviders(getRepProviders());
+    let cancelled = false;
+    (async () => {
+      const data = await fetchAttributedProviders();
+      if (!cancelled) setProviders(data);
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   const filtered = providers.filter(p =>

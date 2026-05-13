@@ -359,7 +359,7 @@ export default function Directory() {
         });
       }
     } else if (activeFilter === "Available Now") {
-      list = list.filter((p) => /weekday|daily|today/i.test(p.availability ?? ""));
+      list = list.filter((p) => (p.availability ?? []).some((a: string) => /weekday|daily|today/i.test(a)));
     } else if (activeFilter === "Nearby" || activeFilter === "All") {
       const uLat = manualLocation?.lat ?? geo.latitude;
       const uLng = manualLocation?.lng ?? geo.longitude;

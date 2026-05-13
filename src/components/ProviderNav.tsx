@@ -73,7 +73,8 @@ export default function ProviderNav() {
 
         {/* Nav items */}
         <nav className="flex flex-col gap-0.5 flex-1">
-          {navItems.map(({ to, label, icon: Icon, badge }) => (
+          {navItems.map(({ to, label, icon: Icon }) => {
+            return (
             <NavLink key={to} to={to}
               aria-label={label}
               className={({ isActive }) =>
@@ -96,7 +97,8 @@ export default function ProviderNav() {
                 </>
               )}
             </NavLink>
-          ))}
+            );
+          })}
         </nav>
 
         {/* Provider info */}
@@ -160,9 +162,9 @@ export default function ProviderNav() {
                   )}
                   <div className="relative">
                     <Icon className="w-5 h-5 relative z-10" />
-                    {badge && !isActive && (
-                      <span className="absolute -top-1 -right-1 min-w-[14px] h-[14px] px-0.5 rounded-full gradient-indigo flex items-center justify-center text-[8px] font-bold text-primary-foreground">
-                        {badge > 9 ? "9+" : badge}
+                    {badgeFor(to) && (
+                      <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                        {badgeFor(to)! > 99 ? "99+" : badgeFor(to)}
                       </span>
                     )}
                   </div>

@@ -1,18 +1,45 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import GlassCard from "@/components/GlassCard";
 import RepNav from "@/components/RepNav";
 import { User, Mail, Phone, LogOut, Shield, Copy, Check, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { signOutSupabase } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+
+const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
 export default function RepSettings() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
+  const [referralCode, setReferralCode] = useState("—");
 
-  const referralCode = localStorage.getItem("bion_rep_referral") ?? "—";
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) return;
+        const res = await fetch(`${API}/api/rep/agreement/referral-code`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        if (!res.ok) return;
+        const body = await res.json();
+        if (!cancelled && body?.referral_code) {
+          setReferralCode(body.referral_code);
+        }
+      } catch {
+        // fallback to localStorage if API is unavailable
+        if (!cancelled) {
+          const stored = localStorage.getItem("bion_rep_referral");
+          if (stored) setReferralCode(stored);
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(referralCode);

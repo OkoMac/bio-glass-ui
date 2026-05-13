@@ -32,19 +32,21 @@ function getNextPayout(): string {
   return next.toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" });
 }
 
-// ── Mock data (localStorage-backed) ─────────────────────────────────
-function getRepProviders(): any[] {
-  try {
-    const raw = localStorage.getItem("bion_rep_providers");
-    return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
-}
+const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
-function getCommissionHistory(): any[] {
+async function fetchWithAuth(url: string): Promise<any[]> {
   try {
-    const raw = localStorage.getItem("bion_rep_commissions");
-    return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) return [];
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    });
+    if (!res.ok) return [];
+    const body = await res.json();
+    return body?.data ?? [];
+  } catch {
+    return [];
+  }
 }
 
 // ── Component ───────────────────────────────────────────────────────
@@ -61,6 +63,8 @@ export default function RepDashboard() {
   const [referralCode, setReferralCode] = useState<string>(() => generateReferralCode(user?.name ?? "REP"));
   const [attributionCount, setAttributionCount] = useState<number>(0);
   const [agreementCheckDone, setAgreementCheckDone] = useState(false);
+  const [providers, setProviders] = useState<any[]>([]);
+  const [commissions, setCommissions] = useState<any[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -129,6 +133,22 @@ export default function RepDashboard() {
     return () => { cancelled = true; };
   }, [user?.id, navigate]);
 
+  // Fetch providers & commissions from the API (replaces old localStorage mocks)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const [p, c] = await Promise.all([
+        fetchWithAuth(`${API}/api/ranger-crm/attributed-providers`),
+        fetchWithAuth(`${API}/api/ranger-crm/commissions`),
+      ]);
+      if (!cancelled) {
+        setProviders(p);
+        setCommissions(c);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const shareUrl = `https://bionhealth.co.za/welcome?ref=${encodeURIComponent(referralCode)}`;
   const shareMessage = `Join BION — Africa's health, beauty and wellness platform. Sign up via my link and I'll be here to help you get onboarded. ${shareUrl}`;
 
@@ -145,9 +165,6 @@ export default function RepDashboard() {
   // Uses API-based check via the useEffect above; while the check is
   // pending we render nothing to avoid flashing the dashboard.
   if (!agreementCheckDone) return null;
-
-  const providers = getRepProviders();
-  const commissions = getCommissionHistory();
 
   const totalProviders = providers.length;
   const monthlyCommission = providers

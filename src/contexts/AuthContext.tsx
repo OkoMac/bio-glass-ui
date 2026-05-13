@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from "react";
+import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import {
   BioUser, UserRole,
@@ -10,6 +11,7 @@ const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
 interface AuthContextType {
   user: BioUser | null;
+  session: Session | null;
   loading: boolean;
   login: (user: BioUser) => void;           // demo / direct set
   logout: () => void;
@@ -64,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return stored;
   });
   const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<Session | null>(null);
 
   // Tracks the timestamp of the most recent local write (avatar / cover).
   // Prevents the visibility-change refetch from clobbering a fresh upload
@@ -96,12 +99,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const timeout = setTimeout(finish, 5000);
 
     // Check for an existing session on mount
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session: sbSession } }) => {
       if (!mounted) return;
-      if (session?.user) {
+      if (sbSession?.user) {
+        setSession(sbSession);
         clearDemoIfPresent();
         try {
-          const profile = await fetchUserProfile(session.user.id);
+          const profile = await fetchUserProfile(sbSession.user.id);
           if (mounted && profile) { storeUser(profile); setUser(profile); }
         } catch (e) {
           // Profile fetch failed — use stored user if available
@@ -111,7 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }).catch(() => finish());
 
     // Listen to future auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, sbSession) => {
       if (!mounted) return;
       // Password recovery: Supabase fires PASSWORD_RECOVERY when a user clicks
       // a recovery email link. We must navigate them to /reset-password so they
@@ -124,10 +128,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
-        if (session?.user) {
+        if (sbSession?.user) {
+          setSession(sbSession);
           clearDemoIfPresent();
           try {
-            const profile = await fetchUserProfile(session.user.id);
+            const profile = await fetchUserProfile(sbSession.user.id);
             if (mounted && profile) {
               storeUser(profile);
               setUser(profile);
@@ -157,6 +162,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else if (event === "SIGNED_OUT") {
         removeUser();
         setUser(null);
+        setSession(null);
         finish();
       }
     });
@@ -390,6 +396,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={{
       user,
+      session,
       loading,
       login,
       logout,
@@ -412,5 +419,5 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-  return ctx as AuthContextType & { session?: BioUser | null };
+  return ctx;
 }
