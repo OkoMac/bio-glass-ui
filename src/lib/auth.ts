@@ -63,7 +63,7 @@ export function removeUser(): void {
 export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser | null> {
   try {
     let [{ data: profile }, { data: roleRows }, { data: authData }] = await Promise.all([
-      supabase.from("profiles").select("id, full_name, email, avatar_url, cover_image_url, bio, phone, location, bion_id" as any).eq("user_id", supabaseUserId).maybeSingle(),
+      supabase.from("profiles").select("id, full_name, email, avatar_url, cover_image_url, phone, location, bion_id" as any).eq("user_id", supabaseUserId).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", supabaseUserId),
       supabase.auth.getUser(),
     ]);
