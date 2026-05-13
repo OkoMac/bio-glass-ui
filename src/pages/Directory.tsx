@@ -359,7 +359,7 @@ export default function Directory() {
         });
       }
     } else if (activeFilter === "Available Now") {
-      list = list.filter((p) => /weekday|daily|today/i.test(p.availability ?? ""));
+      list = list.filter((p) => /weekday|daily|today/i.test((p.availability as any) ?? ""));
     } else if (activeFilter === "Nearby" || activeFilter === "All") {
       const uLat = manualLocation?.lat ?? geo.latitude;
       const uLng = manualLocation?.lng ?? geo.longitude;
@@ -642,7 +642,7 @@ export default function Directory() {
           </AnimatePresence>
 
           {/* Search bar */}
-          <div className="glass-1 rounded-pill flex items-center gap-3 px-4 py-3" role="search" aria-label="Search providers">
+          <div className="glass-1 rounded-pill flex items-center gap-3 px-4 py-3 mt-3" role="search" aria-label="Search providers">
             <Search className="w-4 h-4 text-muted-foreground shrink-0" aria-hidden="true" />
             <input
               value={search}
