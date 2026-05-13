@@ -359,7 +359,7 @@ export default function Directory() {
         });
       }
     } else if (activeFilter === "Available Now") {
-      list = list.filter((p) => /weekday|daily|today/i.test((p.availability as any) ?? ""));
+      list = list.filter((p) => /weekday|daily|today/i.test(p.availability ?? ""));
     } else if (activeFilter === "Nearby" || activeFilter === "All") {
       const uLat = manualLocation?.lat ?? geo.latitude;
       const uLng = manualLocation?.lng ?? geo.longitude;
@@ -536,7 +536,7 @@ export default function Directory() {
       {/* ── Sticky header ────────────────────────────── */}
       <div className="sticky top-0 z-40 bg-obsidian/80 backdrop-blur-xl border-b border-white/[0.06]">
         <div className="w-full px-4 md:px-8 xl:px-12 py-3">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {backLabel ? (
                 <button onClick={() => navigate(-1)} aria-label={backLabel}
@@ -550,7 +550,7 @@ export default function Directory() {
                 </button>
               )}
               <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-                <img src="/bion-logo-white-sm.png" alt="BION" className="h-4 md:h-6 w-auto" />
+                <img src="/bion-logo-white-sm.png" alt="BION" className="h-14 md:h-20 w-auto" />
               </motion.div>
             </div>
             <div className="flex items-center gap-2">
