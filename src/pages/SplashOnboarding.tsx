@@ -65,7 +65,7 @@ const onboardingSteps: OnboardingStep[] = [
 ];
 
 type Phase = "splash" | "onboarding" | "role" | "auth" | "terms" | "email-sent" | "forgot-password" | "forgot-password-sent";
-type AuthMode = "signin" | "signup" | "login";
+type AuthMode = "signin" | "signup";
 
 const ROLE_OPTIONS = [
   { role: "client"    as UserRole, label: "I'm looking for services",    desc: "Book health, beauty & wellness providers",              icon: User,        color: "#6366F1" },
@@ -1149,7 +1149,7 @@ export default function SplashOnboarding() {
           </label>
         )}
 
-        <motion.button whileTap={{ scale: 0.97 }} onClick={handleAuth} disabled={busy || (authMode === "signup" && (!acceptedTerms || !firstName.trim() || firstName.trim().length < 2 || !lastName.trim() || lastName.trim().length < 2 || !email.trim() || password.length < 8 || !phone.trim() || !/^\d{4}-\d{2}-\d{2}$/.test(dob) || !/^[A-Z]{2}$/.test(country))) || (authMode === "login" && (!email.trim() || !password.trim()))}
+        <motion.button whileTap={{ scale: 0.97 }} onClick={handleAuth} disabled={busy || (authMode === "signup" && (!acceptedTerms || !firstName.trim() || firstName.trim().length < 2 || !lastName.trim() || lastName.trim().length < 2 || !email.trim() || password.length < 8 || !phone.trim() || !/^\d{4}-\d{2}-\d{2}$/.test(dob) || !/^[A-Z]{2}$/.test(country))) || (authMode === "signin" && (!email.trim() || !password.trim()))}
           className="w-full rounded-pill py-4 text-sm font-semibold gradient-indigo text-primary-foreground shadow-cta flex items-center justify-center gap-2 disabled:opacity-60">
           {busy
             ? <><Loader2 className="w-4 h-4 animate-spin" /> {
