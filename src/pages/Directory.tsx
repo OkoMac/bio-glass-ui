@@ -538,7 +538,7 @@ export default function Directory() {
         <div className="w-full px-4 md:px-8 xl:px-12">
           {/* Logo row — big, flush, no vertical padding */}
           <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} className="flex justify-start leading-none">
-            <img src="/bion-logo-white-sm.png" alt="BION" className="block h-32 md:h-40 w-auto" />
+            <img src="/bion-logo-white-sm.png" alt="BION" className="block h-56 md:h-72 w-auto" />
           </motion.div>
           {/* Controls row — compact under the logo */}
           <div className="flex items-center justify-between pb-2">
