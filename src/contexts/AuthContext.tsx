@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let resolved = false;
 
     const finish = () => {
-      if (mounted && !resolved) { resolved = true; setLoading(false); setAuthLoading(false); }
+      if (mounted && !resolved) { resolved = true; setLoading(false); }
     };
 
     // A real Supabase session always beats a stale demo user stored from a
@@ -412,5 +412,5 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-  return ctx;
+  return ctx as AuthContextType & { session?: BioUser | null };
 }

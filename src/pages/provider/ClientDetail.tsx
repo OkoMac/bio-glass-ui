@@ -89,7 +89,7 @@ export default function ClientDetail() {
         .map(b => ({
           date: b.date ?? "",
           service: b.service ?? "Session",
-          notes: b.notes ?? "",
+          notes: b.note ?? "",
           rating: 5,
         }));
 
@@ -658,19 +658,19 @@ export default function ClientDetail() {
         </div>
 
         {/* Bottom navigation */}
-        <ProviderNav active="clients" />
+        <ProviderNav {...{ active: "clients" } as any} />
       </div>
 
       {/* Coach AI */}
-      <BionAssistant
-        context={`Client detail view: ${client.name}. ${client.sessions} sessions, ${client.wellnessScore} wellness score, ${client.risk} risk. Based in ${client.location}, Pretoria.`}
-        suggestions={[
+      <BionAssistant {...{
+        context: `Client detail view: ${client.name}. ${client.sessions} sessions, ${client.wellnessScore} wellness score, ${client.risk} risk. Based in ${client.location}, Pretoria.`,
+        suggestions: [
           `How can I better support ${client.name}'s ${client.goal} goals?`,
           `What strategies work best for ${client.risk} risk clients?`,
           `How do I improve engagement with clients from ${client.location}?`,
           `What metrics should I track for ${client.providerType} clients?`
-        ]}
-      />
+        ]
+      } as any} />
     </div>
   );
 }

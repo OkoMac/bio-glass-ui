@@ -49,7 +49,7 @@ export default function AffiliateDashboard() {
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+    ...((session as any)?.access_token ? { Authorization: `Bearer ${(session as any).access_token}` } : {}),
   };
 
   useEffect(() => { loadDashboard(); }, []);

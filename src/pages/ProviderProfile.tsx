@@ -543,7 +543,7 @@ export default function ProviderProfile() {
         ?? 0;
 
       trackEvent("booking_started", {
-        category: (provider.category ?? provider.specialty ?? "").toString().toLowerCase(),
+        category: ((provider as any).category ?? provider.specialty ?? "").toString().toLowerCase(),
         metadata: { provider_id: provider.id, service: serviceLabel, date: bookingDate, time: bookingTime },
       });
       const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
@@ -778,13 +778,14 @@ export default function ProviderProfile() {
     if (provider.id) trackView(provider.id);
     // Feed B_'s personalisation
     trackEvent("provider_view", {
-      category: (provider.category ?? provider.vertical ?? provider.specialty ?? "").toString().toLowerCase(),
+      category: ((provider as any).category ?? provider.vertical ?? provider.specialty ?? "").toString().toLowerCase(),
       metadata: { provider_id: provider.id, name: provider.name, specialty: provider.specialty, location: provider.location },
     });
     return () => { document.title = "BION — Commit to Yourself"; };
   }, [provider, trackView]);
 
   const shareProvider = async () => {
+    if (!provider) return;
     const url = `https://bionhealth.co.za/provider/${provider.id}`;
     const { shareItem } = await import("@/lib/share");
     const result = await shareItem({
@@ -1273,13 +1274,13 @@ export default function ProviderProfile() {
                 const addr = String(provider.address || provider.location || "");
                 const mapsQuery = encodeURIComponent(addr);
                 // Use geo coordinates if available for more accurate pin
-                const hasCoords = provider.lat && provider.lng;
+                const hasCoords = (provider as any).lat && (provider as any).lng;
                 const mapsUrl = hasCoords
-                  ? `https://www.google.com/maps/search/?api=1&query=${provider.lat},${provider.lng}&query_place_id=${mapsQuery}`
+                  ? `https://www.google.com/maps/search/?api=1&query=${(provider as any).lat},${(provider as any).lng}&query_place_id=${mapsQuery}`
                   : `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
                 // Universal link that lets user choose their maps app
                 const directionsUrl = hasCoords
-                  ? `https://www.google.com/maps/dir/?api=1&destination=${provider.lat},${provider.lng}`
+                  ? `https://www.google.com/maps/dir/?api=1&destination=${(provider as any).lat},${(provider as any).lng}`
                   : `https://www.google.com/maps/dir/?api=1&destination=${mapsQuery}`;
 
                 const mapImgUrl = null; // Static map removed — was using billable Google API

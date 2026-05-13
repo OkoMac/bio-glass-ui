@@ -76,7 +76,7 @@ const STEPS: OnboardingStep[] = [
       { id: "displayName", label: "Display Name", type: "text", placeholder: "What should we call you?", required: true },
       { id: "phone", label: "Phone Number", type: "tel", placeholder: "+27 82 123 4567", required: false },
       { id: "city", label: "City / Area", type: "text", placeholder: "e.g. Cape Town, Johannesburg", required: true },
-      { id: "dateOfBirth", label: "Date of Birth", type: "date", placeholder: "YYYY-MM-DD", required: true },
+      { id: "dateOfBirth", label: "Date of Birth", type: "date" as any, placeholder: "YYYY-MM-DD", required: true },
       {
         id: "healthInterests",
         label: "Service Categories You're Interested In",

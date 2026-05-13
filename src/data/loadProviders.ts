@@ -18,7 +18,7 @@ export interface Provider {
 
 // Extract providers from the data structure
 export const providers: Provider[] = Array.isArray(rawData.providers) 
-  ? rawData.providers 
+  ? (rawData.providers as Provider[] as any)
   : [];
 
 // Helper to categorize providers. Now optionally takes the provider

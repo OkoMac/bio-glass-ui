@@ -49,7 +49,7 @@ export const FEATURE_FLAGS: Record<string, FeatureFlag> = {
     description: 'Use Stitch hosted checkout instead of Stripe for booking payments',
     enabled: false,
     rolloutPercentage: 0,
-  },
+  } as any,
 
   // Phase 1: Gym Provider Tools (NEW - start disabled)
   providerDashboardV2: {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle, Circle, ChevronRight, ChevronLeft,
@@ -284,7 +284,7 @@ function ConsentStepRenderer({
               ? "border-teal bg-teal"
               : "border-white/20"
           }`}>
-            {answers[item.id] && (
+            {(answers[item.id] as React.ReactNode) && (
               <CheckCircle className="w-3.5 h-3.5 text-white" />
             )}
           </div>

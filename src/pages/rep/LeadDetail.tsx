@@ -164,13 +164,13 @@ export default function LeadDetail() {
     if (!lead) return;
     setSaving(true);
     const updated = { ...lead, notes, next_follow_up: nextFollowUp || null, stage };
-    setLead(updated);
+    setLead(updated as any);
 
     // Update local cache
     try {
       const all = JSON.parse(localStorage.getItem("bion_crm_leads") ?? "[]") as Lead[];
       const idx = all.findIndex(l => l.id === id);
-      if (idx >= 0) all[idx] = updated; else all.push(updated);
+      if (idx >= 0) all[idx] = updated as any; else all.push(updated as any);
       localStorage.setItem("bion_crm_leads", JSON.stringify(all));
     } catch { /* empty */ }
 
@@ -255,7 +255,7 @@ export default function LeadDetail() {
   }
 
   const waLink = `https://wa.me/${lead.phone.replace(/\D/g, "")}?text=${encodeURIComponent(
-    `Hi ${lead.contact_name}, this is ${user?.full_name ?? "your BION Ranger"}. I'd love to show you how BION can help grow ${lead.business_name}. When would be a good time to chat?`
+    `Hi ${lead.contact_name}, this is ${(user as any)?.full_name ?? "your BION Ranger"}. I'd love to show you how BION can help grow ${lead.business_name}. When would be a good time to chat?`
   )}`;
 
   return (

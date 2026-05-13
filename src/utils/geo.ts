@@ -10,7 +10,7 @@
  *   const suburb = getDefaultSuburb(userProfile);
  */
 
-import type { Profile } from "@/types";
+import type { Profile } from "../hooks/useProfile";
 
 /** Known SA suburb areas with coordinates. Expand as needed. */
 const KNOWN_AREAS: Record<string, { lat: number; lng: number }> = {

@@ -52,7 +52,7 @@ const BADGE_CONFIG: Record<BadgeType, { bg: string; icon: string; title: string 
 };
 
 function BadgeIcon({ type, className }: { type: BadgeType; className: string }) {
-  if (type === "star" || type === "premium") {
+  if (type === ("star" as any) || type === "premium") {
     return (
       <svg className={className} viewBox="0 0 12 12" fill="white">
         <path d="M6 1l1.5 3.1L11 4.5 8.5 7l.6 3.5L6 8.8 2.9 10.5l.6-3.5L1 4.5l3.5-.4z" />
@@ -67,7 +67,7 @@ function BadgeIcon({ type, className }: { type: BadgeType; className: string }) 
       </svg>
     );
   }
-  if (type === "crown" || type === "elite") {
+  if (type === ("crown" as any) || type === "elite") {
     return (
       <svg className={className} viewBox="0 0 12 12" fill="white">
         <path d="M2 9h8L9 4l-2 2-1-3-1 3-2-2z" />

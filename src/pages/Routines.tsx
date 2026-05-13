@@ -522,7 +522,7 @@ export default function Routines() {
   };
 
   const toggleShare = (routineId: string, providerId: string) => {
-    setRoutines(prev => prev.map(r => {
+    setRoutines((ownRoutines as any[]).map((r: any) => {
       if (r.id !== routineId) return r;
       const shared = r.sharedWith.includes(providerId)
         ? r.sharedWith.filter(id => id !== providerId)

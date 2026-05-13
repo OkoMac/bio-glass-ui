@@ -157,7 +157,7 @@ function CssBar({ value, max, color, delay = 0 }: { value: number; max: number; 
 function PeakHoursGrid({ hours }: { hours: { hour: number; bookings: number }[] }) {
   const maxBookings = Math.max(...hours.map(h => h.bookings), 1);
   // Show hours 6-21
-  const grid = [];
+  const grid: Array<{ hour: number; count: number; intensity: number }> = [];
   for (let h = 6; h <= 21; h++) {
     const found = hours.find(x => x.hour === h);
     const count = found?.bookings ?? 0;

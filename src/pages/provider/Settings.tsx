@@ -224,7 +224,7 @@ export default function ProviderSettings() {
                         provider is actually verified. The certification badge
                         is parked until we have a real provider_certifications
                         source — better to show nothing than fake credentials. */}
-                    {(user?.providerStatus === "verified" || (user as any)?.provider_status === "verified") && (
+                    {((user as any)?.providerStatus === "verified" || (user as any)?.provider_status === "verified") && (
                       <span className="text-[9px] px-2 py-0.5 glass-accent-teal text-teal rounded-pill">Verified</span>
                     )}
                   </div>

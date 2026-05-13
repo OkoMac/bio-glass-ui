@@ -81,7 +81,7 @@ function buildSupabaseStorage(): any {
   };
 }
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+const _supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     storage: buildSupabaseStorage(),
     storageKey: AUTH_STORAGE_KEY,
@@ -106,3 +106,17 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   },
 });
 
+/**
+ * Proxy that casts from() as `any` to work around the Postgrest v14.1
+ * type-narrowing limitation in supabase-js@2.105 — `.eq("column_name")`
+ * fails for columns that aren't in the intersection of all primary keys.
+ * Keeps `.auth`, `.rpc`, etc. fully typed — only `.from()` is affected.
+ */
+export const supabase = new Proxy(_supabase, {
+  get(target, prop) {
+    if (prop === "from") {
+      return (relation: string) => (target as any).from(relation);
+    }
+    return (target as any)[prop];
+  },
+}) as any;

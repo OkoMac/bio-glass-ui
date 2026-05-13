@@ -38,7 +38,7 @@ export function useBookingReminders() {
         const timeLabel = hoursUntil <= 1 ? "in about an hour" : `in ${hoursUntil} hours`;
 
         // Try browser notification
-        if ("Notification" in window && Notification.permission === "granted") {
+        if ("Notification" in (window as any) && Notification.permission === "granted") {
           new Notification(`Upcoming: ${booking.service}`, {
             body: `${booking.providerName ?? "Provider"} ${timeLabel} at ${booking.time}`,
             icon: "/icon-192.png",

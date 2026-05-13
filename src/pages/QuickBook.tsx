@@ -476,7 +476,7 @@ export default function QuickBook() {
 
       {/* Booking sheet (legacy — kept for compatibility) */}
       {selectedProvider && (
-        <BookingSheet provider={selectedProvider} onClose={() => setSelectedProvider(null)} />
+        <BookingSheet open={true} provider={selectedProvider} onClose={() => setSelectedProvider(null)} />
       )}
 
       <BionAssistant />

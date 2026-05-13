@@ -256,7 +256,7 @@ export function hasFeature(
   feature: keyof SubscriptionFeatures
 ): boolean {
   if (!subscription) return false;
-  return subscription.features[feature];
+  return subscription.features[feature] as any;
 }
 
 // Get subscription tier name for display

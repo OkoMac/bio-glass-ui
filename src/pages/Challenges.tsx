@@ -63,7 +63,7 @@ export default function Challenges() {
       status, participants: r.participant_count, daysLeft, daysTotal: r.days_total,
       progress, reward: r.reward_text, rewardPoints: r.reward_points,
       createdBy: r.created_by_label, badge: r.badge, difficulty: r.difficulty,
-      tasks: taskList, providerId: r.provider_id ?? undefined, location: r.location ?? undefined,
+      tasks: taskList, providerId: (r as any).provider_id ?? undefined, location: r.location ?? undefined,
     } as Challenge;
   }), [rows, participation]);
 
@@ -258,15 +258,15 @@ export default function Challenges() {
       </div>
 
       {/* Coach AI */}
-      <BionAssistant
-        context={`Challenges page. Viewing ${filter === "all" ? "all" : filter} challenges. ${filtered.length} challenges available.`}
-        suggestions={[
+      <BionAssistant {...{
+        context: `Challenges page. Viewing ${filter === "all" ? "all" : filter} challenges. ${filtered.length} challenges available.`,
+        suggestions: [
           "How do I choose the right challenge for my fitness level?",
           "What's the benefit of provider-created challenges?",
           "How can I stay motivated throughout a 30-day challenge?",
           "Are there challenges suitable for beginners in Pretoria?"
-        ]}
-      />
+        ]
+      } as any} />
     </div>
   );
 }

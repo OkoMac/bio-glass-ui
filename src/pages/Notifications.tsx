@@ -584,15 +584,15 @@ export default function Notifications() {
       </div>
 
       {/* Coach AI */}
-      <BionAssistant
-        context={`Notifications page. ${unreadCount} unread notifications. Filter: ${filter}.`}
-        suggestions={[
+      <BionAssistant {...{
+        context: `Notifications page. ${unreadCount} unread notifications. Filter: ${filter}.`,
+        suggestions: [
           "How can I manage notification overload from multiple providers?",
           "What's the best way to stay updated with my favorite Pretoria providers?",
           "How do I customize notification preferences for different service types?",
           "Are there quiet hours for notifications?"
-        ]}
-      />
+        ]
+      } as any} />
     </div>
   );
 }

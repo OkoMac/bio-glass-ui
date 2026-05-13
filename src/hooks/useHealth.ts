@@ -49,7 +49,7 @@ export function useHealthLogs(days = 30) {
     const { data } = await supabase
       .from("health_logs")
       .select("*")
-      .eq("user_id", user.profileId)
+      .eq("user_id", user?.profileId)
       .gte("log_date", since)
       .order("log_date", { ascending: true });
     setLogs((data ?? []) as HealthLog[]);
@@ -87,7 +87,7 @@ export function useHealthProfile() {
     const { data } = await supabase
       .from("health_profiles")
       .select("*")
-      .eq("user_id", user.profileId)
+      .eq("user_id", user?.profileId)
       .maybeSingle();
     if (data) {
       const d = data as HealthProfile & { conditions: unknown; allergies: unknown; medications: unknown };
@@ -100,7 +100,7 @@ export function useHealthProfile() {
     } else {
       // Default empty shape so forms can bind cleanly
       setProfile({
-        user_id: user.profileId,
+        user_id: user?.profileId ?? '',
         date_of_birth: null, height_cm: null, blood_type: null,
         conditions: [], allergies: [], medications: [],
         emergency_contact_name: null, emergency_contact_phone: null,

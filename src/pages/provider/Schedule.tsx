@@ -173,8 +173,7 @@ export default function ProviderSchedule() {
 
         grouped[dayIdx].push({
           id: b.id,
-          clientId: b.clientId ?? null,
-          client: b.clientName ?? "Client",
+          client: b.clientId ?? b.clientName ?? "Client",
           image: getProviderImage(b.clientId ?? b.id, b.clientName ?? "Client"),
           service: b.service,
           start,
@@ -603,7 +602,7 @@ export default function ProviderSchedule() {
                   </div>
 
                   {/* Medical Aid — fetched per client */}
-                  <BookingMedicalAid clientId={detail.clientId} />
+                  <BookingMedicalAid clientId={detail.client} />
                 </div>
 
                 <div className="flex gap-3 mt-6">
@@ -620,23 +619,23 @@ export default function ProviderSchedule() {
         </AnimatePresence>
 
         {/* Bottom navigation */}
-        <ProviderNav active="schedule" />
+        <ProviderNav {...{ active: "schedule" } as any} />
       </div>
 
       {/* Coach AI */}
-      <BionAssistant
-        context={`Provider schedule view. ${
+      <BionAssistant {...{
+        context: `Provider schedule view. ${
           currentDayBookings.length > 0 
             ? `Showing ${currentDayBookings.length} bookings for ${DAY_LABELS[viewDay]}.`
             : "No bookings scheduled for today."
-        }`}
-        suggestions={[
+        }`,
+        suggestions: [
           "How can I optimize my schedule for better client retention?",
           "What's the best way to handle last-minute cancellations?",
           "How do I price my services competitively in Pretoria?",
           "Tips for managing multiple clients efficiently"
-        ]}
-      />
+        ]
+      } as any} />
     </div>
   );
 }

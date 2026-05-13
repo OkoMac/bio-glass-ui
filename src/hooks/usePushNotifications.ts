@@ -205,7 +205,7 @@ export function usePushNotifications(): UsePushNotifications {
       }
       const subscription = existing ?? await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(keyJson.publicKey),
+        applicationServerKey: urlBase64ToUint8Array(keyJson.publicKey) as any,
       });
 
       // 4. Register with backend (needs user auth)

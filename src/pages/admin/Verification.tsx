@@ -1086,7 +1086,7 @@ function VerifyHelperButton({ doc }: { doc: PendingDoc }) {
         });
         hpcsa = await hRes.json();
       }
-      setResult({ ocr, hpcsa });
+      setResult({ ocr, hpcsa } as any);
     } finally {
       setBusy(false);
     }

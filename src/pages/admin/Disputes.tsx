@@ -476,7 +476,7 @@ function OrderDisputesAdmin() {
       buyer_name: nameMap.get(r.buyer_id) ?? null,
       provider_name: nameMap.get(r.provider_id) ?? null,
       order_items: itemsByOrder.get(r.order_id) ?? [],
-    })));
+    })) as any);
     setLoading(false);
   };
 
@@ -696,7 +696,8 @@ export default function AdminDisputes() {
 
   const saveToken = () => {
     try { localStorage.setItem("bion_admin_token", tokenDraft); } catch {}
-    setToken(tokenDraft);
+    // setToken is internal to useAdminToken — trigger reload to pick up new value
+    window.location.reload();
     toast.success("Admin token saved locally");
   };
 

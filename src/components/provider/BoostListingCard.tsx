@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Zap, Crown, Loader2, CheckCircle } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
@@ -12,14 +13,13 @@ const TIERS = [
 ];
 
 export default function BoostListingCard() {
-  const { session } = useAuth();
+  const { user } = useAuth();
   const [mySpotlight, setMySpotlight] = useState<any>(null);
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
   };
 
   useEffect(() => {

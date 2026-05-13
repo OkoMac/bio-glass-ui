@@ -23,14 +23,14 @@ let _urlMap: Record<string, string> | null = null;
 let _urlMapPromise: Promise<Record<string, string>> | null = null;
 
 function loadUrlMap(): Promise<Record<string, string>> {
-  if (_urlMap) return Promise.resolve(_urlMap);
+  if (_urlMap) return Promise.resolve(_urlMap) as any;
   if (!_urlMapPromise) {
-    _urlMapPromise = import("./providerImageUrlsData").then((m) => {
+    _urlMapPromise = import("./providerImageUrlsData").then((m: any) => {
       _urlMap = m.PROVIDER_IMAGE_URLS;
       return _urlMap;
-    });
+    }) as any;
   }
-  return _urlMapPromise;
+  return _urlMapPromise as any;
 }
 
 // Kick off the load immediately (non-blocking) so it's likely ready by the time

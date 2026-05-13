@@ -150,12 +150,12 @@ function ChatView({
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-white/10" aria-label="Previous" title="Previous">
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          <BioAvatar
-            src={conversation.image}
-            size="md"
-            vertical={conversation.vertical}
-            online={conversation.online}
-          />
+          <BioAvatar {...{
+            src: conversation.image,
+            size: "md",
+            vertical: conversation.vertical,
+            online: conversation.online
+          } as any} />
           <div>
             <h2 className="font-bold text-foreground">{conversation.name}</h2>
             <div className="flex items-center gap-2">
@@ -500,12 +500,12 @@ export default function Messages() {
                 className="glass-1 rounded-2xl p-4 cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <BioAvatar
-                    src={conv.image}
-                    size="lg"
-                    vertical={conv.vertical}
-                    online={conv.online}
-                  />
+                  <BioAvatar {...{
+                    src: conv.image,
+                    size: "lg",
+                    vertical: conv.vertical,
+                    online: conv.online
+                  } as any} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <h3 className="font-semibold text-foreground truncate">{conv.name}</h3>
@@ -553,15 +553,15 @@ export default function Messages() {
       </AnimatePresence>
 
       {/* Coach AI */}
-      <BionAssistant
-        context={`Messages page. ${filtered.length} conversations.`}
-        suggestions={[
+      <BionAssistant {...{
+        context: `Messages page. ${filtered.length} conversations.`,
+        suggestions: [
           "How should I communicate my fitness goals to a new provider?",
           "What information should I share during my initial consultation?",
           "How often should I check in with my provider between sessions?",
           "What's the best way to provide feedback to my provider?"
-        ]}
-      />
+        ]
+      } as any} />
     </div>
   );
 }

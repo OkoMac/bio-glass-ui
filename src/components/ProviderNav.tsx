@@ -17,7 +17,14 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 
-const navItems = [
+interface NavItem {
+  to: string;
+  label: string;
+  icon: any;
+  badge?: string;
+}
+
+const navItems: NavItem[] = [
   { to: "/pro/dashboard",     label: "Dashboard",   icon: LayoutDashboard },
   { to: "/pro/bookings",      label: "Bookings",    icon: BookOpen },
   { to: "/pro/schedule",      label: "Schedule",    icon: CalendarDays },
