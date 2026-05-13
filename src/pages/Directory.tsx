@@ -536,7 +536,7 @@ export default function Directory() {
       {/* ── Sticky header ────────────────────────────── */}
       <div className="sticky top-0 z-40 bg-obsidian/80 backdrop-blur-xl border-b border-white/[0.06]">
         <div className="w-full px-4 md:px-8 xl:px-12 py-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               {backLabel ? (
                 <button onClick={() => navigate(-1)} aria-label={backLabel}
@@ -642,7 +642,7 @@ export default function Directory() {
           </AnimatePresence>
 
           {/* Search bar */}
-          <div className="glass-1 rounded-pill flex items-center gap-3 px-4 py-3 mt-3" role="search" aria-label="Search providers">
+          <div className="glass-1 rounded-pill flex items-center gap-3 px-4 py-3" role="search" aria-label="Search providers">
             <Search className="w-4 h-4 text-muted-foreground shrink-0" aria-hidden="true" />
             <input
               value={search}
