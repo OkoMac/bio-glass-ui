@@ -57,7 +57,7 @@ export default function AdminNav() {
             <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg,#F05A28,#FBBF24)" }}>
               <ShieldCheck className="w-4 h-4 text-white" />
             </div>
-            <img src="/bion-logo-white-sm.png" alt="BION" className="h-24 w-auto" /><span className="text-[10px] text-muted-foreground ml-1">Admin</span>
+            <img src="/bion-logo-white-sm.png" alt="BION" className="h-40 w-auto" /><span className="text-[10px] text-muted-foreground ml-1">Admin</span>
           </div>
         </div>
 
@@ -157,7 +157,7 @@ export default function AdminNav() {
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg,#F05A28,#FBBF24)" }}>
                   <ShieldCheck className="w-4 h-4 text-white" />
                 </div>
-                <img src="/bion-logo-white-sm.png" alt="BION" className="h-24 w-auto" />
+                <img src="/bion-logo-white-sm.png" alt="BION" className="h-40 w-auto" />
                 <span className="text-[10px] text-muted-foreground ml-1">Admin</span>
               </div>
               <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto max-h-[calc(100vh-80px)]">

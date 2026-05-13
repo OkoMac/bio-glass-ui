@@ -34,7 +34,7 @@ export default function CorporateNav() {
               style={{ background: "linear-gradient(135deg,#F59E0B,#F05A28)" }}>
               <Building2 className="w-4 h-4 text-white" />
             </div>
-            <img src="/bion-logo-white-sm.png" alt="BION" className="h-24 w-auto" /><span className="text-[10px] text-muted-foreground ml-1">Corporate</span>
+            <img src="/bion-logo-white-sm.png" alt="BION" className="h-40 w-auto" /><span className="text-[10px] text-muted-foreground ml-1">Corporate</span>
           </div>
         </div>
 
@@ -78,7 +78,7 @@ export default function CorporateNav() {
         style={{ background: "rgba(10,10,18,0.95)", backdropFilter: "blur(40px)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         <div className="flex items-center gap-2">
           <Building2 className="w-4 h-4 text-amber" />
-          <img src="/bion-logo-white-sm.png" alt="BION" className="h-24 w-auto" /><span className="text-[10px] text-muted-foreground ml-1">Corporate</span>
+          <img src="/bion-logo-white-sm.png" alt="BION" className="h-40 w-auto" /><span className="text-[10px] text-muted-foreground ml-1">Corporate</span>
         </div>
         <div className="flex gap-1">
           {navItems.slice(0, 5).map(item => (
@@ -106,7 +106,7 @@ export default function CorporateNav() {
                   style={{ background: "linear-gradient(135deg,#F59E0B,#F05A28)" }}>
                   <Building2 className="w-4 h-4 text-white" />
                 </div>
-                <img src="/bion-logo-white-sm.png" alt="BION" className="h-24 w-auto" />
+                <img src="/bion-logo-white-sm.png" alt="BION" className="h-40 w-auto" />
                 <span className="text-[10px] text-muted-foreground ml-1">Corporate</span>
               </div>
               <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto max-h-[calc(100vh-80px)]">

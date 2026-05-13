@@ -67,7 +67,7 @@ export default function ProviderNav() {
         style={{ background: "rgba(10,10,15,0.95)", backdropFilter: "blur(40px)" }}>
         {/* Logo */}
         <div className="px-3 mb-8">
-          <img src="/bion-logo-white-sm.png" alt="BION" className="h-24 w-auto" />
+          <img src="/bion-logo-white-sm.png" alt="BION" className="h-40 w-auto" />
           <span className="ml-1.5 text-[10px] text-muted-foreground uppercase tracking-widest">Provider</span>
         </div>
 
@@ -185,7 +185,7 @@ export default function ProviderNav() {
           <SheetContent side="left" className="w-72 p-0 border-r border-white/5"
             style={{ background: "rgba(10,10,15,0.95)", backdropFilter: "blur(40px)" }}>
             <div className="flex items-center gap-2 px-5 py-6 border-b border-white/5">
-              <img src="/bion-logo-white-sm.png" alt="BION" className="h-24 w-auto" />
+              <img src="/bion-logo-white-sm.png" alt="BION" className="h-40 w-auto" />
               <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Provider</span>
             </div>
             <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto max-h-[calc(100vh-80px)]">
