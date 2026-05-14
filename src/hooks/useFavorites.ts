@@ -1,10 +1,15 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Favorite providers system — localStorage + Supabase backed.
  * localStorage is the fast cache; Supabase is the source of truth.
+ *
+ * Optimistic updates are rolled back on server write failure so the user
+ * sees a consistent state (the heart icon won't stay on if RLS rejects
+ * the write).
  */
 
 const STORAGE_KEY = "bion_favorite_providers";
@@ -28,6 +33,8 @@ export function useFavorites() {
   const profileId = user?.profileId ?? "guest";
   const isReal = !!user?.profileId && !user.id?.startsWith("demo_");
   const [favorites, setFavorites] = useState<Set<string>>(() => getStoredFavorites(profileId));
+  // Ref to capture the set before each optimistic mutation, so we can rollback
+  const prevRef = useRef<Set<string> | null>(null);
 
   // Load from Supabase on mount (merge with localStorage)
   useEffect(() => {
@@ -59,65 +66,86 @@ export function useFavorites() {
     return () => window.removeEventListener("storage", handler);
   }, [profileId]);
 
+  const rollback = useCallback((providerId: string) => {
+    setFavorites(prev => {
+      const restored = new Set(prev);
+      // If the optimistic add put it in, remove it; if optimistic remove took it out, add it back
+      if (prevRef.current) {
+        const wasFav = prevRef.current.has(providerId);
+        // prevRef.current is what it was before the optimistic update
+        // So just restore to that snapshot
+        return new Set(prevRef.current);
+      }
+      return prev;
+    });
+    saveFavoritesLocal(profileId, new Set(favorites));
+  }, [profileId, favorites]);
+
+  // Helper: sync a mutation to Supabase with rollback on failure
+  const syncToSupabase = useCallback(async (
+    providerId: string,
+    action: "add" | "remove",
+  ) => {
+    if (!isReal) return;
+    const { error } = action === "add"
+      ? await supabase.from("favourites").upsert(
+          { profile_id: profileId, provider_id: providerId },
+          { onConflict: "profile_id,provider_id" },
+        )
+      : await supabase.from("favourites")
+          .delete()
+          .eq("profile_id", profileId)
+          .eq("provider_id", providerId);
+
+    if (error) {
+      console.error(`[favorites] ${action} failed:`, error.message);
+      // Rollback: restore the set to before the optimistic update
+      setFavorites(prev => prevRef.current ? new Set(prevRef.current) : prev);
+      saveFavoritesLocal(profileId, prevRef.current ?? favorites);
+      toast.error(
+        action === "add" ? "Couldn't add to favorites" : "Couldn't remove from favorites",
+        { description: error.message },
+      );
+    }
+  }, [profileId, isReal, favorites]);
+
   const toggle = useCallback((providerId: string) => {
     setFavorites(prev => {
       const next = new Set(prev);
       const adding = !next.has(providerId);
+      // Snapshot for rollback
+      prevRef.current = new Set(prev);
       if (adding) next.add(providerId);
       else next.delete(providerId);
       saveFavoritesLocal(profileId, next);
-
-      // Sync to Supabase (fire-and-forget — but log errors loud, was
-      // a silent .then(() => {}) which would have hidden any schema or
-      // RLS drift exactly like the favourites code did with sleep/water).
-      if (isReal) {
-        if (adding) {
-          supabase.from("favourites").upsert(
-            { profile_id: profileId, provider_id: providerId },
-            { onConflict: "profile_id,provider_id" },
-          ).then(({ error }) => { if (error) console.error("[favorites] add failed:", error.message); });
-        } else {
-          supabase.from("favourites")
-            .delete()
-            .eq("profile_id", profileId)
-            .eq("provider_id", providerId)
-            .then(({ error }) => { if (error) console.error("[favorites] remove failed:", error.message); });
-        }
-      }
+      syncToSupabase(providerId, adding ? "add" : "remove");
       return next;
     });
-  }, [profileId, isReal]);
+  }, [profileId, isReal, syncToSupabase]);
 
   const add = useCallback((providerId: string) => {
     setFavorites(prev => {
+      if (prev.has(providerId)) return prev; // already a favorite
+      prevRef.current = new Set(prev);
       const next = new Set(prev);
       next.add(providerId);
       saveFavoritesLocal(profileId, next);
-      if (isReal) {
-        supabase.from("favourites").upsert(
-          { profile_id: profileId, provider_id: providerId },
-          { onConflict: "profile_id,provider_id" },
-        ).then(({ error }) => { if (error) console.error("[favorites] add failed:", error.message); });
-      }
+      syncToSupabase(providerId, "add");
       return next;
     });
-  }, [profileId, isReal]);
+  }, [profileId, isReal, syncToSupabase]);
 
   const remove = useCallback((providerId: string) => {
     setFavorites(prev => {
+      if (!prev.has(providerId)) return prev; // not a favorite
+      prevRef.current = new Set(prev);
       const next = new Set(prev);
       next.delete(providerId);
       saveFavoritesLocal(profileId, next);
-      if (isReal) {
-        supabase.from("favourites")
-          .delete()
-          .eq("profile_id", profileId)
-          .eq("provider_id", providerId)
-          .then(({ error }) => { if (error) console.error("[favorites] remove failed:", error.message); });
-      }
+      syncToSupabase(providerId, "remove");
       return next;
     });
-  }, [profileId, isReal]);
+  }, [profileId, isReal, syncToSupabase]);
 
   const isFavorite = useCallback((providerId: string) => favorites.has(providerId), [favorites]);
 

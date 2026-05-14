@@ -57,6 +57,10 @@ export default function BankConnectSection() {
       try {
         const h = await authHeaders();
         const res = await fetch(`${API}/api/paystack/provider/bank-details`, { headers: h });
+        if (!res.ok) {
+          console.warn('[BankConnect] bank-details returned', res.status);
+          return;
+        }
         const j = await res.json();
         if (j.ok && j.data) setLinked(j.data as LinkedBank);
       } catch {
@@ -72,7 +76,10 @@ export default function BankConnectSection() {
     if (!editing || banks.length) return;
     setBanksLoading(true);
     fetch(`${API}/api/paystack/banks`)
-      .then(r => r.json())
+      .then(async r => {
+        if (!r.ok) throw new Error('banks returned ' + r.status);
+        return r.json();
+      })
       .then(j => { if (j.ok && Array.isArray(j.data)) setBanks(j.data); })
       .catch(() => toast.error("Couldn't load bank list — try again shortly"))
       .finally(() => setBanksLoading(false));
@@ -90,6 +97,10 @@ export default function BankConnectSection() {
         const h = await authHeaders();
         const qs = `?account_number=${encodeURIComponent(accountNumber)}&bank_code=${encodeURIComponent(bankCode)}`;
         const res = await fetch(`${API}/api/paystack/resolve-account${qs}`, { headers: h });
+        if (!res.ok) {
+          if (!cancelled) setResolveError(`Server error (${res.status})`);
+          return;
+        }
         const j = await res.json();
         if (cancelled) return;
         if (j.ok && j.data?.account_name) {

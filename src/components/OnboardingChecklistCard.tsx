@@ -249,7 +249,7 @@ async function fetchSignals(role: ChecklistRole, profileId: string, authUserId?:
             agreementAccepted = Boolean(body.accepted);
           }
         }
-      } catch { /* non-fatal — fall back to false */ }
+      } catch (err) { console.warn("[onboarding-checklist] fetch failed (card stays hidden):", err); }
 
       let attributedCount = 0;
       try {

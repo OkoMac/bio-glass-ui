@@ -220,6 +220,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const res = await fetch(`${API}/api/account/roles`, {
           headers: { Authorization: `Bearer ${session.access_token}` },
         });
+        if (!res.ok) {
+          console.warn('[auth] roles fetch failed:', res.status);
+          setAvailableRoles([user.role]);
+          return;
+        }
         const json = await res.json();
         if (json.ok && Array.isArray(json.roles)) {
           setAvailableRoles(json.roles as UserRole[]);
@@ -243,7 +248,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     removeUser();
     setUser(null);
-    signOutSupabase().catch(() => {});
+    signOutSupabase().catch((err) => {
+      console.warn("[auth] signOutSupabase failed (non-fatal, will re-auth on next visit):", err);
+    });
     // Full reload clears all in-memory state (contexts, caches)
     window.location.replace("/");
   }, []);

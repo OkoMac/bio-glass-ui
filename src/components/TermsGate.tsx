@@ -46,7 +46,10 @@ export default function TermsGate({ children }: TermsGateProps) {
     if (cached) {
       // Verify it's still the current version by checking /api/terms/current
       fetch(`${API}/api/terms/current`)
-        .then(r => r.json())
+        .then(async r => {
+          if (!r.ok) throw new Error('terms/current returned ' + r.status);
+          return r.json();
+        })
         .then(data => {
           if (data.ok && data.version === cached) {
             setAccepted(true);
@@ -88,6 +91,13 @@ export default function TermsGate({ children }: TermsGateProps) {
       const res = await fetch(`${API}/api/terms/check`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (!res.ok) {
+        console.warn('[TermsGate] check failed:', res.status);
+        // Allow through on error
+        setAccepted(true);
+        setChecked(true);
+        return;
+      }
       const data = await res.json();
 
       if (data.ok) {
@@ -129,6 +139,13 @@ export default function TermsGate({ children }: TermsGateProps) {
         },
         body: JSON.stringify({ version: currentVersion }),
       });
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        console.warn('[TermsGate] accept failed:', res.status, text);
+        setError(`Server error (${res.status}). Please try again.`);
+        setAccepting(false);
+        return;
+      }
       const data = await res.json();
 
       if (data.ok) {

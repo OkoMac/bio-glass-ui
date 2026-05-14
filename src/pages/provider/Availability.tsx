@@ -212,7 +212,12 @@ export default function ProviderAvailability() {
         label,
         is_available: false,
       }, { onConflict: "provider_id,date" }).then(({ error }) => {
-        if (error) console.error("[availability] add-exception failed:", error.message);
+        if (error) {
+          console.error("[availability] add-exception failed:", error.message);
+          // Rollback — remove the optimistically added exception
+          setLocalExceptions(e => e.filter(x => x.date !== newExDate));
+          toast.error("Couldn't block date", { description: error.message });
+        }
       });
     }
     setNewExDate("");
@@ -232,7 +237,12 @@ export default function ProviderAvailability() {
         .eq("provider_id", supabaseId)
         .eq("date", ex.date)
         .then(({ error }) => {
-          if (error) console.error("[availability] remove-exception failed:", error.message);
+          if (error) {
+            console.error("[availability] remove-exception failed:", error.message);
+            // Rollback — re-add the exception
+            setLocalExceptions(e => [...e, ex]);
+            toast.error("Couldn't unblock date", { description: error.message });
+          }
         });
     }
   };

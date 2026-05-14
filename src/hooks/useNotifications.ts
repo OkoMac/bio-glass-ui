@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -68,14 +69,36 @@ export function useNotifications() {
   const markAsRead = async (id: string) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
     const { error } = await supabase.from("notifications").update({ read: true }).eq("id", id);
-    if (error) console.error("[notifications] markAsRead failed:", error.message);
+    if (error) {
+      console.error("[notifications] markAsRead failed:", error.message);
+      // Rollback optimistic update
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: false } : n));
+      toast({
+        variant: "destructive",
+        title: "Couldn't mark as read",
+        description: error.message,
+      });
+    }
   };
 
   const markAllAsRead = async () => {
     if (!profileId || profileId.startsWith("demo_")) return;
+    const prevState = notifications.map(n => ({ id: n.id, read: n.read }));
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     const { error } = await supabase.from("notifications").update({ read: true }).eq("user_id", profileId).eq("read", false);
-    if (error) console.error("[notifications] markAllAsRead failed:", error.message);
+    if (error) {
+      console.error("[notifications] markAllAsRead failed:", error.message);
+      // Rollback optimistic update
+      setNotifications(prev => prev.map(n => {
+        const orig = prevState.find(p => p.id === n.id);
+        return orig ? { ...n, read: orig.read } : n;
+      }));
+      toast({
+        variant: "destructive",
+        title: "Couldn't mark all as read",
+        description: error.message,
+      });
+    }
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;

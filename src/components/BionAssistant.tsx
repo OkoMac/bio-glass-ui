@@ -378,6 +378,10 @@ export default function BionAssistant() {
         }),
         signal: ctrl.signal,
       });
+      if (!res.ok) {
+        console.warn('[B_] chat API returned', res.status);
+        throw new Error(`API returned ${res.status}`);
+      }
       const result = await res.json();
       const replyText = (typeof result?.reply === "string" && result.reply.trim())
         ? result.reply
@@ -873,6 +877,11 @@ export default function BionAssistant() {
                           body: transcript + humanReason,
                         }),
                       });
+                      if (!res.ok) {
+                        const text = await res.text().catch(() => '');
+                        console.warn('[B_] ticket API returned', res.status, text);
+                        throw new Error(`Server error (${res.status})`);
+                      }
                       const j = await res.json();
                       if (!j.ok) throw new Error(j.error ?? "Failed to raise ticket");
 

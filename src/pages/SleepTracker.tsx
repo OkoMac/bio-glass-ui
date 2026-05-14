@@ -5,6 +5,7 @@ import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import { trackEvent } from "@/lib/habits";
 import BionAssistant from "@/components/BionAssistant";
+import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePageView } from "@/hooks/usePageView";
 import AdBanner from "@/components/AdBanner";
@@ -224,7 +225,14 @@ export default function SleepTracker() {
       } as any, { onConflict: "user_id,log_date" }).then(({ error }) => {
         // Loud — silent dev-only logging is what hid the date / log_date
         // column mismatch in prod for weeks. Any future drift surfaces.
-        if (error) console.error("[sleep] DB sync failed:", error.message);
+        if (error) {
+          console.error("[sleep] DB sync failed:", error.message);
+          toast({
+            variant: "destructive",
+            title: "Sleep not saved",
+            description: error.message,
+          });
+        }
       });
     }
   };
