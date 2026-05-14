@@ -55,7 +55,7 @@ export default function BionPointsRedeemCard({ bookingId, bookingTotalRand, onAp
       .select("points")
       .eq("user_id", profileId)
       .eq("class", "A")
-      .then(({ data }) => {
+      .then(({ data }: any) => {
         if (cancelled) return;
         const total = (data ?? []).reduce(
           (s: number, r: { points: number }) => s + (r.points ?? 0),

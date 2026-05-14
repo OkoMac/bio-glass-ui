@@ -5,7 +5,6 @@ import GlassCard from "@/components/GlassCard";
 import BottomNav from "@/components/BottomNav";
 import { trackEvent } from "@/lib/habits";
 import BionAssistant from "@/components/BionAssistant";
-import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePageView } from "@/hooks/usePageView";
 import AdBanner from "@/components/AdBanner";
@@ -119,7 +118,7 @@ export default function SleepTracker() {
       .eq("user_id", user.profileId)
       .gte("log_date", since.toISOString().slice(0, 10))
       .order("log_date", { ascending: true })
-      .then(({ data: rows, error }) => {
+      .then(({ data: rows, error }: any) => {
         if (error || !rows?.length) return;
         const byDate = new Map<string, SleepEntry>();
         for (const e of getEntries()) byDate.set(e.date, e);
@@ -222,15 +221,13 @@ export default function SleepTracker() {
         log_date: entryDate,
         sleep_hours: duration,
         notes: `Quality: ${quality}/5, Bed: ${bedtime}, Wake: ${wakeTime}`,
-      } as any, { onConflict: "user_id,log_date" }).then(({ error }) => {
+      } as any, { onConflict: "user_id,log_date" }).then(({ error }: any) => {
         // Loud — silent dev-only logging is what hid the date / log_date
         // column mismatch in prod for weeks. Any future drift surfaces.
         if (error) {
           console.error("[sleep] DB sync failed:", error.message);
-          toast({
-            variant: "destructive",
-            title: "Sleep not saved",
-            description: error.message,
+          toast.error(error.message, {
+            description: "Sleep data not synced to server",
           });
         }
       });

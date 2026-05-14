@@ -46,7 +46,7 @@ export default function AdminClients() {
         return;
       }
 
-      const clientUserIds = roleData.map(r => r.user_id);
+      const clientUserIds = roleData.map((r: any) => r.user_id);
 
       const { data: profileData } = await withTimeout(
         () => supabase.from("profiles").select("id, user_id, full_name, email, location, is_active, created_at").in("user_id", clientUserIds).order("created_at", { ascending: false }),
@@ -54,7 +54,7 @@ export default function AdminClients() {
         { data: null } as any,
       );
 
-      const mapped: AdminClient[] = (profileData ?? []).map(p => ({
+      const mapped: AdminClient[] = (profileData ?? []).map((p: any) => ({
         id: p.id ?? p.user_id,
         name: p.full_name || "Unknown",
         email: p.email || "",

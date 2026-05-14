@@ -48,13 +48,13 @@ export function useNotifications() {
       .channel(`notifications-${profileId}`)
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${profileId}` },
-        (payload) => {
+        (payload: any) => {
           setNotifications(prev => [payload.new as DbNotification, ...prev]);
         }
       )
       .on("postgres_changes",
         { event: "UPDATE", schema: "public", table: "notifications", filter: `user_id=eq.${profileId}` },
-        (payload) => {
+        (payload: any) => {
           const updated = payload.new as DbNotification;
           setNotifications(prev =>
             prev.map(n => n.id === updated.id ? updated : n),

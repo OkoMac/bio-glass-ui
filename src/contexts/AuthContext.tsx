@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const timeout = setTimeout(finish, 5000);
 
     // Check for an existing session on mount
-    supabase.auth.getSession().then(async ({ data: { session: sbSession } }) => {
+    supabase.auth.getSession().then(async ({ data: { session: sbSession } }: any) => {
       if (!mounted) return;
       if (sbSession?.user) {
         setSession(sbSession);
@@ -115,7 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }).catch(() => finish());
 
     // Listen to future auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, sbSession) => {
+    const { data: { subscription } } =    supabase.auth.onAuthStateChange(async (event: any, sbSession: any) => {
       if (!mounted) return;
       // Password recovery: Supabase fires PASSWORD_RECOVERY when a user clicks
       // a recovery email link. We must navigate them to /reset-password so they
@@ -148,7 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // Increment login count for Layer 3 deeper dive (SIGNED_IN only, not token refresh)
             if (event === "SIGNED_IN" && profile?.profileId) {
               supabase.from("profiles").select("login_count").eq("id", profile.profileId).maybeSingle()
-                .then(({ data }) => {
+                .then(({ data }: any) => {
                   const count = ((data?.login_count as number) ?? 0) + 1;
                   supabase.from("profiles").update({ login_count: count, last_login_at: new Date().toISOString() } as any)
                     .eq("id", profile.profileId).catch(() => {});

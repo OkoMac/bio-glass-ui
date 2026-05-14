@@ -45,7 +45,7 @@ export function useFavorites() {
     supabase.from("favourites")
       .select("provider_id")
       .eq("profile_id", profileId)
-      .then(({ data, error }) => {
+      .then(({ data, error }: any) => {
         if (error) { console.error("[favorites] load failed:", error.message); return; }
         if (!data || data.length === 0) return;
         const merged = new Set(local);

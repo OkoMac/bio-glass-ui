@@ -194,7 +194,7 @@ export default function HealthProfile() {
         .eq("client_id", user.profileId!)
         .eq("status", "completed")
         .limit(20)
-        .then(({ data }) => {
+        .then(({ data }: any) => {
           if (!data) return;
           const seen = new Set<string>();
           const providers = (data as any[]).filter(b => {
@@ -233,7 +233,7 @@ export default function HealthProfile() {
     if (!isReal || !profileId) return;
     import("@/integrations/supabase/client").then(({ supabase }) => {
       supabase.from("health_profiles").select("conditions, allergies, medications, goals")
-        .eq("user_id", profileId).maybeSingle().then(({ data }) => {
+        .eq("user_id", profileId).maybeSingle().then(({ data }: any) => {
           if (!data) return;
           if (data.conditions && Array.isArray(data.conditions) && data.conditions.length > 0) setConditions(data.conditions);
           if (data.allergies && Array.isArray(data.allergies) && data.allergies.length > 0) setAllergies(data.allergies);

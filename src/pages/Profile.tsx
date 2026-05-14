@@ -745,7 +745,7 @@ const Profile = () => {
                     onBlur={e => {
                       const result = validateSaPhone(e.target.value);
                       if (result.valid && result.display) {
-                        setEditForm(prev => ({ ...prev, phone: result.display! }));
+                        setEditForm((prev: any) => ({ ...prev, phone: result.display! }));
                       }
                     }}
                     placeholder="082 123 4567"

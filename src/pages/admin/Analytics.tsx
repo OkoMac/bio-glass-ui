@@ -82,8 +82,8 @@ export default function AdminAnalytics() {
       setBookingCount(bookings.length);
 
       // Calculate GMV from completed bookings
-      const completedBookings = bookings.filter(b => b.status === "completed");
-      const gmv = completedBookings.reduce((sum, b) => sum + (Number(b.total_price) || 0), 0);
+      const completedBookings = bookings.filter((b: any) => b.status === "completed");
+      const gmv = completedBookings.reduce((sum: any, b: any) => sum + (Number(b.total_price) || 0), 0);
       setTotalGmv(gmv);
       setAvgSessionVal(completedBookings.length > 0 ? Math.round(gmv / completedBookings.length) : 0);
 

@@ -525,7 +525,7 @@ export default function Routines() {
     setRoutines((ownRoutines as any[]).map((r: any) => {
       if (r.id !== routineId) return r;
       const shared = r.sharedWith.includes(providerId)
-        ? r.sharedWith.filter(id => id !== providerId)
+        ? r.sharedWith.filter((id: any) => id !== providerId)
         : [...r.sharedWith, providerId];
       return { ...r, sharedWith: shared };
     }));

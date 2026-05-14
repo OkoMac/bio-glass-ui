@@ -60,15 +60,15 @@ export function useMyOrders() {
 
     if (error || !orderRows) { setLoading(false); return; }
 
-    const providerIds = [...new Set(orderRows.map((o) => o.provider_id))];
+    const providerIds = [...new Set(orderRows.map((o: any) => o.provider_id))];
     const { data: providers } = await supabase
       .from("profiles")
       .select("id, full_name")
       .in("id", providerIds);
-    const nameMap = new Map(providers?.map((p) => [p.id, p.full_name]) ?? []);
+    const nameMap = new Map(providers?.map((p: any) => [p.id, p.full_name]) ?? []);
 
     setOrders(
-      orderRows.map((o) => ({
+      orderRows.map((o: any) => ({
         ...o,
         provider_name: nameMap.get(o.provider_id) ?? null,
         items: (o.order_items ?? []) as OrderItemRow[],

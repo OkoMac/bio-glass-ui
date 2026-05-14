@@ -347,7 +347,7 @@ export function useProviderOpenDisputes() {
     const { data, error } = await supabase
       .from("order_disputes")
       .select("*")
-      .in("order_id", orderIds.map(o => o.id))
+          .in("order_id", orderIds.map((o: any) => o.id))
       .is("resolved_at", null)
       .order("created_at", { ascending: false });
 

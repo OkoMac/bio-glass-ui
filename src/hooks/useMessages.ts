@@ -85,7 +85,7 @@ export function useMessages(partnerId: string | null) {
     // Realtime: listen for new messages in this conversation
     const channel = supabase
       .channel(`messages-${profileId}-${partnerId}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (payload) => {
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (payload: any) => {
         const msg = payload.new as SupaMsg;
         // RLS already limits events to this user; just filter by partner
         const isRelevant =
@@ -117,7 +117,7 @@ export function useMessages(partnerId: string | null) {
           supabase.from("messages").update({ is_read: true }).eq("id", msg.id);
         }
       })
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages" }, (payload) => {
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages" }, (payload: any) => {
         const updated = payload.new as SupaMsg;
         const isRelevant =
           updated.sender_id === partnerId || updated.receiver_id === partnerId;

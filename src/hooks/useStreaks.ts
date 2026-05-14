@@ -56,7 +56,7 @@ export function useStreaks(streakType: string = "booking"): { streak: Streak; lo
       .eq("user_id", profileId)
       .eq("streak_type", streakType)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(({ data }: any) => {
         if (cancelled) return;
         if (data) {
           const row = data as Record<string, unknown>;

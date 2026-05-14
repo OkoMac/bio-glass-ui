@@ -30,9 +30,9 @@ export function useBioPoints() {
       .select("*")
       .eq("user_id", profileId)
       .order("created_at", { ascending: false })
-      .then(({ data, error }) => {
+      .then(({ data, error }: any) => {
         if (!error && data) {
-          const entries: BioPointsEntry[] = data.map(r => ({
+          const entries: BioPointsEntry[] = data.map((r: any) => ({
             id: r.id, points: r.points, reason: r.reason,
             sourceType: r.source_type, createdAt: r.created_at,
           }));

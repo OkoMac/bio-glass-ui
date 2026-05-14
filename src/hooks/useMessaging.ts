@@ -135,7 +135,7 @@ export function useConversations() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "messages" },
-        (payload) => {
+        (payload: any) => {
           const row = (payload.new ?? payload.old) as SupaMsgRow | null;
           if (!row) return;
           // RLS already restricts to rows we can see, but double-check so we
@@ -230,7 +230,7 @@ export function useConversation(conversationId: string | null) {
           table: "messages",
           filter: `conversation_id=eq.${conversationId}`,
         },
-        (payload) => {
+        (payload: any) => {
           const msg = mapMsg(payload.new as SupaMsgRow);
           if (knownIdsRef.current.has(msg.id)) return;
           knownIdsRef.current.add(msg.id);
@@ -245,7 +245,7 @@ export function useConversation(conversationId: string | null) {
           table: "messages",
           filter: `conversation_id=eq.${conversationId}`,
         },
-        (payload) => {
+        (payload: any) => {
           const updated = mapMsg(payload.new as SupaMsgRow);
           setMessages(prev =>
             prev.map(m => (m.id === updated.id ? { ...m, ...updated } : m)),

@@ -58,7 +58,7 @@ export function useWallet() {
       .channel(`wallet-${profileId}`)
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "wallet_transactions", filter: `user_id=eq.${profileId}` },
-        (payload) => {
+        (payload: any) => {
           const t = payload.new as WalletTransaction;
           setTransactions(prev => [t, ...prev]);
           setBalance(prev => prev + Number(t.amount_rand));

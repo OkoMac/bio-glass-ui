@@ -101,7 +101,7 @@ export default function AdminDashboard() {
         created_at: p.created_at,
       }));
       setPendingProviders(list);
-      setApprovals(Object.fromEntries(list.map(p => [p.id, null])));
+      setApprovals(Object.fromEntries(list.map((p: any) => [p.id, null])));
     } catch (err) {
       if (import.meta.env.DEV) console.error("Failed to load pending providers:", err);
     } finally {

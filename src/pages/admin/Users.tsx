@@ -102,11 +102,11 @@ export default function AdminUsers() {
       }
 
       const roleMap: Record<string, UserRole> = {};
-      roleData.forEach(r => {
+      roleData.forEach((r: any) => {
         roleMap[r.user_id] = r.role as UserRole;
       });
 
-      const userIds = roleData.map(r => r.user_id);
+      const userIds = roleData.map((r: any) => r.user_id);
 
       const { data: profileData } = await withTimeout(
         () => supabase.from("profiles").select("id, user_id, full_name, email, is_active, created_at").in("user_id", userIds).order("created_at", { ascending: false }),
@@ -114,7 +114,7 @@ export default function AdminUsers() {
         { data: null } as any,
       );
 
-      const mapped: PlatformUser[] = (profileData ?? []).map(p => {
+      const mapped: PlatformUser[] = (profileData ?? []).map((p: any) => {
         const role = roleMap[p.user_id] || "client";
         return {
           id: p.id ?? p.user_id,

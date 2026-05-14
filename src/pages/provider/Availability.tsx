@@ -113,7 +113,7 @@ export default function ProviderAvailability() {
       .eq("provider_id", supabaseId)
       .gte("date", getSASTDateKey())
       .order("date", { ascending: true })
-      .then(({ data: overrides }) => {
+      .then(({ data: overrides }: any) => {
         if (overrides && (overrides as any[]).length > 0) {
           setLocalExceptions((overrides as any[]).map((o: any) => ({ date: o.date, label: o.label ?? "Blocked" })));
         }
@@ -211,7 +211,7 @@ export default function ProviderAvailability() {
         date: newExDate,
         label,
         is_available: false,
-      }, { onConflict: "provider_id,date" }).then(({ error }) => {
+      }, { onConflict: "provider_id,date" }).then(({ error }: any) => {
         if (error) {
           console.error("[availability] add-exception failed:", error.message);
           // Rollback — remove the optimistically added exception
@@ -236,7 +236,7 @@ export default function ProviderAvailability() {
         .delete()
         .eq("provider_id", supabaseId)
         .eq("date", ex.date)
-        .then(({ error }) => {
+        .then(({ error }: any) => {
           if (error) {
             console.error("[availability] remove-exception failed:", error.message);
             // Rollback — re-add the exception

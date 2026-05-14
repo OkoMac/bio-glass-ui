@@ -189,7 +189,7 @@ export default function WaterTracker() {
         .eq("user_id", user.profileId)
         .gte("date", days[0])
         .lte("date", days[6])
-        .then(({ data: rows, error }) => {
+        .then(({ data: rows, error }: any) => {
           if (error || !rows) { setHistory(fromLocal()); return; }
           const byDate = new Map<string, number>();
           for (const r of rows as any[]) byDate.set(r.date, r.count ?? 0);
@@ -265,7 +265,7 @@ export default function WaterTracker() {
     if (user?.profileId && !user.id?.startsWith("demo_") && data.glasses > 0) {
       const payload = { user_id: user.profileId, date: dateKey, count: data.glasses };
       supabase.from("water_log" as any).upsert(payload as any, { onConflict: "user_id,date" })
-        .then(({ error }) => {
+        .then(({ error }: any) => {
           if (error) {
             // Loud — silent console.error was hiding RLS/schema-drift failures
             // for users. Reported Lee Grant 2026-05-14: "I've logged water no

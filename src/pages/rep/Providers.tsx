@@ -60,7 +60,7 @@ export default function RepProviders() {
 
   const totalCommission = filtered
     .filter(p => p.status === "active")
-    .reduce((sum, p) => sum + p.monthlyCommission, 0);
+    .reduce((sum, p) => sum + (p.monthlyCommission ?? 0), 0);
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow">
@@ -171,11 +171,11 @@ export default function RepProviders() {
                       <div className="flex items-center gap-4 mt-2.5 pt-2 border-t border-white/5">
                         <div>
                           <p className="text-[10px] text-muted-foreground">Monthly Revenue</p>
-                          <p className="text-xs font-semibold text-foreground">R{p.monthlyRevenue.toLocaleString()}</p>
+                          <p className="text-xs font-semibold text-foreground">R{p.monthlyRevenue?.toLocaleString() ?? "0"}</p>
                         </div>
                         <div>
                           <p className="text-[10px] text-muted-foreground">Your Commission</p>
-                          <p className="text-xs font-semibold text-emerald-400">R{p.monthlyCommission.toLocaleString()}</p>
+                          <p className="text-xs font-semibold text-emerald-400">R{p.monthlyCommission?.toLocaleString() ?? "0"}</p>
                         </div>
                         <div className="ml-auto">
                           <p className="text-[10px] text-muted-foreground">Signed</p>

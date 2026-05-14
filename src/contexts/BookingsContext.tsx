@@ -202,7 +202,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
     // Live updates via Supabase Realtime
     const channel = supabase
       .channel(`bookings-${user.id}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, (payload) => {
+      .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, (payload: any) => {
         if (payload.eventType === "INSERT") {
           setBookings(prev => [...prev, mapRow(payload.new as unknown as SupaRow)]);
         } else if (payload.eventType === "UPDATE") {
@@ -412,7 +412,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
     }
 
     if (user?.profileId && !user.id?.startsWith("demo_")) {
-      supabase.from("profiles").select("phone").eq("id", user.profileId).maybeSingle().then(({ data }) => {
+      supabase.from("profiles").select("phone").eq("id", user.profileId).maybeSingle().then(({ data }: any) => {
         const phone = (data as any)?.phone?.replace(/[\s\-()]/g, "");
         if (phone) {
           authFetch(`/api/whatsapp/booking-confirmation`, {

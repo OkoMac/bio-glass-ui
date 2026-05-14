@@ -193,7 +193,7 @@ export function useFoodSync() {
         time: entry.time,
         photo_url: entry.photo,
         date: entry.date,
-      } as any).then(({ error }) => {
+      } as any).then(({ error }: any) => {
         if (error) {
           // Loud both ways — console for diagnosis, toast so the user knows
           // their meal didn't reach the server (reported "no history on food
@@ -214,7 +214,7 @@ export function useFoodSync() {
     safeSetEntries(updated);
 
     if (supabaseId) {
-      supabase.from("food_entries" as any).delete().eq("id", id).then(({ error }) => {
+      supabase.from("food_entries" as any).delete().eq("id", id).then(({ error }: any) => {
         if (error) {
           console.error("[food] delete failed:", { code: error.code, message: error.message });
           toast.error(`Couldn't delete meal: ${error.message}`, { duration: 5000 });
@@ -231,7 +231,7 @@ export function useFoodSync() {
       supabase.from("daily_goals" as any).upsert({
         user_id: supabaseId,
         ...g,
-      } as any, { onConflict: "user_id" }).then(({ error }) => {
+      } as any, { onConflict: "user_id" }).then(({ error }: any) => {
         if (error) {
           console.error("[food] goals save failed:", { code: error.code, message: error.message });
           toast.error(`Couldn't save goals: ${error.message}`, { duration: 5000 });
