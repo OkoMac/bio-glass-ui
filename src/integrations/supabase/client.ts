@@ -110,7 +110,16 @@ const _supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,
  * Proxy that casts from() as `any` to work around the Postgrest v14.1
  * type-narrowing limitation in supabase-js@2.105 — `.eq("column_name")`
  * fails for columns that aren't in the intersection of all primary keys.
- * Keeps `.auth`, `.rpc`, etc. fully typed — only `.from()` is affected.
+ *
+ * TODO: the trailing `as any` on the Proxy means every `.from(...)` query
+ * loses type checking entirely — not just the narrowing case the proxy
+ * was meant to handle. The comment ("Keeps `.auth`, `.rpc`, etc. fully
+ * typed — only `.from()` is affected") is misleading: as exported, the
+ * whole supabase variable is `any`. Untangle by typing this as
+ * `Omit<typeof _supabase, "from"> & { from: (relation: string) => any }`
+ * once you can fix the cascading errors that re-surface. Track the
+ * upstream narrowing bug in postgrest-js and remove the workaround
+ * entirely when supabase-js is upgraded past the fix.
  */
 export const supabase = new Proxy(_supabase, {
   get(target, prop) {
