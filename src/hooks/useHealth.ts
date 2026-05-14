@@ -62,13 +62,21 @@ export function useHealthLogs(days = 30) {
   const logToday = useCallback(async (entry: Partial<Omit<HealthLog, "id" | "user_id" | "log_date">>) => {
     if (!user?.profileId) throw new Error("Not signed in");
     const today = getSASTDateKey();
+    const payload = { user_id: user.profileId, log_date: today, ...entry };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from("health_logs") as any)
-      .upsert(
-        { user_id: user.profileId, log_date: today, ...entry },
-        { onConflict: "user_id,log_date" }
-      );
-    if (error) throw error;
+      .upsert(payload, { onConflict: "user_id,log_date" });
+    if (error) {
+      // Loud — silent failures here were the reason "I've logged metrics many
+      // times but the checklist still says not done" (Lee Grant 2026-05-14).
+      // Surface the full PG error code + message so RLS / column drift /
+      // missing-constraint issues show up in the console + Sentry.
+      console.error("[health_logs] upsert failed:", {
+        code: error.code, message: error.message, details: error.details,
+        hint: error.hint, payload,
+      });
+      throw error;
+    }
     await refresh();
   }, [user?.profileId, refresh]);
 

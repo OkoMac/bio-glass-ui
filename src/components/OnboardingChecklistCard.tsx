@@ -322,6 +322,25 @@ export default function OnboardingChecklistCard({ role, className }: OnboardingC
     return () => { cancelled = true; };
   }, [role, profileId, user?.id]);
 
+  // Refetch on window focus so when the user comes back from /settings,
+  // /health-profile, etc., the checklist picks up newly-completed items.
+  // Reported Lee Grant 2026-05-14: "I've logged metrics many times. Still
+  // not showing." The 60s cache + no focus-refetch meant the user could
+  // come back to home within a minute of logging and see the same stale
+  // state.
+  useEffect(() => {
+    if (!profileId || profileId.startsWith("demo_")) return;
+    const onFocus = () => {
+      cacheRef.current = null;
+      fetchSignals(role, profileId, user?.id).then(data => {
+        cacheRef.current = { at: Date.now(), role, profileId, data };
+        setSignals(data);
+      });
+    };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [role, profileId, user?.id]);
+
   const items: ChecklistItem[] = useMemo(() => {
     if (!signals) return [];
     if (role === "client")     return buildClientItems(signals, push);
