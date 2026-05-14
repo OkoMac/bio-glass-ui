@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Bell, CreditCard, Eye, User, ChevronLeft, Save, Check,
   Mail, Shield, Trash2, Plus, Loader2, Download,
-  AlertTriangle, FileText, X, Cookie, ArrowRight,
+  AlertTriangle, FileText, X, Cookie, ArrowRight, Gift, Share2, Copy,
 } from "lucide-react";
 import { openCookieBanner } from "@/components/CookieConsent";
 import NotificationSettings from "@/components/NotificationSettings";
@@ -612,6 +612,98 @@ function BionIdCard({ userBionId }: { userBionId?: string }) {
   );
 }
 
+// ── Referral code card — shows your code + share buttons ──────────
+function ReferralCodeCard() {
+  const { session } = useAuth();
+  const [code, setCode] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const token = (session as any)?.access_token;
+        if (!token) { setLoading(false); return; }
+        const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+        const res = await fetch(`${API}/api/referrals/my-code`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const json = await res.json();
+        if (json.ok) setCode(json.data.code);
+      } catch { /* ignore */ }
+      setLoading(false);
+    })();
+  }, []);
+
+  const copyCode = () => {
+    if (!code) return;
+    navigator.clipboard.writeText(code).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const shareWhatsApp = () => {
+    if (!code) return;
+    const link = `https://bionhealth.co.za?ref=${code}`;
+    window.open(
+      `https://wa.me/?text=${encodeURIComponent(`Join BION Health and get R25 welcome bonus! Use my code: ${code}\n${link}`)}`,
+      "_blank"
+    );
+  };
+
+  const shareLink = `https://bionhealth.co.za?ref=${code ?? ""}`;
+
+  if (loading) return null;
+
+  return (
+    <GlassCard className="p-5 space-y-4">
+      <div className="flex items-center gap-2">
+        <Gift className="w-4 h-4 text-amber" />
+        <h2 className="text-sm font-semibold text-foreground">Referral Code</h2>
+      </div>
+
+      <p className="text-[11px] text-muted-foreground leading-relaxed">
+        Share your code — when someone signs up and books, you both get R50 in your wallet.
+      </p>
+
+      {code ? (
+        <>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 px-3 py-3 rounded-xl glass-1 text-center">
+              <span className="text-lg font-mono font-bold text-foreground tracking-wider">{code}</span>
+            </div>
+            <button
+              onClick={copyCode}
+              className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                copied ? "bg-teal/20 text-teal" : "glass-2 text-foreground hover:bg-white/[0.06]"
+              }`}
+             aria-label="Copy code" title="Copy code">
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={shareWhatsApp}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#25D366]/15 text-[#25D366] text-xs font-semibold hover:bg-[#25D366]/25 transition-colors"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              Share on WhatsApp
+            </button>
+          </div>
+
+          <div className="p-2.5 rounded-xl glass-1 border border-white/5">
+            <p className="text-[10px] text-muted-foreground">Referral link</p>
+            <p className="text-xs font-mono text-foreground truncate mt-0.5">{shareLink}</p>
+          </div>
+        </>
+      ) : (
+        <p className="text-xs text-muted-foreground">Could not load your referral code.</p>
+      )}
+    </GlassCard>
+  );
+}
+
 const TABS: { id: Tab; label: string; icon: typeof Bell }[] = [
   { id: "notifications", label: "Alerts",   icon: Bell       },
   { id: "payment",       label: "Payment",  icon: CreditCard },
@@ -1192,6 +1284,9 @@ export default function Settings() {
                 <ChevronLeft className="w-4 h-4 rotate-180 text-muted-foreground" />
               </button>
             </GlassCard>
+
+            {/* Referral code */}
+            <ReferralCodeCard />
 
             {/* Role switcher — shown only when user has multiple roles */}
             {availableRoles.length > 1 && (
