@@ -322,7 +322,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Lets the Profile.tsx edit modal save several fields in one round-trip
   // and have them all persist to profiles. localStorage is hot cache.
   const updateProfileFields = useCallback(async (fields: { bio?: string; phone?: string; location?: string; name?: string }) => {
-    if (!user) return;
+    if (!user) throw new Error("Not signed in");
     const previous = { bio: user.bio, phone: user.phone, location: user.location, name: user.name };
     lastLocalWriteAt.current = Date.now();
     const updated: BioUser = {
@@ -334,23 +334,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     storeUser(updated);
     setUser(updated);
-    if (user.profileId && !user.id?.startsWith("demo_")) {
-      try {
-        const dbPatch: Record<string, unknown> = {};
-        if (fields.bio !== undefined)      dbPatch.bio = fields.bio;
-        if (fields.phone !== undefined)    dbPatch.phone = fields.phone;
-        if (fields.location !== undefined) dbPatch.location = fields.location;
-        if (fields.name !== undefined)     dbPatch.full_name = fields.name;
-        if (Object.keys(dbPatch).length === 0) return;
-        const { error } = await supabase.from("profiles").update(dbPatch as any).eq("id", user.profileId);
-        if (error) throw error;
-        lastLocalWriteAt.current = Date.now();
-      } catch (err) {
-        console.error("[auth] profile fields persist failed — rolling back:", err);
-        const rolled: BioUser = { ...user, ...previous };
-        storeUser(rolled);
-        setUser(rolled);
-      }
+
+    // No DB write for demo accounts (local-only state is intentional).
+    if (user.id?.startsWith("demo_")) return;
+
+    // Guard: silent skip on missing profileId was a silent failure. Reported
+    // Lee Grant 2026-05-14: "Saved my number" but phone field stayed empty —
+    // the user had a session without profileId hydrated, so this whole
+    // block was skipped, local state updated, then next refresh reverted
+    // from the DB (which never saw the write).
+    if (!user.profileId) {
+      // Roll back local state so the input doesn't lie about being saved.
+      const rolled: BioUser = { ...user, ...previous };
+      storeUser(rolled);
+      setUser(rolled);
+      throw new Error("Profile still loading — please refresh and try again");
+    }
+
+    try {
+      const dbPatch: Record<string, unknown> = {};
+      if (fields.bio !== undefined)      dbPatch.bio = fields.bio;
+      if (fields.phone !== undefined)    dbPatch.phone = fields.phone;
+      if (fields.location !== undefined) dbPatch.location = fields.location;
+      if (fields.name !== undefined)     dbPatch.full_name = fields.name;
+      if (Object.keys(dbPatch).length === 0) return;
+      const { error } = await supabase.from("profiles").update(dbPatch as any).eq("id", user.profileId);
+      if (error) throw error;
+      lastLocalWriteAt.current = Date.now();
+    } catch (err: any) {
+      // Roll back the optimistic local update so the input doesn't show a
+      // value that didn't reach the DB.
+      const rolled: BioUser = { ...user, ...previous };
+      storeUser(rolled);
+      setUser(rolled);
+      // RE-THROW — previously this was swallowed. Settings.save() needs to
+      // see the failure so it can toast the actual Postgrest error to the
+      // user, instead of flashing a green "Saved!" on top of a silent fail.
+      console.error("[auth] profile fields persist failed — rolled back:", {
+        code: err?.code, message: err?.message, details: err?.details, hint: err?.hint,
+      });
+      throw new Error(err?.message ?? "Couldn't save profile to the server");
     }
   }, [user]);
 
