@@ -5,7 +5,7 @@ export type UserRole = "client" | "provider" | "admin" | "corporate" | "sales_re
 
 export interface BioUser {
   id?: string;          // Supabase auth user id (undefined for demo accounts)
-  profileId?: string;   // profiles.id — FK used in bookings, messages, biopoints, etc.
+  profileId?: string;   // profiles.id — FK used in bookings, messages, bionpoints, etc.
   name: string;
   email: string;
   role: UserRole;

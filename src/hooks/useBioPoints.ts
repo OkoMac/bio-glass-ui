@@ -12,7 +12,7 @@ export interface BioPointsEntry {
 
 export function useBioPoints() {
   const { user } = useAuth();
-  // biopoints.user_id references profiles.id — use profileId, not auth user id
+  // bionpoints.user_id references profiles.id — use profileId, not auth user id
   const profileId = user?.profileId;
   // Start at 0 — the previous 2450 "demo default" was being shown on /profile
   // even for brand-new users, creating a mismatch with /wallet which reads
