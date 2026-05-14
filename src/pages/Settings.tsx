@@ -708,15 +708,17 @@ export default function Settings() {
   const [name,  setName]  = useState(user?.name  ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
   const [phone, setPhone] = useState(user?.phone ?? "");
+  const [location, setLocation] = useState(user?.location ?? "");
 
   // Re-sync local form fields when the user object changes (initial profile load
   // races with the form mount — without this, the inputs stay blank even after
-  // AuthContext finishes hydrating `user.phone` from the DB).
+  // AuthContext finishes hydrating user.phone/location from the DB).
   useEffect(() => {
     setName(user?.name ?? "");
     setEmail(user?.email ?? "");
     setPhone(user?.phone ?? "");
-  }, [user?.name, user?.email, user?.phone]);
+    setLocation(user?.location ?? "");
+  }, [user?.name, user?.email, user?.phone, user?.location]);
 
   /* ── Email verification ── */
   const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
@@ -838,7 +840,7 @@ export default function Settings() {
       // table via user.profileId). Previous implementation only flashed a
       // "Saved!" toast and wrote nothing — Lee Grant 2026-05-14: "Save does
       // not work" / "Saved my number" but the phone field stayed empty.
-      await updateProfileFields({ phone, name });
+      await updateProfileFields({ phone, name, location });
       setSaved(true);
       setTimeout(() => setSaved(false), 1800);
     } catch (err) {
@@ -1140,9 +1142,10 @@ export default function Settings() {
                 <h2 className="text-sm font-semibold text-foreground">Profile Details</h2>
               </div>
               {[
-                { label: "Full Name",     value: name,  set: setName,  type: "text",  anchor: "name"     },
-                { label: "Email Address", value: email, set: setEmail, type: "email", anchor: "email"    },
-                { label: "Phone Number",  value: phone, set: setPhone, type: "tel",   anchor: "phone"    },
+                { label: "Full Name",     value: name,     set: setName,     type: "text",  anchor: "name"     },
+                { label: "Email Address", value: email,    set: setEmail,    type: "email", anchor: "email"    },
+                { label: "Phone Number",  value: phone,    set: setPhone,    type: "tel",   anchor: "phone"    },
+                { label: "Location (City, Province)", value: location, set: setLocation, type: "text", anchor: "location" },
               ].map(field => (
                 <div key={field.label} id={`profile-${field.anchor}`}>
                   <label className="text-[10px] text-muted-foreground">{field.label}</label>
