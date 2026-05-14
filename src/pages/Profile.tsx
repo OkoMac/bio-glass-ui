@@ -198,7 +198,7 @@ const Profile = () => {
       await updateCoverImage(url);
       saveProfileData({ ...profileData, cover: url });
       toast.success("Cover photo updated");
-    } catch (err: any) {
+    } catch (err: any /* TODO(types) */) {
       toast.error(err?.message ?? "Cover upload failed");
     }
   };
@@ -210,7 +210,7 @@ const Profile = () => {
       const url = await avatarUploader.upload(file);
       await updateAvatar(url);
       toast.success("Profile photo updated");
-    } catch (err: any) {
+    } catch (err: any /* TODO(types) */) {
       toast.error(err?.message ?? "Avatar upload failed");
     }
   };
@@ -745,7 +745,7 @@ const Profile = () => {
                     onBlur={e => {
                       const result = validateSaPhone(e.target.value);
                       if (result.valid && result.display) {
-                        setEditForm((prev: any) => ({ ...prev, phone: result.display! }));
+                        setEditForm((prev: any /* TODO(types) */) => ({ ...prev, phone: result.display! }));
                       }
                     }}
                     placeholder="082 123 4567"

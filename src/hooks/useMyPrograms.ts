@@ -71,7 +71,7 @@ export function useMyPrograms() {
         .select("id, full_name, avatar_url")
         .in("id", providerIds);
       const providerMap = new Map(
-        (providers ?? []).map((p: any) => [p.id as string, { name: p.full_name as string, avatar: p.avatar_url as string | null }])
+        (providers ?? []).map((p: any /* TODO(types) */) => [p.id as string, { name: p.full_name as string, avatar: p.avatar_url as string | null }])
       );
 
       setPrograms(rows.map((r): AssignedProgram => {

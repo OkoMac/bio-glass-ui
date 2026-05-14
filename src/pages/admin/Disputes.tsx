@@ -453,7 +453,7 @@ function OrderDisputesAdmin() {
     const profileIds = [...new Set(awaiting.flatMap((r) => [r.buyer_id, r.provider_id]))];
     const { data: profiles } = await supabase
       .from("profiles").select("id, full_name").in("id", profileIds);
-    const nameMap = new Map(profiles?.map((p: any) => [p.id, p.full_name]) ?? []);
+    const nameMap = new Map(profiles?.map((p: any /* TODO(types) */) => [p.id, p.full_name]) ?? []);
 
     const orderIds = awaiting.map((r) => r.order_id);
     const { data: items } = await supabase
@@ -461,7 +461,7 @@ function OrderDisputesAdmin() {
       .select("order_id, product_title_snapshot, quantity, unit_price_rand")
       .in("order_id", orderIds);
     const itemsByOrder = new Map<string, Enriched["order_items"]>();
-    items?.forEach((it: any) => {
+    items?.forEach((it: any /* TODO(types) */) => {
       const arr = itemsByOrder.get(it.order_id) ?? [];
       arr.push({
         product_title_snapshot: it.product_title_snapshot,

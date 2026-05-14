@@ -204,7 +204,7 @@ export async function openBookingDispute(
 export async function respondToBookingDispute(
   disputeId: string,
   response: string,
-): Promise<{ ok: boolean; review: any }> {
+): Promise<{ ok: boolean; review: any /* TODO(types) */ }> {
   const res = await fetch(`${API}/api/disputes/${disputeId}/respond`, {
     method: "POST",
     headers: await authHeaders(),
@@ -347,7 +347,7 @@ export function useProviderOpenDisputes() {
     const { data, error } = await supabase
       .from("order_disputes")
       .select("*")
-          .in("order_id", orderIds.map((o: any) => o.id))
+          .in("order_id", orderIds.map((o: any /* TODO(types) */) => o.id))
       .is("resolved_at", null)
       .order("created_at", { ascending: false });
 

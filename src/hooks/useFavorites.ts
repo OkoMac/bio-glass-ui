@@ -45,11 +45,11 @@ export function useFavorites() {
     supabase.from("favourites")
       .select("provider_id")
       .eq("profile_id", profileId)
-      .then(({ data, error }: any) => {
+      .then(({ data, error }: any /* TODO(types) */) => {
         if (error) { console.error("[favorites] load failed:", error.message); return; }
         if (!data || data.length === 0) return;
         const merged = new Set(local);
-        data.forEach((r: any) => { if (r.provider_id) merged.add(r.provider_id); });
+        data.forEach((r: any /* TODO(types) */) => { if (r.provider_id) merged.add(r.provider_id); });
         setFavorites(merged);
         saveFavoritesLocal(profileId, merged);
       });

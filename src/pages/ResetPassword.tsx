@@ -18,14 +18,14 @@ export default function ResetPassword() {
   // Supabase sets a session when the user clicks the reset link.
   // We need to wait for the auth state change event to confirm the session.
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: any) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: any /* TODO(types) */) => {
       if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
         setSessionReady(true);
       }
     });
 
     // Also check if we already have a session
-    supabase.auth.getSession().then(({ data: { session } }: any) => {
+    supabase.auth.getSession().then(({ data: { session } }: any /* TODO(types) */) => {
       if (session) setSessionReady(true);
     });
 
@@ -63,7 +63,7 @@ export default function ResetPassword() {
           supabase.auth.signOut().catch(() => {});
         }, 1500);
       }
-    } catch (err: any) {
+    } catch (err: any /* TODO(types) */) {
       setError(err?.message ?? "Could not update password.");
     }
     setBusy(false);

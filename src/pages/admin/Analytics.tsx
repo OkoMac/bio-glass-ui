@@ -82,8 +82,8 @@ export default function AdminAnalytics() {
       setBookingCount(bookings.length);
 
       // Calculate GMV from completed bookings
-      const completedBookings = bookings.filter((b: any) => b.status === "completed");
-      const gmv = completedBookings.reduce((sum: any, b: any) => sum + (Number(b.total_price) || 0), 0);
+      const completedBookings = bookings.filter((b: any /* TODO(types) */) => b.status === "completed");
+      const gmv = completedBookings.reduce((sum: any /* TODO(types) */, b: any /* TODO(types) */) => sum + (Number(b.total_price) || 0), 0);
       setTotalGmv(gmv);
       setAvgSessionVal(completedBookings.length > 0 ? Math.round(gmv / completedBookings.length) : 0);
 
@@ -99,7 +99,7 @@ export default function AdminAnalytics() {
     }
   };
 
-  const buildChartData = (bookings: any[], selectedPeriod: Period) => {
+  const buildChartData = (bookings: any /* TODO(types) */[], selectedPeriod: Period) => {
     const now = new Date();
     let buckets: { label: string; start: Date; end: Date }[] = [];
 

@@ -94,14 +94,14 @@ export default function AdminDashboard() {
         5000,
         { data: null } as any,
       );
-      const list = (data ?? []).map((p: any) => ({
+      const list = (data ?? []).map((p: any /* TODO(types) */) => ({
         id: p.id,
         full_name: p.full_name,
         specialty: p.provider_profiles?.specialty ?? p.specialty ?? null,
         created_at: p.created_at,
       }));
       setPendingProviders(list);
-      setApprovals(Object.fromEntries(list.map((p: any) => [p.id, null])));
+      setApprovals(Object.fromEntries(list.map((p: any /* TODO(types) */) => [p.id, null])));
     } catch (err) {
       if (import.meta.env.DEV) console.error("Failed to load pending providers:", err);
     } finally {
@@ -124,11 +124,11 @@ export default function AdminDashboard() {
         .not("specialty", "is", null);
       const seen = new Set<string>();
       const merged: { specialty: string | null }[] = [];
-      (ppData ?? []).forEach((p: any) => merged.push({ specialty: p.specialty }));
+      (ppData ?? []).forEach((p: any /* TODO(types) */) => merged.push({ specialty: p.specialty }));
       // Add legacy rows whose user_id isn't already represented in provider_profiles.
       // We can't dedupe perfectly here without joining, so just include both —
       // step 4 will drop legacy and the dupe risk goes away.
-      (legacyData ?? []).forEach((p: any) => {
+      (legacyData ?? []).forEach((p: any /* TODO(types) */) => {
         if (!seen.has(p.user_id)) merged.push({ specialty: p.specialty });
       });
       if (merged.length > 0) {

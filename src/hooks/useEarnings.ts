@@ -76,7 +76,7 @@ export function useEarnings() {
       .channel(`earnings-${profileId}`)
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "earnings_transactions", filter: `user_id=eq.${profileId}` },
-        (payload: any) => {
+        (payload: any /* TODO(types) */) => {
           const t = payload.new as EarningsTransaction;
           setTransactions(prev => [t, ...prev]);
           setBalance(prev => prev + Number(t.amount_rand));

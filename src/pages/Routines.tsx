@@ -522,10 +522,10 @@ export default function Routines() {
   };
 
   const toggleShare = (routineId: string, providerId: string) => {
-    setRoutines((ownRoutines as any[]).map((r: any) => {
+    setRoutines((ownRoutines as any[]).map((r: any /* TODO(types) */) => {
       if (r.id !== routineId) return r;
       const shared = r.sharedWith.includes(providerId)
-        ? r.sharedWith.filter((id: any) => id !== providerId)
+        ? r.sharedWith.filter((id: any /* TODO(types) */) => id !== providerId)
         : [...r.sharedWith, providerId];
       return { ...r, sharedWith: shared };
     }));
@@ -672,7 +672,7 @@ export default function Routines() {
       toast.success(`Imported ${items.length} item${items.length === 1 ? "" : "s"}${inferredTitle ? ` for "${inferredTitle}"` : ""}. Review before saving.`);
       setShowImport(false);
       setImportText("");
-    } catch (err: any) {
+    } catch (err: any /* TODO(types) */) {
       const { toast } = await import("sonner");
       if (err?.name === "AbortError") {
         toast.error("Import cancelled");

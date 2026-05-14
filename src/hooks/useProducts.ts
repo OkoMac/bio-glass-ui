@@ -51,7 +51,7 @@ export function useMyProducts() {
       .select("*")
       .eq("provider_id", profileId)
       .order("created_at", { ascending: false })
-      .then(({ data }: any) => {
+      .then(({ data }: any /* TODO(types) */) => {
         if (data) setProducts(data as unknown as Product[]);
         setLoading(false);
       });
@@ -136,7 +136,7 @@ export function useProviderProducts(providerProfileId: string | null) {
       .eq("status", "published")
       .gt("stock_remaining", 0)
       .order("total_sold", { ascending: false })
-      .then(({ data }: any) => {
+      .then(({ data }: any /* TODO(types) */) => {
         if (data) setProducts(data as unknown as Product[]);
         setLoading(false);
       });

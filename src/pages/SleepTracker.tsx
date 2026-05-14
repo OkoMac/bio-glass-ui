@@ -118,7 +118,7 @@ export default function SleepTracker() {
       .eq("user_id", user.profileId)
       .gte("log_date", since.toISOString().slice(0, 10))
       .order("log_date", { ascending: true })
-      .then(({ data: rows, error }: any) => {
+      .then(({ data: rows, error }: any /* TODO(types) */) => {
         if (error || !rows?.length) return;
         const byDate = new Map<string, SleepEntry>();
         for (const e of getEntries()) byDate.set(e.date, e);
@@ -152,7 +152,7 @@ export default function SleepTracker() {
       await saveSchedule({ ...scheduleDraft, enabled: true });
       toast.success("Sleep schedule saved — you'll get a bedtime nudge 30 min before lights-out.");
       setScheduleExpanded(false);
-    } catch (err: any) {
+    } catch (err: any /* TODO(types) */) {
       toast.error(err?.message ?? "Couldn't save schedule");
     }
   };
@@ -221,7 +221,7 @@ export default function SleepTracker() {
         log_date: entryDate,
         sleep_hours: duration,
         notes: `Quality: ${quality}/5, Bed: ${bedtime}, Wake: ${wakeTime}`,
-      } as any, { onConflict: "user_id,log_date" }).then(({ error }: any) => {
+      } as any, { onConflict: "user_id,log_date" }).then(({ error }: any /* TODO(types) */) => {
         // Loud — silent dev-only logging is what hid the date / log_date
         // column mismatch in prod for weeks. Any future drift surfaces.
         if (error) {

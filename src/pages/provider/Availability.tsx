@@ -84,7 +84,7 @@ export default function ProviderAvailability() {
 
         if (data && (data as any[]).length > 0) {
           const loaded: Partial<WeekSchedule> = {};
-          (data as any[]).forEach((row: any) => {
+          (data as any[]).forEach((row: any /* TODO(types) */) => {
             const day = DAYS[row.day_of_week] as Day;
             if (!day) return;
             if (!loaded[day]) loaded[day] = { enabled: row.active ?? true, blocks: [] };
@@ -113,9 +113,9 @@ export default function ProviderAvailability() {
       .eq("provider_id", supabaseId)
       .gte("date", getSASTDateKey())
       .order("date", { ascending: true })
-      .then(({ data: overrides }: any) => {
+      .then(({ data: overrides }: any /* TODO(types) */) => {
         if (overrides && (overrides as any[]).length > 0) {
-          setLocalExceptions((overrides as any[]).map((o: any) => ({ date: o.date, label: o.label ?? "Blocked" })));
+          setLocalExceptions((overrides as any[]).map((o: any /* TODO(types) */) => ({ date: o.date, label: o.label ?? "Blocked" })));
         }
       });
   }, [supabaseId]);
@@ -159,7 +159,7 @@ export default function ProviderAvailability() {
         // Delete existing rows
         await supabase.from("provider_availability" as any).delete().eq("provider_id", supabaseId);
         // Insert new rows — one per time block per day
-        const rows: any[] = [];
+        const rows: any /* TODO(types) */[] = [];
         DAYS.forEach((day, dayIdx) => {
           const daySchedule = schedule[day];
           if (daySchedule.blocks.length === 0) {
@@ -184,7 +184,7 @@ export default function ProviderAvailability() {
         });
         const { error } = await supabase.from("provider_availability" as any).insert(rows);
         if (error) throw error;
-      } catch (err: any) {
+      } catch (err: any /* TODO(types) */) {
         // Real failure — toast + loud log so the provider knows their
         // hours didn't actually save. Silent failure (the prior dev-only
         // warn) is what made the table-name typo invisible for so long.
@@ -211,7 +211,7 @@ export default function ProviderAvailability() {
         date: newExDate,
         label,
         is_available: false,
-      }, { onConflict: "provider_id,date" }).then(({ error }: any) => {
+      }, { onConflict: "provider_id,date" }).then(({ error }: any /* TODO(types) */) => {
         if (error) {
           console.error("[availability] add-exception failed:", error.message);
           // Rollback — remove the optimistically added exception
@@ -236,7 +236,7 @@ export default function ProviderAvailability() {
         .delete()
         .eq("provider_id", supabaseId)
         .eq("date", ex.date)
-        .then(({ error }: any) => {
+        .then(({ error }: any /* TODO(types) */) => {
           if (error) {
             console.error("[availability] remove-exception failed:", error.message);
             // Rollback — re-add the exception

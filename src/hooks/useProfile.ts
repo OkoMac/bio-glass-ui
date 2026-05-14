@@ -79,7 +79,7 @@ export function useProfile() {
     if (!user?.id || user.id.startsWith("demo_")) return;
     setLoading(true);
     supabase.from("profiles").select(PROFILE_SELECT).eq("user_id", user.id).maybeSingle()
-      .then(({ data, error }: any) => {
+      .then(({ data, error }: any /* TODO(types) */) => {
         if (!error && data) setProfile(mapProfile(data as SupaProfile));
         setLoading(false);
       });
@@ -114,7 +114,7 @@ export function useProviderProfile(profileId: string | null) {
     if (!profileId) return;
     setLoading(true);
     supabase.from("profiles").select(PROFILE_SELECT).eq("id", profileId).maybeSingle()
-      .then(({ data, error }: any) => {
+      .then(({ data, error }: any /* TODO(types) */) => {
         if (!error && data) setProfile(mapProfile(data as SupaProfile));
         setLoading(false);
       });

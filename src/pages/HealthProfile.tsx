@@ -113,7 +113,7 @@ export default function HealthProfile() {
   useEffect(() => {
     if (!native.isNative || !native.authorized) return;
     const todayStr = getSASTDateKey();
-    const todayLog = logs.find((l: any) => l.log_date === todayStr) ?? {};
+    const todayLog = logs.find((l: any /* TODO(types) */) => l.log_date === todayStr) ?? {};
     const patch: Record<string, number> = {};
     if (typeof native.steps === "number" && native.steps > ((todayLog as any).steps ?? 0)) {
       patch.steps = Math.round(native.steps);
@@ -194,7 +194,7 @@ export default function HealthProfile() {
         .eq("client_id", user.profileId!)
         .eq("status", "completed")
         .limit(20)
-        .then(({ data }: any) => {
+        .then(({ data }: any /* TODO(types) */) => {
           if (!data) return;
           const seen = new Set<string>();
           const providers = (data as any[]).filter(b => {
@@ -233,7 +233,7 @@ export default function HealthProfile() {
     if (!isReal || !profileId) return;
     import("@/integrations/supabase/client").then(({ supabase }) => {
       supabase.from("health_profiles").select("conditions, allergies, medications, goals")
-        .eq("user_id", profileId).maybeSingle().then(({ data }: any) => {
+        .eq("user_id", profileId).maybeSingle().then(({ data }: any /* TODO(types) */) => {
           if (!data) return;
           if (data.conditions && Array.isArray(data.conditions) && data.conditions.length > 0) setConditions(data.conditions);
           if (data.allergies && Array.isArray(data.allergies) && data.allergies.length > 0) setAllergies(data.allergies);
@@ -335,7 +335,7 @@ export default function HealthProfile() {
           (() => {
             // Simple composite: proportion of last 7 days with meaningful logs.
             const recent = logs.slice(-7);
-            const hasMetric = (l: any, k: string) => l?.[k] != null && Number(l[k]) > 0;
+            const hasMetric = (l: any /* TODO(types) */, k: string) => l?.[k] != null && Number(l[k]) > 0;
             const metricScore = (key: string) => {
               const filled = recent.filter(l => hasMetric(l, key)).length;
               return Math.round((filled / Math.max(recent.length, 1)) * 100);

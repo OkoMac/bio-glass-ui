@@ -80,7 +80,7 @@ export interface ServiceProvider {
 export let REAL_PROVIDERS: ServiceProvider[] = [];
 
 function mapRawProviders(providers: RawProvider[]): ServiceProvider[] {
-  return providers.map((p: any) => ({
+  return providers.map((p: any /* TODO(types) */) => ({
     ...p,
     contact: {
       email: p.contact?.email ?? "",
@@ -160,7 +160,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     import("@/data/bion_pretoria_data.json").then((mod) => {
       const data = mod.default as any;
-      const mappedBookings: Booking[] = (data.bookings ?? []).map((booking: any) => ({
+      const mappedBookings: Booking[] = (data.bookings ?? []).map((booking: any /* TODO(types) */) => ({
         id: booking.id,
         clientId: booking.clientId,
         clientName: booking.clientName,
@@ -202,7 +202,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
     // Live updates via Supabase Realtime
     const channel = supabase
       .channel(`bookings-${user.id}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, (payload: any) => {
+      .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, (payload: any /* TODO(types) */) => {
         if (payload.eventType === "INSERT") {
           setBookings(prev => [...prev, mapRow(payload.new as unknown as SupaRow)]);
         } else if (payload.eventType === "UPDATE") {
@@ -281,7 +281,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
         refund_instructions: data.refund_instructions,
         voucher_restored: data.voucher_restored,
       };
-    } catch (err: any) {
+    } catch (err: any /* TODO(types) */) {
       return { ok: false, error: err.message ?? "Cancel failed" };
     }
   }, [user?.profileId]);
@@ -319,7 +319,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
       // Write to localStorage so the calendar page picks it up immediately
       const existing = JSON.parse(localStorage.getItem("bion_calendar_events") ?? "[]");
       // Avoid duplicates if user re-books same id
-      const filtered = existing.filter((e: any) => e.id !== calendarEvent.id);
+      const filtered = existing.filter((e: any /* TODO(types) */) => e.id !== calendarEvent.id);
       localStorage.setItem("bion_calendar_events", JSON.stringify([...filtered, calendarEvent]));
 
       // Calendar sync — localStorage only for now (calendar_events table not yet in schema)
@@ -412,7 +412,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
     }
 
     if (user?.profileId && !user.id?.startsWith("demo_")) {
-      supabase.from("profiles").select("phone").eq("id", user.profileId).maybeSingle().then(({ data }: any) => {
+      supabase.from("profiles").select("phone").eq("id", user.profileId).maybeSingle().then(({ data }: any /* TODO(types) */) => {
         const phone = (data as any)?.phone?.replace(/[\s\-()]/g, "");
         if (phone) {
           authFetch(`/api/whatsapp/booking-confirmation`, {

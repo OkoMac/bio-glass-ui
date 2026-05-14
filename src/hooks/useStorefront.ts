@@ -37,7 +37,7 @@ export function useStorefront(providerProfileId?: string) {
       .select("*")
       .eq("provider_id", targetId)
       .maybeSingle()
-      .then(({ data }: any) => {
+      .then(({ data }: any /* TODO(types) */) => {
         setStorefront(data as unknown as Storefront | null);
         setLoading(false);
       });

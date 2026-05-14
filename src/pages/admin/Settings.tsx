@@ -70,7 +70,7 @@ export default function AdminSettings() {
 
       if (data && data.length > 0) {
         const settings: Record<string, string> = {};
-        data.forEach((row: any) => { settings[row.key] = row.value; });
+        data.forEach((row: any /* TODO(types) */) => { settings[row.key] = row.value; });
 
         setPlatformName(settings["platform_name"] || "");
         setSupportEmail(settings["support_email"] || "");
@@ -103,7 +103,7 @@ export default function AdminSettings() {
         withTimeout(() => supabase.from("bookings").select("total_price").eq("status", "completed"), 5000, { data: [], count: 0 } as any),
         withTimeout(() => supabase.from("user_roles").select("user_id", { count: "exact", head: true }), 5000, { data: null, count: 0 } as any),
       ]);
-      const gmv = (bookingsRes.data ?? []).reduce((sum: any, b: any) => sum + (Number(b.total_price) || 0), 0);
+      const gmv = (bookingsRes.data ?? []).reduce((sum: any /* TODO(types) */, b: any /* TODO(types) */) => sum + (Number(b.total_price) || 0), 0);
       setTotalBookingGmv(gmv);
       setActiveSeats(seatsRes.count ?? 0);
     } catch {

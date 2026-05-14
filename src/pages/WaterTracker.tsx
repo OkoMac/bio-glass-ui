@@ -51,7 +51,7 @@ function getStoredData(dateKey: string) {
   } catch { return { glasses: 0, goal: 8, log: [] }; }
 }
 
-function saveData(dateKey: string, data: any) {
+function saveData(dateKey: string, data: any /* TODO(types) */) {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     const all = raw ? JSON.parse(raw) : {};
@@ -189,7 +189,7 @@ export default function WaterTracker() {
         .eq("user_id", user.profileId)
         .gte("date", days[0])
         .lte("date", days[6])
-        .then(({ data: rows, error }: any) => {
+        .then(({ data: rows, error }: any /* TODO(types) */) => {
           if (error || !rows) { setHistory(fromLocal()); return; }
           const byDate = new Map<string, number>();
           for (const r of rows as any[]) byDate.set(r.date, r.count ?? 0);
@@ -198,7 +198,7 @@ export default function WaterTracker() {
           // instance (PWA vs browser) updated it. Server wins on collision.
           const todayCount = byDate.get(dateKey);
           if (typeof todayCount === "number" && todayCount > data.glasses) {
-            setData((prev: any) => ({ ...prev, glasses: todayCount, log: prev.log }));
+            setData((prev: any /* TODO(types) */) => ({ ...prev, glasses: todayCount, log: prev.log }));
           }
         });
     } else {
@@ -215,10 +215,10 @@ export default function WaterTracker() {
       .eq("user_id", user.profileId)
       .eq("date", dateKey)
       .maybeSingle()
-      .then(({ data: row }: any) => {
+      .then(({ data: row }: any /* TODO(types) */) => {
         const serverGlasses = (row?.count as number | undefined) ?? 0;
         if (serverGlasses > data.glasses) {
-          setData((prev: any) => ({
+          setData((prev: any /* TODO(types) */) => ({
             ...prev,
             glasses: serverGlasses,
             log: [
@@ -265,7 +265,7 @@ export default function WaterTracker() {
     if (user?.profileId && !user.id?.startsWith("demo_") && data.glasses > 0) {
       const payload = { user_id: user.profileId, date: dateKey, count: data.glasses };
       supabase.from("water_log" as any).upsert(payload as any, { onConflict: "user_id,date" })
-        .then(({ error }: any) => {
+        .then(({ error }: any /* TODO(types) */) => {
           if (error) {
             // Loud — silent console.error was hiding RLS/schema-drift failures
             // for users. Reported Lee Grant 2026-05-14: "I've logged water no
@@ -285,7 +285,7 @@ export default function WaterTracker() {
   const addGlass = () => {
     if (data.glasses >= data.goal * 2) return; // cap at 2x goal
     const timestamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    setData((prev: any) => ({
+    setData((prev: any /* TODO(types) */) => ({
       ...prev,
       glasses: prev.glasses + 1,
       log: [...prev.log, { time: timestamp, amount: "250ml" }],
@@ -302,7 +302,7 @@ export default function WaterTracker() {
 
   const removeGlass = () => {
     if (data.glasses <= 0) return;
-    setData((prev: any) => ({
+    setData((prev: any /* TODO(types) */) => ({
       ...prev,
       glasses: prev.glasses - 1,
       log: prev.log.slice(0, -1),
@@ -310,7 +310,7 @@ export default function WaterTracker() {
   };
 
   const adjustGoal = (delta: number) => {
-    setData((prev: any) => ({
+    setData((prev: any /* TODO(types) */) => ({
       ...prev,
       goal: Math.max(1, Math.min(20, prev.goal + delta)),
     }));
@@ -463,7 +463,7 @@ export default function WaterTracker() {
             </p>
           ) : (
             <div className="space-y-2 max-h-48 overflow-y-auto">
-              {[...data.log].reverse().map((entry: any, i: number) => (
+              {[...data.log].reverse().map((entry: any /* TODO(types) */, i: number) => (
                 <div key={i} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
                   <div className="flex items-center gap-2">
                     <Droplets className="w-3.5 h-3.5 text-teal-400" />

@@ -55,7 +55,7 @@ export default function BionPointsRedeemCard({ bookingId, bookingTotalRand, onAp
       .select("points")
       .eq("user_id", profileId)
       .eq("class", "A")
-      .then(({ data }: any) => {
+      .then(({ data }: any /* TODO(types) */) => {
         if (cancelled) return;
         const total = (data ?? []).reduce(
           (s: number, r: { points: number }) => s + (r.points ?? 0),
@@ -93,7 +93,7 @@ export default function BionPointsRedeemCard({ bookingId, bookingTotalRand, onAp
       }
       setApplied({ pts: points, rand: randDiscount });
       onApplied(randDiscount, points);
-    } catch (e: any) {
+    } catch (e: any /* TODO(types) */) {
       setError(e?.message ?? "Network error");
     } finally {
       setSubmitting(false);
