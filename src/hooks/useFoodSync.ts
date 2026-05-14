@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useVisibilityRefetch } from "./useVisibilityRefetch.js";
 import { useAuth } from "@/contexts/AuthContext";
 import { getSASTDateKey } from "../utils/sastDate";
+import { toast } from "sonner";
 
 interface FoodEntry {
   id: string;
@@ -193,9 +194,16 @@ export function useFoodSync() {
         photo_url: entry.photo,
         date: entry.date,
       } as any).then(({ error }) => {
-        // Loud log on prod-failure too — was dev-only which hid the same
-        // class of schema-drift bug we found in Sleep/Water yesterday.
-        if (error) console.error("[food] insert failed:", error.message);
+        if (error) {
+          // Loud both ways — console for diagnosis, toast so the user knows
+          // their meal didn't reach the server (reported "no history on food
+          // logging" Lee Grant 2026-05-14).
+          console.error("[food] insert failed:", {
+            code: error.code, message: error.message,
+            details: error.details, hint: error.hint,
+          });
+          toast.error(`Couldn't save meal: ${error.message}`, { duration: 5000 });
+        }
       });
     }
   }, [entries, supabaseId]);
@@ -207,7 +215,10 @@ export function useFoodSync() {
 
     if (supabaseId) {
       supabase.from("food_entries" as any).delete().eq("id", id).then(({ error }) => {
-        if (error) console.error("[food] delete failed:", error.message);
+        if (error) {
+          console.error("[food] delete failed:", { code: error.code, message: error.message });
+          toast.error(`Couldn't delete meal: ${error.message}`, { duration: 5000 });
+        }
       });
     }
   }, [entries, supabaseId]);
@@ -221,7 +232,10 @@ export function useFoodSync() {
         user_id: supabaseId,
         ...g,
       } as any, { onConflict: "user_id" }).then(({ error }) => {
-        if (error) console.error("[food] goals save failed:", error.message);
+        if (error) {
+          console.error("[food] goals save failed:", { code: error.code, message: error.message });
+          toast.error(`Couldn't save goals: ${error.message}`, { duration: 5000 });
+        }
       });
     }
   }, [supabaseId]);

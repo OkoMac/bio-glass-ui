@@ -16,6 +16,9 @@ export interface HealthLog {
   resting_hr: number | null;
   steps: number | null;
   sleep_hours: number | null;
+  water_ml: number | null;
+  food_calories_kcal: number | null;
+  meal_log: Array<{ type: string; name: string; calories: number; at: string }> | null;
   notes: string | null;
 }
 

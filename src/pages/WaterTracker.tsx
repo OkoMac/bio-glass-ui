@@ -14,6 +14,7 @@ import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
 import { trackEvent } from "@/lib/habits";
 import { supabase } from "@/integrations/supabase/client";
 import { useVisibilityRefetch } from "@/hooks/useVisibilityRefetch";
+import { toast } from "sonner";
 
 const STORAGE_KEY = "bion_water_tracker";
 const STREAK_KEY = "bion_water_streak";
@@ -262,13 +263,22 @@ export default function WaterTracker() {
     // exist). Every upsert silently 4xx'd. Right home is water_log
     // (count, date) which the schema actually defines.
     if (user?.profileId && !user.id?.startsWith("demo_") && data.glasses > 0) {
-      supabase.from("water_log" as any).upsert({
-        user_id: user.profileId,
-        date: dateKey,
-        count: data.glasses,
-      } as any, { onConflict: "user_id,date" }).then(({ error }) => {
-        if (error) console.error("[water] DB sync failed:", error.message);
-      });
+      const payload = { user_id: user.profileId, date: dateKey, count: data.glasses };
+      supabase.from("water_log" as any).upsert(payload as any, { onConflict: "user_id,date" })
+        .then(({ error }) => {
+          if (error) {
+            // Loud — silent console.error was hiding RLS/schema-drift failures
+            // for users. Reported Lee Grant 2026-05-14: "I've logged water no
+            // data here." Full PG error → console for diagnosis, toast → user
+            // so they at least know the save didn't reach the server (not the
+            // same as it "just not working").
+            console.error("[water] DB sync failed:", {
+              code: error.code, message: error.message,
+              details: error.details, hint: error.hint, payload,
+            });
+            toast.error(`Couldn't save water log: ${error.message}`, { duration: 5000 });
+          }
+        });
     }
   }, [data, dateKey]);
 
