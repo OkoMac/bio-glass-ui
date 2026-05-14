@@ -91,7 +91,7 @@ export default function AdminAlertsPanel() {
     setLoading(true);
     setErr(null);
     try {
-      const res = await authFetch(`${API}/api/admin/metrics/alerts`);
+      const res = await authFetch(`/api/admin/metrics/alerts`);
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed to load alerts");
       setAlerts(j.alerts as AdminAlert[]);

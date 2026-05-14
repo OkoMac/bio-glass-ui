@@ -52,7 +52,7 @@ export default function AdminOpsStrip() {
     if (user?.role !== "admin") return;
     setLoading(true); setErr(null);
     try {
-      const res = await authFetch(`${API}/api/admin/metrics`);
+      const res = await authFetch(`/api/admin/metrics`);
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Failed");
       setData(j);

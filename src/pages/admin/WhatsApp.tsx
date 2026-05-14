@@ -78,7 +78,7 @@ export default function AdminWhatsApp() {
     if (!isAdmin) return;
     setLoading(true); setErr(null);
     try {
-      const r = await authFetch(`${API}/api/whatsapp/admin/conversations`);
+      const r = await authFetch(`/api/whatsapp/admin/conversations`);
       const d = await r.json();
       if (!r.ok || !d.ok) throw new Error(d.error ?? `HTTP ${r.status}`);
       setThreads(d.threads);
@@ -89,7 +89,7 @@ export default function AdminWhatsApp() {
   async function fetchDetail(phone: string) {
     if (!isAdmin) return;
     try {
-      const r = await authFetch(`${API}/api/whatsapp/admin/conversations/${phone}`);
+      const r = await authFetch(`/api/whatsapp/admin/conversations/${phone}`);
       const d = await r.json();
       if (!r.ok || !d.ok) throw new Error(d.error ?? `HTTP ${r.status}`);
       setDetail(d);
@@ -99,7 +99,7 @@ export default function AdminWhatsApp() {
   async function fetchStats() {
     if (!isAdmin) return;
     try {
-      const r = await authFetch(`${API}/api/whatsapp/admin/stats`);
+      const r = await authFetch(`/api/whatsapp/admin/stats`);
       const d = await r.json();
       if (d.ok) setStats({ daily_cap: d.daily_cap, active_conversations: d.active_conversations });
     } catch {}
@@ -117,7 +117,7 @@ export default function AdminWhatsApp() {
     if (!pendingReply) return;
     setSending(true);
     try {
-      const res = await authFetch(`${API}/api/whatsapp/admin/reply`, {
+      const res = await authFetch(`/api/whatsapp/admin/reply`, {
         method: "POST",
         body: JSON.stringify({ phone: pendingReply.phone, message: pendingReply.message }),
       });
