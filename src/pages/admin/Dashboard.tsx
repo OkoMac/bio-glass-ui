@@ -82,11 +82,12 @@ export default function AdminDashboard() {
   const loadPendingProviders = async () => {
     try {
       // Multi-Role Step 3 — specialty now lives on provider_profiles.
-      // Embed it; fall back to the legacy column on profiles until Step 4
-      // drops it.
+      // Multi-Role Step 4 (2026-04-28) DROPPED profiles.specialty — the bare
+      // column reference here was 400'ing the whole query. Read it only via
+      // the joined provider_profiles relation.
       const { data } = await withTimeout(
         () => supabase.from("profiles")
-          .select("id, full_name, specialty, created_at, provider_profiles(specialty)")
+          .select("id, full_name, created_at, provider_profiles(specialty)")
           .eq("is_active", false)
           .order("created_at", { ascending: false })
           .limit(10),
