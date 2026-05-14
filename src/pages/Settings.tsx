@@ -622,7 +622,7 @@ const TABS: { id: Tab; label: string; icon: typeof Bell }[] = [
 export default function Settings() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const { user, switchRole, availableRoles } = useAuth();
+  const { user, switchRole, availableRoles, updateProfileFields } = useAuth();
   const { balance: walletBalance } = useWallet();
 
   const initialTab = (params.get("tab") as Tab | null) ?? "notifications";
@@ -707,7 +707,16 @@ export default function Settings() {
   /* ── Account ── */
   const [name,  setName]  = useState(user?.name  ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(user?.phone ?? "");
+
+  // Re-sync local form fields when the user object changes (initial profile load
+  // races with the form mount — without this, the inputs stay blank even after
+  // AuthContext finishes hydrating `user.phone` from the DB).
+  useEffect(() => {
+    setName(user?.name ?? "");
+    setEmail(user?.email ?? "");
+    setPhone(user?.phone ?? "");
+  }, [user?.name, user?.email, user?.phone]);
 
   /* ── Email verification ── */
   const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
@@ -823,9 +832,22 @@ export default function Settings() {
     navigate(homes[role] ?? "/home");
   };
 
-  const save = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1800);
+  const save = async () => {
+    try {
+      // Persist profile fields to the DB via AuthContext (writes to profiles
+      // table via user.profileId). Previous implementation only flashed a
+      // "Saved!" toast and wrote nothing — Lee Grant 2026-05-14: "Save does
+      // not work" / "Saved my number" but the phone field stayed empty.
+      await updateProfileFields({ phone, name });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1800);
+    } catch (err) {
+      console.error("[settings] save failed:", err);
+      setSaved(false);
+      // Use toast if available; fall back to native alert so the user knows
+      try { (await import("sonner")).toast.error("Couldn't save — try again"); }
+      catch { alert("Couldn't save your changes. Please try again."); }
+    }
   };
 
   return (
