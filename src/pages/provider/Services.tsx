@@ -634,7 +634,7 @@ export default function ProviderServices() {
                     if (json.ok) {
                       toast.success("Group session created! Share the link with clients.");
                       if (json.shareUrl) {
-                        navigator.clipboard.writeText(json.shareUrl).catch(() => {});
+                        navigator.clipboard.writeText(json.shareUrl).catch((err) => console.warn("[Services] writeText failed:", err?.message));
                         toast.success("Share link copied to clipboard!");
                       }
                       setGroupOpen(false);

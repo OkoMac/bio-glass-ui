@@ -193,7 +193,7 @@ export default function RepDashboard() {
         title: "Join BION",
         text: `Sign up as a provider on BION using my referral code: ${referralCode}`,
         url: "https://bion.app",
-      }).catch(() => {});
+      }).catch((err) => console.warn("[Dashboard] <unknown> failed:", err?.message));
       markShared();
     } else {
       handleCopy();

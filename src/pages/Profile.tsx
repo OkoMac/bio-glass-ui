@@ -132,7 +132,7 @@ const Profile = () => {
     const link = `https://bionhealth.co.za/welcome?ref=${referralCode}`;
     const text = `Join BION with my code ${referralCode} and we both get 50 BION points (R1 in store credit). Sign up: ${link}`;
     if (navigator.share) {
-      navigator.share({ title: "Join BION", text }).catch(() => {});
+      navigator.share({ title: "Join BION", text }).catch((err) => console.warn("[Profile] share failed:", err?.message));
     } else {
       navigator.clipboard.writeText(text);
       setReferralCopied(true);
@@ -226,7 +226,7 @@ const Profile = () => {
       bio: editForm.bio,
       phone: editForm.phone,
       location: editForm.location,
-    }).catch(() => {});
+    }).catch((err) => console.warn("[Profile] <unknown> failed:", err?.message));
     setEditOpen(false);
   };
 

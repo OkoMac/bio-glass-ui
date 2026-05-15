@@ -94,7 +94,7 @@ export default function AffiliateDashboard() {
 
   function copyLink() {
     if (data?.affiliateLink) {
-      navigator.clipboard.writeText(data.affiliateLink).catch(() => {});
+      navigator.clipboard.writeText(data.affiliateLink).catch((err) => console.warn("[AffiliateDashboard] writeText failed:", err?.message));
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }

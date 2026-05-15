@@ -68,7 +68,7 @@ export function usePageView() {
         device_type: getDeviceType(),
         ...ctx,
       }),
-    }).catch(() => {});
+    }).catch((err) => console.warn("[usePageView] <unknown> failed:", err?.message));
   }, []);
 }
 
@@ -85,5 +85,5 @@ export function trackEvent(event: string, data?: Record<string, string>) {
       device_type: getDeviceType(),
       ...data,
     }),
-  }).catch(() => {});
+  }).catch((err) => console.warn("[usePageView] <unknown> failed:", err?.message));
 }

@@ -637,7 +637,7 @@ function ReferralCodeCard() {
 
   const copyCode = () => {
     if (!code) return;
-    navigator.clipboard.writeText(code).catch(() => {});
+    navigator.clipboard.writeText(code).catch((err) => console.warn("[Settings] writeText failed:", err?.message));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

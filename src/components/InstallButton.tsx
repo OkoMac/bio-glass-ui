@@ -45,7 +45,7 @@ function NonSafariInstall({ onDone }: { onDone: () => void }) {
 
   useEffect(() => {
     // Auto-copy on mount so user just needs to open Safari and paste
-    navigator.clipboard.writeText(window.location.origin).then(() => setCopied(true)).catch(() => {});
+    navigator.clipboard.writeText(window.location.origin).then(() => setCopied(true)).catch((err) => console.warn("[InstallButton] then failed:", err?.message));
   }, []);
 
   return (

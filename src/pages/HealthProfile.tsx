@@ -435,7 +435,7 @@ export default function HealthProfile() {
             {native.isNative && !native.authorized && (
               <motion.button
                 whileTap={{ scale: 0.97 }}
-                onClick={() => native.requestAuth().catch(() => {})}
+                onClick={() => native.requestAuth().catch((err) => console.warn("[HealthProfile] requestAuth failed:", err?.message))}
                 className="w-full mt-3"
               >
                 <GlassCard className="p-3.5 flex items-center justify-between cursor-pointer border border-teal/30 hover:border-teal/60 transition-colors bg-teal/5">

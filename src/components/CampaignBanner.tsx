@@ -35,7 +35,7 @@ export default function CampaignBanner() {
           }
         }
       })
-      .catch(() => {});
+      .catch((err) => console.warn("[CampaignBanner] <unknown> failed:", err?.message));
   }, []);
 
   if (!campaign || dismissed) return null;

@@ -334,7 +334,7 @@ export default function ProviderProfile() {
           setSelectedLocationId(primary?.id ?? json.data[0].id);
         }
       })
-      .catch(() => {});
+      .catch((err) => console.warn("[ProviderProfile] <unknown> failed:", err?.message));
   }, [id]);
 
   // ── Queue / Walk-in ───────────────────────────────────────────────
@@ -2418,7 +2418,7 @@ function ProviderPackagesSection({ providerId }: { providerId: string }) {
         if (cancelled) return;
         if (json?.ok && Array.isArray(json.data)) setPackages(json.data);
       })
-      .catch(() => {})
+      .catch((err) => console.warn("[ProviderProfile] <unknown> failed:", err?.message))
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [providerId]);

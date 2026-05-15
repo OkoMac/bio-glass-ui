@@ -88,7 +88,7 @@ export function useMyProducts() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ product_id: (data as any).id }),
-    }).catch(() => {});
+    }).catch((err) => console.warn("[useProducts] <unknown> failed:", err?.message));
 
     return { ok: true, product: data };
   }, [profileId]);

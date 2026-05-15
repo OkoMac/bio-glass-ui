@@ -233,7 +233,7 @@ export default function SplashOnboarding() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ path: `/_onboarding/${step}`, device_type: window.innerWidth < 768 ? "mobile" : "desktop" }),
-    }).catch(() => {});
+    }).catch((err) => console.warn("[SplashOnboarding] <unknown> failed:", err?.message));
   };
 
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
@@ -400,7 +400,7 @@ export default function SplashOnboarding() {
       } catch {/* non-fatal */}
 
       if (referralCode.trim() && user.profileId && selectedRole === "client") {
-        recordReferralSignup(referralCode.trim().toUpperCase(), user.profileId).catch(() => {});
+        recordReferralSignup(referralCode.trim().toUpperCase(), user.profileId).catch((err) => console.warn("[SplashOnboarding] recordReferralSignup failed:", err?.message));
       }
 
       // Ranger attribution — best-effort, never blocks signup completion.

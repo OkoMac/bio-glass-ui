@@ -295,7 +295,7 @@ export default function WaterTracker() {
     trackEvent("tool_use", { category: "wellness_tracking", metadata: { tool: "water", amount_ml: 250 } });
     // Native: write 250ml back to Apple Health so other apps see BION as a contributor.
     // No-op on web. Best-effort — never blocks the UI.
-    native.writeWater(0.25).catch(() => {});
+    native.writeWater(0.25).catch((err) => console.warn("[WaterTracker] writeWater failed:", err?.message));
     // Tactile feedback on native
     haptics.light();
   };

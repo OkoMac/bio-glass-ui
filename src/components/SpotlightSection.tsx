@@ -31,7 +31,7 @@ export default function SpotlightSection() {
           setSpotlights(res.data.slice(0, 5));
         }
       })
-      .catch(() => {});
+      .catch((err) => console.warn("[SpotlightSection] <unknown> failed:", err?.message));
   }, []);
 
   if (spotlights.length === 0) return null;

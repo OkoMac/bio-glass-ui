@@ -89,7 +89,7 @@ export default function CatalogViewer() {
   const share = () => {
     const url = window.location.href;
     if (navigator.share) {
-      navigator.share({ title: catalog?.title ?? "Catalog", url }).catch(() => {});
+      navigator.share({ title: catalog?.title ?? "Catalog", url }).catch((err) => console.warn("[CatalogViewer] share failed:", err?.message));
     } else {
       navigator.clipboard.writeText(url).then(() => toast.success("Link copied"));
     }

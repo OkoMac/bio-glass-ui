@@ -79,7 +79,7 @@ function EmailVerifyBanner() {
         .maybeSingle(),
     )
       .then(({ data }: any) => setVerified(data?.email_verified ?? false))
-      .catch(() => {});
+      .catch((err) => console.warn("[Index] <unknown> failed:", err?.message));
   }, [user?.id, dismissed]);
 
   if (verified !== false || dismissed) return null;

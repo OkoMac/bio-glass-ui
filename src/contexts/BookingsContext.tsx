@@ -426,7 +426,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
               time: booking.time,
               price: booking.price,
             }),
-          }).catch(() => {});
+          }).catch((err) => console.warn("[BookingsContext] <unknown> failed:", err?.message));
         }
       });
     }
@@ -442,7 +442,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
           time: booking.time,
           price: booking.price,
         }),
-      }).catch(() => {});
+      }).catch((err) => console.warn("[BookingsContext] <unknown> failed:", err?.message));
     }
 
     return insertedId;

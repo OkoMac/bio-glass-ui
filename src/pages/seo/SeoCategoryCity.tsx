@@ -129,7 +129,7 @@ export default function SeoCategoryCity() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ providerName: requestName, city: city.label, category: category.label, source: "seo-city-page" }),
-    }).catch(() => {});
+    }).catch((err) => console.warn("[SeoCategoryCity] <unknown> failed:", err?.message));
     setRequestStatus("sent");
   }
 

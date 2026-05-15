@@ -20,7 +20,7 @@ export default function InvitePage() {
         if (d?.ok && d.ranger) setInviter({ name: d.ranger.name });
         else if (d?.ok && d.name) setInviter({ name: d.name });
       })
-      .catch(() => {});
+      .catch((err) => console.warn("[Invite] <unknown> failed:", err?.message));
     // Store referral code for attribution on signup
     try { localStorage.setItem("bion_ref_code", code); } catch {}
   }, [code]);

@@ -102,7 +102,7 @@ export default function GroupBookings() {
     const url = `${window.location.origin}/group-bookings?join=${session.id}`;
     const text = `Join me for ${session.title} on ${session.booking_date} at ${session.booking_time}! R${session.price_per_person} per person. ${session.spots_remaining} spots left.`;
     if (navigator.share) {
-      navigator.share({ title: session.title, text, url }).catch(() => {});
+      navigator.share({ title: session.title, text, url }).catch((err) => console.warn("[GroupBookings] share failed:", err?.message));
     } else {
       navigator.clipboard.writeText(`${text}\n${url}`);
       toast.success("Link copied!");

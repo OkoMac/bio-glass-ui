@@ -340,7 +340,7 @@ const queryClient = new QueryClient();
 // Install the on-unload cache sweep + background-tab query invalidation.
 // Runs exactly once on first import.
 if (typeof window !== "undefined") {
-  import("./lib/cacheControl").then(m => m.installCacheControl(queryClient)).catch(() => {});
+  import("./lib/cacheControl").then(m => m.installCacheControl(queryClient)).catch((err) => console.warn("[App] then failed:", err?.message));
 }
 
 // ─── Onboarding check ─────────────────────────────────────────────────────────

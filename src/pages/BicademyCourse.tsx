@@ -18,7 +18,7 @@ export default function BicademyCourse() {
   // Auto-enroll on first visit
   useEffect(() => {
     if (course) {
-      ensureEnrolled(course.id).then(() => refresh()).catch(() => {});
+      ensureEnrolled(course.id).then(() => refresh()).catch((err) => console.warn("[BicademyCourse] then failed:", err?.message));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [course?.id]);

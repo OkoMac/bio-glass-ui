@@ -184,8 +184,8 @@ if ("serviceWorker" in navigator) {
 
       // Initial check + 5-min poll (was 30 min — too slow for users
       // hopping in and out of the PWA on iOS who'd have aged-out tabs).
-      reg.update().catch(() => {});
-      setInterval(() => reg.update().catch(() => {}), 5 * 60 * 1000);
+      reg.update().catch((err) => console.warn("[main] update failed:", err?.message));
+      setInterval(() => reg.update().catch((err) => console.warn("[main] update failed:", err?.message)), 5 * 60 * 1000);
     } catch (err: any) {
       console.warn("[SW] registration failed:", err?.message ?? err);
     }
