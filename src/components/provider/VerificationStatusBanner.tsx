@@ -68,11 +68,18 @@ export default function VerificationStatusBanner() {
     let cancelled = false;
     (async () => {
       try {
-        const [profileRes, docsRes] = await Promise.all([
+        // provider_status lives on provider_profiles, paystack_subaccount_code on profiles
+        // (Multi-Role Step 4 column move). Joining them in one select 400s with PG 42703.
+        const [profileRes, providerProfileRes, docsRes] = await Promise.all([
           supabase
             .from("profiles")
-            .select("provider_status, paystack_subaccount_code")
+            .select("paystack_subaccount_code")
             .eq("id", profileId)
+            .maybeSingle(),
+          supabase
+            .from("provider_profiles" as any)
+            .select("provider_status")
+            .eq("user_id", profileId)
             .maybeSingle(),
           supabase
             .from("provider_documents" as any)
@@ -81,7 +88,12 @@ export default function VerificationStatusBanner() {
         ]);
 
         if (cancelled) return;
-        setProfile((profileRes.data as unknown as ProfileRow) ?? null);
+        const p  = (profileRes.data as any) ?? {};
+        const pp = (providerProfileRes.data as any) ?? {};
+        setProfile({
+          provider_status: pp.provider_status ?? null,
+          paystack_subaccount_code: p.paystack_subaccount_code ?? null,
+        } as unknown as ProfileRow);
         setDocs(((docsRes.data as unknown as ProviderDoc[]) ?? []));
       } catch {
         /* best-effort — banner stays hidden on failure */

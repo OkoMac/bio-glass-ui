@@ -150,20 +150,17 @@ async function fetchSignals(role: ChecklistRole, profileId: string, authUserId?:
     sarsAccepted: false, repBankConnected: false, hasSharedLink: false, hasFirstProviderSignup: false,
   };
 
-  // Profile row is needed for most roles (phone / location / bio / avatar / bank / verified status).
-  // Cast to any because the generated types.ts doesn't include every column we touch
-  // (phone_verified, paystack_subaccount_code, city, suburb live on
-  // profiles; specialty + provider_status moved to provider_profiles per
-  // Multi-Role Step 4 (2026-04-28-multirole-step4-drop-columns.sql) —
-  // including them here returns 400 Bad Request from PostgREST and
-  // tanks the whole signals fetch, which is why every checklist item
-  // stayed at "not done" even after the user saved (Lee Grant
-  // 2026-05-14, console showed:
-  //   GET /rest/v1/profiles?select=...specialty...provider_status... 400).
-  // Same pattern as the 2026-05-04 patch to VerificationStatusBanner.
+  // Profile row holds phone / location / avatar / bank / verified status.
+  // bio + specialty + provider_status all live on provider_profiles
+  // (Multi-Role Step 4, 2026-04-28-multirole-step4-drop-columns.sql).
+  // Including any of them in this select returns PG 42703 and 400s the
+  // whole fetch, which is why every checklist item stayed at "not done"
+  // even after the user saved (Lee Grant 2026-05-14). The 364c292 patch
+  // moved specialty/provider_status out; this turn (e27d2af+) also moves
+  // bio out so the provider-flow query stops 400ing too.
   const profileQuery = supabase
     .from("profiles")
-    .select("id, phone, avatar_url, bio, location, city, suburb, phone_verified, paystack_subaccount_code")
+    .select("id, phone, avatar_url, location, city, suburb, phone_verified, paystack_subaccount_code")
     .eq("id", profileId)
     .maybeSingle();
 
@@ -183,10 +180,10 @@ async function fetchSignals(role: ChecklistRole, profileId: string, authUserId?:
     }
 
     else if (role === "provider") {
-      // specialty + provider_status now live on provider_profiles
+      // bio + specialty + provider_status now live on provider_profiles
       const [profileRes, providerProfileRes, servicesRes, availRes] = await Promise.all([
         profileQuery,
-        supabase.from("provider_profiles" as any).select("specialty, provider_status").eq("user_id", profileId).maybeSingle(),
+        supabase.from("provider_profiles" as any).select("bio, specialty, provider_status").eq("user_id", profileId).maybeSingle(),
         supabase.from("services").select("id").eq("provider_id", profileId).limit(1),
         supabase.from("provider_availabilities").select("id").eq("provider_id", profileId).limit(1),
       ]);
@@ -196,7 +193,7 @@ async function fetchSignals(role: ChecklistRole, profileId: string, authUserId?:
       out.hasService       = (servicesRes.data?.length ?? 0) > 0;
       out.hasAvailability  = (availRes.data?.length ?? 0) > 0;
       out.hasBank          = Boolean(p.paystack_subaccount_code);
-      out.hasBioTagline    = Boolean((p.bio ?? "").toString().trim()) && Boolean((pp.specialty ?? "").toString().trim());
+      out.hasBioTagline    = Boolean((pp.bio ?? "").toString().trim()) && Boolean((pp.specialty ?? "").toString().trim());
       out.hasAvatar        = Boolean((p.avatar_url ?? "").toString().trim());
     }
 
