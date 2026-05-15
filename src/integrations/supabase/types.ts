@@ -50,7 +50,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "biopoints_user_id_fkey"
+            foreignKeyName: "bionpoints_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
