@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
 import GlassCard from "@/components/GlassCard";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { authFetchJson } from "@/lib/authFetch";
 import { Sparkles, Zap, Crown, Loader2, CheckCircle } from "lucide-react";
-
-const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
 const TIERS = [
   { duration: "7d", label: "1 Week", price: 199, icon: Zap },
@@ -13,41 +10,41 @@ const TIERS = [
 ];
 
 export default function BoostListingCard() {
-  const { user } = useAuth();
   const [mySpotlight, setMySpotlight] = useState<any>(null);
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-
   useEffect(() => {
-    fetch(`${API}/api/spotlight/my`, { headers })
-      .then((r) => r.json())
+    // authFetchJson attaches the Bearer JWT — raw fetch() here was 401ing
+    // because /api/spotlight/my requires auth and no Authorization header
+    // was being set.
+    authFetchJson<{ ok: boolean; data: any[] }>("/api/spotlight/my")
       .then((res) => {
         if (res.ok) {
           const active = (res.data ?? []).find((s: any) => s.is_active);
           if (active) setMySpotlight(active);
         }
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.warn("[BoostListingCard] spotlight/my fetch failed:", err);
+      });
   }, []);
 
   async function purchase(duration: string) {
     setPurchasing(duration);
     try {
-      const res = await fetch(`${API}/api/spotlight/purchase`, {
+      const data = await authFetchJson<{ ok: boolean; data: any }>("/api/spotlight/purchase", {
         method: "POST",
-        headers,
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ duration, position: "top" }),
       });
-      const data = await res.json();
       if (data.ok) {
         setSuccess(true);
         setMySpotlight(data.data);
       }
-    } catch {}
+    } catch (err) {
+      console.warn("[BoostListingCard] spotlight purchase failed:", err);
+    }
     setPurchasing(null);
   }
 

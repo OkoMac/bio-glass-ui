@@ -54,6 +54,13 @@ export async function trackEvent(event: EventType, args: TrackArgs = {}): Promis
     if (now - last < DEBOUNCE_MS) return;
     recentEvents.set(signature, now);
 
+    // Ensure the SDK has hydrated its session before sending — without this,
+    // the first page_view on initial mount races the auth restore and goes
+    // out with the anon JWT. RLS then denies (PG 42501) because auth.uid()
+    // is NULL and the policy check `user_id = auth.uid()` fails.
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
     // Fire the insert but don't await — keep the UI snappy
     void supabase.from("user_habits").insert({
       profile_id: user.profileId,
