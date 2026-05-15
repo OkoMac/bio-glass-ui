@@ -881,6 +881,7 @@ export default function Directory() {
             transition={{ delay: 0.2 }}
             className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] tracking-tight"
             style={{ textShadow: "0 4px 30px rgba(0,0,0,0.5)" }}
+            id="main-content"
           >
             Beauty, Health<br />& Wellness
           </motion.h1>

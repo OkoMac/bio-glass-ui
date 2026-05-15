@@ -667,6 +667,7 @@ function AppRoutes() {
       <Route path="/rep/crm/suggested" element={<RequireAuth allowedRoles={["sales_rep"]}><RepSuggestedLeads /></RequireAuth>} />
       <Route path="/rep/crm/:id" element={<RequireAuth allowedRoles={["sales_rep"]}><RepLeadDetail /></RequireAuth>} />
 
+      <Route path="/signup" element={<Navigate to="/welcome?signup=true" replace />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
