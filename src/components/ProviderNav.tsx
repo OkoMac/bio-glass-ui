@@ -68,9 +68,9 @@ export default function ProviderNav() {
         {/* Logo — bion-wordmark.png is 100% content; bion-logo-white-sm.png
             had 96% transparent padding which made h-40 render as a tiny
             wordmark in a wall of whitespace. Same fix as AdminNav (c2dc853). */}
-        <div className="flex items-center gap-1 px-3 mb-8">
+        <div className="px-3 mb-8">
           <img src="/bion-wordmark.png" alt="BION" className="h-7 w-auto" />
-          <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Provider</span>
+          <span className="block mt-0.5 text-[10px] text-muted-foreground uppercase tracking-widest">Provider</span>
         </div>
 
         {/* Nav items */}
@@ -188,9 +188,9 @@ export default function ProviderNav() {
           </SheetTrigger>
           <SheetContent side="left" className="w-72 p-0 border-r border-white/5"
             style={{ background: "rgba(10,10,15,0.95)", backdropFilter: "blur(40px)" }}>
-            <div className="flex items-center gap-2 px-5 py-6 border-b border-white/5">
+            <div className="px-5 py-6 border-b border-white/5">
               <img src="/bion-wordmark.png" alt="BION" className="h-7 w-auto" />
-              <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Provider</span>
+              <span className="block mt-0.5 text-[10px] text-muted-foreground uppercase tracking-widest">Provider</span>
             </div>
             <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto max-h-[calc(100vh-80px)]">
               {navItems.filter(item => !mobileNav.some(m => m.to === item.to)).map(({ to, label, icon: Icon }) => (
