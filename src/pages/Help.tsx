@@ -11,7 +11,7 @@ const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
 const FAQS: Array<{ q: string; a: string }> = [
   { q: "How do I cancel a booking?",
-    a: "Open /schedule, tap the booking, tap Cancel. Cancellation policy is symmetric — the canceller pays the fee. Cancel 24h+ before booking: 10% fee, 90% refunded to wallet. Cancel <24h before booking: 50% fee, 50% refunded to wallet. Voucher bookings: voucher auto-restored, no fee. Rescheduling is free (up to 3 times) — always cheaper than cancelling." },
+    a: "Open /schedule, tap the booking, tap Cancel. Cancellation policy is symmetric — the canceller pays the fee. The DEFAULT BION rule: cancel 24h+ before booking → 10% fee + 90% refunded to wallet; cancel <24h before → 50% fee + 50% refunded. Voucher bookings: voucher auto-restored, no fee. Rescheduling is free (up to 3 times) — always cheaper than cancelling.\n\nProviders can override the default and set their own minimum notice (24–336 hours, e.g. 48h / 72h / 7-day) per their tier — go to /pro/settings → Cancellation policy. You can also set a per-service rule from Services. The strictest policy wins on a given booking." },
   { q: "How are refunds processed?",
     a: "Cancellation refunds go automatically to your BION Wallet immediately. Cancel 24h+ early = 90% back. Cancel late = 50% back. If a PROVIDER cancels, you receive a 100% refund to wallet and the provider's wallet is debited the cancellation fee (10% if 24h+ early, 50% if late) plus a strike on their record. For disputes (service quality, no-show etc.), email disputes@bionhealth.co.za — admin handles those with a 10% BION refund fee (waivable when provider at fault)." },
   { q: "How do provider payouts work?",

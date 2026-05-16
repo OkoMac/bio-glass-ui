@@ -589,6 +589,15 @@ export default function FoodTracker() {
                     ))}
                   </div>
                 )}
+                {/* Empty state — without this, typing a non-match (Lee Grant
+                    searched "Alfredo" 2026-05-16) made the search look broken.
+                    The local database is ~30 SA staples by design; everything
+                    else routes through the photo scan or manual entry below. */}
+                {searchQuery.trim().length >= 2 && searchResults.length === 0 && (
+                  <div className="mt-2 p-2.5 rounded-xl glass-1 text-xs text-muted-foreground">
+                    No match in the quick-pick list. Use <span className="text-foreground font-medium">📷 Take Photo</span> for an AI estimate, or enter it manually below.
+                  </div>
+                )}
               </div>
 
               {/* Manual entry */}
