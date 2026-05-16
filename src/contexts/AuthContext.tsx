@@ -110,6 +110,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (e) {
           // Profile fetch failed — use stored user if available
         }
+      } else {
+        // Zombie-state recovery: bio_user persisted in localStorage but
+        // the Supabase session is gone (auto-purged because expired >1
+        // day OR user cleared cookies but PWA localStorage survived).
+        // In that state, every supabase.from() call goes out with the
+        // anon JWT — auth.uid() is NULL — and every RLS-gated INSERT
+        // fails with 42501. Catalogs.tsx failed to create on 2026-05-16;
+        // same class of bug for user_habits, anything else with RLS.
+        // Clear the stale bio_user and let RequireAuth bounce them to
+        // /welcome, where a fresh login restores both tokens together.
+        const stored = getStoredUser();
+        if (stored && !stored.id?.startsWith("demo_")) {
+          console.warn("[auth] zombie state: bio_user present but no supabase session — clearing stored user");
+          removeUser();
+          if (mounted) setUser(null);
+        }
       }
       finish();
     }).catch(() => finish());
