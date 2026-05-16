@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
@@ -48,6 +48,36 @@ export default function ProviderBilling() {
   const [upgradingTier, setUpgradingTier] = useState<"pro" | "elite" | null>(null);
   const [cancelling, setCancelling] = useState(false);
 
+  // Payout history — finally backed by a real endpoint as of 2026-05-16.
+  // Pre-fix the section had a hardcoded "No payouts yet" placeholder and
+  // no backend to query (provider trust killer per audit).
+  type PayoutRow = {
+    id: string;
+    requested_at: string;
+    gross_rand: number;
+    net_rand: number;
+    fee_rand: number;
+    status: "pending" | "processing" | "completed" | "failed" | "refunded";
+    paystack_reference: string | null;
+    description: string | null;
+    refunded_at: string | null;
+  };
+  const [payouts, setPayouts] = useState<PayoutRow[]>([]);
+  const [loadingPayouts, setLoadingPayouts] = useState(true);
+
+  const loadPayouts = useCallback(async () => {
+    try {
+      const { authFetchJson } = await import("@/lib/authFetch");
+      const json = await authFetchJson<{ ok: boolean; data: PayoutRow[] }>("/api/payouts/history?limit=20");
+      if (json.ok) setPayouts(json.data ?? []);
+    } catch (err: any) {
+      // Anonymous or expired session — just stay on the empty state
+      console.warn("[Billing] payout history fetch failed:", err?.message);
+    } finally {
+      setLoadingPayouts(false);
+    }
+  }, []);
+
   const handleUpgrade = async (tier: "pro" | "elite") => {
     setUpgradingTier(tier);
     setMessage(null);
@@ -87,7 +117,8 @@ export default function ProviderBilling() {
   useEffect(() => {
     loadBanks();
     loadSavedDetails();
-  }, []);
+    loadPayouts();
+  }, [loadPayouts]);
 
   const loadBanks = async () => {
     try {
@@ -578,19 +609,67 @@ export default function ProviderBilling() {
           </GlassCard>
         )}
 
-        {/* Payout history (booking payouts to the provider's bank, distinct
-            from subscription invoices above) */}
+        {/* Payout history — withdrawals from your BION wallet to your bank.
+            Now backed by GET /api/payouts/history (added 2026-05-16). */}
         <GlassCard className="p-5">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-foreground">Payout History</h2>
+            {payouts.length > 0 && (
+              <span className="text-[10px] text-muted-foreground">Last {payouts.length}</span>
+            )}
           </div>
-          <div className="text-center py-6">
-            <CreditCard className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
-            <p className="text-sm font-medium text-foreground">No payouts yet</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Payout history will appear here once clients pay for sessions.
-            </p>
-          </div>
+
+          {loadingPayouts ? (
+            <div className="flex items-center gap-2 py-6 justify-center">
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Loading...</span>
+            </div>
+          ) : payouts.length === 0 ? (
+            <div className="text-center py-6">
+              <CreditCard className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+              <p className="text-sm font-medium text-foreground">No payouts yet</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Withdrawals from your wallet to your bank account will appear here.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-white/5">
+              {payouts.map((p) => {
+                const date = new Date(p.requested_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" });
+                const statusColor =
+                  p.status === "completed" ? "text-teal" :
+                  p.status === "failed"    ? "text-coral" :
+                  p.status === "refunded"  ? "text-amber" :
+                  "text-muted-foreground";
+                const statusBg =
+                  p.status === "completed" ? "glass-accent-teal" :
+                  p.status === "failed"    ? "glass-accent-coral" :
+                  p.status === "refunded"  ? "glass-accent-amber" :
+                  "glass-1";
+                const statusLabel =
+                  p.status === "completed" ? "Settled"  :
+                  p.status === "processing" ? "Processing" :
+                  p.status === "failed"     ? "Failed"     :
+                  p.status === "refunded"   ? "Refunded"   :
+                  "Pending";
+                return (
+                  <div key={p.id} className="flex items-center justify-between py-2.5">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-foreground font-data">R{p.net_rand.toFixed(2)}
+                        <span className="text-[10px] text-muted-foreground ml-1.5">(R{p.gross_rand.toFixed(2)} − R{p.fee_rand.toFixed(2)} fee)</span>
+                      </p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        {date}{p.paystack_reference ? ` · ${p.paystack_reference.slice(0, 16)}…` : ""}
+                      </p>
+                    </div>
+                    <span className={`text-[10px] font-semibold uppercase rounded-pill px-2 py-0.5 ${statusBg} ${statusColor}`}>
+                      {statusLabel}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </GlassCard>
       </div>
 
