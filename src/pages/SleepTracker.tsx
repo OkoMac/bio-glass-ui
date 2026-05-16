@@ -50,18 +50,31 @@ function todayKey() {
 }
 
 /**
- * The date a sleep session belongs to is the morning the user WOKE UP
- * (i.e. today, the day they're logging). Previous behaviour put a 23:00→07:00
- * sleep on yesterday's bar because bedtime crossed midnight. Lee asked for
- * the entry to land on today's bar instead (2026-05-11), since "Log Last
- * Night's Sleep" semantically means the wake-up day from the user's POV —
- * they're crediting themselves for sleep they did to start today.
+ * The date a sleep session belongs to is the bedtime date — when the user
+ * actually went to sleep. The 2026-05-11 change put it on the wake-up day
+ * (today) but that produces the weird-looking case Lee flagged 2026-05-16:
+ * "It should log sleep for yesterday not today" — the chart shows today's
+ * S(at) bar filled when you've only just woken from Friday→Saturday sleep.
  *
- * Naps inside the same calendar day (bed 13:00, wake 14:00) also stay on
- * today — unchanged from before.
+ * Rule:
+ *   - bedtime > wakeTime (crossed midnight, e.g. 23:00 → 07:00) → YESTERDAY
+ *   - bedtime ≤ wakeTime (afternoon nap, e.g. 13:00 → 14:00) → TODAY
+ *
+ * Matches every other sleep app (Apple Health, Oura, Whoop): the bar for
+ * Friday represents the sleep that started Friday evening, even if it ended
+ * Saturday morning.
  */
-function sleepEntryDate(_bedtime: string, _wakeTime: string): string {
-  return getSASTDateKey();
+function sleepEntryDate(bedtime: string, wakeTime: string): string {
+  const [bedH, bedM] = bedtime.split(":").map(Number);
+  const [wakeH, wakeM] = wakeTime.split(":").map(Number);
+  const bedMin = bedH * 60 + bedM;
+  const wakeMin = wakeH * 60 + wakeM;
+  const today = getSASTDateKey();
+  if (bedMin <= wakeMin) return today;  // nap within the same day
+  // Crossed midnight — the sleep belongs to yesterday's date
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return getSASTDateKey(yesterday);
 }
 
 const SLEEP_TIPS = [
@@ -341,7 +354,7 @@ export default function SleepTracker() {
         <GlassCard variant="glass-2" className="p-5 space-y-4">
           <div className="flex items-center gap-2">
             <Moon className="w-5 h-5 text-indigo-400" />
-            <h2 className="text-base font-semibold text-foreground">Log Today's Sleep</h2>
+            <h2 className="text-base font-semibold text-foreground">Log Last Night's Sleep</h2>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

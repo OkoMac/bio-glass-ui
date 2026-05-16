@@ -215,19 +215,35 @@ const Profile = () => {
     }
   };
 
-  const handleSaveProfile = () => {
-    // Hot-cache to localStorage (instant for next mount), then persist
-    // name/bio/phone/location to profiles via AuthContext. The 'age' field
-    // stays local-only for now — it should live on health_profiles.
-    // date_of_birth (DOB) — handled by HealthProfile page already.
-    saveProfileData(editForm);
-    updateProfileFields({
-      name: editForm.name,
-      bio: editForm.bio,
-      phone: editForm.phone,
-      location: editForm.location,
-    }).catch((err) => console.warn("[Profile] <unknown> failed:", err?.message));
-    setEditOpen(false);
+  const handleSaveProfile = async () => {
+    // Persist to server FIRST — the localStorage hot-cache used to be the
+    // optimistic write, but Lee Grant reported "saved this many times,
+    // doesn't stick" 2026-05-16. Cause: the function wasn't async and
+    // closed the modal before the DB write completed. If the write
+    // failed (RLS, network, anything), the user saw NOTHING — no toast,
+    // no rollback, modal already gone. The next visibility-refetch
+    // overwrote the local cache with the still-old DB value, so the
+    // field "reverted."
+    //
+    // Now: await, surface the outcome, only close on success.
+    try {
+      await updateProfileFields({
+        name: editForm.name,
+        bio: editForm.bio,
+        phone: editForm.phone,
+        location: editForm.location,
+      });
+      saveProfileData(editForm);  // hot-cache only after server confirmed
+      toast.success("Profile saved");
+      setEditOpen(false);
+    } catch (err: any) {
+      console.error("[Profile] save failed:", err);
+      toast.error("Couldn't save profile", {
+        description: err?.message ?? "Try again or check your connection.",
+        duration: 6000,
+      });
+      // Don't close the modal — user can retry without retyping
+    }
   };
 
   const openEditModal = () => {

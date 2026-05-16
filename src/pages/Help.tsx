@@ -92,6 +92,10 @@ export default function Help() {
         if (session?.access_token) headers["Authorization"] = `Bearer ${session.access_token}`;
       } catch { /* anon fallback */ }
 
+      // 15s timeout so a hung request can't leave "Submitting..." spinning
+      // forever (user-reported 2026-05-16: "This is freezing"). Without
+      // the AbortSignal, fetch can sit on a dead TCP connection for the
+      // browser's default ~5 minutes.
       const res = await fetch(`${API}/api/support/tickets`, {
         method: "POST",
         headers,
@@ -101,7 +105,14 @@ export default function Help() {
           category, priority,
           subject: subject.trim(), body: body.trim(),
         }),
+        signal: AbortSignal.timeout(15000),
       });
+      // Server returning HTML (5xx error page) would crash res.json() with
+      // a useless "Unexpected token < in JSON" — surface the status first.
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`Server error ${res.status}${text ? `: ${text.slice(0, 120)}` : ""}`);
+      }
       const j = await res.json();
       if (!j.ok) throw new Error(j.error ?? "Could not raise ticket");
       setSubmitted(true);
