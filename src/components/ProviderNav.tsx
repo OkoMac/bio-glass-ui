@@ -73,8 +73,9 @@ export default function ProviderNav() {
           <span className="block mt-0.5 text-[10px] text-muted-foreground uppercase tracking-widest">Provider</span>
         </div>
 
-        {/* Nav items */}
-        <nav className="flex flex-col gap-0.5 flex-1">
+        {/* Nav items — overflow-y-auto so the 18-item list scrolls on
+            short viewports (was clipping silently below "Settings"). */}
+        <nav className="flex flex-col gap-0.5 flex-1 min-h-0 overflow-y-auto">
           {navItems.map(({ to, label, icon: Icon }) => {
             return (
             <NavLink key={to} to={to}
