@@ -14,10 +14,11 @@ import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
 import { trackEvent } from "@/lib/habits";
 import { supabase } from "@/integrations/supabase/client";
 import { useVisibilityRefetch } from "@/hooks/useVisibilityRefetch";
+import { useStreaks } from "@/hooks/useStreaks";
+import { authFetchJson } from "@/lib/authFetch";
 import { toast } from "sonner";
 
 const STORAGE_KEY = "bion_water_tracker";
-const STREAK_KEY = "bion_water_streak";
 
 // Local civil date — UTC (toISOString) made the water tracker reset at
 // 02:00 SAST instead of 00:00 (user reported "it's past 12 and my thing
@@ -65,31 +66,9 @@ function saveData(dateKey: string, data: any /* TODO(types) */) {
   } catch {}
 }
 
-function getStreak(): number {
-  try {
-    const raw = localStorage.getItem(STREAK_KEY);
-    if (!raw) return 0;
-    const { count, lastDate } = JSON.parse(raw);
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayKey = localDateKey(yesterday);
-    if (lastDate === todayKey() || lastDate === yesterdayKey) return count;
-    return 0;
-  } catch { return 0; }
-}
-
-function updateStreak(hitGoal: boolean) {
-  try {
-    const current = getStreak();
-    const raw = localStorage.getItem(STREAK_KEY);
-    const prev = raw ? JSON.parse(raw) : { count: 0, lastDate: "" };
-    if (hitGoal) {
-      if (prev.lastDate === todayKey()) return; // already counted today
-      const newCount = current + 1;
-      localStorage.setItem(STREAK_KEY, JSON.stringify({ count: newCount, lastDate: todayKey() }));
-    }
-  } catch {}
-}
+// Streak storage moved to server-side `user_streaks` table (2026-05-16).
+// Backend endpoint POST /api/profiles/me/streaks/check-in handles the
+// same-day-noop / yesterday+1 / reset-to-1 logic. Read via useStreaks("water").
 
 function getMilestoneMessage(pct: number): string | null {
   if (pct >= 100) return "🎉 Goal achieved! You're fully hydrated!";
@@ -146,7 +125,8 @@ export default function WaterTracker() {
   const { user } = useAuth();
   const [dateKey] = useState(todayKey);
   const [data, setData] = useState(() => getStoredData(todayKey()));
-  const [streak, setStreak] = useState(getStreak);
+  const { streak: waterStreak } = useStreaks("water");
+  const streak = waterStreak.currentStreak;
   const [milestone, setMilestone] = useState<string | null>(null);
   const [history, setHistory] = useState<Array<{ date: string; count: number; goal: number }>>([]);
   // v2.0 Phase 1B: dropped 1pt/glass engagement awards.
@@ -253,9 +233,16 @@ export default function WaterTracker() {
     const pct = (data.glasses / data.goal) * 100;
     const msg = getMilestoneMessage(pct);
     if (msg) setMilestone(msg);
-    if (pct >= 100) {
-      updateStreak(true);
-      setStreak(getStreak());
+    if (pct >= 100 && user?.profileId && !user.id?.startsWith("demo_")) {
+      // Fire-and-forget server-side streak check-in. The endpoint dedupes
+      // same-day calls itself, so accidental double-fires from re-renders
+      // don't inflate the streak. The streak UI re-reads via useStreaks
+      // (refetch driven by the hook's profileId dep).
+      authFetchJson("/api/profiles/me/streaks/check-in", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ streak_type: "water" }),
+      }).catch((err) => console.warn("[WaterTracker] streak check-in failed:", err?.message));
     }
     // Sync to Supabase water_log so dashboards can read across devices.
     // Bug fix 2026-04-28: was writing to health_logs.water_glasses (column
