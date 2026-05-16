@@ -387,14 +387,25 @@ function AdminVerificationInner() {
           user?.id ?? null,
         );
 
-        // Notify the provider via backend email endpoint
+        // Notify the provider via backend email endpoint.
+        // 2026-05-16 fix: was a bare fetch() with no Authorization header. The
+        // backend route requires requireAdmin → every call 401'd silently.
+        // Auto-promoted providers never received their "you're verified" email
+        // — they had to discover it by trying to log in again. Use authFetch
+        // (which attaches the admin JWT) + surface a console.warn on failure.
         try {
-          await fetch(`${API_URL}/api/email/verification-status`, {
+          const res = await authFetch(`/api/email/verification-status`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ profileId: providerId, status: "verified" }),
           });
-        } catch { /* email is best-effort */ }
+          if (!res.ok) {
+            const text = await res.text().catch(() => "");
+            console.warn("[admin verification] verified-email POST failed:", res.status, text.slice(0, 200));
+          }
+        } catch (err: any) {
+          console.warn("[admin verification] verified-email POST threw:", err?.message);
+        }
       }
     } catch (err) {
       console.error("[admin verification] provider promote skipped:", err);

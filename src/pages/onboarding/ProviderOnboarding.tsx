@@ -33,17 +33,23 @@ export default function ProviderOnboarding() {
     await completeLayer(2);
     // Set localStorage flag for backwards compat
     if (user?.id) localStorage.setItem(`bion_onboarding_done_${user.id}`, "1");
-    // Check if verification documents are already submitted
+    // Check if verification documents are already submitted.
+    //
+    // 2026-05-16 fix: provider_status MOVED to provider_profiles in Multi-Role
+    // Step 4 (2026-04-28-multirole-step4-drop-columns.sql). The previous read
+    // from profiles.provider_status returned 42703 → caught → fall through to
+    // /pro/verification. Verified providers were stuck in an onboarding loop,
+    // re-routed to /pro/verification on every login even after admin approved
+    // them. Same column-relocation pattern that bit OnboardingChecklistCard +
+    // VerificationStatusBanner earlier today.
     try {
-      // BioUser.id is the auth user_id, profile primary key lives at user_id.
-      // Was .eq("id", user?.id) which never matched — every provider got
-      // routed to /pro/verification even if already approved.
-      const { data: profile } = await supabase
-        .from("profiles")
+      const { data: pp } = await supabase
+        .from("provider_profiles" as any)
         .select("provider_status")
         .eq("user_id", user?.id)
         .maybeSingle();
-      if ((profile as any)?.provider_status === "verified" || (profile as any)?.provider_status === "approved") {
+      const status = (pp as any)?.provider_status;
+      if (status === "verified" || status === "approved") {
         navigate("/pro/dashboard", { replace: true });
       } else {
         navigate("/pro/verification", { replace: true });
