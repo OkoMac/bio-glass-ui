@@ -30,7 +30,7 @@ interface BankDetails {
 export default function ProviderBilling() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { live, loading: loadingSub, startCheckout, cancel, refresh } = useSubscription();
+  const { live, invoices, loading: loadingSub, startCheckout, cancel, refresh } = useSubscription();
 
   // Bank setup state
   const [banks, setBanks] = useState<Bank[]>([]);
@@ -541,7 +541,45 @@ export default function ProviderBilling() {
           </p>
         </GlassCard>
 
-        {/* Payout history */}
+        {/* Subscription invoices — Paystack charges for each monthly renewal.
+            Distinct from payout history (which is money OUT to the provider
+            after bookings). Backend already returns these via /subscription/mine. */}
+        {(invoices?.length ?? 0) > 0 && (
+          <GlassCard className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-foreground">Subscription Invoices</h2>
+              <span className="text-[10px] text-muted-foreground">Last {invoices.length}</span>
+            </div>
+            <div className="divide-y divide-white/5">
+              {invoices.map((inv) => {
+                const d = inv.paid_at ?? inv.failed_at ?? inv.created_at;
+                const dateLabel = d ? new Date(d).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" }) : "—";
+                const statusColor =
+                  inv.status === "paid"    ? "text-teal"   :
+                  inv.status === "failed"  ? "text-coral"  :
+                  "text-amber";
+                const statusBg =
+                  inv.status === "paid"    ? "glass-accent-teal"   :
+                  inv.status === "failed"  ? "glass-accent-coral"  :
+                  "glass-accent-amber";
+                return (
+                  <div key={inv.id} className="flex items-center justify-between py-2.5">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-foreground font-data">R{Number(inv.amount_rand).toFixed(2)}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{dateLabel}{inv.paystack_reference ? ` · ${inv.paystack_reference.slice(0, 14)}…` : ""}</p>
+                    </div>
+                    <span className={`text-[10px] font-semibold uppercase rounded-pill px-2 py-0.5 ${statusBg} ${statusColor}`}>
+                      {inv.status}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </GlassCard>
+        )}
+
+        {/* Payout history (booking payouts to the provider's bank, distinct
+            from subscription invoices above) */}
         <GlassCard className="p-5">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-foreground">Payout History</h2>
