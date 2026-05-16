@@ -5,12 +5,25 @@ const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
 type Permission = NotificationPermission | "unsupported";
 
+export type SubscribeFailReason =
+  | "unsupported"            // browser doesn't have SW + PushManager + Notification
+  | "permission_denied"      // user clicked Block (or has it pre-blocked)
+  | "vapid_missing"          // backend returned ok:false on /vapid-public-key
+  | "push_service_blocked"   // PushManager.subscribe() rejected — Brave Shields, Firefox private, etc.
+  | "auth_required"          // no supabase session, can't register sub server-side
+  | "server_rejected"        // backend POST /subscribe returned ok:false
+  | "unknown";               // anything else thrown in the try block
+
+export type SubscribeResult =
+  | { ok: true }
+  | { ok: false; reason: SubscribeFailReason; detail?: string };
+
 export interface UsePushNotifications {
   supported: boolean;
   permission: Permission;
   subscribed: boolean;
   loading: boolean;
-  subscribe: () => Promise<boolean>;
+  subscribe: () => Promise<SubscribeResult>;
   unsubscribe: () => Promise<boolean>;
 }
 
@@ -111,7 +124,7 @@ export function usePushNotifications(): UsePushNotifications {
     return () => { cancelled = true; };
   }, [supported]);
 
-  const subscribe = useCallback(async (): Promise<boolean> => {
+  const subscribe = useCallback(async (): Promise<SubscribeResult> => {
     setLoading(true);
     try {
       // ── Native path (Capacitor): FCM on Android, APNs on iOS ──
@@ -126,7 +139,7 @@ export function usePushNotifications(): UsePushNotifications {
           const permResult = await PushNotifications.requestPermissions();
           if (permResult.receive !== "granted") {
             setPermission("denied" as Permission);
-            return false;
+            return { ok: false, reason: "permission_denied" };
           }
           setPermission("granted" as Permission);
 
@@ -145,7 +158,7 @@ export function usePushNotifications(): UsePushNotifications {
           });
           await PushNotifications.register();
           const token = await tokenPromise;
-          if (!token) return false;
+          if (!token) return { ok: false, reason: "push_service_blocked", detail: "native registration timeout" };
 
           // POST to backend with platform + token. Capacitor on iOS
           // returns APNs tokens unless Firebase iOS SDK is wired to
@@ -156,7 +169,7 @@ export function usePushNotifications(): UsePushNotifications {
           const authHeader = await getAuthHeader();
           if (!authHeader.Authorization) {
             if (import.meta.env.DEV) console.warn("[push] no auth session — cannot register native token");
-            return false;
+            return { ok: false, reason: "auth_required" };
           }
           const res = await fetch(`${API}/api/notifications/push/subscribe`, {
             method: "POST",
@@ -168,16 +181,16 @@ export function usePushNotifications(): UsePushNotifications {
             }),
           });
           const json = await res.json();
-          if (!json?.ok) return false;
+          if (!json?.ok) return { ok: false, reason: "server_rejected", detail: json?.error };
           setSubscribed(true);
-          return true;
+          return { ok: true };
         }
       } catch {
         // Capacitor not available (web bundle on plain browser) — fall
         // through to Web Push.
       }
 
-      if (!supported) return false;
+      if (!supported) return { ok: false, reason: "unsupported" };
 
       // 1. Ask for permission (browser-level)
       let perm = Notification.permission;
@@ -185,7 +198,7 @@ export function usePushNotifications(): UsePushNotifications {
         perm = await Notification.requestPermission();
         setPermission(perm);
       }
-      if (perm !== "granted") return false;
+      if (perm !== "granted") return { ok: false, reason: "permission_denied" };
 
       // 2. Fetch the server's VAPID public key
       const keyRes = await fetch(`${API}/api/notifications/push/vapid-public-key`);
@@ -193,7 +206,7 @@ export function usePushNotifications(): UsePushNotifications {
       if (!keyJson?.ok || !keyJson?.publicKey) {
         // Real config issue — server is missing VAPID. Surface loud.
         console.error("[push] VAPID key not available from server");
-        return false;
+        return { ok: false, reason: "vapid_missing" };
       }
 
       // 3. Subscribe via PushManager
@@ -203,16 +216,25 @@ export function usePushNotifications(): UsePushNotifications {
         // Already subscribed in this browser — just make sure the server knows
         setSubscribed(true);
       }
-      const subscription = existing ?? await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(keyJson.publicKey) as any,
-      });
+      let subscription: PushSubscription;
+      try {
+        subscription = existing ?? await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(keyJson.publicKey) as any,
+        });
+      } catch (subErr: any) {
+        // Brave Shields blocks Google FCM by default → "Registration failed - push service error"
+        // Firefox in private mode → "Push service not available"
+        // Some corporate networks block https://fcm.googleapis.com
+        console.error("[push] PushManager.subscribe rejected:", subErr?.message);
+        return { ok: false, reason: "push_service_blocked", detail: subErr?.message };
+      }
 
       // 4. Register with backend (needs user auth)
       const authHeader = await getAuthHeader();
       if (!authHeader.Authorization) {
         if (import.meta.env.DEV) console.warn("[push] no auth session — cannot register subscription");
-        return false;
+        return { ok: false, reason: "auth_required" };
       }
       const payload = {
         subscription: subscription.toJSON(),
@@ -226,13 +248,13 @@ export function usePushNotifications(): UsePushNotifications {
       const json = await res.json();
       if (!json?.ok) {
         console.error("[push] server rejected subscription:", json?.error);
-        return false;
+        return { ok: false, reason: "server_rejected", detail: json?.error };
       }
       setSubscribed(true);
-      return true;
+      return { ok: true };
     } catch (err: any) {
       console.error("[push] subscribe failed:", err?.message);
-      return false;
+      return { ok: false, reason: "unknown", detail: err?.message };
     } finally {
       setLoading(false);
     }
