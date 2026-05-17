@@ -99,13 +99,24 @@ export default function Referrals() {
     if (providerSearch.length < 2) { setSearchResults([]); return; }
     const timer = setTimeout(async () => {
       try {
+        // specialty lives on provider_profiles (Multi-Role Step 4 column move).
+        // The previous .select("id, full_name, specialty") on profiles 42703'd
+        // → silent empty search. Join through provider_profiles to keep the
+        // specialty badge while restricting to providers only.
         const { data } = await supabase
-          .from("profiles")
-          .select("id, full_name, specialty")
-          .ilike("full_name", `%${providerSearch}%`)
+          .from("provider_profiles" as any)
+          .select("user_id, specialty, profiles!provider_profiles_user_id_fkey(id, full_name)")
+          .ilike("profiles.full_name", `%${providerSearch}%`)
           .limit(8);
-        setSearchResults((data ?? []) as ProviderSearchResult[]);
-      } catch {}
+        const flattened = (data ?? []).map((row: any) => ({
+          id: row.profiles?.id ?? row.user_id,
+          full_name: row.profiles?.full_name ?? "",
+          specialty: row.specialty ?? null,
+        })) as ProviderSearchResult[];
+        setSearchResults(flattened);
+      } catch (err: any) {
+        console.warn("[Referrals] provider search failed:", err?.message);
+      }
     }, 300);
     return () => clearTimeout(timer);
   }, [providerSearch]);

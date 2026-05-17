@@ -107,15 +107,18 @@ export default function ProviderAvailability() {
     };
     load();
 
-    // Load blocked dates / exceptions
+    // Load blocked dates / exceptions.
+    // Column is `reason` not `label` — confirmed via prod schema probe
+    // 2026-05-16. Previous select 42703'd → silent empty list, page rendered
+    // "no blocked dates" even when the provider had them set.
     supabase.from("provider_availability_override" as any)
-      .select("date, label")
+      .select("date, reason")
       .eq("provider_id", supabaseId)
       .gte("date", getSASTDateKey())
       .order("date", { ascending: true })
       .then(({ data: overrides }: any /* TODO(types) */) => {
         if (overrides && (overrides as any[]).length > 0) {
-          setLocalExceptions((overrides as any[]).map((o: any /* TODO(types) */) => ({ date: o.date, label: o.label ?? "Blocked" })));
+          setLocalExceptions((overrides as any[]).map((o: any /* TODO(types) */) => ({ date: o.date, label: o.reason ?? "Blocked" })));
         }
       });
   }, [supabaseId]);
@@ -209,7 +212,7 @@ export default function ProviderAvailability() {
       supabase.from("provider_availability_override" as any).upsert({
         provider_id: supabaseId,
         date: newExDate,
-        label,
+        reason: label,  // column is `reason`, not `label` — schema probe 2026-05-16
         is_available: false,
       }, { onConflict: "provider_id,date" }).then(({ error }: any /* TODO(types) */) => {
         if (error) {

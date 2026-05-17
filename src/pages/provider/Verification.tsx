@@ -88,11 +88,11 @@ export default function ProviderVerification() {
         // Load reg number from profile
         const { data: profile } = await supabase
           .from("profiles")
-          .select("professional_reg_number")
+          .select("regulator_number")
           .eq("id", supabaseId)
           .single();
-        if (profile && (profile as any).professional_reg_number) {
-          setRegNumber((profile as any).professional_reg_number);
+        if (profile && (profile as any).regulator_number) {
+          setRegNumber((profile as any).regulator_number);
         }
       } catch (err: any) {
         if (import.meta.env.DEV) console.error("[verification] load error:", err);
@@ -261,7 +261,7 @@ export default function ProviderVerification() {
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({ professional_reg_number: regNumber } as any)
+        .update({ regulator_number: regNumber } as any)
         .eq("id", supabaseId);
       if (error) {
         // Column may not exist — fall back to localStorage
