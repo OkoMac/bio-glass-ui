@@ -214,7 +214,16 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">
-      <button onClick={() => navigate(-1)} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
+      {/* Back button — navigate(-1) was a no-op when the user landed via role
+          switch (switchRole uses window.location.href which resets history.length=1).
+          Fall back to the role's home so the button is never dead. 2026-05-17 fix. */}
+      <button onClick={() => {
+        if (window.history.length > 1) navigate(-1);
+        else if ((user as any)?.role === "admin") navigate("/admin/dashboard");
+        else if ((user as any)?.role === "provider") navigate("/pro/dashboard");
+        else if ((user as any)?.role === "sales_rep") navigate("/rep/dashboard");
+        else navigate("/home");
+      }} className="md:hidden absolute top-4 left-4 z-50 w-10 h-10 glass-2 rounded-full flex items-center justify-center text-foreground hover:bg-white/[0.06] transition-colors">
         <ArrowLeft className="w-5 h-5" />
       </button>
       <div className="w-full px-4 md:px-8 xl:px-12 pt-24 pb-10 md:pt-8 space-y-6">
