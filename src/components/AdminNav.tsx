@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Users, Briefcase, BarChart2,
@@ -13,6 +13,7 @@ import {
   SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet";
+import RoleSwitcher from "@/components/RoleSwitcher";
 
 const navItems = [
   { icon: Sparkles,        label: "Ops Inbox",    path: "/admin/b-inbox"        },
@@ -41,8 +42,7 @@ const navItems = [
 ];
 
 export default function AdminNav() {
-  const { user, logout, switchRole, availableRoles } = useAuth();
-  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   return (
     <>
@@ -89,28 +89,8 @@ export default function AdminNav() {
               <p className="text-[10px] text-coral">Administrator</p>
             </div>
           </div>
-          {/* Admins can impersonate every role for QA / support, even ones
-              their user_roles row doesn't include. Non-admins (shouldn't
-              normally render this nav anyway) only see roles they own. */}
-          {(["client", "provider", "corporate", "sales_rep"] as const)
-            .filter(r => user?.role === "admin" || availableRoles.includes(r))
-            .map(r => {
-            const cfg: Record<string, { label: string; icon: string; path: string }> = {
-              client: { label: "Client", icon: "👤", path: "/home" },
-              provider: { label: "Provider", icon: "🏥", path: "/pro/dashboard" },
-              corporate: { label: "Corporate", icon: "🏢", path: "/corporate/dashboard" },
-              sales_rep: { label: "Ranger", icon: "⚡", path: "/rep/dashboard" },
-            };
-            const c = cfg[r];
-            if (!c) return null;
-            return (
-              <button key={r}
-                onClick={() => { switchRole(r as any); window.location.href = c.path; }}
-                className="w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all text-sm">
-                <span>{c.icon}</span> Switch to {c.label}
-              </button>
-            );
-          })}
+          {/* Shared dropdown — gated to Oko + Lee inside RoleSwitcher. */}
+          <RoleSwitcher inline />
           <button onClick={logout}
             aria-label="Sign out"
             className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground hover:text-coral hover:bg-white/5 transition-all text-sm">

@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -16,6 +16,7 @@ import {
   SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet";
+import RoleSwitcher from "@/components/RoleSwitcher";
 
 const navItems = [
   { to: "/pro/dashboard",     label: "Dashboard",   icon: LayoutDashboard },
@@ -47,8 +48,7 @@ const mobileNav = [
 ];
 
 export default function ProviderNav() {
-  const navigate = useNavigate();
-  const { user, logout, switchRole, availableRoles } = useAuth();
+  const { user, logout } = useAuth();
   const { pendingCount } = useBookings();
   const { tierDisplayName, isActive } = useSubscription();
   // Real unread-message count for the Messages badge — replaces the
@@ -115,23 +115,8 @@ export default function ProviderNav() {
               <p className="text-[10px] text-muted-foreground">{tierDisplayName()} Plan{isActive() ? " · Active" : ""}</p>
             </div>
           </div>
-          {availableRoles.filter(r => r !== "provider").map(r => {
-            const cfg: Record<string, { label: string; icon: string; path: string }> = {
-              client: { label: "Client", icon: "👤", path: "/home" },
-              admin: { label: "Admin", icon: "🛡️", path: "/admin/dashboard" },
-              corporate: { label: "Corporate", icon: "🏢", path: "/corporate/dashboard" },
-              sales_rep: { label: "Ranger", icon: "⚡", path: "/rep/dashboard" },
-            };
-            const c = cfg[r];
-            if (!c) return null;
-            return (
-              <button key={r}
-                onClick={() => { switchRole(r as any); window.location.href = c.path; }}
-                className="w-full flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
-                <span className="text-sm">{c.icon}</span> Switch to {c.label}
-              </button>
-            );
-          })}
+          {/* Shared dropdown — gated to Oko + Lee inside RoleSwitcher. */}
+          <RoleSwitcher inline />
           <button
             onClick={logout}
             className="w-full flex items-center gap-2 text-xs text-muted-foreground hover:text-coral transition-colors py-1"
