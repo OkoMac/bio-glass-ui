@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { LayoutDashboard, Users, BarChart2, Wallet, Settings, Building2, LogOut, Briefcase, Shield, ClipboardList, Menu } from "lucide-react";
+import RoleSwitcher from "@/components/RoleSwitcher";
 import {
   Sheet,
   SheetContent,
@@ -65,6 +66,10 @@ export default function CorporateNav() {
               <p className="text-xs font-medium text-foreground truncate">{user?.name}</p>
               <p className="text-[10px] text-amber">Corporate Admin</p>
             </div>
+          </div>
+          {/* One-click role switcher for multi-role users. 2026-05-18. */}
+          <div className="px-1">
+            <RoleSwitcher inline />
           </div>
           <button onClick={logout}
             className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground hover:text-amber hover:bg-white/5 transition-all text-sm">

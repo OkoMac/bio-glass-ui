@@ -1,4 +1,3 @@
-import { useAdminToken } from "@/hooks/useAdminToken";
 /**
  * B_ Admin Assistant Inbox — the "what needs my attention right now" surface.
  *
@@ -22,7 +21,6 @@ import {
 } from "lucide-react";
 import AdminNav from "@/components/AdminNav";
 import GlassCard from "@/components/GlassCard";
-import AdminTokenGate from "@/components/AdminTokenGate";
 import { authFetch } from "@/lib/authFetch";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
@@ -87,15 +85,22 @@ function ageLabel(hours: number): string {
 
 export default function BInbox() {
   const navigate = useNavigate();
-  const { token, loading: tokenLoading } = useAdminToken();
+  // useAdminToken removed 2026-05-18 — the gate caused the inbox to spin
+  // forever for admins whose X-Admin-Token hadn't been auto-resolved.
+  // Backend's requireAdmin uses Supabase JWT + user_roles, so authFetch's
+  // JWT is sufficient. Route's RequireAuth already gates page access.
   const [items, setItems] = useState<InboxItem[]>([]);
   const [counts, setCounts] = useState<Record<Priority, number>>({ urgent: 0, high: 0, normal: 0, low: 0 });
   const [loading, setLoading] = useState(false);
   const [generatedAt, setGeneratedAt] = useState<string | null>(null);
   const [filter, setFilter] = useState<Priority | "all">("all");
 
+  // 2026-05-18 fix: was gated on the legacy X-Admin-Token (useAdminToken).
+  // requireAdmin on the backend now uses the Supabase JWT + user_roles
+  // check (not the static token), so authFetch's JWT is sufficient. The
+  // token gate was the reason the page spun forever for users whose
+  // admin token hadn't been bootstrapped — they'd never call load().
   const load = useCallback(async (quiet = false) => {
-    if (!token) return;
     if (!quiet) setLoading(true);
     try {
       const res = await authFetch(`/api/admin/assistant/inbox`);
@@ -109,22 +114,19 @@ export default function BInbox() {
     } finally {
       if (!quiet) setLoading(false);
     }
-  }, [token]);
+  }, []);
 
-  // Initial load + 60 s polling
+  // Initial load + 60 s polling — unconditional. Route already gated admin.
   useEffect(() => {
-    if (!token) return;
     load();
     const t = setInterval(() => load(true), 60_000);
     return () => clearInterval(t);
-  }, [token, load]);
+  }, [load]);
 
   const visible = useMemo(() => {
     if (filter === "all") return items;
     return items.filter((i) => i.priority === filter);
   }, [items, filter]);
-
-  if (!token) return <AdminTokenGate tokenLoading={tokenLoading} />;
 
   return (
     <div className="min-h-screen bg-obsidian bg-obsidian-glow md:pl-56 relative">

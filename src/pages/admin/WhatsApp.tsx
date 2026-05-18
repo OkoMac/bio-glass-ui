@@ -59,8 +59,15 @@ function relative(ts: string | number | null | undefined) {
 
 export default function AdminWhatsApp() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const isAdmin = user?.role === "admin";
+  const { user, availableRoles } = useAuth();
+  // ANY user with admin in their availableRoles can see WhatsApp messages
+  // (per 2026-05-18 request: "make sure that all admins can see whatsapp
+  // messages when they log in"). Previous check was user.role === "admin"
+  // which gated on the currently-selected role — multi-role users sitting
+  // in provider/client view would silently get 0 threads even though they
+  // had admin permission. The route's RequireAuth still gates page access
+  // to the admin role specifically; this just bulletproofs the inside.
+  const isAdmin = user?.role === "admin" || (availableRoles ?? []).includes("admin");
   const [threads, setThreads] = useState<Thread[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [detail, setDetail] = useState<ThreadDetail | null>(null);
@@ -74,20 +81,23 @@ export default function AdminWhatsApp() {
   // the recipient + preview before the message actually leaves.
   const [pendingReply, setPendingReply] = useState<{ phone: string; message: string } | null>(null);
 
+  // No isAdmin early returns inside fetch fns anymore — if you reached this
+  // page, the route already verified admin role. The inner gates were
+  // racing the auth hydration on cold mount (user starts null, isAdmin
+  // false, fetch no-ops; useEffect re-fires when isAdmin flips true but
+  // by then the React state and side-effects can mismatch).
   async function fetchThreads() {
-    if (!isAdmin) return;
     setLoading(true); setErr(null);
     try {
       const r = await authFetch(`/api/whatsapp/admin/conversations`);
       const d = await r.json();
       if (!r.ok || !d.ok) throw new Error(d.error ?? `HTTP ${r.status}`);
-      setThreads(d.threads);
+      setThreads(d.threads ?? []);
     } catch (e: any) { setErr(e.message); }
     finally { setLoading(false); }
   }
 
   async function fetchDetail(phone: string) {
-    if (!isAdmin) return;
     try {
       const r = await authFetch(`/api/whatsapp/admin/conversations/${phone}`);
       const d = await r.json();
@@ -97,7 +107,6 @@ export default function AdminWhatsApp() {
   }
 
   async function fetchStats() {
-    if (!isAdmin) return;
     try {
       const r = await authFetch(`/api/whatsapp/admin/stats`);
       const d = await r.json();
@@ -135,13 +144,18 @@ export default function AdminWhatsApp() {
   };
 
   useEffect(() => {
-    if (isAdmin) { fetchThreads(); fetchStats(); }
-    const iv = setInterval(() => { if (isAdmin) { fetchThreads(); fetchStats(); } }, 30_000);
+    // Fetch unconditionally on mount — route guard already confirmed admin.
+    // Previous guard was `if (isAdmin)` which raced auth hydration; if the
+    // user state was still null/loading at mount, the fetch would no-op and
+    // never retry until something else changed the dep.
+    fetchThreads();
+    fetchStats();
+    const iv = setInterval(() => { fetchThreads(); fetchStats(); }, 30_000);
     return () => clearInterval(iv);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAdmin]);
+  }, []);
 
-  useEffect(() => { if (selected && isAdmin) { fetchDetail(selected); } }, [selected, isAdmin]);
+  useEffect(() => { if (selected) { fetchDetail(selected); } }, [selected]);
 
   const sorted = useMemo(() =>
     [...threads].sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()),

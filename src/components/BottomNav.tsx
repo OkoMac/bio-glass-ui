@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Compass, MessageCircle, Dumbbell, Zap } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useConversations } from "@/hooks/useMessaging";
+import RoleSwitcher from "@/components/RoleSwitcher";
 
 const tabs = [
   { icon: Compass,       label: "Discover",  path: "/home" },
@@ -95,6 +96,9 @@ const BottomNav = () => {
           );
         })}
       </div>
+      {/* One-click role switcher for multi-role users (admin/provider/ranger/corporate).
+          Lives top-right since there's no sidebar in client mode. 2026-05-18. */}
+      <RoleSwitcher />
     </motion.nav>
   );
 };

@@ -1,0 +1,115 @@
+import { useState, useEffect, useRef } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { ChevronDown } from "lucide-react";
+
+/**
+ * One-click role switcher for multi-role users.
+ *
+ * Two render modes:
+ *  - `inline` (default false): list of "Switch to X" buttons stacked vertically.
+ *    Drop into a sidebar footer (AdminNav / ProviderNav / CorporateNav / RepNav).
+ *  - `inline={false}`: floating top-right chip with a dropdown of other roles.
+ *    Drop into client-side pages where there's no sidebar to put it in.
+ *
+ * GATED to specific accounts (Oko + Lee) per 2026-05-18 request — this is an
+ * internal testing surface, not yet exposed to general multi-role users.
+ * To open it up later: delete the ALLOWED_EMAILS check.
+ */
+const ALLOWED_EMAILS = new Set<string>([
+  "omacanda@gmail.com",       // Oko
+  "investable123@gmail.com",  // Lee
+]);
+
+const ROLE_CONFIG: Record<string, { label: string; icon: string; path: string }> = {
+  client:    { label: "Client",    icon: "👤", path: "/home" },
+  provider:  { label: "Provider",  icon: "🏥", path: "/pro/dashboard" },
+  admin:     { label: "Admin",     icon: "🛡️", path: "/admin/dashboard" },
+  corporate: { label: "Corporate", icon: "🏢", path: "/corporate/dashboard" },
+  sales_rep: { label: "Ranger",    icon: "⚡", path: "/rep/dashboard" },
+};
+
+export default function RoleSwitcher({ inline = false }: { inline?: boolean }) {
+  const { user, availableRoles, switchRole } = useAuth();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [open]);
+
+  // Allowlist gate — only render for the two test accounts.
+  if (!user?.email || !ALLOWED_EMAILS.has(user.email.toLowerCase())) return null;
+  if (!availableRoles || availableRoles.length <= 1) return null;
+  const currentRole = (user?.role ?? "client") as string;
+  const others = availableRoles.filter((r) => r !== currentRole);
+  if (others.length === 0) return null;
+
+  const handleSwitch = (r: string) => {
+    const c = ROLE_CONFIG[r];
+    if (!c) return;
+    // switchRole writes to bio_user + DB; window.location.href forces a fresh
+    // shell so role-conditional layouts (sidebars, nav, theme) re-mount cleanly.
+    switchRole(r as any);
+    window.location.href = c.path;
+  };
+
+  if (inline) {
+    return (
+      <div className="space-y-0.5">
+        {others.map((r) => {
+          const c = ROLE_CONFIG[r];
+          if (!c) return null;
+          return (
+            <button
+              key={r}
+              onClick={() => handleSwitch(r)}
+              className="w-full flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1"
+            >
+              <span className="text-sm">{c.icon}</span> Switch to {c.label}
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // Floating chip with dropdown — for pages without a sidebar (client mode).
+  const current = ROLE_CONFIG[currentRole];
+  return (
+    <div ref={ref} className="fixed top-4 right-4 z-50">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="glass-2 rounded-pill px-3 py-1.5 text-xs font-medium text-foreground flex items-center gap-1.5 shadow-card"
+        aria-label="Switch role"
+      >
+        <span>{current?.icon ?? "👤"}</span>
+        <span>{current?.label ?? currentRole}</span>
+        <ChevronDown className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute top-full right-0 mt-2 glass-3 rounded-2xl p-2 min-w-[200px] border border-white/[0.08] shadow-card">
+          {others.map((r) => {
+            const c = ROLE_CONFIG[r];
+            if (!c) return null;
+            return (
+              <button
+                key={r}
+                onClick={() => handleSwitch(r)}
+                className="w-full flex items-center gap-2 text-xs text-foreground px-3 py-2 rounded-xl hover:bg-white/[0.04] transition-colors"
+              >
+                <span className="text-sm">{c.icon}</span>
+                <span>Switch to {c.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
