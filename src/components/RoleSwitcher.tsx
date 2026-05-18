@@ -59,57 +59,66 @@ export default function RoleSwitcher({ inline = false }: { inline?: boolean }) {
     window.location.href = c.path;
   };
 
+  const current = ROLE_CONFIG[currentRole];
+
+  // Shared dropdown menu (used by both inline and floating variants)
+  const menu = open && (
+    <div
+      className={`absolute glass-3 rounded-2xl p-2 min-w-[200px] border border-white/[0.08] shadow-card z-50 ${
+        inline ? "bottom-full mb-2 left-0 right-0" : "top-full right-0 mt-2"
+      }`}
+    >
+      {others.map((r) => {
+        const c = ROLE_CONFIG[r];
+        if (!c) return null;
+        return (
+          <button
+            key={r}
+            onClick={() => handleSwitch(r)}
+            className="w-full flex items-center gap-2 text-xs text-foreground px-3 py-2 rounded-xl hover:bg-white/[0.04] transition-colors"
+          >
+            <span className="text-sm">{c.icon}</span>
+            <span>Switch to {c.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+
   if (inline) {
+    // Sidebar variant — fits the sidebar column with a button that opens
+    // upward (since sidebar footer sits at the bottom of the viewport).
     return (
-      <div className="space-y-0.5">
-        {others.map((r) => {
-          const c = ROLE_CONFIG[r];
-          if (!c) return null;
-          return (
-            <button
-              key={r}
-              onClick={() => handleSwitch(r)}
-              className="w-full flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1"
-            >
-              <span className="text-sm">{c.icon}</span> Switch to {c.label}
-            </button>
-          );
-        })}
+      <div ref={ref} className="relative">
+        <button
+          onClick={() => setOpen((o) => !o)}
+          aria-label="Switch role"
+          className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all"
+        >
+          <span className="flex items-center gap-2">
+            <span className="text-sm">{current?.icon ?? "👤"}</span>
+            <span>Switch role</span>
+          </span>
+          <ChevronDown className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`} />
+        </button>
+        {menu}
       </div>
     );
   }
 
-  // Floating chip with dropdown — for pages without a sidebar (client mode).
-  const current = ROLE_CONFIG[currentRole];
+  // Floating chip — for pages without a sidebar (client / ranger mode).
   return (
     <div ref={ref} className="fixed top-4 right-4 z-50">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="glass-2 rounded-pill px-3 py-1.5 text-xs font-medium text-foreground flex items-center gap-1.5 shadow-card"
         aria-label="Switch role"
+        className="glass-2 rounded-pill px-3 py-1.5 text-xs font-medium text-foreground flex items-center gap-1.5 shadow-card"
       >
         <span>{current?.icon ?? "👤"}</span>
         <span>{current?.label ?? currentRole}</span>
         <ChevronDown className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && (
-        <div className="absolute top-full right-0 mt-2 glass-3 rounded-2xl p-2 min-w-[200px] border border-white/[0.08] shadow-card">
-          {others.map((r) => {
-            const c = ROLE_CONFIG[r];
-            if (!c) return null;
-            return (
-              <button
-                key={r}
-                onClick={() => handleSwitch(r)}
-                className="w-full flex items-center gap-2 text-xs text-foreground px-3 py-2 rounded-xl hover:bg-white/[0.04] transition-colors"
-              >
-                <span className="text-sm">{c.icon}</span>
-                <span>Switch to {c.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      )}
+      {menu}
     </div>
   );
 }
