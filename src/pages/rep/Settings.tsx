@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import GlassCard from "@/components/GlassCard";
 import RepNav from "@/components/RepNav";
+import MyRolesSection from "@/components/MyRolesSection";
 import { User, Mail, Phone, LogOut, Shield, Copy, Check, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { signOutSupabase } from "@/lib/auth";
@@ -68,6 +69,9 @@ export default function RepSettings() {
           <h1 className="text-xl font-bold text-foreground">{user?.name ?? "Sales Rep"}</h1>
           <span className="text-[10px] px-2 py-0.5 rounded-pill bg-emerald-500/20 text-emerald-400 font-semibold">Sales Representative</span>
         </div>
+
+        {/* My roles — self-service add another role to this account */}
+        <MyRolesSection />
 
         {/* Info */}
         <GlassCard className="divide-y divide-white/[0.06]">

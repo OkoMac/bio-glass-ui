@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
 import BionAssistant from "@/components/BionAssistant";
+import MyRolesSection from "@/components/MyRolesSection";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Building2, Users, Bell, CreditCard, Save, Check,
@@ -118,6 +119,9 @@ export default function CorporateSettings() {
         {/* Company tab */}
         {tab === "company" && (
           <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} className="space-y-4">
+            {/* My roles — self-service add another role to this account */}
+            <MyRolesSection />
+
             <GlassCard className="p-5 space-y-4">
               <div className="flex items-center gap-2 mb-1">
                 <Building2 className="w-4 h-4 text-amber"/>
