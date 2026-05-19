@@ -128,7 +128,16 @@ export default function ProviderProfile() {
   // When the date (or resolved slot list) changes, make sure the selected
   // time is still valid. If not, auto-pick the first available slot so the
   // booking summary never renders a stale/invalid time.
+  //
+  // 2026-05-19 (Lee bug): only police bookingTime when we're in the
+  // precise-slot regime (provider has published hours). When the
+  // provider has no published hours, the UI shows coarse pills —
+  // "Morning"/"Afternoon"/"Evening" — and we let those stand even though
+  // they're not in availableSlots. Previously this effect was wiping
+  // those selections the moment the user tapped them ("flash but no
+  // update" symptom).
   useEffect(() => {
+    if (slotsReason === "no_hours_published") return; // coarse-window mode
     if (availableSlots.length === 0) {
       if (bookingTime !== "") setBookingTime("");
       return;
@@ -136,7 +145,7 @@ export default function ProviderProfile() {
     if (!availableSlots.includes(bookingTime)) {
       setBookingTime(availableSlots[0]);
     }
-  }, [availableSlots, bookingTime]);
+  }, [availableSlots, bookingTime, slotsReason]);
 
   // Bridge the scraped slug (cen_lynette) → BION profile UUID via the
   // Slug → BION profile UUID resolution via the shared hook (also used
