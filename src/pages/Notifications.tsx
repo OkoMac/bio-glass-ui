@@ -55,8 +55,15 @@ function mapDbType(type: string): NotifCategory {
 
 // ── Helpers ────────────────────────────────────────────────────────
 
-function relativeTime(date: Date | string): string {
+function relativeTime(date: Date | string | null | undefined): string {
+  // 2026-05-19: pre-fix, a notification row with a null/invalid
+  // created_at threw "Cannot read properties of null (reading 'getTime')"
+  // here and the whole /notifications page crashed into the
+  // ErrorBoundary. Guard with a parsed-validity check and return a
+  // friendly fallback instead of throwing.
+  if (date == null) return "";
   const d = typeof date === "string" ? new Date(date) : date;
+  if (!(d instanceof Date) || Number.isNaN(d.getTime())) return "";
   const diff = Date.now() - d.getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "Just now";
@@ -106,8 +113,13 @@ export default function Notifications() {
   });
 
   // ── Build real notifications from data sources ──
+  // 2026-05-19: wrapped in try/catch so a single bad row (null
+  // created_at, malformed booking.date, etc.) doesn't bubble up to the
+  // ErrorBoundary and dump the user on "Something went wrong". Failure
+  // here ends with whatever good rows we already pushed.
   useEffect(() => {
     const build = async () => {
+      try {
       const list: Notification[] = [];
       const now = Date.now();
       const today = getSASTDateKey();
@@ -256,6 +268,12 @@ export default function Notifications() {
 
       setNotifications(list);
       setLoading(false);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error("[notifications] build failed:", err);
+        // Whatever we have is enough to render — partial > crash.
+        setLoading(false);
+      }
     };
 
     build();
