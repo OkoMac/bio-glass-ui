@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import ProviderNav from "@/components/ProviderNav";
+import MyRolesSection from "@/components/MyRolesSection";
 import ServiceAreaCard from "@/components/provider/ServiceAreaCard";
 import BankConnectSection from "@/components/provider/BankConnectSection";
 import { ImagePickerOverlay } from "@/components/ImagePickerOverlay";
@@ -205,6 +206,9 @@ export default function ProviderSettings() {
           {/* ── PROFILE ── */}
           {tab === "profile" && (
             <motion.div key="profile" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-4">
+
+              {/* My roles — add Client / Corporate / request Ranger from a provider account */}
+              <MyRolesSection />
 
               {/* Avatar */}
               <GlassCard className="p-4 flex items-center gap-4">

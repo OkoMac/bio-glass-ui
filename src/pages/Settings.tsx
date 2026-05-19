@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { openCookieBanner } from "@/components/CookieConsent";
 import NotificationSettings from "@/components/NotificationSettings";
+import MyRolesSection from "@/components/MyRolesSection";
 import { getConsent, onConsentChanged, type ConsentState } from "@/lib/cookieConsent";
 import { trackedFetch } from "@/lib/errorReporter";
 
@@ -1157,6 +1158,9 @@ export default function Settings() {
         {/* ── Account ── */}
         {tab === "account" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+
+            {/* My roles — self-service add another role to this account */}
+            <MyRolesSection />
 
             {/* Email verification banner */}
             {emailVerified === false && verifyStep !== "verified" && (
