@@ -633,9 +633,15 @@ export default function SplashOnboarding() {
   // ── Role selection ────────────────────────────────────────────────
   if (phase === "role") {
     return (
-      <div className="fixed inset-0 z-[100] bg-obsidian flex flex-col items-center justify-center px-6"
+      // 2026-05-19 (Lee bug): was `fixed inset-0 ... items-center justify-center`
+      // which vertically centred the column AND had no overflow rule, so on
+      // viewports shorter than the content (role list + 4 tool cards + CTA
+      // + demo-accounts row) the bottom got clipped with no scrollbar.
+      // Switched to overflow-y-auto + flex-start so the column can scroll
+      // when it overflows and stays roughly centred when it fits.
+      <div className="fixed inset-0 z-[100] bg-obsidian overflow-y-auto flex flex-col items-center px-6 py-10"
         style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(99,102,241,0.08) 0%, #0A0A0F 65%)" }}>
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-sm space-y-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-sm space-y-6 my-auto">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-foreground">How are you using BION?</h1>
             <p className="text-sm text-muted-foreground mt-1">Choose your path.</p>
