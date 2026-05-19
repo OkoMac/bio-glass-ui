@@ -4,15 +4,21 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import GlassCard from "@/components/GlassCard";
 import { Check, Loader2, Plus, Clock, ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 type AddableRole = "client" | "provider" | "corporate" | "sales_rep";
 
-const ROLE_CATALOG: { role: AddableRole; label: string; icon: string; desc: string; dest: string }[] = [
-  { role: "client",    label: "Client",    icon: "👤", desc: "Book sessions, track wellness, use B_ and all utilities.", dest: "/home" },
-  { role: "provider",  label: "Provider",  icon: "🏥", desc: "Take bookings, sell services, build a clientele.",        dest: "/pro/dashboard" },
-  { role: "corporate", label: "Corporate", icon: "🏢", desc: "Manage employee wellness budgets and benefits.",          dest: "/corporate/dashboard" },
-  { role: "sales_rep", label: "Ranger",    icon: "⚡", desc: "Earn commissions referring providers. Admin approval required.", dest: "/rep/dashboard" },
+const ROLE_CATALOG: {
+  role: AddableRole;
+  label: string;
+  icon: string;
+  desc: string;
+  dest: string;            // where to land when the user clicks "Open" on an already-active role
+  onboarding: string | null; // where to land RIGHT AFTER adding the role; null = no onboarding step
+}[] = [
+  { role: "client",    label: "Client",    icon: "👤", desc: "Book sessions, track wellness, use B_ and all utilities.", dest: "/home",                  onboarding: null },
+  { role: "provider",  label: "Provider",  icon: "🏥", desc: "Take bookings, sell services, build a clientele.",        dest: "/pro/dashboard",         onboarding: "/onboarding/provider" },
+  { role: "corporate", label: "Corporate", icon: "🏢", desc: "Manage employee wellness budgets and benefits.",          dest: "/corporate/dashboard",   onboarding: "/onboarding/corporate" },
+  { role: "sales_rep", label: "Ranger",    icon: "⚡", desc: "Earn commissions referring providers. Admin approval required.", dest: "/rep/dashboard",  onboarding: "/rep/agreement" },
 ];
 
 const API = (import.meta as any).env?.VITE_API_URL ?? "https://bion-backend.onrender.com";
@@ -33,8 +39,7 @@ const API = (import.meta as any).env?.VITE_API_URL ?? "https://bion-backend.onre
  *   • admin — not exposed here. Assigned by ops only.
  */
 export default function MyRolesSection() {
-  const { user, availableRoles, refetchUser } = useAuth();
-  const navigate = useNavigate();
+  const { user, availableRoles, refetchUser, switchRole } = useAuth();
   const [busyRole, setBusyRole] = useState<AddableRole | null>(null);
   const [rangerStatus, setRangerStatus] = useState<string | null>(null);
   const [loadingStatus, setLoadingStatus] = useState(true);
@@ -92,12 +97,38 @@ export default function MyRolesSection() {
             ? "Your Ranger request is already active."
             : "Ranger request submitted. An admin will review it.",
         );
-      } else {
-        // Granted — refresh availableRoles so RoleSwitcher picks up the new role.
-        await refetchUser();
-        const cfg = ROLE_CATALOG.find((c) => c.role === role);
-        toast.success(`${cfg?.label ?? role} role added to your account.`);
+        return;
       }
+
+      // Granted — pull the new role into availableRoles, switch the
+      // active role, then funnel the user through that role's
+      // onboarding step (or straight to /home for client which has
+      // no onboarding). window.location.href forces a fresh shell
+      // mount so role-conditional layouts re-render cleanly, same as
+      // RoleSwitcher.
+      //
+      // IMPORTANT (2026-05-19): we suppress the App.tsx
+      // force-redirect-to-onboarding gate by pre-stamping
+      // bion_onboarding_done_${userId} = "1". This funnels the user
+      // INTO onboarding once for verification, but DOESN'T trap them
+      // there — they can navigate away and use the role freely.
+      // Verification status still lives server-side (provider_profiles
+      // .onboarding_completed, .provider_status) so reminders /
+      // banners / role-specific gates can nudge them to finish later.
+      await refetchUser();
+      const cfg = ROLE_CATALOG.find((c) => c.role === role);
+      toast.success(`${cfg?.label ?? role} role added.`);
+
+      // Stop the global gate from snapping the user back to
+      // /onboarding/* on every page load.
+      if (user?.id) {
+        try { localStorage.setItem(`bion_onboarding_done_${user.id}`, "1"); } catch { /* */ }
+      }
+
+      const target = cfg?.onboarding ?? cfg?.dest ?? "/home";
+      try { await switchRole(role as any); } catch { /* non-fatal */ }
+      // Small delay so the toast renders before navigation eats it.
+      setTimeout(() => { window.location.href = target; }, 300);
     } catch (err: any) {
       toast.error(err?.message ?? "Network error — try again.");
     } finally {
@@ -144,7 +175,14 @@ export default function MyRolesSection() {
               <div className="shrink-0">
                 {isActive ? (
                   <button
-                    onClick={() => navigate(cfg.dest)}
+                    onClick={async () => {
+                      // Active role → switch into it (if not already)
+                      // and land on its dashboard. window.location.href
+                      // forces a fresh shell mount, same pattern as
+                      // RoleSwitcher.
+                      try { await switchRole(cfg.role as any); } catch { /* */ }
+                      window.location.href = cfg.dest;
+                    }}
                     className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors"
                     aria-label={`Open ${cfg.label}`}>
                     Open <ArrowRight className="w-3 h-3" />
