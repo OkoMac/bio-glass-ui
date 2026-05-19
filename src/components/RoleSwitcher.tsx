@@ -6,16 +6,21 @@ import { ChevronDown } from "lucide-react";
  * One-click role switcher for multi-role users.
  *
  * Two render modes:
- *  - `inline` (default false): list of "Switch to X" buttons stacked vertically.
- *    Drop into a sidebar footer (AdminNav / ProviderNav / CorporateNav / RepNav).
+ *  - `inline` (default false): dropdown anchored in a sidebar footer
+ *    (AdminNav / ProviderNav / CorporateNav).
  *  - `inline={false}`: floating top-right chip with a dropdown of other roles.
  *    Drop into client-side pages where there's no sidebar to put it in.
  *
- * GATED to specific accounts (Oko + Lee) per 2026-05-18 request — this is an
- * internal testing surface, not yet exposed to general multi-role users.
- * To open it up later: delete the ALLOWED_EMAILS check.
+ * Opened to all multi-role users on 2026-05-19. Anyone with more than one
+ * role in user_roles sees the switcher and can move between their roles.
+ *
+ * Admin role stays gated to ADMIN_ALLOWED — even if a user somehow ends
+ * up with 'admin' in their user_roles, the switcher won't expose admin
+ * as a target unless their email is on the allowlist. Backend / DB
+ * management should never assign admin to anyone outside this set
+ * anyway; this is defence-in-depth.
  */
-const ALLOWED_EMAILS = new Set<string>([
+const ADMIN_ALLOWED = new Set<string>([
   "omacanda@gmail.com",       // Oko
   "investable123@gmail.com",  // Lee
 ]);
@@ -43,11 +48,19 @@ export default function RoleSwitcher({ inline = false }: { inline?: boolean }) {
     return () => document.removeEventListener("mousedown", onDoc);
   }, [open]);
 
-  // Allowlist gate — only render for the two test accounts.
-  if (!user?.email || !ALLOWED_EMAILS.has(user.email.toLowerCase())) return null;
+  // Open to all multi-role users. Admin role is filtered out of the
+  // switch targets below unless the user is on the admin allowlist.
   if (!availableRoles || availableRoles.length <= 1) return null;
   const currentRole = (user?.role ?? "client") as string;
-  const others = availableRoles.filter((r) => r !== currentRole);
+  const isAdminAllowed = !!user?.email && ADMIN_ALLOWED.has(user.email.toLowerCase());
+  const others = availableRoles.filter((r) => {
+    if (r === currentRole) return false;
+    // Admin can only be switched into by the admin allowlist. This is
+    // a UI guard; the real defence is that user_roles shouldn't have
+    // 'admin' for anyone outside the allowlist in the first place.
+    if (r === "admin" && !isAdminAllowed) return false;
+    return true;
+  });
   if (others.length === 0) return null;
 
   const handleSwitch = (r: string) => {
