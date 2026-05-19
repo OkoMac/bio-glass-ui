@@ -246,6 +246,47 @@ export default function BionAssistant() {
   useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 300); }, [open]);
   useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(messages)); }, [messages]);
 
+  // 2026-05-19: server-side history hydration so the conversation
+  // follows the user across devices. Pre-change, BionAssistant kept
+  // messages in localStorage only — new device / cleared cache = B_
+  // lost all memory of the user. Now: on first mount with a real
+  // session, pull last 20 turns from /api/chat/history and merge
+  // ahead of any localStorage cache. Skip for demo accounts.
+  const hydratedRef = useRef(false);
+  useEffect(() => {
+    if (hydratedRef.current) return;
+    if (!user?.id || user.id.startsWith("demo_")) return;
+    hydratedRef.current = true;
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const tok = session?.access_token;
+        if (!tok) return;
+        const r = await fetch(`${import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com"}/api/chat/history?limit=20`, {
+          headers: { Authorization: `Bearer ${tok}` },
+        });
+        const j = await r.json();
+        if (!j.ok || !Array.isArray(j.data) || j.data.length === 0) return;
+
+        const serverMsgs: Message[] = j.data.map((row: any, i: number) => ({
+          id: `srv_${i}_${row.created_at}`,
+          role: row.role === "user" ? "user" : "assistant",
+          text: String(row.content ?? ""),
+          ts: new Date(row.created_at),
+        }));
+
+        // Replace the local thread with server history + a fresh
+        // greeting on top if there's any. The server is the source
+        // of truth — localStorage only existed as a fallback.
+        setMessages([
+          { id: "init", role: "assistant", text: buildGreeting(role, user?.name), ts: new Date() },
+          ...serverMsgs,
+        ]);
+      } catch { /* fail open — keep localStorage-seeded thread */ }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
   const handleClose = () => {
     setOpen(false);
     setInput("");
