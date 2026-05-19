@@ -209,10 +209,16 @@ export default function AdminWhatsApp() {
           </GlassCard>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-4">
+        {/* 2026-05-19 (Oko bug): on mobile the layout stacked the threads
+            list above the detail panel, so tapping a row appended the
+            detail far below the fold and felt like "nothing happens".
+            Mobile now hides the list when a thread is selected and shows
+            the detail full-width with a Back arrow. Desktop layout
+            (md+) keeps both side-by-side as before. */}
+        <div className={`grid gap-4 md:grid-cols-[320px_1fr] ${selected ? "grid-cols-1" : "grid-cols-1"}`}>
 
-          {/* Thread list */}
-          <GlassCard className="p-0 max-h-[75vh] overflow-y-auto">
+          {/* Thread list — hidden on mobile when a thread is open */}
+          <GlassCard className={`p-0 max-h-[75vh] overflow-y-auto ${selected ? "hidden md:block" : ""}`}>
             <div className="sticky top-0 bg-obsidian/90 backdrop-blur px-4 py-3 border-b border-white/5 text-xs uppercase tracking-wider text-muted-foreground">
               {sorted.length} threads
             </div>
@@ -257,8 +263,8 @@ export default function AdminWhatsApp() {
             ))}
           </GlassCard>
 
-          {/* Thread view */}
-          <GlassCard className="p-0 max-h-[75vh] overflow-y-auto">
+          {/* Thread view — hidden on mobile until a thread is selected */}
+          <GlassCard className={`p-0 max-h-[75vh] overflow-y-auto ${selected ? "" : "hidden md:block"}`}>
             {!selected && (
               <div className="p-10 text-center text-muted-foreground text-sm">
                 Pick a thread to view the conversation.
@@ -269,6 +275,14 @@ export default function AdminWhatsApp() {
                 <div className="sticky top-0 bg-obsidian/90 backdrop-blur px-4 py-3 border-b border-white/5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
+                      {/* Mobile-only back button — closes detail and returns to list */}
+                      <button
+                        onClick={() => setSelected(null)}
+                        className="md:hidden -ml-1 mr-1 p-1 rounded-full hover:bg-white/5 transition-colors"
+                        aria-label="Back to threads"
+                      >
+                        <ArrowLeft className="w-4 h-4 text-foreground" />
+                      </button>
                       <Phone className="w-4 h-4 text-muted-foreground" />
                       <span className="text-sm font-medium text-foreground">{formatPhone(detail.phone)}</span>
                       {detail.live && <span className="text-[10px] px-1.5 py-0.5 rounded-pill bg-teal/20 text-teal">live</span>}
