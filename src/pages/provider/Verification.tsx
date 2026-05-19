@@ -253,24 +253,37 @@ export default function ProviderVerification() {
 
   const saveRegNumber = async () => {
     if (!supabaseId) {
+      // True demo mode — no auth, no DB. localStorage IS the source of
+      // truth and the user knows it's demo (banner elsewhere).
       localStorage.setItem("bion_provider_reg_number", regNumber);
-      setSuccess("Saved");
+      setSuccess("Saved (demo mode)");
       setTimeout(() => setSuccess(null), 2000);
       return;
     }
+    // 2026-05-19 (Lee bug): the previous handler showed "Registration
+    // number saved" even when the DB UPDATE failed and silently fell
+    // back to localStorage. Across devices / sessions / cache clears
+    // the user lost their data and was asked to re-enter it on next
+    // login. Fixed: surface errors as errors, mirror to localStorage
+    // only as a UI prefill cache (not source of truth), and only
+    // claim success once the server confirmed the write.
     try {
       const { error } = await supabase
         .from("profiles")
         .update({ regulator_number: regNumber } as any)
         .eq("id", supabaseId);
       if (error) {
-        // Column may not exist — fall back to localStorage
-        localStorage.setItem("bion_provider_reg_number", regNumber);
+        setError(`Could not save registration number: ${error.message}. Please contact support@bionhealth.co.za.`);
+        setTimeout(() => setError(null), 6000);
+        return;
       }
+      // Mirror locally as a render-fast cache only; DB is the source of truth.
+      localStorage.setItem("bion_provider_reg_number", regNumber);
       setSuccess("Registration number saved");
       setTimeout(() => setSuccess(null), 2500);
-    } catch {
-      localStorage.setItem("bion_provider_reg_number", regNumber);
+    } catch (err: any) {
+      setError(`Network error saving registration number: ${err?.message ?? "unknown"}. Please retry.`);
+      setTimeout(() => setError(null), 6000);
     }
   };
 

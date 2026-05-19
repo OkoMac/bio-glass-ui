@@ -106,7 +106,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearDemoIfPresent();
         try {
           const profile = await fetchUserProfile(sbSession.user.id);
-          if (mounted && profile) { storeUser(profile); setUser(profile); }
+          if (mounted && profile) {
+            storeUser(profile);
+            setUser(profile);
+            // 2026-05-19 (Lee bug): the SIGNED_IN handler (below) already
+            // stamps the onboarding-done flag for returning users with a
+            // real profile row, so they don't get force-redirected to
+            // /onboarding/* on a fresh browser. But this initial-mount
+            // path — which fires when a user opens the PWA / a new tab
+            // with a still-valid session — was missing that stamp. Net
+            // effect: every "open BION in a new tab" or "tap the PWA
+            // icon" looked like a fresh device and bounced the user
+            // through onboarding even when their server state said done.
+            // Mirror the same stamp here.
+            if (profile.id && !profile.id.startsWith("demo_") && profile.profileId) {
+              try { localStorage.setItem(`bion_onboarding_done_${profile.id}`, "1"); } catch { /* */ }
+            }
+          }
         } catch (e) {
           // Profile fetch failed — use stored user if available
         }
