@@ -8,6 +8,7 @@ import React, { ReactNode, useEffect } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { BookingsProvider } from "@/contexts/BookingsContext";
 import { useBookingReminders } from "@/hooks/useBookingReminders";
+import { useIdleSignOut } from "@/hooks/useIdleSignOut";
 import { reportCrash, installGlobalErrorHandlers } from "@/lib/errorReporter";
 
 // Install global error/timeout/rejection handlers once at startup
@@ -475,7 +476,21 @@ function AuthGate({ children }: { children: ReactNode }) {
 }
 
 function AppRoutes() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+
+  // Auto-logout after 3 minutes of inactivity. Protects personal
+  // health data on installed PWAs that stay open in the background.
+  // Demo accounts excluded — they have no PII and the extra friction
+  // hurts QA. Tunable via VITE_IDLE_MINUTES.
+  useIdleSignOut({
+    enabled: !!user && !user.id?.startsWith("demo_"),
+    onIdle: () => {
+      try { logout(); } catch { /* */ }
+      // Hard-redirect to the welcome screen so any stale React state
+      // is dropped along with the session.
+      window.location.href = "/welcome?login=true&reason=idle";
+    },
+  });
 
   return (
     <Routes>
