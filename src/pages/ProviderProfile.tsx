@@ -351,25 +351,47 @@ export default function ProviderProfile() {
   const [queuePosition, setQueuePosition] = useState<{ position: number; wait: number } | null>(null);
 
   const joinQueue = async () => {
-    if (!user?.profileId || !id) return;
+    if (!user?.profileId) return;
+    // 2026-05-19 (Oko bug): the queue button silently no-op'd because we
+    // were posting the URL slug (e.g. "cen_kendriq") as providerId. The
+    // backend's queue_entries.provider_id FK to profiles.id rejected it
+    // with a 400, the catch block console.errored, and the user saw the
+    // button flash without any feedback. Real providerId comes from
+    // useRegisteredProvider (slug → BION profile UUID); fall back to a
+    // toast if the provider isn't a registered, verified BION user yet.
+    const { toast } = await import("sonner");
+    const providerProfileId = isRegisteredOnBion ? registeredProfileId : null;
+    if (!providerProfileId) {
+      toast.error("This provider isn't on BION yet — can't join their queue. Message them directly via the Contact button.");
+      return;
+    }
+
     setJoiningQueue(true);
     try {
       const { data: { session } } = await (await import("@/integrations/supabase/client")).supabase.auth.getSession();
+      if (!session?.access_token) {
+        toast.error("Please sign in again to join the queue.");
+        return;
+      }
       const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
       const res = await fetch(`${API}/api/queue/join`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
         body: JSON.stringify({
-          providerId: id,
+          providerId: providerProfileId,
           locationId: selectedLocationId ?? undefined,
         }),
       });
       const json = await res.json();
-      if (json.ok) {
+      if (res.ok && json.ok) {
         setQueuePosition({ position: json.data.position, wait: json.data.estimatedWaitMinutes });
+        toast.success(`You're #${json.data.position} in the queue — about ${json.data.estimatedWaitMinutes} min wait.`);
+      } else {
+        toast.error(json.error ?? `Couldn't join queue (${res.status}).`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to join queue:", err);
+      toast.error(err?.message ?? "Network error — try again.");
     } finally {
       setJoiningQueue(false);
     }
@@ -903,9 +925,28 @@ export default function ProviderProfile() {
               <span className="font-data text-sm text-foreground">
                 {displayRating > 0 ? displayRating.toFixed(1) : "—"}
               </span>
-              <span className="text-xs text-muted-foreground">
-                ({displayReviewCount} {displayReviewCount === 1 ? "review" : "reviews"})
-              </span>
+              {/* 2026-05-19 (Oko bug): review count was a static span — users
+                  expected it to scroll to the Reviews section on tap. Now a
+                  button that smooth-scrolls to #reviews when the section exists
+                  (only rendered for BION-registered providers). Directory-only
+                  listings keep the static read-only text. */}
+              {isRegisteredOnBion && displayReviewCount > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById("reviews");
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                  className="text-xs text-indigo hover:underline focus:outline-none"
+                  aria-label={`Read ${displayReviewCount} ${displayReviewCount === 1 ? "review" : "reviews"}`}
+                >
+                  ({displayReviewCount} {displayReviewCount === 1 ? "review" : "reviews"})
+                </button>
+              ) : (
+                <span className="text-xs text-muted-foreground">
+                  ({displayReviewCount} {displayReviewCount === 1 ? "review" : "reviews"})
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -1166,7 +1207,7 @@ export default function ProviderProfile() {
             listings keep their seeded rating/count in the hero and skip this
             section since there's no Supabase-backed review thread for them. */}
         {isRegisteredOnBion && (
-          <section>
+          <section id="reviews">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-semibold text-foreground">Reviews</h2>
               {ratingSummary && ratingSummary.count > 0 && (
