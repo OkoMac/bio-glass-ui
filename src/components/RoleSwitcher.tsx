@@ -120,8 +120,16 @@ export default function RoleSwitcher({ inline = false }: { inline?: boolean }) {
   }
 
   // Floating chip — for pages without a sidebar (client / ranger mode).
+  // 2026-05-20 (Oko bug): used to be `fixed top-4 right-4 z-50` which
+  // sat directly under the NotificationBell at `fixed right-4 z-45`.
+  // The bell painted on top and Oko couldn't see the switcher on
+  // mobile at all. Now positioned to the LEFT of the bell (right-16
+  // = bell width + gap) and on the same safe-area-aware top offset.
   return (
-    <div ref={ref} className="fixed top-4 right-4 z-50">
+    <div ref={ref}
+      className="fixed right-[4.25rem] z-50"
+      style={{ top: "max(1rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))" }}
+    >
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label="Switch role"
