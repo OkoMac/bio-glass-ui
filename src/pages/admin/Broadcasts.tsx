@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
+import WhatsAppCRMTabs from "@/components/WhatsAppCRMTabs";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   ArrowLeft, Plus, Send, Clock, CheckCircle, Loader2, MessageSquare, BarChart3, } from "lucide-react";
@@ -127,6 +128,7 @@ function AdminBroadcastsInner() {
     <div className="min-h-screen bg-obsidian bg-obsidian-glow pb-32">
       <AdminNav />
       <div className="w-full px-4 md:px-8 xl:px-12 pt-24 md:pt-8 space-y-6">
+        <WhatsAppCRMTabs />
         <div className="flex items-center gap-3">
           <button onClick={() => navigate("/admin/dashboard")} className="w-9 h-9 glass-2 rounded-full flex items-center justify-center">
             <ArrowLeft className="w-4 h-4" />

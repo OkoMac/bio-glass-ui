@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
+import WhatsAppCRMTabs from "@/components/WhatsAppCRMTabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, Loader2, MessageSquare, CheckCircle2, Eye, Reply, AlertTriangle, Clock } from "lucide-react";
 import { toast } from "sonner";
@@ -121,6 +122,7 @@ export default function AdminBroadcastDetail() {
     <>
       <AdminNav />
       <div className="md:ml-56 min-h-screen pt-16 md:pt-0 px-4 md:px-8 py-6 space-y-5">
+        <WhatsAppCRMTabs />
         {/* Back + title */}
         <button onClick={() => navigate("/admin/broadcasts")}
           className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">

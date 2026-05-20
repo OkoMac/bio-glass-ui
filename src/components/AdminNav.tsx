@@ -29,13 +29,14 @@ const navItems = [
   { icon: RotateCcw,       label: "Refunds",      path: "/admin/refunds"        },
   { icon: LifeBuoy,        label: "Tickets",      path: "/admin/tickets"        },
   { icon: Sparkles,        label: "Review Queue", path: "/admin/b-queue"        },
-  { icon: MessageSquare,   label: "WhatsApp",     path: "/admin/whatsapp"       },
+  // 2026-05-20: WhatsApp is the CRM hub — Broadcasts + Automations live
+  // as tabs inside it (see WhatsAppCRMTabs). Standalone sidebar entries
+  // for those two were removed to avoid two nav layers competing.
+  { icon: MessageSquare,   label: "WhatsApp CRM", path: "/admin/whatsapp"       },
   { icon: BookOpen,        label: "Catalogs",     path: "/admin/catalogs"       },
   { icon: Target,          label: "Rangers CRM",  path: "/admin/rangers"        },
   { icon: Send,            label: "Outreach",     path: "/admin/outreach"       },
   { icon: Megaphone,       label: "Campaigns",    path: "/admin/campaigns"      },
-  { icon: Radio,           label: "Broadcasts",   path: "/admin/broadcasts"     },
-  { icon: Workflow,        label: "Automations",  path: "/admin/automations"    },
   { icon: Mailbox,         label: "Comms Console",path: "/admin/comms"          },
   { icon: BarChart2,       label: "Analytics",    path: "/admin/analytics"      },
   { icon: DollarSign,      label: "Subscriptions", path: "/admin/subscriptions" },

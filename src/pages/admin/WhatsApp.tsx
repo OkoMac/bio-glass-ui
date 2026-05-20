@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
+import WhatsAppCRMTabs from "@/components/WhatsAppCRMTabs";
 import { MessageSquare, RefreshCw, Phone, Bot, User, AlertCircle, ArrowLeft } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
@@ -173,6 +174,9 @@ export default function AdminWhatsApp() {
       </button>
       <AdminNav />
       <div className="px-4 pt-24 md:pt-8 pb-16 max-w-7xl mx-auto">
+
+        {/* CRM sub-nav (Conversations / Broadcasts / Automations) */}
+        <WhatsAppCRMTabs />
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
