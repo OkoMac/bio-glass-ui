@@ -93,9 +93,20 @@ export default function AdminProviders() {
 
     if (search.trim()) {
       const q = search.toLowerCase();
-      list = list.filter(
-        (p) => p.name.toLowerCase().includes(q) || p.service.toLowerCase().includes(q) || p.location.toLowerCase().includes(q) || p.phone.includes(q),
-      );
+      // 2026-05-20 (Oko bug): searching crashed the page into the
+      // ErrorBoundary because at least one of the 897 directory rows
+      // had a null name / service / location / phone, and the
+      // unguarded `.toLowerCase()` / `.includes()` chain threw on the
+      // first matching keystroke. Null-coalesce each field to "" so
+      // missing data just doesn't match instead of bringing the page
+      // down.
+      list = list.filter((p) => {
+        const name     = (p.name     ?? "").toLowerCase();
+        const service  = (p.service  ?? "").toLowerCase();
+        const location = (p.location ?? "").toLowerCase();
+        const phone    = (p.phone    ?? "");
+        return name.includes(q) || service.includes(q) || location.includes(q) || phone.includes(q);
+      });
     }
 
     if (activeFilter === "Top Rated") {
