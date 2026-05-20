@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { BookingsProvider } from "@/contexts/BookingsContext";
 import { useBookingReminders } from "@/hooks/useBookingReminders";
 import { useIdleSignOut } from "@/hooks/useIdleSignOut";
+import { useBiometricsSync } from "@/hooks/useBiometricsSync";
 import { reportCrash, installGlobalErrorHandlers } from "@/lib/errorReporter";
 
 // Install global error/timeout/rejection handlers once at startup
@@ -477,6 +478,14 @@ function AuthGate({ children }: { children: ReactNode }) {
 
 function AppRoutes() {
   const { user, logout } = useAuth();
+
+  // Global biometrics sync (Apple Health / Health Connect on Capacitor
+  // native builds). Was previously gated to /health-profile only; now
+  // runs app-wide so B_'s recommend_calories tool, Food Tracker goal
+  // calculator, and any other consumer of health_logs.steps/weight/
+  // sleep see fresh data without the user needing to visit the
+  // Health Profile tab first. No-op on web/desktop.
+  useBiometricsSync();
 
   // Auto-logout after 3 minutes of inactivity. Protects personal
   // health data on installed PWAs that stay open in the background.
