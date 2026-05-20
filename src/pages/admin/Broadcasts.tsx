@@ -218,7 +218,8 @@ function AdminBroadcastsInner() {
         ) : (
           <div className="space-y-3">
             {broadcasts.map((b) => (
-              <GlassCard key={b.id} className="p-4">
+              <GlassCard key={b.id} className="p-4 hover:bg-white/[0.03] transition-colors cursor-pointer"
+                onClick={() => navigate(`/admin/broadcasts/${b.id}`)}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
@@ -261,7 +262,7 @@ function AdminBroadcastsInner() {
 
                   {(b.status === "queued" || b.status === "pending_send") && (
                     <button
-                      onClick={() => triggerSend(b.id)}
+                      onClick={(e) => { e.stopPropagation(); triggerSend(b.id); }}
                       disabled={sending === b.id}
                       className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-pill text-[11px] font-semibold gradient-teal text-primary-foreground"
                     >
