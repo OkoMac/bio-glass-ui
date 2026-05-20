@@ -140,7 +140,7 @@ export default function AdminNav() {
                 <img src="/bion-wordmark.png" alt="BION" className="h-7 w-auto" />
                 <span className="text-[10px] text-muted-foreground ml-1">Admin</span>
               </div>
-              <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto max-h-[calc(100vh-80px)]">
+              <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto max-h-[calc(100vh-200px)]">
                 {navItems.map(item => (
                   <SheetClose key={item.path} asChild>
                     <NavLink to={item.path} aria-label={item.label}>
@@ -156,6 +156,18 @@ export default function AdminNav() {
                   </SheetClose>
                 ))}
               </nav>
+              {/* 2026-05-20 (Lee bug): mobile Sheet had no Switch-role
+                  / Sign-out footer — desktop sidebar has it but mobile
+                  users couldn't change profile or log out. Mirroring
+                  the sidebar footer down here. */}
+              <div className="border-t border-white/5 px-3 py-3 space-y-2">
+                <RoleSwitcher inline />
+                <button onClick={logout}
+                  aria-label="Sign out"
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground hover:text-coral hover:bg-white/5 transition-all text-sm">
+                  <LogOut className="w-4 h-4" aria-hidden="true" /> Sign out
+                </button>
+              </div>
             </SheetContent>
           </Sheet>
         </div>

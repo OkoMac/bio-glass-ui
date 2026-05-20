@@ -178,7 +178,7 @@ export default function ProviderNav() {
               <img src="/bion-wordmark.png" alt="BION" className="h-7 w-auto" />
               <span className="block mt-0.5 text-[10px] text-muted-foreground uppercase tracking-widest">Provider</span>
             </div>
-            <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto max-h-[calc(100vh-80px)]">
+            <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto max-h-[calc(100vh-200px)]">
               {navItems.filter(item => !mobileNav.some(m => m.to === item.to)).map(({ to, label, icon: Icon }) => (
                 <SheetClose key={to} asChild>
                   <NavLink to={to}
@@ -197,6 +197,18 @@ export default function ProviderNav() {
                 </SheetClose>
               ))}
             </nav>
+            {/* 2026-05-20 (Lee bug): mobile Sheet was missing the
+                Switch-role + Sign-out footer that desktop sidebar has.
+                Mirroring it here so mobile users can change profile or
+                log out without hunting through Settings. */}
+            <div className="border-t border-white/5 px-3 py-3 space-y-2">
+              <RoleSwitcher inline />
+              <button onClick={logout}
+                aria-label="Sign out"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground hover:text-coral hover:bg-white/[0.04] transition-all text-sm">
+                <LogOut className="w-4 h-4" aria-hidden="true" /> Sign out
+              </button>
+            </div>
           </SheetContent>
         </Sheet>
       </nav>

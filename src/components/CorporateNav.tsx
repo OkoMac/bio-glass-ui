@@ -114,7 +114,7 @@ export default function CorporateNav() {
                 <img src="/bion-logo-white-sm.png" alt="BION" className="h-40 w-auto" />
                 <span className="text-[10px] text-muted-foreground ml-1">Corporate</span>
               </div>
-              <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto max-h-[calc(100vh-80px)]">
+              <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto max-h-[calc(100vh-200px)]">
                 {navItems.map(item => (
                   <SheetClose key={item.path} asChild>
                     <NavLink to={item.path}>
@@ -130,6 +130,16 @@ export default function CorporateNav() {
                   </SheetClose>
                 ))}
               </nav>
+              {/* 2026-05-20 (Lee bug): mobile Sheet now mirrors the
+                  desktop sidebar's Switch-role + Sign-out footer so
+                  mobile corporate users can change profile / log out. */}
+              <div className="border-t border-white/5 px-3 py-3 space-y-2">
+                <RoleSwitcher inline />
+                <button onClick={logout}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground hover:text-amber hover:bg-white/5 transition-all text-sm">
+                  <LogOut className="w-4 h-4" /> Sign out
+                </button>
+              </div>
             </SheetContent>
           </Sheet>
         </div>
