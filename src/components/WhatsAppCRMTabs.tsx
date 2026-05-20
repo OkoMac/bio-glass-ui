@@ -1,19 +1,17 @@
 import { NavLink } from "react-router-dom";
-import { MessageSquare, Radio, Workflow } from "lucide-react";
+import { MessageSquare, Radio, Workflow, Users } from "lucide-react";
 
 /**
- * Shared sub-nav for the WhatsApp CRM. Mounted at the top of Conversations
- * (/admin/whatsapp), Broadcasts (/admin/broadcasts*), and Automations
- * (/admin/automations) so all three feel like one tool.
- *
- * Lives outside <AdminNav> so the existing sidebar item "WhatsApp" still
- * lights up for the whole CRM — only the inner pill row tells you which
- * sub-section you're on.
+ * Shared sub-nav for the WhatsApp CRM. Mounted at the top of every CRM
+ * page (Conversations, Contacts, Broadcasts, Automations) so the whole
+ * thing feels like one tool. The sidebar entry "WhatsApp CRM" is the
+ * single door; this pill row is the inner navigation.
  */
 const tabs = [
-  { to: "/admin/whatsapp",    label: "Conversations", icon: MessageSquare },
-  { to: "/admin/broadcasts",  label: "Broadcasts",    icon: Radio        },
-  { to: "/admin/automations", label: "Automations",   icon: Workflow     },
+  { to: "/admin/whatsapp",        label: "Conversations", icon: MessageSquare },
+  { to: "/admin/crm/contacts",    label: "Contacts",      icon: Users        },
+  { to: "/admin/broadcasts",      label: "Broadcasts",    icon: Radio        },
+  { to: "/admin/automations",     label: "Automations",   icon: Workflow     },
 ];
 
 export default function WhatsAppCRMTabs() {
