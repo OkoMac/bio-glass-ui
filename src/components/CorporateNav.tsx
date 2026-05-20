@@ -104,9 +104,11 @@ export default function CorporateNav() {
                 <Menu className="w-4 h-4" />
               </button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-72 p-0 border-r border-white/5"
+            {/* 2026-05-20 (Lee bug round-2): flex-col + h-full so the footer
+                pins to the bottom — block-flow children pushed it off-screen. */}
+            <SheetContent side="left" className="w-72 p-0 border-r border-white/5 flex flex-col h-full"
               style={{ background: "rgba(10,10,18,0.95)", backdropFilter: "blur(40px)" }}>
-              <div className="flex items-center gap-2 px-5 py-6 border-b border-white/5">
+              <div className="shrink-0 flex items-center gap-2 px-5 py-6 border-b border-white/5">
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center"
                   style={{ background: "linear-gradient(135deg,#F59E0B,#F05A28)" }}>
                   <Building2 className="w-4 h-4 text-white" />
@@ -114,7 +116,7 @@ export default function CorporateNav() {
                 <img src="/bion-logo-white-sm.png" alt="BION" className="h-40 w-auto" />
                 <span className="text-[10px] text-muted-foreground ml-1">Corporate</span>
               </div>
-              <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto max-h-[calc(100vh-200px)]">
+              <nav className="flex-1 min-h-0 px-3 py-4 space-y-0.5 overflow-y-auto">
                 {navItems.map(item => (
                   <SheetClose key={item.path} asChild>
                     <NavLink to={item.path}>
@@ -130,10 +132,7 @@ export default function CorporateNav() {
                   </SheetClose>
                 ))}
               </nav>
-              {/* 2026-05-20 (Lee bug): mobile Sheet now mirrors the
-                  desktop sidebar's Switch-role + Sign-out footer so
-                  mobile corporate users can change profile / log out. */}
-              <div className="border-t border-white/5 px-3 py-3 space-y-2">
+              <div className="shrink-0 border-t border-white/5 px-3 py-3 space-y-2">
                 <RoleSwitcher inline />
                 <button onClick={logout}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground hover:text-amber hover:bg-white/5 transition-all text-sm">

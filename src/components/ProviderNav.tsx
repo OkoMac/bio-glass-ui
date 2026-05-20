@@ -172,13 +172,16 @@ export default function ProviderNav() {
               <span className="text-[9px] font-medium">More</span>
             </button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-72 p-0 border-r border-white/5"
+          {/* 2026-05-20 (Lee bug round-2): flex-col + h-full so the footer
+              pins to the bottom — the nav's intrinsic height was pushing it
+              below the viewport on mobile. */}
+          <SheetContent side="left" className="w-72 p-0 border-r border-white/5 flex flex-col h-full"
             style={{ background: "rgba(10,10,15,0.95)", backdropFilter: "blur(40px)" }}>
-            <div className="px-5 py-6 border-b border-white/5">
+            <div className="shrink-0 px-5 py-6 border-b border-white/5">
               <img src="/bion-wordmark.png" alt="BION" className="h-7 w-auto" />
               <span className="block mt-0.5 text-[10px] text-muted-foreground uppercase tracking-widest">Provider</span>
             </div>
-            <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto max-h-[calc(100vh-200px)]">
+            <nav className="flex-1 min-h-0 px-3 py-4 space-y-0.5 overflow-y-auto">
               {navItems.filter(item => !mobileNav.some(m => m.to === item.to)).map(({ to, label, icon: Icon }) => (
                 <SheetClose key={to} asChild>
                   <NavLink to={to}
@@ -197,11 +200,7 @@ export default function ProviderNav() {
                 </SheetClose>
               ))}
             </nav>
-            {/* 2026-05-20 (Lee bug): mobile Sheet was missing the
-                Switch-role + Sign-out footer that desktop sidebar has.
-                Mirroring it here so mobile users can change profile or
-                log out without hunting through Settings. */}
-            <div className="border-t border-white/5 px-3 py-3 space-y-2">
+            <div className="shrink-0 border-t border-white/5 px-3 py-3 space-y-2">
               <RoleSwitcher inline />
               <button onClick={logout}
                 aria-label="Sign out"

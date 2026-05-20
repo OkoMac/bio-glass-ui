@@ -274,30 +274,54 @@ const Index = () => {
   // never made it past the legacy localStorage key.
   const coverImage = user?.coverImage ?? null;
 
-  const avatarUploader = useImageUpload({ folder: "avatars", maxMB: 5 });
-  const coverUploader = useImageUpload({ folder: "covers", maxMB: 8 });
+  // maxMB bumped 5→15 (avatar) and 8→20 (cover) on 2026-05-20. iPhone photos
+  // routinely run 8-15 MB; the old caps rejected most modern phone shots
+  // before the upload even started, and the error toast was easy to miss.
+  // Backend reserve schema caps at 50 MB, bucket cap matches.
+  const avatarUploader = useImageUpload({ folder: "avatars", maxMB: 15 });
+  const coverUploader = useImageUpload({ folder: "covers", maxMB: 20 });
 
+  // 2026-05-20 (Oko bug — angry): "file picker opens but image doesn't
+  // display". Two root causes were possible: (1) upload failed silently
+  // with a hard-to-see toast, (2) iOS file picker fired onChange with
+  // an empty FileList briefly during async hand-off. Mitigations:
+  //  - sonner loading toast that updates to success/error so the user
+  //    always has visible feedback during the multi-second upload
+  //  - clear e.target.value AFTER processing so re-picking the same
+  //    file fires onChange again (Safari was caching the prior value)
+  //  - error toast text now includes the underlying message + stays
+  //    open for 10s
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user?.id) return;
+    const input = e.target;
+    const file = input.files?.[0];
+    if (!file || !user?.id) { input.value = ""; return; }
+    const tId = toast.loading("Uploading cover photo…");
     try {
       const url = await coverUploader.upload(file);
       await updateCoverImage(url);
-      toast.success("Cover photo updated");
+      toast.success("Cover photo updated", { id: tId });
     } catch (err: any) {
-      toast.error(err?.message ?? "Cover upload failed", { duration: 8000 });
+      console.error("[cover-upload] failed:", err);
+      toast.error(err?.message ?? "Cover upload failed", { id: tId, duration: 10000 });
+    } finally {
+      input.value = "";
     }
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const input = e.target;
+    const file = input.files?.[0];
+    if (!file) { input.value = ""; return; }
+    const tId = toast.loading("Uploading profile photo…");
     try {
       const url = await avatarUploader.upload(file);
       await updateAvatar(url);
-      toast.success("Profile photo updated");
+      toast.success("Profile photo updated", { id: tId });
     } catch (err: any) {
-      toast.error(err?.message ?? "Avatar upload failed", { duration: 8000 });
+      console.error("[avatar-upload] failed:", err);
+      toast.error(err?.message ?? "Avatar upload failed", { id: tId, duration: 10000 });
+    } finally {
+      input.value = "";
     }
   };
 

@@ -187,31 +187,43 @@ const Profile = () => {
   // FileReader → updateAvatar(dataUrl) flow shoved a multi-100KB string
   // into the DB column; the write rolled back silently and the user's
   // photo "disappeared" after a few seconds (reported 2026-05-04).
-  const avatarUploader = useImageUpload({ folder: "avatars", maxMB: 5 });
-  const coverUploader = useImageUpload({ folder: "covers", maxMB: 8 });
+  // 2026-05-20: bumped 5→15 / 8→20 MB to match iPhone photo sizes, added
+  // loading toast + input.value reset (same fix as Index.tsx).
+  const avatarUploader = useImageUpload({ folder: "avatars", maxMB: 15 });
+  const coverUploader = useImageUpload({ folder: "covers", maxMB: 20 });
 
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const input = e.target;
+    const file = input.files?.[0];
+    if (!file) { input.value = ""; return; }
+    const tId = toast.loading("Uploading cover photo…");
     try {
       const url = await coverUploader.upload(file);
       await updateCoverImage(url);
       saveProfileData({ ...profileData, cover: url });
-      toast.success("Cover photo updated");
+      toast.success("Cover photo updated", { id: tId });
     } catch (err: any /* TODO(types) */) {
-      toast.error(err?.message ?? "Cover upload failed");
+      console.error("[cover-upload] failed:", err);
+      toast.error(err?.message ?? "Cover upload failed", { id: tId, duration: 10000 });
+    } finally {
+      input.value = "";
     }
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const input = e.target;
+    const file = input.files?.[0];
+    if (!file) { input.value = ""; return; }
+    const tId = toast.loading("Uploading profile photo…");
     try {
       const url = await avatarUploader.upload(file);
       await updateAvatar(url);
-      toast.success("Profile photo updated");
+      toast.success("Profile photo updated", { id: tId });
     } catch (err: any /* TODO(types) */) {
-      toast.error(err?.message ?? "Avatar upload failed");
+      console.error("[avatar-upload] failed:", err);
+      toast.error(err?.message ?? "Avatar upload failed", { id: tId, duration: 10000 });
+    } finally {
+      input.value = "";
     }
   };
 
