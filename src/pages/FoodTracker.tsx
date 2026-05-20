@@ -11,6 +11,15 @@ import { usePageView } from "@/hooks/usePageView";
 import { getSASTDateKey } from "@/utils/sastDate";
 import { useFeatureDiscovery } from "@/hooks/useFeatureDiscovery";
 import { trackEvent } from "@/lib/habits";
+import { useHealthProfile, useHealthLogs } from "@/hooks/useHealth";
+import {
+  recommendDailyCalories,
+  ageFromDob,
+  ACTIVITY_LABELS,
+  type Sex,
+  type ActivityLevel,
+} from "@/lib/caloriesCalc";
+import { Calculator } from "lucide-react";
 import {
   ArrowLeft, Camera, Plus, X, Flame, Utensils, Droplets, Apple, Coffee, Moon, Sun, ChevronRight,
   Target, Trash2, Image, History, Calendar
@@ -249,6 +258,66 @@ export default function FoodTracker() {
     try { const s = localStorage.getItem(`bion_water_${getToday()}`); return s ? parseInt(s) : 0; }
     catch { return 0; }
   });
+
+  // ── Personalised goal recommendation (Mifflin-St Jeor) ──
+  // Pull height + DOB from health_profiles, latest weight from health_logs.
+  // sex + activity aren't currently captured anywhere so we persist them
+  // in localStorage and let the user pick them in the Goals sheet.
+  const { profile: hProfile } = useHealthProfile();
+  const { logs: hLogs } = useHealthLogs(60);
+  const [calcWeightKg, setCalcWeightKg] = useState<string>("");
+  const [calcHeightCm, setCalcHeightCm] = useState<string>("");
+  const [calcAge, setCalcAge]           = useState<string>("");
+  const [calcSex, setCalcSex]           = useState<Sex>(() => {
+    try { return (localStorage.getItem("bion_calc_sex") as Sex) || "female"; } catch { return "female"; }
+  });
+  const [calcActivity, setCalcActivity] = useState<ActivityLevel>(() => {
+    try { return (localStorage.getItem("bion_calc_activity") as ActivityLevel) || "moderate"; } catch { return "moderate"; }
+  });
+  const [calcGoalDir, setCalcGoalDir] = useState<"lose" | "maintain" | "gain">(() => {
+    try { return (localStorage.getItem("bion_calc_goaldir") as any) || "maintain"; } catch { return "maintain"; }
+  });
+
+  // Prefill from server profile + most-recent weighed log
+  useEffect(() => {
+    if (hProfile?.height_cm && !calcHeightCm) setCalcHeightCm(String(hProfile.height_cm));
+    const age = ageFromDob(hProfile?.date_of_birth);
+    if (age && !calcAge) setCalcAge(String(age));
+    const latestWeight = hLogs.find((l) => l.weight_kg)?.weight_kg;
+    if (latestWeight && !calcWeightKg) setCalcWeightKg(String(latestWeight));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hProfile?.height_cm, hProfile?.date_of_birth, hLogs.length]);
+
+  useEffect(() => { try { localStorage.setItem("bion_calc_sex", calcSex); } catch { /* */ } }, [calcSex]);
+  useEffect(() => { try { localStorage.setItem("bion_calc_activity", calcActivity); } catch { /* */ } }, [calcActivity]);
+  useEffect(() => { try { localStorage.setItem("bion_calc_goaldir", calcGoalDir); } catch { /* */ } }, [calcGoalDir]);
+
+  const calcInputsValid =
+    Number(calcWeightKg) > 20 && Number(calcWeightKg) < 400 &&
+    Number(calcHeightCm) > 80 && Number(calcHeightCm) < 250 &&
+    Number(calcAge)      > 5  && Number(calcAge)      < 120;
+  const recommendation = calcInputsValid
+    ? recommendDailyCalories({
+        weightKg: Number(calcWeightKg),
+        heightCm: Number(calcHeightCm),
+        ageYears: Number(calcAge),
+        sex:      calcSex,
+        activity: calcActivity,
+        goal:     calcGoalDir,
+      })
+    : null;
+
+  const applyRecommendation = () => {
+    if (!recommendation) return;
+    syncSaveGoals({
+      ...goals,
+      calories: recommendation.calories,
+      protein:  recommendation.protein,
+      carbs:    recommendation.carbs,
+      fat:      recommendation.fat,
+    });
+    trackEvent("tool_use", { category: "wellness_tracking", metadata: { tool: "food_goal_recommend", calories: recommendation.calories } });
+  };
 
   // Persist water count locally (also synced via water_log table)
   useEffect(() => { localStorage.setItem(`bion_water_${getToday()}`, String(waterCount)); }, [waterCount]);
@@ -757,7 +826,101 @@ export default function FoodTracker() {
                   <X className="w-4 h-4" />
                 </button>
               </div>
+
+              {/* ── Personalised recommendation (Mifflin-St Jeor) ── */}
+              <div className="mb-5 p-4 rounded-2xl border border-indigo/20 bg-indigo/[0.05] space-y-3">
+                <div className="flex items-center gap-2">
+                  <Calculator className="w-4 h-4 text-indigo" />
+                  <span className="text-sm font-semibold text-foreground">Recommend my daily intake</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-snug">
+                  Calculated with Mifflin-St Jeor — the most accurate of the common formulas. Edit any field and the recommendation updates live.
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="text-[9px] text-muted-foreground uppercase tracking-wider mb-0.5 block">Weight (kg)</label>
+                    <input type="number" value={calcWeightKg} onChange={e => setCalcWeightKg(e.target.value)}
+                      placeholder="70" className="w-full px-2 py-2 glass-1 rounded-lg text-sm text-foreground outline-none border border-white/08" />
+                  </div>
+                  <div>
+                    <label className="text-[9px] text-muted-foreground uppercase tracking-wider mb-0.5 block">Height (cm)</label>
+                    <input type="number" value={calcHeightCm} onChange={e => setCalcHeightCm(e.target.value)}
+                      placeholder="170" className="w-full px-2 py-2 glass-1 rounded-lg text-sm text-foreground outline-none border border-white/08" />
+                  </div>
+                  <div>
+                    <label className="text-[9px] text-muted-foreground uppercase tracking-wider mb-0.5 block">Age</label>
+                    <input type="number" value={calcAge} onChange={e => setCalcAge(e.target.value)}
+                      placeholder="30" className="w-full px-2 py-2 glass-1 rounded-lg text-sm text-foreground outline-none border border-white/08" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1 block">Sex (for metabolic formula)</label>
+                  <div className="flex gap-2">
+                    {(["female", "male"] as Sex[]).map(s => (
+                      <button key={s} onClick={() => setCalcSex(s)}
+                        className={`flex-1 py-2 rounded-lg text-xs font-medium capitalize transition-colors ${
+                          calcSex === s ? "gradient-indigo text-white" : "glass-1 text-foreground"
+                        }`}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1 block">Activity level</label>
+                  <select value={calcActivity} onChange={e => setCalcActivity(e.target.value as ActivityLevel)}
+                    className="w-full px-2 py-2 glass-1 rounded-lg text-xs text-foreground outline-none border border-white/08">
+                    {(Object.entries(ACTIVITY_LABELS) as [ActivityLevel, string][]).map(([k, label]) => (
+                      <option key={k} value={k}>{label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1 block">Goal</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([
+                      { key: "lose",     label: "Lose weight" },
+                      { key: "maintain", label: "Maintain" },
+                      { key: "gain",     label: "Gain weight" },
+                    ] as const).map(g => (
+                      <button key={g.key} onClick={() => setCalcGoalDir(g.key)}
+                        className={`py-2 rounded-lg text-xs font-medium transition-colors ${
+                          calcGoalDir === g.key ? "gradient-indigo text-white" : "glass-1 text-foreground"
+                        }`}>
+                        {g.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {recommendation ? (
+                  <div className="rounded-xl bg-indigo/10 border border-indigo/30 p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Recommended</span>
+                      <span className="text-2xl font-bold text-indigo font-data">{recommendation.calories.toLocaleString()} <span className="text-xs font-normal">kcal/day</span></span>
+                    </div>
+                    <div className="flex gap-3 text-[10px] text-muted-foreground">
+                      <span>BMR <span className="text-foreground font-data">{recommendation.bmr}</span></span>
+                      <span>TDEE <span className="text-foreground font-data">{recommendation.tdee}</span></span>
+                      {recommendation.clamped && <span className="text-amber">· capped at safety floor</span>}
+                    </div>
+                    <div className="flex gap-3 text-[10px] text-muted-foreground">
+                      <span>P <span className="text-teal font-data">{recommendation.protein}g</span></span>
+                      <span>C <span className="text-amber font-data">{recommendation.carbs}g</span></span>
+                      <span>F <span className="text-coral font-data">{recommendation.fat}g</span></span>
+                    </div>
+                    <button onClick={applyRecommendation}
+                      className="w-full mt-1 py-2 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-indigo to-violet">
+                      Apply to my daily goals
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground italic">Fill weight, height and age to see your recommendation.</p>
+                )}
+              </div>
+
               <div className="space-y-3">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Or set manually</p>
                 {[
                   { key: "calories", label: "Calories (kcal)", val: goals.calories },
                   { key: "protein", label: "Protein (g)", val: goals.protein },
