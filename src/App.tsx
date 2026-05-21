@@ -265,6 +265,7 @@ const AdminBroadcastDetail = lazy(() => import("./pages/admin/BroadcastDetail"))
 const AdminAutomations     = lazy(() => import("./pages/admin/Automations"));
 const AdminCRMContacts     = lazy(() => import("./pages/admin/CRMContacts"));
 const AdminCRMPipelines    = lazy(() => import("./pages/admin/CRMPipelines"));
+const AdminWhatsAppTemplates = lazy(() => import("./pages/admin/WhatsAppTemplates"));
 const AdminComms          = lazy(() => import("./pages/admin/Comms"));
 const DeeperDive          = lazy(() => import("./components/DeeperDive"));
 const AdminOutreach       = lazy(() => import("./pages/admin/Outreach"));
@@ -676,6 +677,7 @@ function AppRoutes() {
       <Route path="/admin/automations"     element={<RequireAuth allowedRoles={["admin"]}><AdminAutomations /></RequireAuth>} />
       <Route path="/admin/crm/contacts"    element={<RequireAuth allowedRoles={["admin"]}><AdminCRMContacts /></RequireAuth>} />
       <Route path="/admin/crm/pipelines"   element={<RequireAuth allowedRoles={["admin"]}><AdminCRMPipelines /></RequireAuth>} />
+      <Route path="/admin/whatsapp/templates" element={<RequireAuth allowedRoles={["admin"]}><AdminWhatsAppTemplates /></RequireAuth>} />
       <Route path="/admin/comms"           element={<RequireAuth allowedRoles={["admin"]}><AdminComms /></RequireAuth>} />
       <Route path="/admin/outreach"       element={<RequireAuth allowedRoles={["admin"]}><AdminOutreach /></RequireAuth>} />
 
