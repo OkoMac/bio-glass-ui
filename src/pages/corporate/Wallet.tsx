@@ -7,6 +7,7 @@ import BionAssistant from "@/components/BionAssistant";
 import { Wallet, ArrowUpRight, ArrowDownLeft, TrendingDown, Plus, Building2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { openPaystackInline } from "@/lib/paystackInline";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
@@ -132,15 +133,47 @@ export default function CorporateWallet() {
         body: JSON.stringify({ amount_cents: Math.round(amt * 100) }),
       });
       const j = await r.json().catch(() => ({}));
-      if (!r.ok || !j?.ok || !j.authorization_url) {
+      if (!r.ok || !j?.ok) {
         throw new Error(j?.error ?? `Top-up init failed (HTTP ${r.status})`);
       }
-      toast.success("Redirecting to Paystack…", { id: tId });
-      // Full-page redirect — Paystack will return the user to
-      // /corporate/wallet?topup=success after the charge.
-      window.location.href = j.authorization_url;
+      const { access_code, authorization_url } = j as { access_code?: string; authorization_url?: string };
+
+      // Prefer inline checkout (modal/iframe — keeps the user on
+      // /corporate/wallet). Falls back to full-page redirect if the
+      // Paystack inline JS fails to load (popup blockers / ad-block).
+      if (access_code) {
+        toast.dismiss(tId);
+        const result = await openPaystackInline(access_code, {
+          onLoad: () => toast.dismiss(tId),
+        });
+        if (result === "success") {
+          toast.success("Top-up processing — your balance will update in a moment.", { duration: 8000 });
+          // Webhook lands 1-3s after charge.success — schedule two refresh
+          // attempts to catch the credit without making the user wait.
+          setTimeout(() => void loadWallet(), 2000);
+          setTimeout(() => void loadWallet(), 5000);
+        } else if (result === "cancelled") {
+          toast.info("Top-up cancelled. No charge was made.", { duration: 5000 });
+        } else {
+          // Inline failed — fall back to the redirect URL.
+          if (authorization_url) {
+            toast.message("Opening Paystack checkout…");
+            window.location.href = authorization_url;
+            return;
+          }
+          throw new Error("Inline checkout unavailable; please try again");
+        }
+      } else if (authorization_url) {
+        // Backend didn't return access_code (shouldn't happen post-deploy).
+        toast.success("Redirecting to Paystack…", { id: tId });
+        window.location.href = authorization_url;
+        return;
+      } else {
+        throw new Error("Top-up init returned no Paystack handle");
+      }
     } catch (err: any) {
       toast.error(err?.message ?? "Top-up failed", { id: tId, duration: 10000 });
+    } finally {
       setSubmitting(false);
     }
   };
