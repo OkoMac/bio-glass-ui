@@ -1,11 +1,14 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
 import BionAssistant from "@/components/BionAssistant";
-import { Wallet, ArrowUpRight, ArrowDownLeft, TrendingDown, Plus, Building2 } from "lucide-react";
+import { Wallet, ArrowUpRight, ArrowDownLeft, TrendingDown, Plus, Building2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+
+const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
 /* ─── types & data ──────────────────────────────────────────────────────── */
 type TxType = "topup" | "allocation" | "session" | "refund";
@@ -20,10 +23,26 @@ interface Tx {
   provider?: string;
 }
 
-// Transactions loaded from backend
-const TRANSACTIONS: Tx[] = [];
-
 const TOP_UP_AMOUNTS = [5000, 10000, 25000, 50000];
+
+interface ApiTx {
+  id: string;
+  amount_cents: number;
+  kind: "topup" | "allocation" | "session" | "refund_in" | "refund_out" | "manual_adjust";
+  description: string | null;
+  paystack_reference: string | null;
+  created_at: string;
+}
+interface WalletState {
+  balance_cents: number;
+  lifetime_topup_cents: number;
+}
+
+function kindToTxType(kind: ApiTx["kind"]): TxType {
+  if (kind === "topup" || kind === "refund_in") return "topup";
+  if (kind === "allocation" || kind === "refund_out" || kind === "manual_adjust") return "allocation";
+  return "session";
+}
 
 const TX_COLORS: Record<TxType, string> = {
   topup:      "text-teal",
@@ -41,30 +60,89 @@ const TX_ICONS: Record<TxType, typeof Wallet> = {
 /* ─── CorporateWallet ───────────────────────────────────────────────────── */
 export default function CorporateWallet() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [topUpAmount, setTopUpAmount]   = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState("");
+  const [wallet, setWallet] = useState<WalletState>({ balance_cents: 0, lifetime_topup_cents: 0 });
+  const [transactions, setTransactions] = useState<Tx[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
-  const companyBalance = 0;
-  const totalAllocated = 0;
-  const pendingClaims  = 0;
+  const loadWallet = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) { setLoading(false); return; }
+      const r = await fetch(`${API}/api/corporate/wallet`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j?.ok) throw new Error(j?.error ?? `HTTP ${r.status}`);
+      setWallet(j.wallet);
+      setTransactions((j.transactions as ApiTx[]).map((t) => ({
+        id: t.id,
+        date: new Date(t.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short" }),
+        description: t.description ?? (t.kind === "topup" ? "Top-up" : t.kind),
+        // Frontend convention: positive = credit, negative = debit. Backend
+        // stores signed cents in the SAME polarity, so convert to rand by /100.
+        amount: t.amount_cents / 100,
+        type: kindToTxType(t.kind),
+      })));
+    } catch (err: any) {
+      toast.error(err?.message ?? "Couldn't load wallet", { duration: 8000 });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const handleTopUp = () => {
+  useEffect(() => { void loadWallet(); }, [loadWallet]);
+
+  // If we just came back from Paystack with ?topup=success, refresh
+  // immediately (webhook may take 1-3 seconds — schedule a second
+  // refresh to catch the credit) and show a confirmation toast.
+  useEffect(() => {
+    if (searchParams.get("topup") === "success") {
+      toast.success("Top-up processing — your balance will update in a moment.", { duration: 8000 });
+      const timer = setTimeout(() => void loadWallet(), 3000);
+      // Strip the query param so refreshing the page doesn't re-trigger.
+      setSearchParams({}, { replace: true });
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, setSearchParams, loadWallet]);
+
+  const companyBalance = wallet.balance_cents / 100;
+  const totalAllocated = 0; // future: sum of allocation kinds
+  const pendingClaims  = 0; // future: sum of pending session debits
+
+  const handleTopUp = async () => {
     const amt = topUpAmount ?? Number(customAmount);
-    if (!amt || amt <= 0) return;
-    // 2026-05-21 (Luke incident): the Corporate Wallet top-up flow was
-    // never wired to Paystack — handleTopUp used to just flash a "Done!"
-    // animation while companyBalance stayed hardcoded at R0. Replaced
-    // the fake success with an honest CTA so corporate users aren't
-    // misled into thinking they paid. Proper Paystack integration is
-    // tracked in BUG_LOG and needs: backend POST /api/corporate/wallet/topup,
-    // Paystack inline checkout, webhook handler, and live balance read.
-    void amt;
-    toast.message("Wallet top-ups coming soon", {
-      description: "We're finalising the Paystack integration. Email sales@bionhealth.co.za to fund your wallet manually in the meantime.",
-      duration: 10000,
-    });
-    setTopUpAmount(null);
-    setCustomAmount("");
+    if (!amt || amt < 100) {
+      toast.error("Minimum top-up is R100");
+      return;
+    }
+    setSubmitting(true);
+    const tId = toast.loading("Connecting to Paystack…");
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error("Please sign in again");
+      const r = await fetch(`${API}/api/corporate/wallet/topup`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ amount_cents: Math.round(amt * 100) }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j?.ok || !j.authorization_url) {
+        throw new Error(j?.error ?? `Top-up init failed (HTTP ${r.status})`);
+      }
+      toast.success("Redirecting to Paystack…", { id: tId });
+      // Full-page redirect — Paystack will return the user to
+      // /corporate/wallet?topup=success after the charge.
+      window.location.href = j.authorization_url;
+    } catch (err: any) {
+      toast.error(err?.message ?? "Top-up failed", { id: tId, duration: 10000 });
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -142,9 +220,9 @@ export default function CorporateWallet() {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={handleTopUp}
-              disabled={!topUpAmount && !customAmount}
-              className="px-5 rounded-xl text-sm font-semibold gradient-indigo text-primary-foreground disabled:opacity-40">
-              Top Up
+              disabled={submitting || (!topUpAmount && !customAmount)}
+              className="px-5 rounded-xl text-sm font-semibold gradient-indigo text-primary-foreground disabled:opacity-40 flex items-center gap-1.5">
+              {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Top Up</> : "Top Up"}
             </motion.button>
           </div>
 
@@ -161,16 +239,16 @@ export default function CorporateWallet() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-foreground">Transactions</h2>
-            <span className="text-[10px] text-muted-foreground">{TRANSACTIONS.length} this month</span>
+            <span className="text-[10px] text-muted-foreground">{transactions.length} this month</span>
           </div>
           <div className="space-y-2">
-            {TRANSACTIONS.length === 0 && (
+            {transactions.length === 0 && (
               <GlassCard className="p-6 text-center">
                 <p className="text-sm font-medium text-foreground mb-1">No transactions yet</p>
                 <p className="text-xs text-muted-foreground">Top up your company wallet to get started. Transactions will appear here.</p>
               </GlassCard>
             )}
-            {TRANSACTIONS.map((tx, i) => {
+            {transactions.map((tx, i) => {
               const Icon   = TX_ICONS[tx.type];
               const colour = TX_COLORS[tx.type];
               const isPos  = tx.amount > 0;
