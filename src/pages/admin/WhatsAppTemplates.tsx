@@ -3,7 +3,7 @@ import GlassCard from "@/components/GlassCard";
 import AdminNav from "@/components/AdminNav";
 import WhatsAppCRMTabs from "@/components/WhatsAppCRMTabs";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2, RefreshCw, FileText, CheckCircle2, AlertTriangle, Clock, Pause, Slash, Search } from "lucide-react";
+import { Loader2, RefreshCw, FileText, CheckCircle2, AlertTriangle, Clock, Pause, Slash, Search, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
@@ -65,6 +65,7 @@ export default function AdminWhatsAppTemplates() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState<Template["status"] | "ALL">("ALL");
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -98,6 +99,36 @@ export default function AdminWhatsAppTemplates() {
       toast.error(err?.message ?? "Sync failed", { id: tId, duration: 10000 });
     } finally {
       setSyncing(false);
+    }
+  };
+
+  const createCanonical = async () => {
+    if (!confirm("Submit the 7 canonical BION templates to Meta for review? Meta will approve UTILITY ones within minutes; MARKETING ones can take longer.")) return;
+    setCreating(true);
+    const tId = toast.loading("Submitting templates to Meta…");
+    try {
+      const res = await fetch(`${API}/api/whatsapp/templates/submit-canonical`, { method: "POST", headers });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok || !j?.ok) throw new Error(j?.error ?? `HTTP ${res.status}`);
+      const succ = j.succeeded ?? 0;
+      const total = j.submitted ?? 0;
+      const failed = (j.results ?? []).filter((r: any) => !r.ok);
+      // Wait a beat then sync so the new templates show up in the list with PENDING status
+      await new Promise(r => setTimeout(r, 1500));
+      await fetch(`${API}/api/whatsapp/templates/sync`, { method: "POST", headers }).catch(() => {});
+      await load();
+      if (failed.length > 0) {
+        toast.warning(
+          `${succ}/${total} submitted; ${failed.length} rejected. First error: ${failed[0]?.error ?? "?"}`,
+          { id: tId, duration: 12000 },
+        );
+      } else {
+        toast.success(`Submitted ${succ}/${total} templates to Meta. They'll appear with PENDING status until approved.`, { id: tId, duration: 10000 });
+      }
+    } catch (err: any) {
+      toast.error(err?.message ?? "Submission failed", { id: tId, duration: 10000 });
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -152,11 +183,20 @@ export default function AdminWhatsAppTemplates() {
               Meta-approved message templates. Sync pulls the latest list from Meta Cloud API.
             </p>
           </div>
-          <button onClick={sync} disabled={syncing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-pill bg-coral/15 text-coral border border-coral/30 hover:bg-coral/25 text-xs font-medium disabled:opacity-50">
-            {syncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-            {syncing ? "Syncing…" : "Sync from Meta"}
-          </button>
+          <div className="flex items-center gap-2">
+            {templates.length === 0 && (
+              <button onClick={createCanonical} disabled={creating || syncing}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-pill bg-teal-500/15 text-teal-400 border border-teal-500/30 hover:bg-teal-500/25 text-xs font-medium disabled:opacity-50">
+                {creating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
+                {creating ? "Submitting…" : "Create canonical templates"}
+              </button>
+            )}
+            <button onClick={sync} disabled={syncing || creating}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-pill bg-coral/15 text-coral border border-coral/30 hover:bg-coral/25 text-xs font-medium disabled:opacity-50">
+              {syncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+              {syncing ? "Syncing…" : "Sync from Meta"}
+            </button>
+          </div>
         </div>
 
         {/* Counts strip */}
@@ -200,13 +240,20 @@ export default function AdminWhatsAppTemplates() {
             <p className="text-[10px] text-muted-foreground">{filtered.length} shown</p>
           </div>
           {filtered.length === 0 ? (
-            <div className="p-8 text-center space-y-2">
+            <div className="p-8 text-center space-y-3">
               <FileText className="w-8 h-8 text-muted-foreground mx-auto" />
-              <p className="text-xs text-muted-foreground">
-                {templates.length === 0
-                  ? "No templates cached yet. Click \"Sync from Meta\" to fetch your approved templates."
-                  : "No templates match the current filter."}
-              </p>
+              {templates.length === 0 ? (
+                <>
+                  <p className="text-xs text-foreground font-medium">No templates registered with Meta yet</p>
+                  <p className="text-[11px] text-muted-foreground max-w-md mx-auto">
+                    BION needs approved templates to send business-initiated WhatsApps (booking reminders,
+                    confirmations, outreach). Click <span className="text-teal-400">Create canonical templates</span>
+                    {" "}above to submit the 7 BION needs in one go — Meta usually approves UTILITY templates within minutes.
+                  </p>
+                </>
+              ) : (
+                <p className="text-xs text-muted-foreground">No templates match the current filter.</p>
+              )}
             </div>
           ) : (
             <div className="divide-y divide-white/[0.04]">
