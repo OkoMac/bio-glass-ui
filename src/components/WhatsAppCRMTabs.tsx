@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { MessageSquare, Radio, Workflow, Users } from "lucide-react";
+import { MessageSquare, Radio, Workflow, Users, KanbanSquare } from "lucide-react";
 
 /**
  * Shared sub-nav for the WhatsApp CRM. Mounted at the top of every CRM
@@ -8,10 +8,11 @@ import { MessageSquare, Radio, Workflow, Users } from "lucide-react";
  * single door; this pill row is the inner navigation.
  */
 const tabs = [
-  { to: "/admin/whatsapp",        label: "Conversations", icon: MessageSquare },
-  { to: "/admin/crm/contacts",    label: "Contacts",      icon: Users        },
-  { to: "/admin/broadcasts",      label: "Broadcasts",    icon: Radio        },
-  { to: "/admin/automations",     label: "Automations",   icon: Workflow     },
+  { to: "/admin/whatsapp",        label: "Conversations", icon: MessageSquare  },
+  { to: "/admin/crm/contacts",    label: "Contacts",      icon: Users          },
+  { to: "/admin/crm/pipelines",   label: "Pipelines",     icon: KanbanSquare   },
+  { to: "/admin/broadcasts",      label: "Broadcasts",    icon: Radio          },
+  { to: "/admin/automations",     label: "Automations",   icon: Workflow       },
 ];
 
 export default function WhatsAppCRMTabs() {
