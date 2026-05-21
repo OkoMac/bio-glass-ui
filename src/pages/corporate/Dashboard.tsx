@@ -161,7 +161,10 @@ export default function CorporateDashboard() {
   const kpis = [
     { label: "MTD Spend",       value: `R${stats.total_spent.toLocaleString()}`,     trend: "--",   up: true,  icon: Wallet,   color: "#F59E0B" },
     { label: "Employees",       value: String(stats.total_employees),                trend: "--",   up: true,  icon: Users,    color: "#6366F1" },
-    { label: "Providers",       value: String(stats.active_providers),               trend: "--",   up: true,  icon: Briefcase,color: "#2DD4BF" },
+    // 2026-05-21 Phase 3: Utilisation = mtd_spend / total_budget * 100
+    // Replaces "Providers" in the headline KPI strip; providers count
+    // is still visible in the linking section below.
+    { label: "Utilisation",     value: `${analytics.utilization_pct}%`,              trend: `${analytics.active_employees} active`, up: analytics.utilization_pct >= 30, icon: Briefcase, color: "#2DD4BF" },
     { label: "Budget",          value: `R${stats.total_budget.toLocaleString()}`,    trend: "--",   up: true,  icon: Star,     color: "#F05A28" },
   ];
 
