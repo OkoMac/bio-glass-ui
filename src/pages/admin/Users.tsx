@@ -18,13 +18,27 @@ interface PlatformUser {
   id: string;
   name: string;
   email: string;
+  /** Primary role for display + filtering — chosen by ROLE_PRIORITY. */
   role: UserRole;
+  /** Every role the user holds, including the primary. Length 1 for
+   *  single-role users, 2+ for multi-role (e.g. provider + client). */
+  roles: UserRole[];
   status: UserStatus;
   joinedAt: string;
   lastActive: string;
   verified: boolean;
   permissions: Record<string, boolean>;
   plan?: string;
+}
+
+/** When a user has multiple roles, the highest-priority one drives the
+ *  "primary" pill + role-filter matching. Admin first so admins are
+ *  immediately visible; corporate/sales_rep before provider/client so
+ *  the business-facing role is what shows up by default. */
+const ROLE_PRIORITY: UserRole[] = ["admin", "corporate", "sales_rep", "provider", "client"];
+function pickPrimaryRole(roles: UserRole[]): UserRole {
+  for (const r of ROLE_PRIORITY) if (roles.includes(r)) return r;
+  return roles[0] ?? "client";
 }
 
 const ROLE_META: Record<UserRole, { label: string; color: string; icon: typeof User }> = {
@@ -106,12 +120,19 @@ export default function AdminUsers() {
         return;
       }
 
-      const roleMap: Record<string, UserRole> = {};
+      // 2026-05-21: previously this map overwrote roles for multi-role
+      // users (Luke = client+provider showed up as whichever row landed
+      // last). Now we collect ALL roles per user_id and pick a primary
+      // via ROLE_PRIORITY. Backend RLS is still authoritative for what
+      // the user can DO; this is just for display correctness.
+      const rolesByUser: Record<string, UserRole[]> = {};
       roleData.forEach((r: any /* TODO(types) */) => {
-        roleMap[r.user_id] = r.role as UserRole;
+        const list = rolesByUser[r.user_id] ?? (rolesByUser[r.user_id] = []);
+        const role = r.role as UserRole;
+        if (!list.includes(role)) list.push(role);
       });
 
-      const userIds = roleData.map((r: any /* TODO(types) */) => r.user_id);
+      const userIds = Object.keys(rolesByUser);
 
       const { data: profileData } = await withTimeout(
         () => supabase.from("profiles").select("id, user_id, full_name, email, is_active, created_at").in("user_id", userIds).order("created_at", { ascending: false }),
@@ -120,12 +141,14 @@ export default function AdminUsers() {
       );
 
       const mapped: PlatformUser[] = (profileData ?? []).map((p: any /* TODO(types) */) => {
-        const role = roleMap[p.user_id] || "client";
+        const roles = rolesByUser[p.user_id] ?? ["client"];
+        const role = pickPrimaryRole(roles);
         return {
           id: p.id ?? p.user_id,
           name: p.full_name || "Unknown",
           email: p.email || "",
           role,
+          roles,
           status: p.is_active === false ? "suspended" : "active" as UserStatus,
           joinedAt: p.created_at ? new Date(p.created_at).toLocaleDateString("en-ZA", { month: "short", year: "numeric" }) : "Unknown",
           lastActive: "Unknown",
@@ -143,7 +166,10 @@ export default function AdminUsers() {
 
   const filtered = users.filter(u => {
     const matchQ = u.name.toLowerCase().includes(query.toLowerCase()) || u.email.toLowerCase().includes(query.toLowerCase());
-    const matchR = roleFilter === "all" || u.role === roleFilter;
+    // Match against EVERY role the user holds, not just the primary.
+    // A "provider" filter should surface Luke even if his primary role
+    // is "client" (or vice versa).
+    const matchR = roleFilter === "all" || u.roles.includes(roleFilter);
     return matchQ && matchR;
   });
 
@@ -173,7 +199,7 @@ export default function AdminUsers() {
     const newUser: PlatformUser = {
       id: Date.now().toString(),
       name: newName.trim(), email: newEmail.trim(),
-      role: newRole, status: "pending_verification",
+      role: newRole, roles: [newRole], status: "pending_verification",
       joinedAt: "Today", lastActive: "---",
       verified: false,
       permissions: defaultPermissions(newRole),
@@ -272,10 +298,19 @@ export default function AdminUsers() {
                         </div>
                         <p className="text-[11px] text-muted-foreground">{u.email}</p>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {/* Primary role pill + a "+N" badge if multi-role
+                            (avoids overflowing the card with 3 pills on
+                            users like Luke who have client+provider). */}
                         <span className={`text-[10px] px-2 py-0.5 rounded-pill border capitalize ${meta.color}`}>
                           {meta.label}
                         </span>
+                        {u.roles.length > 1 && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-pill bg-white/[0.04] text-muted-foreground border border-white/[0.08]"
+                            title={u.roles.map(r => ROLE_META[r]?.label ?? r).join(", ")}>
+                            +{u.roles.length - 1}
+                          </span>
+                        )}
                         <div className="flex items-center gap-1">
                           <span className={`w-1.5 h-1.5 rounded-full ${statusMeta.dot}`} />
                           <span className="text-[10px] text-muted-foreground">{statusMeta.label}</span>
@@ -314,10 +349,18 @@ export default function AdminUsers() {
                     <div>
                       <h2 className="text-xl font-bold text-foreground">{selected.name}</h2>
                       <p className="text-xs text-muted-foreground">{selected.email}</p>
-                      <div className="flex gap-2 mt-1.5">
-                        <span className={`text-[10px] px-2 py-0.5 rounded-pill border capitalize ${ROLE_META[selected.role].color}`}>
-                          {ROLE_META[selected.role].label}
-                        </span>
+                      <div className="flex gap-2 mt-1.5 flex-wrap">
+                        {/* Show every role the user holds. The detail
+                            drawer has space; the list card uses the +N
+                            badge to keep things compact. */}
+                        {selected.roles.map((r) => {
+                          const m = ROLE_META[r] ?? UNKNOWN_ROLE_META;
+                          return (
+                            <span key={r} className={`text-[10px] px-2 py-0.5 rounded-pill border capitalize ${m.color}`}>
+                              {m.label}
+                            </span>
+                          );
+                        })}
                         {selected.plan && (
                           <span className="text-[10px] px-2 py-0.5 rounded-pill glass-accent-amber text-amber">{selected.plan} Plan</span>
                         )}
