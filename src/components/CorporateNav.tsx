@@ -78,15 +78,20 @@ export default function CorporateNav() {
         </div>
       </aside>
 
-      {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 px-4 py-3 flex items-center justify-between"
+      {/* Mobile top bar — tightened 2026-05-21 (Oko + Luke incident).
+          Original had 5 nav icons + hamburger = 6 elements crowding the
+          right side, squeezing the "Corporate" label until the people
+          icon overlapped it. Now: 3 high-frequency icons + hamburger
+          (other items reachable via the Sheet drawer). h-6 wordmark
+          and py-2 trim ~12px off the header height. */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 px-3 py-2 flex items-center justify-between gap-2"
         style={{ background: "rgba(10,10,18,0.95)", backdropFilter: "blur(40px)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-        <div className="flex items-center gap-2">
-          <Building2 className="w-4 h-4 text-amber" />
-          <img src="/bion-wordmark.png" alt="BION" className="h-7 w-auto" /><span className="text-[10px] text-muted-foreground ml-1">Corporate</span>
+        <div className="flex items-center gap-2 min-w-0">
+          <Building2 className="w-4 h-4 text-amber shrink-0" />
+          <img src="/bion-wordmark.png" alt="BION" className="h-6 w-auto shrink-0" />
         </div>
-        <div className="flex gap-1">
-          {navItems.slice(0, 5).map(item => (
+        <div className="flex items-center gap-0.5 shrink-0">
+          {navItems.slice(0, 3).map(item => (
             <NavLink key={item.path} to={item.path}>
               {({ isActive }) => (
                 <div className={`p-2 rounded-lg ${isActive ? "text-amber" : "text-muted-foreground"}`}>

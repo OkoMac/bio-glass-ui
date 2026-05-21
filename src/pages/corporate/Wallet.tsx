@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import CorporateNav from "@/components/CorporateNav";
 import BionAssistant from "@/components/BionAssistant";
-import { Wallet, ArrowUpRight, ArrowDownLeft, TrendingDown, Plus, Building2, CheckCircle, } from "lucide-react";
+import { Wallet, ArrowUpRight, ArrowDownLeft, TrendingDown, Plus, Building2 } from "lucide-react";
+import { toast } from "sonner";
 
 /* ─── types & data ──────────────────────────────────────────────────────── */
 type TxType = "topup" | "allocation" | "session" | "refund";
@@ -42,7 +43,6 @@ export default function CorporateWallet() {
   const navigate = useNavigate();
   const [topUpAmount, setTopUpAmount]   = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState("");
-  const [showSuccess, setShowSuccess]   = useState(false);
 
   const companyBalance = 0;
   const totalAllocated = 0;
@@ -51,8 +51,20 @@ export default function CorporateWallet() {
   const handleTopUp = () => {
     const amt = topUpAmount ?? Number(customAmount);
     if (!amt || amt <= 0) return;
-    setShowSuccess(true);
-    setTimeout(() => { setShowSuccess(false); setTopUpAmount(null); setCustomAmount(""); }, 2000);
+    // 2026-05-21 (Luke incident): the Corporate Wallet top-up flow was
+    // never wired to Paystack — handleTopUp used to just flash a "Done!"
+    // animation while companyBalance stayed hardcoded at R0. Replaced
+    // the fake success with an honest CTA so corporate users aren't
+    // misled into thinking they paid. Proper Paystack integration is
+    // tracked in BUG_LOG and needs: backend POST /api/corporate/wallet/topup,
+    // Paystack inline checkout, webhook handler, and live balance read.
+    void amt;
+    toast.message("Wallet top-ups coming soon", {
+      description: "We're finalising the Paystack integration. Email sales@bionhealth.co.za to fund your wallet manually in the meantime.",
+      duration: 10000,
+    });
+    setTopUpAmount(null);
+    setCustomAmount("");
   };
 
   return (
@@ -132,7 +144,7 @@ export default function CorporateWallet() {
               onClick={handleTopUp}
               disabled={!topUpAmount && !customAmount}
               className="px-5 rounded-xl text-sm font-semibold gradient-indigo text-primary-foreground disabled:opacity-40">
-              {showSuccess ? <><CheckCircle className="w-4 h-4 inline mr-1"/>Done!</> : "Top Up"}
+              Top Up
             </motion.button>
           </div>
 

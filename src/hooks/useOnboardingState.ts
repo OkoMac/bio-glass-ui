@@ -35,11 +35,26 @@ export function useOnboardingState() {
   const profileId = user?.profileId;
   const isDemo = user?.id?.startsWith("demo_") ?? false;
 
+  // Seed nudgesSeen from localStorage so dismissals persist even if the
+  // backend /api/onboarding/progress GET drops nudges from its response
+  // (Luke 2026-05-21: corporate_points nudge re-popped on every /home
+  // click despite dismissal). Stored as JSON array under a per-user key
+  // so multi-account devices don't cross-contaminate. The backend is
+  // still the source of truth when it does return the list — this is
+  // a belt-and-suspenders fallback.
+  const initialNudges = (() => {
+    if (isDemo || !user?.id) return [];
+    try {
+      const raw = localStorage.getItem(`bion_nudges_seen_${user.id}`);
+      return raw ? (JSON.parse(raw) as string[]) : [];
+    } catch { return []; }
+  })();
+
   const [state, setState] = useState<OnboardingState>({
     layer1Complete: isDemo,
     layer2Complete: isDemo,
     layer3Complete: isDemo,
-    nudgesSeen: [],
+    nudgesSeen: initialNudges,
     loginCount: 0,
     loading: !isDemo,
   });
@@ -85,11 +100,15 @@ export function useOnboardingState() {
 
         const layers = data.layers ?? {};
 
+        // Union of server + localStorage so a dismissal that landed in
+        // either store persists, regardless of which one is authoritative.
+        const serverNudges: string[] = data.nudgesSeen ?? [];
+        const mergedNudges = Array.from(new Set([...serverNudges, ...initialNudges]));
         setState({
           layer1Complete: layerIsComplete(layers, "layer1"),
           layer2Complete: layerIsComplete(layers, "layer2"),
           layer3Complete: layerIsComplete(layers, "layer3"),
-          nudgesSeen: data.nudgesSeen ?? [],
+          nudgesSeen: mergedNudges,
           loginCount: 0, // login_count is no longer tracked in these tables
           loading: false,
         });
@@ -134,11 +153,17 @@ export function useOnboardingState() {
    *  with no way to close it (reported 2026-04-28). Persistence is
    *  best-effort and only fires when we have a profile id. */
   const markNudgeSeen = useCallback(async (featureKey: string) => {
-    setState(prev => (
-      prev.nudgesSeen.includes(featureKey)
-        ? prev
-        : { ...prev, nudgesSeen: [...prev.nudgesSeen, featureKey] }
-    ));
+    setState(prev => {
+      if (prev.nudgesSeen.includes(featureKey)) return prev;
+      const next = [...prev.nudgesSeen, featureKey];
+      // Persist to localStorage immediately so the dismissal survives
+      // a page reload even if the backend POST fails (or returns OK
+      // but the GET later drops it). Per-user key avoids cross-contam.
+      if (user?.id) {
+        try { localStorage.setItem(`bion_nudges_seen_${user.id}`, JSON.stringify(next)); } catch { /* quota / private mode */ }
+      }
+      return { ...prev, nudgesSeen: next };
+    });
 
     if (profileId && !isDemo) {
       try {

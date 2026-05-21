@@ -721,6 +721,25 @@ function DeeperDiveGate() {
  *  for users mid-flow. With it, back navigates within the SPA history
  *  first; only exits when there's no history left.
  *  Web/iOS are no-ops (Capacitor.isNativePlatform() guards). */
+/** Scroll restoration on every route change.
+ *
+ *  Without this, React Router preserves the scroll position from the
+ *  previous page when you navigate to a new one. On mobile this
+ *  manifests as "I tapped Employees and the page opened scrolled all
+ *  the way down" — because the previous page (Wallet, Analytics, etc.)
+ *  had been scrolled to the bottom, and the new page inherited that
+ *  scroll position. Luke 2026-05-21: "buttons all link towards the
+ *  bottom of the pages that they link to". Fix: hard-reset scroll to
+ *  the top on every pathname change. instant behaviour (no animation)
+ *  so it feels like a normal navigation, not a janky scroll. */
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+  }, [pathname]);
+  return null;
+}
+
 function BackButtonHandler() {
   const navigate = useNavigate();
   useEffect(() => {
@@ -757,6 +776,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <ScrollToTop />
               <BackButtonHandler />
               <OfflineBanner />
               <Suspense fallback={null}><CommandPalette /></Suspense>

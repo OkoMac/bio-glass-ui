@@ -253,7 +253,7 @@ export default function CorporateEmployees() {
                   const newDepts = input.split(",").map(d => d.trim()).filter(Boolean);
                   const withAll = ["All", ...newDepts];
                   setDepartments(withAll);
-                  try { localStorage.setItem("bion_corporate_departments", JSON.stringify(newDepts)); } catch {}
+                  try { localStorage.setItem("bion_corporate_departments", JSON.stringify(newDepts)); } catch (e: any) { console.warn('[Employees.tsx] silent catch:', e?.message ?? String(e)); }
                 }
               }}
               className="shrink-0 px-2 py-1.5 rounded-pill text-[10px] text-muted-foreground glass-1 hover:text-foreground transition-colors"
@@ -320,68 +320,77 @@ export default function CorporateEmployees() {
         </div>
       </div>
 
-      {/* Invite Employee Modal */}
+      {/* Invite Employee — bottom sheet (Luke 2026-05-21: previous
+          centered modal got cut off by the mobile keyboard, hiding the
+          Send Invite button below the fold). Bottom sheet with
+          max-h:85dvh + overflow-y-auto keeps the Send button reachable
+          regardless of keyboard state. dvh > vh so iOS Safari's
+          dynamic chrome doesn't double-clip. */}
       <AnimatePresence>
         {showInvite && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowInvite(false)} className="fixed inset-0 bg-obsidian/70 z-50" />
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 mx-auto max-w-sm rounded-3xl overflow-hidden"
-              style={{ background: "rgba(14,14,22,0.97)", backdropFilter: "blur(60px)" }}>
-              <div className="p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-foreground">Invite Employee</h3>
-                  <button onClick={() => setShowInvite(false)} className="p-1 rounded-full hover:bg-white/5">
-                    <X className="w-4 h-4 text-muted-foreground" />
-                  </button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Add an employee to your corporate wellness programme.
-                </p>
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Full Name</label>
-                    <input
-                      value={inviteForm.name}
-                      onChange={e => setInviteForm(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="e.g. Jane Smith"
-                      className="w-full h-10 glass-1 rounded-xl px-4 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none"
-                    />
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 300 }}
+              className="fixed bottom-0 left-0 right-0 z-50 rounded-t-[2rem] overflow-hidden pb-safe md:max-w-sm md:left-1/2 md:-translate-x-1/2 md:bottom-8 md:rounded-3xl"
+              style={{ background: "rgba(14,14,22,0.97)", backdropFilter: "blur(60px)", maxHeight: "85dvh" }}>
+              <div className="overflow-y-auto" style={{ maxHeight: "85dvh" }}>
+                <div className="flex justify-center pt-3 pb-1 md:hidden"><div className="w-10 h-1 rounded-full bg-white/20" /></div>
+                <div className="p-5 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-base font-bold text-foreground">Invite Employee</h3>
+                    <button onClick={() => setShowInvite(false)} className="p-1 rounded-full hover:bg-white/5" aria-label="Close">
+                      <X className="w-4 h-4 text-muted-foreground" />
+                    </button>
                   </div>
-                  <div>
-                    <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Email Address</label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                  <p className="text-xs text-muted-foreground">
+                    Add an employee to your corporate wellness programme.
+                  </p>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Full Name</label>
                       <input
-                        value={inviteForm.email}
-                        onChange={e => setInviteForm(prev => ({ ...prev, email: e.target.value }))}
-                        placeholder="jane@company.co.za"
-                        type="email"
-                        className="w-full h-10 glass-1 rounded-xl pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none"
+                        value={inviteForm.name}
+                        onChange={e => setInviteForm(prev => ({ ...prev, name: e.target.value }))}
+                        placeholder="e.g. Jane Smith"
+                        className="w-full h-10 glass-1 rounded-xl px-4 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none"
                       />
                     </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Monthly Budget (ZAR)</label>
-                    <div className="flex items-center gap-2">
-                      {[500, 1000, 1500, 2500].map(amt => (
-                        <button key={amt} onClick={() => setInviteForm(prev => ({ ...prev, monthly_budget: amt }))}
-                          className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
-                            inviteForm.monthly_budget === amt ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
-                          }`}>
-                          R{amt}
-                        </button>
-                      ))}
+                    <div>
+                      <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Email Address</label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                        <input
+                          value={inviteForm.email}
+                          onChange={e => setInviteForm(prev => ({ ...prev, email: e.target.value }))}
+                          placeholder="jane@company.co.za"
+                          type="email"
+                          className="w-full h-10 glass-1 rounded-xl pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Monthly Budget (ZAR)</label>
+                      <div className="flex items-center gap-2">
+                        {[500, 1000, 1500, 2500].map(amt => (
+                          <button key={amt} onClick={() => setInviteForm(prev => ({ ...prev, monthly_budget: amt }))}
+                            className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
+                              inviteForm.monthly_budget === amt ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
+                            }`}>
+                            R{amt}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
+                  <motion.button whileTap={{ scale: 0.97 }}
+                    onClick={handleInvite}
+                    disabled={inviting || !inviteForm.email.trim() || !inviteForm.name.trim()}
+                    className="w-full py-3 gradient-indigo rounded-pill text-sm font-semibold text-primary-foreground disabled:opacity-50 flex items-center justify-center gap-2">
+                    <UserPlus className="w-4 h-4" /> {inviting ? "Inviting..." : "Send Invite"}
+                  </motion.button>
                 </div>
-                <motion.button whileTap={{ scale: 0.97 }}
-                  onClick={handleInvite}
-                  disabled={inviting || !inviteForm.email.trim() || !inviteForm.name.trim()}
-                  className="w-full py-3 gradient-indigo rounded-pill text-sm font-semibold text-primary-foreground disabled:opacity-50 flex items-center justify-center gap-2">
-                  <UserPlus className="w-4 h-4" /> {inviting ? "Inviting..." : "Send Invite"}
-                </motion.button>
               </div>
             </motion.div>
           </>
