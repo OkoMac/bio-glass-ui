@@ -100,11 +100,26 @@ export default function RepDashboard() {
     return () => { cancelled = true; };
   }, [user?.id]);
 
-  // Check whether the user has accepted the Ranger agreement via the API
+  // Check whether the user has accepted the Ranger agreement via the API.
+  //
+  // Luke's 2026-05-21 incident: this useEffect previously had no timeout
+  // and the page-level guard was `if (!agreementCheckDone) return null;`.
+  // If /api/rep/agreement hung (cold Render dyno, supabase.auth.getSession
+  // slow on mobile data, transient network), the user was stuck on a
+  // blank black screen forever — no spinner, no error, no recovery. Cache
+  // and cookie clears didn't help because nothing was cached; the fetch
+  // was hanging in real time.
+  //
+  // Fix: AbortController with an 8s timeout. If the check doesn't resolve
+  // in 8s, abort the fetch and treat the user as "agreement OK so far" —
+  // backend gates on the actual ranger-crm endpoints still 403 if the
+  // agreement is genuinely missing, so this is safe at the page level.
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id) { setAgreementCheckDone(true); return; }
     let cancelled = false;
     const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+    const ctrl = new AbortController();
+    const timeoutId = setTimeout(() => ctrl.abort(), 8000);
     (async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -113,6 +128,7 @@ export default function RepDashboard() {
 
         const res = await fetch(`${API}/api/rep/agreement`, {
           headers: { Authorization: `Bearer ${token}` },
+          signal: ctrl.signal,
         });
         if (cancelled) return;
 
@@ -127,10 +143,14 @@ export default function RepDashboard() {
           setAgreementCheckDone(true);
         }
       } catch {
+        // AbortError (timeout) or network error — render the dashboard
+        // optimistically rather than block behind a blank screen.
         if (!cancelled) setAgreementCheckDone(true);
+      } finally {
+        clearTimeout(timeoutId);
       }
     })();
-    return () => { cancelled = true; };
+    return () => { cancelled = true; clearTimeout(timeoutId); ctrl.abort(); };
   }, [user?.id, navigate]);
 
   // Fetch providers & commissions from the API (replaces old localStorage mocks)
@@ -163,8 +183,16 @@ export default function RepDashboard() {
   // so the call order stays stable on every render. Earlier this lived
   // above the hooks which violated React's rules-of-hooks.
   // Uses API-based check via the useEffect above; while the check is
-  // pending we render nothing to avoid flashing the dashboard.
-  if (!agreementCheckDone) return null;
+  // pending we show a spinner (NOT null — Luke 2026-05-21 incident:
+  // null leaves the user staring at a blank black screen if the fetch
+  // hangs, with no indication anything is loading).
+  if (!agreementCheckDone) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-obsidian">
+        <div className="w-7 h-7 rounded-full border-2 border-coral/25 border-t-coral animate-spin" />
+      </div>
+    );
+  }
 
   const totalProviders = providers.length;
   const monthlyCommission = providers
