@@ -6,7 +6,10 @@ import CorporateNav from "@/components/CorporateNav";
 import BionAssistant from "@/components/BionAssistant";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Users, Wallet, AlertTriangle, CheckCircle, ChevronRight, Plus, Minus, UserPlus, X, Trash2, Mail, } from "lucide-react";
+import { Search, Users, Wallet, AlertTriangle, CheckCircle, ChevronRight, Plus, Minus, UserPlus, X, Trash2, Mail, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+
+const API_URL = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
 type EmployeeStatus = "active" | "inactive" | "pending";
 
@@ -177,11 +180,49 @@ export default function CorporateEmployees() {
   const totalUsed      = employees.reduce((s, e) => s + (e.monthlyBudget - e.walletBalance), 0);
   const totalSessions  = employees.reduce((s, e) => s + e.sessionsUsed, 0);
 
-  const topUp = (id: string, amount: number) => {
-    setEmployees(prev => prev.map(e =>
-      e.id === id ? { ...e, walletBalance: Math.min(e.walletBalance + amount, e.monthlyBudget + 500) } : e
-    ));
-    if (selected?.id === id) setSelected(prev => prev ? { ...prev, walletBalance: Math.min(prev.walletBalance + amount, prev.monthlyBudget + 500) } : null);
+  // 2026-05-21 Phase 2: Top-up now actually moves money. Calls the
+  // /api/corporate/wallet/allocate endpoint which:
+  //   1. Debits the corporate wallet by amount * 100 cents (refuses
+  //      if insufficient balance — surfaces a clear error toast).
+  //   2. Bumps the employee's monthly_budget by amount on success.
+  // The previous purely-local update silently grew the balance with
+  // no link to the actual company wallet — letting admins "spend"
+  // money the company didn't have.
+  const [allocating, setAllocating] = useState<string | null>(null);
+  const topUp = async (id: string, amount: number) => {
+    if (!amount || amount <= 0) return;
+    setAllocating(id);
+    const tId = toast.loading(`Allocating R${amount}…`);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error("Please sign in again");
+      const r = await fetch(`${API_URL}/api/corporate/wallet/allocate`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ employee_id: id, amount_cents: amount * 100 }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (r.status === 402 || j?.code === "insufficient_balance") {
+        toast.error("Not enough in company wallet. Top up the wallet first.", { id: tId, duration: 10000 });
+        return;
+      }
+      if (!r.ok || !j?.ok) throw new Error(j?.error ?? `HTTP ${r.status}`);
+
+      // Update local state from server response so display matches DB.
+      const newBudget = (j.employee?.monthly_budget ?? 0) as number;
+      setEmployees(prev => prev.map(e =>
+        e.id === id ? { ...e, walletBalance: e.walletBalance + amount, monthlyBudget: newBudget } : e
+      ));
+      if (selected?.id === id) {
+        setSelected(prev => prev ? { ...prev, walletBalance: prev.walletBalance + amount, monthlyBudget: newBudget } : null);
+      }
+      toast.success(`R${amount} allocated to ${selected?.name ?? "employee"}`, { id: tId });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Allocation failed", { id: tId, duration: 10000 });
+    } finally {
+      setAllocating(null);
+    }
   };
 
   const updateBudget = (id: string, delta: number) => {
@@ -467,8 +508,11 @@ export default function CorporateEmployees() {
                     </div>
                     <motion.button whileTap={{ scale: 0.97 }}
                       onClick={() => topUp(selected.id, topUpAmount)}
-                      className="w-full py-3 gradient-indigo rounded-pill text-sm font-semibold text-primary-foreground flex items-center justify-center gap-2">
-                      <Plus className="w-4 h-4" /> Add R{topUpAmount} to Wallet
+                      disabled={allocating === selected.id}
+                      className="w-full py-3 gradient-indigo rounded-pill text-sm font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-60">
+                      {allocating === selected.id
+                        ? <><Loader2 className="w-4 h-4 animate-spin" /> Allocating…</>
+                        : <><Plus className="w-4 h-4" /> Add R{topUpAmount} to Wallet</>}
                     </motion.button>
                   </div>
 
