@@ -4,7 +4,6 @@
   "webDir": "dist",
   "bundledWebRuntime": false,
   "server": {
-    "url": "https://bionhealth.co.za",
     "cleartext": false,
     "androidScheme": "https",
     "iosScheme": "https",
@@ -20,7 +19,9 @@
       "api.stripe.com",
       "*.stripe.com",
       "m.stripe.network",
-      "*.stripe.network"
+      "*.stripe.network",
+      "accounts.google.com",
+      "*.googleusercontent.com"
     ]
   },
   "ios": {

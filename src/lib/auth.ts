@@ -314,12 +314,63 @@ export async function signUpWithEmail(
  *  Errors are surfaced via toast + console so the user (and Sentry) can see
  *  why a click didn't take them to Google. Pre-fix the call was fire-and-
  *  forget; silent failures looked identical to "nothing happened" for
- *  Oko 2026-05-12. */
+ *  Oko 2026-05-12.
+ *
+ *  Capacitor native (2026-05-21): the WebView origin is
+ *  capacitor://localhost (iOS) or https://localhost (Android). Neither
+ *  is registered as an OAuth redirect with Google, so Google rejects
+ *  the handshake → "Sign in with Google does not sign in" bug. We pin
+ *  redirectTo to the production web origin (which IS registered) and
+ *  open the OAuth URL in the system browser via Capacitor's Browser
+ *  plugin. The web origin completes the handshake, Supabase sets the
+ *  cookie, then the user comes back to the app and the session restores
+ *  on next launch via the Supabase storage hook. Not pretty — a deep-
+ *  link callback flow would be better — but it stops the silent fail
+ *  in one ship. */
 export async function signInWithGoogle(): Promise<void> {
+  let isNative = false;
+  try {
+    const { Capacitor } = await import("@capacitor/core");
+    isNative = Capacitor.isNativePlatform();
+  } catch { /* web — ignore */ }
+
+  const webOrigin = "https://bionhealth.co.za";
+  const redirectTo = isNative ? `${webOrigin}/` : `${window.location.origin}/`;
+
+  if (isNative) {
+    // Native: ask Supabase to mint the URL but DON'T let it auto-navigate
+    // (the in-app WebView would lose the OAuth callback). We open it in
+    // the system browser instead so Google trusts the host.
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo,
+        queryParams: { prompt: "select_account" },
+        skipBrowserRedirect: true,
+      },
+    });
+    if (error || !data?.url) {
+      console.error("[auth] Google sign-in (native) failed:", error);
+      try {
+        const { toast } = await import("sonner");
+        toast.error(`Google sign-in failed: ${error?.message ?? "no auth URL returned"}`);
+      } catch {}
+      throw error ?? new Error("Google sign-in failed");
+    }
+    // window.open(url, "_system") on Capacitor opens the system browser
+    // (Chrome/Safari) — not an in-app WebView. That's what we want: Google
+    // trusts the production host, completes the handshake, and the user
+    // returns to the app via the app icon. Avoiding @capacitor/browser
+    // here keeps the dependency surface unchanged.
+    window.open(data.url, "_system");
+    return;
+  }
+
+  // Web — standard in-tab redirect flow.
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${window.location.origin}/`,
+      redirectTo,
       queryParams: { prompt: "select_account" },
     },
   });

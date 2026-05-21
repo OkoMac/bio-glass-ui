@@ -104,7 +104,8 @@ export default function CorporateDashboard() {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
 
-    fetch("/api/corporate/stats", { signal: controller.signal })
+    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+    fetch(`${API}/api/corporate/stats`, { signal: controller.signal })
       .then(r => r.json())
       .then(res => {
         if (res.ok && res.data) setStats(res.data);
@@ -130,7 +131,8 @@ export default function CorporateDashboard() {
   const handleLinkRep = () => {
     if (!repCode.trim()) return;
     setRepLinking(true);
-    fetch("/api/corporate/rep/link", {
+    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+    fetch(`${API}/api/corporate/rep/link`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ referral_code: repCode }),
