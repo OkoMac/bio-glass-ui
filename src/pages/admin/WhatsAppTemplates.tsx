@@ -184,13 +184,12 @@ export default function AdminWhatsAppTemplates() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {templates.length === 0 && (
-              <button onClick={createCanonical} disabled={creating || syncing}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-pill bg-teal-500/15 text-teal-400 border border-teal-500/30 hover:bg-teal-500/25 text-xs font-medium disabled:opacity-50">
-                {creating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
-                {creating ? "Submitting…" : "Create canonical templates"}
-              </button>
-            )}
+            <button onClick={createCanonical} disabled={creating || syncing}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-pill bg-teal-500/15 text-teal-400 border border-teal-500/30 hover:bg-teal-500/25 text-xs font-medium disabled:opacity-50"
+              title="Submits 7 BION canonical templates to Meta. Any already approved are skipped — Meta returns 'already exists' for duplicates.">
+              {creating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
+              {creating ? "Submitting…" : "Submit canonical set"}
+            </button>
             <button onClick={sync} disabled={syncing || creating}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-pill bg-coral/15 text-coral border border-coral/30 hover:bg-coral/25 text-xs font-medium disabled:opacity-50">
               {syncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
