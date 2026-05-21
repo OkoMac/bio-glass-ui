@@ -11,7 +11,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
-type UserRole = "client" | "provider" | "admin" | "corporate";
+type UserRole = "client" | "provider" | "admin" | "corporate" | "sales_rep";
 type UserStatus = "active" | "suspended" | "pending_verification";
 
 interface PlatformUser {
@@ -32,7 +32,12 @@ const ROLE_META: Record<UserRole, { label: string; color: string; icon: typeof U
   provider:  { label: "Provider",  color: "text-teal   bg-teal/10   border-teal/20",   icon: ShieldCheck },
   admin:     { label: "Admin",     color: "text-coral  bg-coral/10  border-coral/20",  icon: Shield   },
   corporate: { label: "Corporate", color: "text-amber  bg-amber/10  border-amber/20",  icon: Users    },
+  sales_rep: { label: "Ranger",    color: "text-violet bg-violet/10 border-violet/20", icon: ShieldCheck },
 };
+// Fallback for any role string the DB returns that we haven't catalogued yet
+// (prevents the whole page from crashing on `meta.color` of undefined).
+const UNKNOWN_ROLE_META = { label: "Other", color: "text-muted-foreground bg-white/[0.04] border-white/[0.08]", icon: User };
+const UNKNOWN_STATUS_META = { label: "Unknown", dot: "bg-muted-foreground" };
 
 const STATUS_META: Record<UserStatus, { label: string; dot: string }> = {
   active:               { label: "Active",     dot: "bg-teal"  },
@@ -226,12 +231,12 @@ export default function AdminUsers() {
 
         {/* Role filter */}
         <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
-          {(["all", "client", "provider", "admin", "corporate"] as const).map(r => (
+          {(["all", "client", "provider", "admin", "corporate", "sales_rep"] as const).map(r => (
             <button key={r} onClick={() => setRoleFilter(r)}
               className={`px-3 py-1.5 rounded-pill text-xs font-medium capitalize whitespace-nowrap transition-all ${
                 roleFilter === r ? "gradient-indigo text-primary-foreground" : "glass-1 text-muted-foreground"
               }`}>
-              {r === "all" ? "All roles" : r}
+              {r === "all" ? "All roles" : r === "sales_rep" ? "Ranger" : r}
             </button>
           ))}
         </div>
@@ -248,8 +253,11 @@ export default function AdminUsers() {
         ) : (
           <div className="space-y-2">
             {filtered.map((u, i) => {
-              const meta = ROLE_META[u.role];
-              const statusMeta = STATUS_META[u.status];
+              // Fallback prevents crashes on unrecognised roles/statuses —
+              // before adding sales_rep to UserRole this is what was killing
+              // the page render the moment a Ranger user landed in results.
+              const meta = ROLE_META[u.role] ?? UNKNOWN_ROLE_META;
+              const statusMeta = STATUS_META[u.status] ?? UNKNOWN_STATUS_META;
               return (
                 <motion.div key={u.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
                   <GlassCard hover className="p-4 cursor-pointer" onClick={() => setSelected(u)}>
