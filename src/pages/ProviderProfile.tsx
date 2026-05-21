@@ -257,6 +257,40 @@ export default function ProviderProfile() {
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [bookingBusy, setBookingBusy] = useState(false);
 
+  // 2026-05-21 Phase 3: corporate-paid checkout. If the signed-in user
+  // is enrolled in a company wellness programme (matched by email on
+  // corporate_employees), they can pay this booking from their
+  // monthly_budget allocation instead of swiping a card. We fetch
+  // eligibility on user load; if eligible AND the booking total fits,
+  // a "Pay from company wellness budget (Rxxx available)" toggle
+  // appears above the Confirm button.
+  const [corpBudget, setCorpBudget] = useState<{ effective_rand: number; available_rand: number; wallet_balance_rand: number } | null>(null);
+  const [useCorpBudget, setUseCorpBudget] = useState(false);
+  useEffect(() => {
+    if (!user?.id || user.id.startsWith("demo_")) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session || cancelled) return;
+        const r = await fetch(`${API}/api/corporate/wallet/employee-budget`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        const j = await r.json().catch(() => ({}));
+        if (!cancelled && j?.ok && j.eligible && j.effective_rand > 0) {
+          setCorpBudget({
+            effective_rand: Number(j.effective_rand),
+            available_rand: Number(j.available_rand),
+            wallet_balance_rand: Number(j.wallet_balance_rand),
+          });
+        }
+      } catch { /* non-blocking — non-corporate users see nothing different */ }
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id]);
+
   // ── B1-0 Phase 3: per-provider data-sharing consent ───────────────
   // Fetched from /api/data-grants/resolve-defaults when the booking
   // dialog opens. Defaults are pre-checked; the user can tighten or
@@ -413,7 +447,7 @@ export default function ProviderProfile() {
         if (json.ok && json.data) {
           setClientMedicalAid({ scheme: json.data.scheme, plan_name: json.data.plan_name ?? "" });
         }
-      } catch {}
+      } catch (e: any) { console.warn('[ProviderProfile.tsx] silent catch:', e?.message ?? String(e)); }
     })();
   }, [user?.profileId]);
 
@@ -663,7 +697,9 @@ export default function ProviderProfile() {
         return;
       }
 
-      // Paid path — Paystack hosted checkout. Success URL routes back to /schedule.
+      // Paid path — either Paystack hosted checkout, OR (Phase 3) the
+      // corporate-paid path which debits the company wallet and confirms
+      // the booking instantly. Backend branches on paymentMethod.
       const res = await fetch(`${API}/api/bookings/checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -675,11 +711,23 @@ export default function ProviderProfile() {
           bookingTime,
           amount: amountRand,
           deliveryMode: canTelehealth ? deliveryMode : "in_person",
+          paymentMethod: useCorpBudget ? "corporate" : undefined,
         }),
       });
       const data = await res.json();
-      if (!res.ok || !data.checkoutUrl) {
+      if (!res.ok || !data.ok) {
         throw new Error(data.error ?? "Could not start checkout");
+      }
+      // Corporate path returns { ok: true, paymentMethod: "corporate" }
+      // with no checkoutUrl — booking is already paid + confirmed.
+      if (data.paymentMethod === "corporate") {
+        setBookingConfirmed(true);
+        setTimeout(() => navigate("/schedule"), 1200);
+        return;
+      }
+      // Paystack path — redirect to hosted checkout
+      if (!data.checkoutUrl) {
+        throw new Error("Could not start checkout");
       }
       window.location.href = data.checkoutUrl;
     } catch (err: any) {
@@ -2023,6 +2071,32 @@ export default function ProviderProfile() {
                   </div>
                 )}
 
+                {/* Corporate wellness budget pay option — only shown when
+                    the user is enrolled in a company programme and the
+                    effective budget (min of monthly cap + company wallet
+                    balance) is at least the booking total. */}
+                {corpBudget && corpBudget.effective_rand > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setUseCorpBudget(v => !v)}
+                    className={`w-full rounded-2xl p-3 border text-left transition-colors ${
+                      useCorpBudget ? "bg-amber/10 border-amber/40" : "bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.04]"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-4 h-4 rounded border mt-0.5 shrink-0 flex items-center justify-center ${useCorpBudget ? "bg-amber border-amber" : "border-white/30"}`}>
+                        {useCorpBudget && <Check className="w-3 h-3 text-white" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-foreground">Pay from company wellness budget</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          R{corpBudget.effective_rand.toLocaleString()} available this month — no card needed
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                )}
+
                 <motion.button
                   whileTap={{ scale: 0.97 }}
                   onClick={() => {
@@ -2041,7 +2115,15 @@ export default function ProviderProfile() {
                   disabled={bookingBusy}
                   className="w-full rounded-pill py-4 text-base font-semibold text-primary-foreground shadow-cta gradient-indigo"
                 >
-                  {bookingBusy ? "Starting checkout…" : !user?.profileId ? "Sign Up to Book" : !isRegisteredOnBion ? "Request Booking" : "Confirm Booking"}
+                  {bookingBusy
+                    ? "Starting checkout…"
+                    : !user?.profileId
+                      ? "Sign Up to Book"
+                      : !isRegisteredOnBion
+                        ? "Request Booking"
+                        : useCorpBudget
+                          ? "Pay with company budget"
+                          : "Confirm Booking"}
                 </motion.button>
               </>
             )}
