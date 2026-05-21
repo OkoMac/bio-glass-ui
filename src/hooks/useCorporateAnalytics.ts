@@ -16,6 +16,7 @@ export interface CorporateAnalytics {
   utilization_pct: number;
   wallet_balance: number;
   active_employees: number;
+  spendByDepartment: Array<{ department: string; spend: number; sessions: number; employees: number }>;
   // Charts / lists
   spendBuckets: Array<{ label: string; value: number }>;
   topProviders: Array<{ id: string; name: string; specialty: string | null; vertical: string | null; sessions: number; spend: number }>;
@@ -41,6 +42,7 @@ const empty: CorporateAnalytics = {
   total_employees: 0, total_budget: 0, active_providers: 0,
   mtd_spend: 0, spend_30d: 0, spend_90d: 0, sessions_mtd: 0,
   utilization_pct: 0, wallet_balance: 0, active_employees: 0,
+  spendByDepartment: [],
   spendBuckets: [], topProviders: [], recentActivity: [], byVertical: [],
 };
 
@@ -56,6 +58,7 @@ interface ReportsData {
   wallet_balance_rand: number;
   top_providers: Array<{ id: string; name: string; sessions: number; spend_rand: number }>;
   recent_activity: Array<{ booking_id: string; employee_name: string; provider_name: string; amount_rand: number; booking_date: string }>;
+  spend_by_department: Array<{ department: string; spend_rand: number; sessions: number; employees: number }>;
 }
 
 async function fetchReports(): Promise<ReportsData | null> {
@@ -158,6 +161,12 @@ export function useCorporateAnalytics(): CorporateAnalytics {
         utilization_pct: Number(reports?.utilization_pct ?? 0),
         wallet_balance:  Number(reports?.wallet_balance_rand ?? 0),
         active_employees: Number(reports?.active_employees ?? 0),
+        spendByDepartment: (reports?.spend_by_department ?? []).map(d => ({
+          department: d.department,
+          spend:      Number(d.spend_rand),
+          sessions:   Number(d.sessions),
+          employees:  Number(d.employees),
+        })),
         spendBuckets: buckets.map(b => ({ label: b.label, value: Number(b.spend) })),
         topProviders,
         recentActivity,

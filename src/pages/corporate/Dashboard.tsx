@@ -306,6 +306,46 @@ export default function CorporateDashboard() {
           </GlassCard>
         </div>
 
+        {/* 2026-05-22 Phase 3 follow-up — spend by department.
+            Powered by corporate_employees.department joined onto every
+            corp-paid booking. Only renders when there's at least one
+            row to show (no "no data yet" placeholder — Category
+            breakdown above already covers that case). */}
+        {analytics.spendByDepartment.length > 0 && (
+          <GlassCard className="p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm font-semibold text-foreground">Spend by Department</p>
+                <p className="text-xs text-muted-foreground">This month, across all corporate-paid bookings</p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {(() => {
+                const maxSpend = Math.max(...analytics.spendByDepartment.map(d => d.spend), 1);
+                return analytics.spendByDepartment.map(d => (
+                  <div key={d.department}>
+                    <div className="flex justify-between mb-1 text-xs">
+                      <span className="text-foreground font-medium">{d.department}</span>
+                      <span className="font-data text-foreground">R{d.spend.toLocaleString()}</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${(d.spend / maxSpend) * 100}%` }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                        className="h-full rounded-full bg-amber"
+                      />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      {d.employees} employee{d.employees === 1 ? "" : "s"} · {d.sessions} session{d.sessions === 1 ? "" : "s"}
+                    </p>
+                  </div>
+                ));
+              })()}
+            </div>
+          </GlassCard>
+        )}
+
         <div className="grid md:grid-cols-2 gap-4">
           {/* Top providers */}
           <div>
