@@ -281,8 +281,8 @@ export function InstallModal({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="glass-popover fixed inset-x-4 z-[90] max-w-sm mx-auto rounded-3xl p-6 overflow-y-auto max-h-[85vh]"
-            style={{ top: "50%", transform: "translateY(-50%)" }}
+            className="glass-popover fixed inset-x-4 z-[90] max-w-sm mx-auto rounded-3xl p-6 overflow-y-auto max-h-[75vh] pb-safe-or-6"
+            style={{ top: "20%", transform: "none" }}
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -549,18 +549,17 @@ export default function InstallButton({ variant = "pill" }: { variant?: "card" |
     );
   }
 
-  // Pill variant (for menus, inline usage)
+  // Pill variant (for menus, inline usage) — renders as a text menu item,
+  // NOT a floating pill. Same visual style as Sign Out buttons.
   return (
     <>
-      <motion.button
-        whileTap={{ scale: 0.95 }}
+      <button
         onClick={installApp}
-        className="h-10 px-3 rounded-full bg-gradient-to-r from-indigo to-violet flex items-center gap-1.5 shadow-cta"
+        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground hover:text-teal hover:bg-white/5 transition-all text-sm"
         aria-label="Install BION app"
       >
-        <Download className="w-3.5 h-3.5 text-white" />
-        <span className="text-[10px] font-bold text-white">Install</span>
-      </motion.button>
+        <Download className="w-4 h-4" /> Install BION
+      </button>
 
       <InstallModal
         show={showInstructions || showUpdateModal}
