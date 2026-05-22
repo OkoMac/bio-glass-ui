@@ -1283,7 +1283,7 @@ export default function Directory() {
             <h3 className="text-lg md:text-xl font-semibold text-foreground">Browse Services</h3>
             <span className="text-xs text-muted-foreground">({ALL_PROVIDERS.length} providers)</span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 md:gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 md:gap-3">
             {filteredCategories.map((cat, i) => (
               <ServiceCategoryBlock
                 key={cat.id}
