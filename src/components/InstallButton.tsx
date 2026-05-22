@@ -281,7 +281,8 @@ export function InstallModal({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="glass-popover fixed inset-x-4 top-1/2 -translate-y-1/2 z-[90] max-w-sm mx-auto rounded-3xl p-6"
+            className="glass-popover fixed inset-x-4 z-[90] max-w-sm mx-auto rounded-3xl p-6 overflow-y-auto max-h-[85vh]"
+            style={{ top: "50%", transform: "translateY(-50%)" }}
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
