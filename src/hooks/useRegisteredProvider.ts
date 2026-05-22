@@ -1,59 +1,35 @@
-/**
- * useRegisteredProvider — resolve a scraped directory slug (cen_lynette,
- * gp_apisara_kyalami, …) to a BION profile UUID + verification status.
- *
- * Bridges the two-ID-spaces problem: provider URLs use scraped slugs
- * (catalogue is seeded from JHB+PTA JSON), but every economic operation
- * (booking, payout, notification, marketing wallet, BIONPoints) needs
- * the Supabase profile UUID. The backend GET /api/providers/by-slug
- * endpoint (Phase 3 of E2E, c3f5271 backend) does the join across
- * provider_claims (status='linked' → linked_profile_id) and
- * provider_documents (all 3 required types verified).
- *
- * Used by:
- *   • ProviderProfile.tsx — to enable BION-only flows (services list,
- *     programs, real ratings) once the listing is verified
- *   • BookingSheet.tsx — to attach providerId on every addBooking
- *     so the v2.0 economic loop (5% wallet credit, Class A points
- *     attribution, payouts) connects properly
- *
- * Returns null profileId for directory-only providers (no claim or
- * unverified) — caller falls back to the lead-form / pre-bookable path.
- */
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 
-import { useEffect, useState } from "react";
-
-const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
-
-export interface RegisteredProvider {
-  /** BION profile UUID — null if the slug isn't claimed/verified. */
-  profileId: string | null;
-  /** True if all three KYC documents are verified. */
+type ProfileState = {
+  profile: any | null;
   isVerified: boolean;
-  /** Loading flag — true while the resolve request is in flight. */
   loading: boolean;
-}
-
-const EMPTY: RegisteredProvider = {
-  profileId:  null,
-  isVerified: false,
-  loading:    false,
 };
 
-export function useRegisteredProvider(slug: string | null | undefined): RegisteredProvider {
-  const [state, setState] = useState<RegisteredProvider>(slug ? { ...EMPTY, loading: true } : EMPTY);
+const EMPTY: ProfileState = { profile: null, isVerified: false, loading: true };
+
+/**
+ * Fetches a provider by URL slug from /api/providers/by-slug/:slug.
+ * Returns { profile, isVerified, loading } for any component that needs
+ * the full provider record, not just the snippet from search results.
+ */
+export function useRegisteredProvider(slug?: string) {
+  const params = useParams();
+  const s = slug ?? params.slug;
+  const [state, setState] = useState<ProfileState>(EMPTY);
 
   useEffect(() => {
-    if (!slug) { setState(EMPTY); return; }
+    if (!s) { setState({ ...EMPTY, loading: false }); return; }
     let cancelled = false;
-    setState({ ...EMPTY, loading: true });
-    fetch(`${API}/api/providers/by-slug/${encodeURIComponent(slug)}`)
-      .then((r) => r.json())
-      .then((j) => {
+    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+    fetch(`${API}/api/providers/by-slug/${encodeURIComponent(s)}`)
+      .then(r => r.json())
+      .then(j => {
         if (cancelled) return;
-        if (j?.ok && j.profile_id) {
+        if (j?.ok && j.data) {
           setState({
-            profileId:  j.profile_id as string,
+            profile:    j.data,
             isVerified: Boolean(j.is_verified),
             loading:    false,
           });
@@ -61,14 +37,15 @@ export function useRegisteredProvider(slug: string | null | undefined): Register
           setState({ ...EMPTY, loading: false });
         }
       })
-      .catch(() => {
+      .catch((e: unknown) => {
         if (cancelled) return;
         // Network blip — don't lock the user into a "directory-only"
         // experience permanently; loading false but no error surface.
+        console.warn("[useRegisteredProvider] fetch provider:", e instanceof Error ? e.message : String(e));
         setState({ ...EMPTY, loading: false });
       });
     return () => { cancelled = true; };
-  }, [slug]);
+  }, [s]);
 
   return state;
 }

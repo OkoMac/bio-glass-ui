@@ -22,7 +22,7 @@ export default function InvitePage() {
       })
       .catch((err) => console.warn("[Invite] <unknown> failed:", err?.message));
     // Store referral code for attribution on signup
-    try { localStorage.setItem("bion_ref_code", code); } catch {}
+    try { localStorage.setItem("bion_ref_code", code); } catch (e: any) { console.warn('[Invite.tsx] silent catch:', e?.message ?? String(e)); }
   }, [code]);
 
   const firstName = inviter?.name?.split(" ")[0] ?? "Someone";

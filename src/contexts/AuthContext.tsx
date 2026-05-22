@@ -183,8 +183,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 .then(({ data }: any /* TODO(types) */) => {
                   const count = ((data?.login_count as number) ?? 0) + 1;
                   supabase.from("profiles").update({ login_count: count, last_login_at: new Date().toISOString() } as any)
-                    .eq("id", profile.profileId).catch((err) => console.warn("[AuthContext] eq failed:", err?.message));
-                }).catch((err) => console.warn("[AuthContext] <unknown> failed:", err?.message));
+                    .eq("id", profile.profileId).catch((err: any) => console.warn("[AuthContext] eq failed:", err?.message));
+                }).catch((err: any) => console.warn("[AuthContext] <unknown> failed:", err?.message));
             }
           } catch (e) {
             // Use stored user as fallback

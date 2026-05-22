@@ -51,8 +51,9 @@ export function playFlipSound(volume = 0.6) {
     node.playbackRate = 0.93 + Math.random() * 0.14;
     const playPromise = node.play();
     if (playPromise && typeof playPromise.catch === "function") {
-      playPromise.catch(() => {
+      playPromise.catch((e: unknown) => {
         // Autoplay blocked — silent, will work after next user interaction
+        console.warn("[flipSound] play:", e instanceof Error ? e.message : String(e));
       });
     }
   } catch {

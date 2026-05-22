@@ -112,7 +112,7 @@ export default function AdminWhatsApp() {
       const r = await authFetch(`/api/whatsapp/admin/stats`);
       const d = await r.json();
       if (d.ok) setStats({ daily_cap: d.daily_cap, active_conversations: d.active_conversations });
-    } catch {}
+    } catch (e: any) { console.warn('[WhatsApp.tsx] silent catch:', e?.message ?? String(e)); }
   }
 
   // Open the confirm modal — the actual fetch only fires from confirmSend()

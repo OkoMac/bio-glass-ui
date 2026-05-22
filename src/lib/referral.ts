@@ -17,12 +17,12 @@ export function getStoredRefCode(): string | null {
 
 export function setStoredRefCode(code: string): void {
   if (typeof window === "undefined") return;
-  try { localStorage.setItem(RANGER_LS_KEY, code.trim().toUpperCase()); } catch {}
+  try { localStorage.setItem(RANGER_LS_KEY, code.trim().toUpperCase()); } catch (e: any) { console.warn('[referral.ts] silent catch:', e?.message ?? String(e)); }
 }
 
 export function clearStoredRefCode(): void {
   if (typeof window === "undefined") return;
-  try { localStorage.removeItem(RANGER_LS_KEY); } catch {}
+  try { localStorage.removeItem(RANGER_LS_KEY); } catch (e: any) { console.warn('[referral.ts] silent catch:', e?.message ?? String(e)); }
 }
 
 

@@ -666,7 +666,7 @@ function BookingMedicalAid({ clientId }: { clientId: string | null }) {
         }
         const json = await res.json();
         if (json.ok && json.data) setMedAid(json.data);
-      } catch {}
+      } catch (e: any) { console.warn('[Schedule.tsx] silent catch:', e?.message ?? String(e)); }
     })();
   }, [clientId]);
 

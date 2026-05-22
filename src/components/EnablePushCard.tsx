@@ -91,7 +91,7 @@ export default function EnablePushCard({ role, profileId, className }: EnablePus
   };
 
   const handleDismiss = () => {
-    try { localStorage.setItem(dismissKey(profileId), "1"); } catch {}
+    try { localStorage.setItem(dismissKey(profileId), "1"); } catch (e: any) { console.warn('[EnablePushCard.tsx] silent catch:', e?.message ?? String(e)); }
     setDismissed(true);
   };
 

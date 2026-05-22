@@ -114,7 +114,7 @@ export function useUserPref<T>(key: string, defaultValue: T, opts?: { lsKey?: st
       try { localStorage.setItem(lsKey, JSON.stringify(v)); } catch { /* */ }
       if (isReal) {
         // Fire-and-forget; race-protected by lastSetAt above.
-        writeServerPref(user!.profileId!, key, v).catch(() => { /* */ });
+        writeServerPref(user!.profileId!, key, v).catch((e: unknown) => console.warn("[useUserPref] writeServerPref:", e instanceof Error ? e.message : String(e)));
       }
       return v;
     });

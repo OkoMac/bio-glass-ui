@@ -87,8 +87,9 @@ function ReferralStats({ referralCode }: { referralCode: string }) {
           setStats({ referred: stored.referred ?? 0, rewards: stored.rewards ?? 0 });
         }
       })
-      .catch(() => {
+      .catch((e: unknown) => {
         const stored = JSON.parse(localStorage.getItem("bion_referral_stats") ?? "{}");
+        console.warn("[Profile] referral stats:", e instanceof Error ? e.message : String(e));
         setStats({ referred: stored.referred ?? 0, rewards: stored.rewards ?? 0 });
       })
       .finally(() => setLoading(false));

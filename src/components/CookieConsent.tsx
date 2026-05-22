@@ -49,7 +49,7 @@ async function logConsentAudit(state: ConsentState, previous: ConsentState | nul
         user_agent: typeof navigator !== "undefined" ? navigator.userAgent : null,
       }),
       keepalive: true,
-    }).catch(() => { /* swallow — audit is best-effort, never blocks consent */ });
+    }).catch((e: unknown) => console.warn("[CookieConsent] audit fetch:", e instanceof Error ? e.message : String(e)));
   } catch {
     /* swallow */
   }

@@ -115,7 +115,7 @@ export default function AdminWhatsAppTemplates() {
       const failed = (j.results ?? []).filter((r: any) => !r.ok);
       // Wait a beat then sync so the new templates show up in the list with PENDING status
       await new Promise(r => setTimeout(r, 1500));
-      await fetch(`${API}/api/whatsapp/templates/sync`, { method: "POST", headers }).catch(() => {});
+      await fetch(`${API}/api/whatsapp/templates/sync`, { method: "POST", headers }).catch((e: unknown) => console.warn("[WhatsAppTemplates] sync:", e instanceof Error ? e.message : String(e)));
       await load();
       if (failed.length > 0) {
         toast.warning(

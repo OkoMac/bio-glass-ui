@@ -169,7 +169,7 @@ export default function SplashOnboarding() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, utm_source: utmSource }),
-      }).catch(() => {/* best-effort */});
+      }).catch((e: unknown) => console.warn("[SplashOnboarding] referral click:", e instanceof Error ? e.message : String(e)));
     }
 
     // Resolve Ranger name for the badge
@@ -204,7 +204,7 @@ export default function SplashOnboarding() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code: crefCode, utm_source: utmSource }),
-        }).catch(() => {/* best-effort */});
+        }).catch((e: unknown) => console.warn("[SplashOnboarding] client click:", e instanceof Error ? e.message : String(e)));
       }
 
       fetch(`${API}/api/referrals/client/resolve?code=${encodeURIComponent(crefCode)}`)
@@ -414,7 +414,7 @@ export default function SplashOnboarding() {
         })
           .then(r => r.json())
           .then(() => clearStoredRefCode())
-          .catch(() => {/* keep the code around; retry next time */});
+          .catch((e: unknown) => console.warn("[SplashOnboarding] ranger attribute:", e instanceof Error ? e.message : String(e)));
       }
 
       // Client-to-client referral attribution (?cref). Runs alongside the
@@ -428,7 +428,7 @@ export default function SplashOnboarding() {
         })
           .then(r => r.json())
           .then(() => clearStoredCrefCode())
-          .catch(() => {/* best-effort */});
+          .catch((e: unknown) => console.warn("[SplashOnboarding] client attribute:", e instanceof Error ? e.message : String(e)));
       }
 
       const { data: { session } } = await supabase.auth.getSession();

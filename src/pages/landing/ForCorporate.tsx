@@ -55,7 +55,7 @@ export default function ForCorporate() {
 
     return () => {
       document.title = prevTitle;
-      [...nodes, ld].forEach((n) => { try { document.head.removeChild(n); } catch {} });
+      [...nodes, ld].forEach((n) => { try { document.head.removeChild(n); } catch (e: any) { console.warn('[ForCorporate.tsx] silent catch:', e?.message ?? String(e)); } });
     };
   }, []);
 

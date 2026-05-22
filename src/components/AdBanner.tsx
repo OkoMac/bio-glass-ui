@@ -41,7 +41,7 @@ export default function AdBanner({ slot, format = "auto", className = "" }: AdBa
     try {
       // @ts-ignore
       (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch {}
+    } catch (e: any) { console.warn('[AdBanner.tsx] silent catch:', e?.message ?? String(e)); }
 
     // Poll: check if the ad iframe has actual content (height > 0 with real ad)
     // AdSense sets data-ad-status="filled" when a real ad loads

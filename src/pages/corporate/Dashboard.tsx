@@ -95,7 +95,7 @@ export default function CorporateDashboard() {
         setBoStatus(j.bo_status ?? "not_required");
         setBoMonthly(Number(j.monthly_budget_rand ?? 0));
       })
-      .catch(() => { /* non-blocking */ });
+      .catch((e: unknown) => console.warn("[Dashboard] bo-status:", e instanceof Error ? e.message : String(e)));
     return () => ctrl.abort();
   }, [user?.profileId, user?.id]);
 
@@ -110,8 +110,9 @@ export default function CorporateDashboard() {
       .then(res => {
         if (res.ok && res.data) setStats(res.data);
       })
-      .catch(() => {
+      .catch((e: unknown) => {
         // Also try localStorage fallback
+        console.warn("[Dashboard] stats fetch:", e instanceof Error ? e.message : String(e));
         const employees = JSON.parse(localStorage.getItem("bion_corp_employees") || "[]");
         const providers = JSON.parse(localStorage.getItem("bion_corp_providers") || "[]");
         const rep = localStorage.getItem("bion_corp_rep");
@@ -145,8 +146,9 @@ export default function CorporateDashboard() {
           localStorage.setItem("bion_corp_rep", JSON.stringify({ name: repName, code: repCode }));
         }
       })
-      .catch(() => {
+      .catch((e: unknown) => {
         // Fallback: save locally
+        console.warn("[Dashboard] rep link:", e instanceof Error ? e.message : String(e));
         const repName = "Sales Rep (" + repCode + ")";
         setStats(prev => ({ ...prev, linked_rep: repName }));
         localStorage.setItem("bion_corp_rep", JSON.stringify({ name: repName, code: repCode }));

@@ -60,7 +60,7 @@ export default function ResetPassword() {
         setSuccess(true);
         // Sign out after password change so old sessions are invalidated
         setTimeout(() => {
-          supabase.auth.signOut().catch((err) => console.warn("[ResetPassword] signOut failed:", err?.message));
+          supabase.auth.signOut().catch((err: any) => console.warn("[ResetPassword] signOut failed:", err?.message));
         }, 1500);
       }
     } catch (err: any /* TODO(types) */) {

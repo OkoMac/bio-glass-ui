@@ -63,7 +63,7 @@ function saveData(dateKey: string, data: any /* TODO(types) */) {
     // Keeping both keys in sync avoids the "I logged water here but the home
     // screen still says 0 glasses" bug.
     localStorage.setItem(`bion_water_${dateKey}`, String(data.glasses ?? 0));
-  } catch {}
+  } catch (e: any) { console.warn('[WaterTracker.tsx] silent catch:', e?.message ?? String(e)); }
 }
 
 // Streak storage moved to server-side `user_streaks` table (2026-05-16).

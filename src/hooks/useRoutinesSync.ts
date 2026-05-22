@@ -102,7 +102,7 @@ export function useRoutinesSync() {
         provider_name: r.provider || null,
         shared_with: r.sharedWith,
         schedule: r.schedule,
-      } as any, { onConflict: "id" }).then(() => {});
+      } as any, { onConflict: "id" }).then(() => {}).catch((e: any) => console.warn('[useRoutinesSync] suppressed write error:', e?.message ?? String(e)));
     }
   }, [supabaseId]);
 
@@ -114,7 +114,7 @@ export function useRoutinesSync() {
     const updated = routines.filter(r => r.id !== id);
     saveRoutines(updated);
     if (supabaseId) {
-      supabase.from("routines" as any).delete().eq("id", id).then(() => {});
+      supabase.from("routines" as any).delete().eq("id", id).then(() => {}).catch((e: any) => console.warn('[useRoutinesSync] suppressed write error:', e?.message ?? String(e)));
     }
   }, [routines, saveRoutines, supabaseId]);
 

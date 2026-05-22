@@ -60,7 +60,7 @@ export default function AffiliateDashboard() {
       const res = await fetch(`${API}/api/affiliates/dashboard`, { headers });
       const json = await res.json();
       if (json.ok) setData(json.data);
-    } catch {}
+    } catch (e: any) { console.warn('[AffiliateDashboard.tsx] silent catch:', e?.message ?? String(e)); }
     setLoading(false);
   }
 
@@ -70,7 +70,7 @@ export default function AffiliateDashboard() {
       const res = await fetch(`${API}/api/affiliates/register`, { method: "POST", headers });
       const json = await res.json();
       if (json.ok) loadDashboard();
-    } catch {}
+    } catch (e: any) { console.warn('[AffiliateDashboard.tsx] silent catch:', e?.message ?? String(e)); }
     setRegistering(false);
   }
 

@@ -67,7 +67,7 @@ export default function AdminCampaigns() {
       const res = await fetch(`${API}/api/campaigns`, { headers });
       const data = await res.json();
       if (data.ok) setCampaigns(data.data ?? []);
-    } catch {}
+    } catch (e: any) { console.warn('[Campaigns.tsx] silent catch:', e?.message ?? String(e)); }
     setLoading(false);
   }
 
@@ -105,7 +105,7 @@ export default function AdminCampaigns() {
         });
         loadCampaigns();
       }
-    } catch {}
+    } catch (e: any) { console.warn('[Campaigns.tsx] silent catch:', e?.message ?? String(e)); }
     setSaving(false);
   }
 
@@ -113,7 +113,7 @@ export default function AdminCampaigns() {
     try {
       await fetch(`${API}/api/campaigns/${id}`, { method: "DELETE", headers });
       loadCampaigns();
-    } catch {}
+    } catch (e: any) { console.warn('[Campaigns.tsx] silent catch:', e?.message ?? String(e)); }
   }
 
   const isActive = (c: Campaign) => c.status === "active" && new Date(c.end_date) >= new Date() && new Date(c.start_date) <= new Date();

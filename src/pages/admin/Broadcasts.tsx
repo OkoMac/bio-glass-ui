@@ -74,7 +74,7 @@ function AdminBroadcastsInner() {
       const res = await fetch(`${API}/api/broadcasts`, { headers });
       const data = await res.json();
       if (data.ok) setBroadcasts(data.data ?? []);
-    } catch {}
+    } catch (e: any) { console.warn('[Broadcasts.tsx] silent catch:', e?.message ?? String(e)); }
     setLoading(false);
   }
 
@@ -100,7 +100,7 @@ function AdminBroadcastsInner() {
         setForm({ message: "", targetAudience: "all_clients", targetCity: "", targetCategory: "", scheduledAt: "" });
         loadBroadcasts();
       }
-    } catch {}
+    } catch (e: any) { console.warn('[Broadcasts.tsx] silent catch:', e?.message ?? String(e)); }
     setSaving(false);
   }
 

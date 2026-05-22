@@ -90,7 +90,7 @@ export function useCalendarSync() {
         notes: event.notes,
         completed: false,
         recurring: event.recurring,
-      } as any).then(() => {});
+      } as any).then(() => {}).catch((e: any) => console.warn('[useCalendarSync] suppressed write error:', e?.message ?? String(e)));
     }
   }, [events, saveEvents, supabaseId]);
 
@@ -103,7 +103,7 @@ export function useCalendarSync() {
       if (event) {
         supabase.from("calendar_events" as any)
           .update({ completed: event.completed } as any)
-          .eq("id", id).then(() => {});
+          .eq("id", id).then(() => {}).catch((e: any) => console.warn('[useCalendarSync] suppressed write error:', e?.message ?? String(e)));
       }
     }
   }, [events, saveEvents, supabaseId]);
@@ -113,7 +113,7 @@ export function useCalendarSync() {
     saveEvents(updated);
 
     if (supabaseId) {
-      supabase.from("calendar_events" as any).delete().eq("id", id).then(() => {});
+      supabase.from("calendar_events" as any).delete().eq("id", id).then(() => {}).catch((e: any) => console.warn('[useCalendarSync] suppressed write error:', e?.message ?? String(e)));
     }
   }, [events, saveEvents, supabaseId]);
 

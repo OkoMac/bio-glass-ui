@@ -120,7 +120,7 @@ export function usePushNotifications(): UsePushNotifications {
     navigator.serviceWorker.ready
       .then((reg) => reg.pushManager.getSubscription())
       .then((sub) => { if (!cancelled) setSubscribed(!!sub); })
-      .catch(() => { if (!cancelled) setSubscribed(false); });
+      .catch((e: unknown) => { if (!cancelled) { console.warn("[usePushNotifications] getSubscription:", e instanceof Error ? e.message : String(e)); setSubscribed(false); } });
     return () => { cancelled = true; };
   }, [supported]);
 

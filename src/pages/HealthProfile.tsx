@@ -125,7 +125,7 @@ export default function HealthProfile() {
       patch.sleep_hours = Math.round(native.sleep * 10) / 10;
     }
     if (Object.keys(patch).length > 0) {
-      logToday(patch).catch(() => { /* network blip — next refresh tick will retry */ });
+      logToday(patch).catch((e: unknown) => console.warn("[HealthProfile] logToday:", e instanceof Error ? e.message : String(e)));
     }
     // Re-run when native counters change. logs is stable enough — using
     // the timestamp of the latest log keeps the deps lean.
@@ -250,7 +250,7 @@ export default function HealthProfile() {
       supabase.from("health_profiles").upsert(
         { user_id: profileId, [field]: value, updated_at: new Date().toISOString() },
         { onConflict: "user_id" },
-      ).then(() => {});
+      ).then(() => {}).catch((e: any) => console.warn('[HealthProfile] suppressed write error:', e?.message ?? String(e)));
     });
   }, [isReal, profileId]);
 

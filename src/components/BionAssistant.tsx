@@ -68,10 +68,10 @@ function getUserData() {
   let waterCount = 0;
   let calGoal = 2000;
 
-  try { foodEntries = JSON.parse(localStorage.getItem("bion_food_tracker") ?? "[]"); } catch {}
-  try { routines = JSON.parse(localStorage.getItem("bion_routines") ?? "[]"); } catch {}
-  try { waterCount = parseInt(localStorage.getItem(`bion_water_${today}`) ?? "0"); } catch {}
-  try { calGoal = JSON.parse(localStorage.getItem("bion_food_goals") ?? "{}").calories ?? 2000; } catch {}
+  try { foodEntries = JSON.parse(localStorage.getItem("bion_food_tracker") ?? "[]"); } catch (e: any) { console.warn('[BionAssistant.tsx] silent catch:', e?.message ?? String(e)); }
+  try { routines = JSON.parse(localStorage.getItem("bion_routines") ?? "[]"); } catch (e: any) { console.warn('[BionAssistant.tsx] silent catch:', e?.message ?? String(e)); }
+  try { waterCount = parseInt(localStorage.getItem(`bion_water_${today}`) ?? "0"); } catch (e: any) { console.warn('[BionAssistant.tsx] silent catch:', e?.message ?? String(e)); }
+  try { calGoal = JSON.parse(localStorage.getItem("bion_food_goals") ?? "{}").calories ?? 2000; } catch (e: any) { console.warn('[BionAssistant.tsx] silent catch:', e?.message ?? String(e)); }
 
   const todayFood = foodEntries.filter((e: any) => e.date === today);
   const totalCal = todayFood.reduce((s: number, e: any) => s + (e.calories ?? 0), 0);
@@ -363,7 +363,7 @@ export default function BionAssistant() {
           submitter_email: user?.email ?? null,
           tags: ["crisis_keyword"],
         }),
-      }).catch(() => { /* best-effort */ });
+      }).catch((e: unknown) => console.warn("[BionAssistant] crisis alert:", e instanceof Error ? e.message : String(e)));
       return;
     }
 
@@ -387,7 +387,7 @@ export default function BionAssistant() {
     const data = getUserData();
     const today = localDateKey();
     let calendarEvents: any[] = [];
-    try { calendarEvents = JSON.parse(localStorage.getItem("bion_calendar_events") ?? "[]").filter((e: any) => e.date === today); } catch {}
+    try { calendarEvents = JSON.parse(localStorage.getItem("bion_calendar_events") ?? "[]").filter((e: any) => e.date === today); } catch (e: any) { console.warn('[BionAssistant.tsx] silent catch:', e?.message ?? String(e)); }
 
     setThinking(true);
     // 30s timeout — agent runner can be slow on cold starts but anything

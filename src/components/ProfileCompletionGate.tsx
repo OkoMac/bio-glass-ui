@@ -132,7 +132,7 @@ export default function ProfileCompletionGate({ children }: Props) {
             fetch(`/_proxy/api/profiles/me/decrement-grace`, {
               method: "POST",
               headers: { Authorization: `Bearer ${token}` },
-            }).catch(() => {/* swallow — gate still works */});
+            }).catch((e: unknown) => console.warn("[ProfileCompletionGate] decrement-grace:", e instanceof Error ? e.message : String(e)));
           }
           setOpen(true);
         }

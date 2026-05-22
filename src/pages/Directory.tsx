@@ -147,7 +147,7 @@ export default function Directory() {
   // Lazy-load provider JSON (Pretoria 0.6MB + Johannesburg 3MB) instead of
   // pulling them in via static imports. Cuts ~3.8MB off the unauthenticated
   // landing page first-load cost; data populates progressively.
-  const { providers: rawProviders, loading: providersLoading } = useProviderData("all");
+  const { providers: rawProviders, loading: providersLoading } = useProviderData("all", { useApi: true, all: true });
   const ALL_PROVIDERS = useMemo<DirectoryProvider[]>(
     () => rawProviders.map(shapeProvider),
     [rawProviders],
@@ -196,7 +196,7 @@ export default function Directory() {
       hasSnapped.current = true;
       const loc = { lat: match.lat!, lng: match.lng!, name: userSuburb };
       setManualLocation(loc);
-      try { localStorage.setItem("bion_user_location", JSON.stringify(loc)); } catch {}
+      try { localStorage.setItem("bion_user_location", JSON.stringify(loc)); } catch (e: any) { console.warn('[Directory.tsx] silent catch:', e?.message ?? String(e)); }
     }
   }, [userSuburb, geo.latitude]); // eslint-disable-line react-hooks/exhaustive-deps
   const { profile: habitProfile } = useHabitProfile();
@@ -602,7 +602,7 @@ export default function Directory() {
                       autoFocus
                     />
                     {manualLocation && (
-                      <button onClick={() => { setManualLocation(null); setShowLocationPicker(false); setLocationSearch(""); try { localStorage.removeItem("bion_user_location"); } catch {} }} className="text-[10px] text-coral">
+                      <button onClick={() => { setManualLocation(null); setShowLocationPicker(false); setLocationSearch(""); try { localStorage.removeItem("bion_user_location"); } catch (e: any) { console.warn('[Directory.tsx] silent catch:', e?.message ?? String(e)); } }} className="text-[10px] text-coral">
                         Reset
                       </button>
                     )}
@@ -620,7 +620,7 @@ export default function Directory() {
                               if (provider) {
                                 const loc = { lat: provider.lat!, lng: provider.lng!, name: suburb };
                                 setManualLocation(loc);
-                                try { localStorage.setItem("bion_user_location", JSON.stringify(loc)); } catch {}
+                                try { localStorage.setItem("bion_user_location", JSON.stringify(loc)); } catch (e: any) { console.warn('[Directory.tsx] silent catch:', e?.message ?? String(e)); }
                               }
                               setShowLocationPicker(false);
                               setLocationSearch("");

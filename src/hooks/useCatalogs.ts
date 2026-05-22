@@ -233,7 +233,7 @@ export function useCatalogByShortUrl(shortUrl: string | null) {
       (supabase.from("catalogs") as any)
         .update({ view_count: (cat.view_count ?? 0) + 1 })
         .eq("id", cat.id)
-        .then(() => {});
+        .then(() => {}).catch((e: any) => console.warn('[useCatalogs] suppressed write error:', e?.message ?? String(e)));
     })();
   }, [shortUrl]);
 

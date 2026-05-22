@@ -738,7 +738,7 @@ function MedicalAidSection({
             insurance: { provider: json.data.scheme, number: json.data.member_number || "" },
           });
         }
-      } catch {}
+      } catch (e: any) { console.warn('[MedicalCard.tsx] silent catch:', e?.message ?? String(e)); }
     })();
   }, [user]);
 

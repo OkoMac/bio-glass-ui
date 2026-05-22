@@ -145,7 +145,7 @@ export function useFoodSync() {
       ]).then(([m, y]) => {
         setMonthly((m.data ?? []) as any);
         setYearly((y.data ?? []) as any);
-      }).catch(() => { /* views may not exist on stale envs — silent */ });
+      }).catch((e: unknown) => console.warn("[useFoodSync] views query:", e instanceof Error ? e.message : String(e)));
 
       // Load goals
       const { data: goalsData } = await supabase

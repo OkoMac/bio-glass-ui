@@ -240,7 +240,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
           p_user_id: user.profileId,
           p_month: month,
           p_amount: priceNum,
-        }).then(() => {});
+        }).then(() => {}).catch((e: any) => console.warn('[BookingsContext] suppressed write error:', e?.message ?? String(e)));
       }
     }
   }, [user?.id, user?.profileId, bookings]);
@@ -368,7 +368,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
         body: `${booking.service} with ${booking.providerName ?? "your provider"} on ${booking.date} at ${booking.time}`,
         action_url: "/schedule",
       };
-      supabase.from("notifications").insert(clientNotif).then(() => {});
+      supabase.from("notifications").insert(clientNotif).then(() => {}).catch((e: any) => console.warn('[BookingsContext] suppressed write error:', e?.message ?? String(e)));
 
       // Notify provider too (if known)
       const providerId = booking.providerId;
@@ -380,7 +380,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
           body: `${user.name ?? "A client"} requested ${booking.service} on ${booking.date} at ${booking.time}`,
           action_url: "/pro/bookings",
         };
-        supabase.from("notifications").insert(providerNotif).then(() => {});
+        supabase.from("notifications").insert(providerNotif).then(() => {}).catch((e: any) => console.warn('[BookingsContext] suppressed write error:', e?.message ?? String(e)));
       }
     }
 

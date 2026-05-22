@@ -695,7 +695,7 @@ export default function AdminDisputes() {
   const [tokenDraft, setTokenDraft] = useState(token);
 
   const saveToken = () => {
-    try { localStorage.setItem("bion_admin_token", tokenDraft); } catch {}
+    try { localStorage.setItem("bion_admin_token", tokenDraft); } catch (e: any) { console.warn('[Disputes.tsx] silent catch:', e?.message ?? String(e)); }
     // setToken is internal to useAdminToken — trigger reload to pick up new value
     window.location.reload();
     toast.success("Admin token saved locally");

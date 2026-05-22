@@ -57,7 +57,7 @@ export default function ForProviders() {
 
     return () => {
       document.title = prevTitle;
-      [meta, ld, ...og].forEach((n) => { try { document.head.removeChild(n); } catch {} });
+      [meta, ld, ...og].forEach((n) => { try { document.head.removeChild(n); } catch (e: any) { console.warn('[ForProviders.tsx] silent catch:', e?.message ?? String(e)); } });
     };
   }, []);
 

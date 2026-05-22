@@ -442,10 +442,10 @@ export function InstallModal({
                     onClick={() => {
                       if (device === "ios" && !isSafari()) {
                         // Non-Safari iOS: copy URL and tell user to open Safari
-                        navigator.clipboard.writeText("https://bionhealth.co.za").catch(() => {});
+                        navigator.clipboard.writeText("https://bionhealth.co.za").catch((e: unknown) => console.warn("[InstallButton] clipboard writeText:", e instanceof Error ? e.message : String(e)));
                       } else if (navigator.share && device === "ios") {
                         // Safari iOS: open native Share sheet (has Add to Home Screen)
-                        navigator.share({ title: "BION Health", url: "https://bionhealth.co.za" }).catch(() => {});
+                        navigator.share({ title: "BION Health", url: "https://bionhealth.co.za" }).catch((e: unknown) => console.warn("[InstallButton] share:", e instanceof Error ? e.message : String(e)));
                       }
                       onClose();
                     }}

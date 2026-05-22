@@ -172,7 +172,7 @@ export default function ProviderProfile() {
           setBionServices((json.data as BionService[]).filter(s => s.active !== false));
         }
       })
-      .catch(() => { /* non-fatal — fall back to hardcoded list */ })
+      .catch((e: unknown) => console.warn("[ProviderProfile] services fetch:", e instanceof Error ? e.message : String(e)))
       .finally(() => { if (!cancelled) setBionServicesLoading(false); });
     return () => { cancelled = true; };
   }, [id, isRegisteredOnBion]);
@@ -199,7 +199,7 @@ export default function ProviderProfile() {
         if (cancelled) return;
         if (json?.ok && Array.isArray(json.data)) setPrograms(json.data as ProgramCard[]);
       })
-      .catch(() => { /* non-fatal */ })
+      .catch((e: unknown) => console.warn("[ProviderProfile] programs fetch:", e instanceof Error ? e.message : String(e)))
       .finally(() => { if (!cancelled) setProgramsLoading(false); });
     return () => { cancelled = true; };
   }, [id, isRegisteredOnBion]);
@@ -539,7 +539,7 @@ export default function ProviderProfile() {
             providerPhone: provider.contact?.phone,
             requestedBy: { profileId: user.profileId, name: user.name, email: user.email },
           }),
-        }).catch(() => {/* best-effort — still show the user the right message */});
+        }).catch((e: unknown) => console.warn("[ProviderProfile] lead submit:", e instanceof Error ? e.message : String(e)));
       } finally {
         setBookingBusy(false);
       }
@@ -577,7 +577,7 @@ export default function ProviderProfile() {
             requestedBy: { profileId: user.profileId, name: user.name, email: user.email },
             requestedFor: { date: bookingDate, time: bookingTime, service: provider.specialty },
           }),
-        }).catch(() => { /* best-effort */ });
+        }).catch((e: unknown) => console.warn("[ProviderProfile] setup-needed:", e instanceof Error ? e.message : String(e)));
       } finally {
         setBookingBusy(false);
       }
@@ -636,7 +636,7 @@ export default function ProviderProfile() {
                 grant_type: "relationship",
                 granted_via: "booking_consent",
               }),
-            }).catch(() => { /* best-effort */ });
+            }).catch((e: unknown) => console.warn("[ProviderProfile] grant consent:", e instanceof Error ? e.message : String(e)));
           }
         } catch { /* best-effort — never block the booking on grant write */ }
       }

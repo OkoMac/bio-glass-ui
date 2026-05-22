@@ -103,7 +103,7 @@ function EmailVerifyBanner() {
         Verify
       </button>
       <button
-        onClick={() => { setDismissed(true); try { sessionStorage.setItem("bion_email_verify_dismissed", "1"); } catch {} }}
+        onClick={() => { setDismissed(true); try { sessionStorage.setItem("bion_email_verify_dismissed", "1"); } catch (e: any) { console.warn('[Index.tsx] silent catch:', e?.message ?? String(e)); } }}
         className="shrink-0 text-muted-foreground hover:text-foreground"
       >
         <span className="sr-only">Dismiss</span>
@@ -194,7 +194,7 @@ const Index = () => {
 
     // Read filters from localStorage (set by SearchBar filter sheet)
     let filters: any = {};
-    try { filters = JSON.parse(localStorage.getItem("bion_search_filters") ?? "{}"); } catch {}
+    try { filters = JSON.parse(localStorage.getItem("bion_search_filters") ?? "{}"); } catch (e: any) { console.warn('[Index.tsx] silent catch:', e?.message ?? String(e)); }
 
     // Search query — split into words, match ANY word against ANY field
     if (searchQuery.trim()) {

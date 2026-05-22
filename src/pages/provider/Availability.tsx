@@ -58,7 +58,7 @@ export default function ProviderAvailability() {
     try {
       const stored = localStorage.getItem(AVAIL_STORAGE_KEY);
       if (stored) return JSON.parse(stored);
-    } catch {}
+    } catch (e: any) { console.warn('[Availability.tsx] silent catch:', e?.message ?? String(e)); }
     return initialSchedule;
   });
   const [buffer, setBuffer] = useState("10 min");

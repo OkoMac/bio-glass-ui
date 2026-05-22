@@ -56,7 +56,7 @@ export default function ForRangers() {
 
     return () => {
       document.title = prevTitle;
-      [...nodes, ld].forEach((n) => { try { document.head.removeChild(n); } catch {} });
+      [...nodes, ld].forEach((n) => { try { document.head.removeChild(n); } catch (e: any) { console.warn('[ForRangers.tsx] silent catch:', e?.message ?? String(e)); } });
     };
   }, []);
 

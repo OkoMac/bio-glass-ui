@@ -62,8 +62,9 @@ export default function TermsGate({ children }: TermsGateProps) {
             checkAcceptance();
           }
         })
-        .catch(() => {
+        .catch((e: unknown) => {
           // Network error — allow through (don't block on API failure)
+          console.warn("[TermsGate] fetch acceptance:", e instanceof Error ? e.message : String(e));
           setAccepted(true);
           setChecked(true);
         });

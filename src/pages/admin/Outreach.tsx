@@ -60,7 +60,7 @@ export default function AdminOutreach() {
       const [statsData, waData] = await Promise.all([statsRes.json(), waRes.json()]);
       if (statsData.ok) setStats(statsData);
       if (waData.ok) setWAStatus(waData);
-    } catch {}
+    } catch (e: any) { console.warn('[Outreach.tsx] silent catch:', e?.message ?? String(e)); }
     setLoading(false);
   }
 
@@ -70,7 +70,7 @@ export default function AdminOutreach() {
       const res = await authFetch(`/api/campaigns/outreach-stats`);
       const data = await res.json();
       if (data.ok) setStats(data);
-    } catch {}
+    } catch (e: any) { console.warn('[Outreach.tsx] silent catch:', e?.message ?? String(e)); }
   }
 
   async function triggerWhatsAppNow() {

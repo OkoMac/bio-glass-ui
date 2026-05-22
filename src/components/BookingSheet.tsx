@@ -249,7 +249,7 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
           points:    pendingRedemption.points,
           bookingId: insertedBookingId,
         }),
-      }).catch(() => { /* non-blocking */ });
+      }).catch((e: unknown) => console.warn("[BookingSheet] redeem-for-booking:", e instanceof Error ? e.message : String(e)));
     }
 
     setStripePaymentId(paymentIntentId);

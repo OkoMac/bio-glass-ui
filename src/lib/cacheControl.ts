@@ -68,7 +68,7 @@ export function installCacheControl(queryClient?: { clear: () => void }): void {
   // UI isn't showing 20-minute-old data. This never touches localStorage.
   const onVisibility = () => {
     if (document.visibilityState === "hidden" && queryClient) {
-      try { queryClient.clear(); } catch {}
+      try { queryClient.clear(); } catch (e: any) { console.warn('[cacheControl.ts] silent catch:', e?.message ?? String(e)); }
     }
   };
   document.addEventListener("visibilitychange", onVisibility);

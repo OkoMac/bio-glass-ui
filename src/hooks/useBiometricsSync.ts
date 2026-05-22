@@ -43,7 +43,7 @@ export function useBiometricsSync(): void {
     if (!native.isNative) return;
     if (native.authorized || authReqOnceRef.current) return;
     authReqOnceRef.current = true;
-    native.requestAuth().catch(() => { /* user denied or plugin hiccup; silent */ });
+    native.requestAuth().catch((e: unknown) => console.warn("[useBiometricsSync] requestAuth:", e instanceof Error ? e.message : String(e)));
   }, [user, native]);
 
   // Push fresh native readings into health_logs whenever they change.
@@ -68,7 +68,7 @@ export function useBiometricsSync(): void {
       patch.sleep_hours = Math.round(native.sleep * 10) / 10;
     }
     if (Object.keys(patch).length > 0) {
-      logToday(patch).catch(() => { /* next visibility-change tick retries */ });
+      logToday(patch).catch((e: unknown) => console.warn("[useBiometricsSync] logToday:", e instanceof Error ? e.message : String(e)));
     }
   }, [user, native.isNative, native.authorized, native.steps, native.weight, native.sleep, logs, logToday]);
 
@@ -76,7 +76,7 @@ export function useBiometricsSync(): void {
   // when the user returns to the app. Cheap — native plugins cache.
   useEffect(() => {
     if (!native.isNative || !native.authorized) return;
-    const onVisible = () => { if (!document.hidden) native.refresh().catch(() => { /* */ }); };
+    const onVisible = () => { if (!document.hidden) native.refresh().catch((e: unknown) => console.warn("[useBiometricsSync] refresh:", e instanceof Error ? e.message : String(e))); };
     document.addEventListener("visibilitychange", onVisible);
     window.addEventListener("focus", onVisible);
     return () => {
