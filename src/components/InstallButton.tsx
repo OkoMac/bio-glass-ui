@@ -171,15 +171,12 @@ export function useInstallApp() {
   }, [updateAvailable]);
 
   const installApp = useCallback(async () => {
-    // Android: download the native APK directly
-    if (device === "android") {
-      const a = document.createElement("a");
-      a.href = "https://github.com/OkoMac/bio-glass-ui/releases/download/v1.0.0-android/BION-debug.apk";
-      a.download = "BION.apk";
-      a.click();
+    // iOS: show the native "Add to Home Screen" instructions modal
+    if (device === "ios") {
+      setShowInstructions(true);
       return;
     }
-    // Desktop: use browser's native install prompt if available
+    // Android/Desktop: try browser install prompt if available
     if (deferredPrompt) {
       await deferredPrompt.prompt();
       const result = await deferredPrompt.userChoice;
@@ -189,9 +186,9 @@ export function useInstallApp() {
       setDeferredPrompt(null);
       return;
     }
-    // No native prompt available — open install modal with instructions
+    // No native prompt available — show instructions modal
     setShowInstructions(true);
-  }, [device, deferredPrompt]);
+  }, [device, deferredPrompt, setShowInstructions]);
 
   const handleUpdate = useCallback(() => {
     if ("serviceWorker" in navigator) {
@@ -441,9 +438,16 @@ export function InstallModal({
                     className="flex-1 py-2.5 rounded-2xl text-xs font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground">
                     Don't show again
                   </button>
-                  <button onClick={onClose}
+                  <button
+                    onClick={() => {
+                      // Try opening native Share sheet so user can Add to Home Screen
+                      if (navigator.share && device === "ios") {
+                        navigator.share({ title: "BION Health", url: "https://bionhealth.co.za" }).catch(() => {});
+                      }
+                      onClose();
+                    }}
                     className="flex-1 py-2.5 rounded-2xl text-xs font-semibold text-white bg-gradient-to-r from-indigo to-violet">
-                    Got it
+                    Open Share Menu
                   </button>
                 </div>
               </>
@@ -477,28 +481,41 @@ export default function InstallButton({ variant = "pill" }: { variant?: "card" |
 
   if (installed) {
     return (
-      <Tooltip text={updateAvailable ? "New version available — tap to update" : `BION app v${APP_VERSION}`} side="bottom">
-        <motion.button
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={updateAvailable ? handleUpdate : undefined}
-          className="h-10 px-3 rounded-full glass-2 flex items-center gap-1.5 shadow-card"
-          aria-label={updateAvailable ? "Update available" : `BION version ${APP_VERSION}`}
-        >
-          {updateAvailable ? (
-            <>
-              <RefreshCw className="w-3.5 h-3.5 text-teal animate-spin" style={{ animationDuration: "3s" }} />
-              <span className="text-[10px] font-bold text-teal">Update</span>
-            </>
-          ) : (
-            <>
-              <Check className="w-3 h-3 text-teal" />
-              <span className="text-[10px] font-data text-muted-foreground">v{APP_VERSION}</span>
-            </>
-          )}
-        </motion.button>
-      </Tooltip>
+      <>
+        <Tooltip text={updateAvailable ? "New version available — tap to update" : `BION app v${APP_VERSION}`} side="bottom">
+          <button
+            onClick={() => {
+              if (updateAvailable) {
+                handleUpdate();
+              } else {
+                setShowUpdateModal(false);
+              }
+            }}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-all text-sm"
+            style={{ color: updateAvailable ? "#14b8a6" : "#9ca3af" }}
+            aria-label={updateAvailable ? "Update available" : `BION version ${APP_VERSION}`}
+          >
+            {updateAvailable ? (
+              <RefreshCw className="w-4 h-4" />
+            ) : (
+              <Check className="w-4 h-4" />
+            )}
+            {updateAvailable ? "Upgrade BION" : "BION installed"}
+          </button>
+        </Tooltip>
+        <InstallModal
+          show={showInstructions || showUpdateModal}
+          onClose={() => {
+            setShowInstructions(false);
+            setShowUpdateModal(false);
+          }}
+          device={device}
+          deferredPrompt={null}
+          onDismiss={handleDismiss}
+          showUpdateModal={showUpdateModal}
+          handleUpdate={handleUpdate}
+        />
+      </>
     );
   }
 
