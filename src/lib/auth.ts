@@ -354,7 +354,7 @@ export async function signInWithGoogle(): Promise<void> {
       try {
         const { toast } = await import("sonner");
         toast.error(`Google sign-in failed: ${error?.message ?? "no auth URL returned"}`);
-      } catch {}
+      } catch (e: any) { console.warn('[auth.ts] silent catch:', e?.message ?? String(e)); }
       throw error ?? new Error("Google sign-in failed");
     }
     // window.open(url, "_system") on Capacitor opens the system browser
@@ -379,6 +379,58 @@ export async function signInWithGoogle(): Promise<void> {
     try {
       const { toast } = await import("sonner");
       toast.error(`Google sign-in failed: ${error.message}`);
+    } catch { /* sonner not loaded */ }
+    throw error;
+  }
+}
+
+/** Sign in with Apple — required for App Store approval since BION
+ *  already offers Google sign-in (App Review Guideline 4.8). Mirrors
+ *  the signInWithGoogle flow: web uses an in-tab redirect, Capacitor
+ *  native opens the system browser via window.open(..., "_system") so
+ *  Apple trusts the host and the OAuth handshake completes properly.
+ *
+ *  Requires Supabase Auth → Providers → Apple to be configured with
+ *  the Service ID, Team ID, Key ID and .p8 private key from Apple
+ *  Developer. Without that config the sign-in URL is unreachable and
+ *  this function throws — we surface the toast so the failure isn't
+ *  silent. */
+export async function signInWithApple(): Promise<void> {
+  let isNative = false;
+  try {
+    const { Capacitor } = await import("@capacitor/core");
+    isNative = Capacitor.isNativePlatform();
+  } catch { /* web — ignore */ }
+
+  const webOrigin = "https://bionhealth.co.za";
+  const redirectTo = isNative ? `${webOrigin}/` : `${window.location.origin}/`;
+
+  if (isNative) {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "apple",
+      options: { redirectTo, skipBrowserRedirect: true },
+    });
+    if (error || !data?.url) {
+      console.error("[auth] Apple sign-in (native) failed:", error);
+      try {
+        const { toast } = await import("sonner");
+        toast.error(`Apple sign-in failed: ${error?.message ?? "no auth URL returned"}`);
+      } catch (e: any) { console.warn('[auth.ts] silent catch:', e?.message ?? String(e)); }
+      throw error ?? new Error("Apple sign-in failed");
+    }
+    window.open(data.url, "_system");
+    return;
+  }
+
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "apple",
+    options: { redirectTo },
+  });
+  if (error) {
+    console.error("[auth] Apple sign-in failed:", error);
+    try {
+      const { toast } = await import("sonner");
+      toast.error(`Apple sign-in failed: ${error.message}`);
     } catch { /* sonner not loaded */ }
     throw error;
   }

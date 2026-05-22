@@ -13,7 +13,7 @@ import {
 } from "@/lib/clientReferral";
 import {
   DEMO_ACCOUNTS, BioUser, UserRole,
-  signInWithEmail, signUpWithEmail, signInWithGoogle,
+  signInWithEmail, signUpWithEmail, signInWithGoogle, signInWithApple,
 } from "@/lib/auth";
 import { Briefcase, User, Building2, TrendingUp, Eye, EyeOff, Loader2 } from "lucide-react";
 
@@ -286,7 +286,7 @@ export default function SplashOnboarding() {
     // Set `bion_seen_intro` here too — if the user reaches this point once,
     // they should never see the intro carousel again on any future visit.
     const fallback = setTimeout(() => {
-      try { localStorage.setItem("bion_seen_intro", "1"); } catch {}
+      try { localStorage.setItem("bion_seen_intro", "1"); } catch (e: any) { console.warn('[SplashOnboarding.tsx] silent catch:', e?.message ?? String(e)); }
       trackOnboarding("screen1_view");
       setPhase("onboarding");
     }, 1500);
@@ -608,7 +608,7 @@ export default function SplashOnboarding() {
                 return;
               }
               trackOnboarding("role_selector_view");
-              try { localStorage.setItem("bion_seen_intro", "1"); } catch {}
+              try { localStorage.setItem("bion_seen_intro", "1"); } catch (e: any) { console.warn('[SplashOnboarding.tsx] silent catch:', e?.message ?? String(e)); }
               setPhase("role");
             }}
             className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta">
@@ -617,7 +617,7 @@ export default function SplashOnboarding() {
           {currentStep < onboardingSteps.length - 1 && (
             <button
               onClick={() => {
-                try { localStorage.setItem("bion_seen_intro", "1"); } catch {}
+                try { localStorage.setItem("bion_seen_intro", "1"); } catch (e: any) { console.warn('[SplashOnboarding.tsx] silent catch:', e?.message ?? String(e)); }
                 setPhase("role");
               }}
               className="w-full text-center text-sm text-muted-foreground"
@@ -1188,6 +1188,21 @@ export default function SplashOnboarding() {
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
           </svg>
           Continue with Google
+        </motion.button>
+
+        {/* Sign In with Apple — required by Apple App Review 4.8 when
+            Google sign-in is offered. The button must match Apple's
+            HIG: black bg, white logo, "Continue with Apple" copy. */}
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={() => signInWithApple()}
+          className="w-full rounded-pill py-3 text-sm font-medium bg-black text-white flex items-center justify-center gap-2.5 hover:bg-zinc-900 transition-colors"
+        >
+          {/* Apple logo */}
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <path d="M11.182.008C11.148-.03 9.923.023 8.857 1.18c-1.066 1.156-.902 2.482-.878 2.516.024.034 1.52.087 2.475-1.258.955-1.345.762-2.391.728-2.43Zm3.314 11.733c-.048-.096-2.325-1.234-2.113-3.422.212-2.189 1.675-2.789 1.698-2.854.023-.065-.597-.79-1.254-1.157a3.692 3.692 0 0 0-1.563-.434c-.108-.003-.483-.095-1.254.116-.508.139-1.653.589-1.968.607-.316.018-1.256-.522-2.267-.665-.647-.125-1.333.131-1.824.328-.49.196-1.422.754-2.074 2.237-.652 1.482-.311 3.83-.067 4.56.244.729.625 1.924 1.273 2.796.576.984 1.34 1.667 1.659 1.899.319.232 1.219.386 1.843.067.502-.308 1.408-.485 1.766-.472.357.013 1.061.154 1.782.539.571.197 1.111.115 1.652-.105.541-.221 1.324-1.059 2.238-2.758.347-.79.505-1.217.473-1.282Z"/>
+          </svg>
+          Continue with Apple
         </motion.button>
 
         {/* WhatsApp onboarding — alternative to email signup */}
