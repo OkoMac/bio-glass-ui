@@ -41,6 +41,11 @@ export default defineConfig(() => ({
   },
   build: {
     rollupOptions: {
+      // 🚫 Capacitor native plugins can't run on Vercel's Node.js server.
+      // The only Capacitor import in runtime code is a `await import(...)` in
+      // auth.ts's signInWithApple, which never fires on web. Externalising it
+      // here prevents Rollup from erroring at build time.
+      external: [/@capacitor-community\/apple-sign-in/],
       output: {
         manualChunks(id: string) {
           // ── Vendor splits (only large, self-contained libs) ────────────
