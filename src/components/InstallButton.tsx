@@ -440,14 +440,17 @@ export function InstallModal({
                   </button>
                   <button
                     onClick={() => {
-                      // Try opening native Share sheet so user can Add to Home Screen
-                      if (navigator.share && device === "ios") {
+                      if (device === "ios" && !isSafari()) {
+                        // Non-Safari iOS: copy URL and tell user to open Safari
+                        navigator.clipboard.writeText("https://bionhealth.co.za").catch(() => {});
+                      } else if (navigator.share && device === "ios") {
+                        // Safari iOS: open native Share sheet (has Add to Home Screen)
                         navigator.share({ title: "BION Health", url: "https://bionhealth.co.za" }).catch(() => {});
                       }
                       onClose();
                     }}
                     className="flex-1 py-2.5 rounded-2xl text-xs font-semibold text-white bg-gradient-to-r from-indigo to-violet">
-                    Open Share Menu
+                    {device === "ios" && !isSafari() ? "Copy Link & Open Safari" : "Open Share Menu"}
                   </button>
                 </div>
               </>
