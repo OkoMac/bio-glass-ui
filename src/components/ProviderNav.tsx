@@ -17,6 +17,7 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import RoleSwitcher from "@/components/RoleSwitcher";
+import InstallButton from "@/components/InstallButton";
 
 const navItems = [
   { to: "/pro/dashboard",     label: "Dashboard",   icon: LayoutDashboard },
@@ -117,6 +118,7 @@ export default function ProviderNav() {
           </div>
           {/* Shared dropdown — gated to Oko + Lee inside RoleSwitcher. */}
           <RoleSwitcher inline />
+          <div className="my-2"><InstallButton /></div>
           <button
             onClick={logout}
             className="w-full flex items-center gap-2 text-xs text-muted-foreground hover:text-coral transition-colors py-1"

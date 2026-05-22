@@ -397,11 +397,52 @@ export async function signInWithGoogle(): Promise<void> {
  *  silent. */
 export async function signInWithApple(): Promise<void> {
   let isNative = false;
+  let isIos = false;
   try {
     const { Capacitor } = await import("@capacitor/core");
     isNative = Capacitor.isNativePlatform();
+    isIos    = Capacitor.getPlatform() === "ios";
   } catch { /* web — ignore */ }
 
+  // ── iOS native path (best UX) ─────────────────────────────────
+  // Uses Apple's system ASAuthorizationController via the
+  // @capacitor-community/apple-sign-in plugin. Shows the iOS sheet
+  // instead of a Safari redirect. The plugin returns an identityToken
+  // we hand to Supabase's signInWithIdToken — no OAuth roundtrip.
+  if (isNative && isIos) {
+    try {
+      const { SignInWithApple } = await import("@capacitor-community/apple-sign-in");
+      const result = await SignInWithApple.authorize({
+        clientId: "co.za.bionhealth.app",        // iOS native uses the App's bundle ID
+        redirectURI: "https://bionhealth.co.za/", // unused for native but required field
+        scopes: "email name",
+        state: crypto.randomUUID(),
+      });
+      const idToken = (result as { response?: { identityToken?: string } }).response?.identityToken;
+      if (!idToken) throw new Error("No identityToken from Apple");
+      const { error } = await supabase.auth.signInWithIdToken({
+        provider: "apple",
+        token: idToken,
+      });
+      if (error) throw error;
+      return;
+    } catch (err: any) {
+      // User cancelled the sheet (Apple returns error code 1001) — silent.
+      const msg = err?.message ?? String(err);
+      if (msg.includes("1001") || msg.toLowerCase().includes("cancel")) return;
+      console.error("[auth] Apple native sign-in failed:", err);
+      try {
+        const { toast } = await import("sonner");
+        toast.error(`Apple sign-in failed: ${msg}`);
+      } catch { /* */ }
+      throw err;
+    }
+  }
+
+  // ── Android / web fallback ───────────────────────────────────
+  // Android Capacitor + web both route through Supabase's hosted
+  // OAuth flow. On Android we open the system browser; on web we
+  // do an in-tab redirect.
   const webOrigin = "https://bionhealth.co.za";
   const redirectTo = isNative ? `${webOrigin}/` : `${window.location.origin}/`;
 
@@ -411,7 +452,7 @@ export async function signInWithApple(): Promise<void> {
       options: { redirectTo, skipBrowserRedirect: true },
     });
     if (error || !data?.url) {
-      console.error("[auth] Apple sign-in (native) failed:", error);
+      console.error("[auth] Apple sign-in (native fallback) failed:", error);
       try {
         const { toast } = await import("sonner");
         toast.error(`Apple sign-in failed: ${error?.message ?? "no auth URL returned"}`);

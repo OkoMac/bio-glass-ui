@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { Compass, MessageCircle, Dumbbell, Zap } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useConversations } from "@/hooks/useMessaging";
-import RoleSwitcher from "@/components/RoleSwitcher";
 
 const tabs = [
   { icon: Compass,       label: "Discover",  path: "/home" },
@@ -96,9 +95,10 @@ const BottomNav = () => {
           );
         })}
       </div>
-      {/* One-click role switcher for multi-role users (admin/provider/ranger/corporate).
-          Lives top-right since there's no sidebar in client mode. 2026-05-18. */}
-      <RoleSwitcher />
+      {/* 2026-05-22 — Role switcher was previously floating above the
+          bottom nav. Moved into the Profile page next to the Sign Out
+          button (where Admin/Provider/Corporate/Rep already had it)
+          for visual consistency across every role's profile menu. */}
     </motion.nav>
   );
 };

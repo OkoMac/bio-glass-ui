@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { LayoutDashboard, User, GraduationCap, Target } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import RoleSwitcher from "@/components/RoleSwitcher";
+import InstallButton from "@/components/InstallButton";
 
 const tabs = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/rep/dashboard" },
@@ -62,7 +63,8 @@ const RepNav = () => {
           );
         })}
       </div>
-      {/* One-click role switcher — top-right chip for multi-role users. */}
+      {/* Install + one-click role switcher — top-right chip for multi-role users. */}
+      <InstallButton />
       <RoleSwitcher />
     </motion.nav>
   );

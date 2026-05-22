@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import BioAvatar from "@/components/BioAvatar";
 import BottomNav from "@/components/BottomNav";
 import BionAssistant from "@/components/BionAssistant";
+import RoleSwitcher from "@/components/RoleSwitcher";
+import InstallButton from "@/components/InstallButton";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings, BookingStatus } from "@/contexts/BookingsContext";
@@ -590,6 +592,14 @@ const Profile = () => {
                 </div>
               </div>
             )}
+
+            {/* 2026-05-22 — Role switcher + Install button sit right
+                above Sign Out so multi-role users + PWA installers see
+                them in the same place across every profile type. The
+                old floating RoleSwitcher in BottomNav.tsx has been
+                removed in this commit. */}
+            <RoleSwitcher inline />
+            <InstallButton />
 
             {/* Sign Out — prominent button */}
             <motion.button whileTap={{ scale: 0.97 }}

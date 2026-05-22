@@ -101,16 +101,16 @@ export function useInstallApp() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showInstructions, setShowInstructions] = useState(false);
   const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [device] = useState(getDeviceType);
   const [dismissed, setDismissed] = useState(() => {
     try { return localStorage.getItem("bion_install_dismissed") === "1"; }
     catch { return false; }
   });
 
-  // Auto-show install guide for iOS Safari on first visit
+  // Auto-show install guide for iOS (Safari + non-Safari) on first visit
   useEffect(() => {
     if (device !== "ios" || installed || dismissed) return;
-    if (!isSafari()) return;
     try {
       const seen = localStorage.getItem("bion_ios_install_shown");
       if (!seen) {
@@ -163,6 +163,13 @@ export function useInstallApp() {
     });
   }, []);
 
+  // Auto-show update modal when a new version is detected
+  useEffect(() => {
+    if (updateAvailable) {
+      setShowUpdateModal(true);
+    }
+  }, [updateAvailable]);
+
   const installApp = useCallback(async () => {
     // Android: download the native APK directly
     if (device === "android") {
@@ -202,6 +209,8 @@ export function useInstallApp() {
     installApp,
     showInstructions,
     setShowInstructions,
+    showUpdateModal,
+    setShowUpdateModal,
     installed,
     deferredPrompt,
     device,
@@ -214,6 +223,33 @@ export function useInstallApp() {
   };
 }
 
+/* ── Update Banner (shown inside InstallModal for update flow) ─ */
+function UpdateBanner({ onUpdate, onLater }: { onUpdate: () => void; onLater: () => void }) {
+  return (
+    <div className="space-y-4 text-center">
+      <div className="w-16 h-16 rounded-2xl bg-teal/20 flex items-center justify-center mx-auto">
+        <RefreshCw className="w-8 h-8 text-teal" />
+      </div>
+      <div>
+        <p className="text-sm font-bold text-foreground">New version available</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          A new version of BION is ready. Update now for the latest features and fixes.
+        </p>
+      </div>
+      <button
+        onClick={onUpdate}
+        className="w-full py-3 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-teal to-emerald flex items-center justify-center gap-1.5"
+      >
+        <RefreshCw className="w-4 h-4" />
+        Update now
+      </button>
+      <button onClick={onLater} className="text-[10px] text-muted-foreground">
+        Later
+      </button>
+    </div>
+  );
+}
+
 /* ── Install Modal (platform instructions) ──────────────────── */
 export function InstallModal({
   show,
@@ -221,12 +257,16 @@ export function InstallModal({
   device,
   deferredPrompt,
   onDismiss,
+  showUpdateModal,
+  handleUpdate,
 }: {
   show: boolean;
   onClose: () => void;
   device: string;
   deferredPrompt: BeforeInstallPromptEvent | null;
   onDismiss: () => void;
+  showUpdateModal?: boolean;
+  handleUpdate?: () => void;
 }) {
   return (
     <AnimatePresence>
@@ -254,147 +294,159 @@ export function InstallModal({
               </button>
             </div>
 
-            {device === "ios" && (
-              <div className="space-y-4">
-                {!isSafari() ? (
-                  <NonSafariInstall onDone={onClose} />
-                ) : (
-                  <>
-                    <div className="flex items-center gap-3 mb-1">
-                      <img src="/icon-192.png" alt="BION" className="w-12 h-12 rounded-2xl" />
-                      <div>
-                        <p className="text-sm font-bold text-foreground">Get the full BION experience</p>
-                        <p className="text-[10px] text-muted-foreground">Full-screen app, push notifications, offline access</p>
-                      </div>
-                    </div>
-                    <div className="glass-1 rounded-2xl p-4 space-y-4">
-                      <div className="flex gap-3 items-start">
-                        <div className="w-8 h-8 rounded-xl bg-teal/20 flex items-center justify-center shrink-0 mt-0.5">
-                          <Share className="w-4 h-4 text-teal" />
+            {showUpdateModal && handleUpdate ? (
+              <UpdateBanner
+                onUpdate={() => {
+                  handleUpdate();
+                  onClose();
+                }}
+                onLater={onClose}
+              />
+            ) : (
+              <>
+                {device === "ios" && (
+                  <div className="space-y-4">
+                    {!isSafari() ? (
+                      <NonSafariInstall onDone={onClose} />
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-3 mb-1">
+                          <img src="/icon-192.png" alt="BION" className="w-12 h-12 rounded-2xl" />
+                          <div>
+                            <p className="text-sm font-bold text-foreground">Get the full BION experience</p>
+                            <p className="text-[10px] text-muted-foreground">Full-screen app, push notifications, offline access</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-xs font-semibold text-foreground">Tap the Share button</p>
-                          <p className="text-[10px] text-muted-foreground">At the bottom of your screen</p>
+                        <div className="glass-1 rounded-2xl p-4 space-y-4">
+                          <div className="flex gap-3 items-start">
+                            <div className="w-8 h-8 rounded-xl bg-teal/20 flex items-center justify-center shrink-0 mt-0.5">
+                              <Share className="w-4 h-4 text-teal" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-semibold text-foreground">Tap the Share button</p>
+                              <p className="text-[10px] text-muted-foreground">At the bottom of your screen</p>
+                            </div>
+                          </div>
+                          <div className="flex gap-3 items-start">
+                            <div className="w-8 h-8 rounded-xl bg-indigo/20 flex items-center justify-center shrink-0 mt-0.5">
+                              <Plus className="w-4 h-4 text-indigo" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-semibold text-foreground">Add to Home Screen</p>
+                              <p className="text-[10px] text-muted-foreground">Scroll down in the share menu to find it</p>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex gap-3 items-start">
-                        <div className="w-8 h-8 rounded-xl bg-indigo/20 flex items-center justify-center shrink-0 mt-0.5">
-                          <Plus className="w-4 h-4 text-indigo" />
+                        <div className="flex justify-center pt-2">
+                          <motion.div
+                            animate={{ y: [0, 8, 0] }}
+                            transition={{ repeat: Infinity, duration: 1.5 }}
+                            className="text-teal text-lg"
+                          >
+                            ↓ Tap share below ↓
+                          </motion.div>
                         </div>
-                        <div>
-                          <p className="text-xs font-semibold text-foreground">Add to Home Screen</p>
-                          <p className="text-[10px] text-muted-foreground">Scroll down in the share menu to find it</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex justify-center pt-2">
-                      <motion.div
-                        animate={{ y: [0, 8, 0] }}
-                        transition={{ repeat: Infinity, duration: 1.5 }}
-                        className="text-teal text-lg"
-                      >
-                        ↓ Tap share below ↓
-                      </motion.div>
-                    </div>
-                  </>
+                      </>
+                    )}
+                  </div>
                 )}
-              </div>
+
+                {device === "android" && (
+                  <div className="space-y-3">
+                    <p className="text-xs text-muted-foreground">Your download should start automatically. If it doesn't:</p>
+                    <a
+                      href="https://github.com/OkoMac/bio-glass-ui/releases/download/v1.0.0-android/BION-debug.apk"
+                      download="BION.apk"
+                      className="block w-full py-3 rounded-xl text-xs font-semibold text-center text-white bg-gradient-to-r from-teal to-emerald"
+                    >
+                      <Download className="w-3.5 h-3.5 inline mr-1.5" />
+                      Download BION App
+                    </a>
+                    <p className="text-[10px] text-muted-foreground">Once downloaded, tap the file to install. You may need to allow "Install from unknown sources" in your settings.</p>
+                  </div>
+                )}
+
+                {device === "desktop" && (
+                  <div className="space-y-3">
+                    <p className="text-xs text-muted-foreground">Install BION as a desktop app:</p>
+
+                    {!deferredPrompt && (() => {
+                      // Detect Brave — it supports PWA but blocks beforeinstallprompt
+                      const isBrave = (navigator as any).brave?.isBrave;
+                      // Detect Firefox — no PWA support at all
+                      const isFirefox = navigator.userAgent.includes("Firefox");
+                      if (isBrave) {
+                        return (
+                          <div className="rounded-xl border border-teal/20 bg-teal/5 p-3 mb-2">
+                            <p className="text-[11px] text-teal leading-relaxed">
+                              Brave supports app installation. Click the Brave menu (☰ top-right) → <strong>"Install BION…"</strong>
+                            </p>
+                          </div>
+                        );
+                      }
+                      if (isFirefox) {
+                        return (
+                          <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-3 mb-2">
+                            <p className="text-[11px] text-amber leading-relaxed">
+                              Firefox doesn't support app installation.{" "}
+                              <a href="https://www.google.com/chrome/" target="_blank" rel="noopener noreferrer"
+                                className="underline font-medium">Open in Chrome</a> to install.
+                            </p>
+                          </div>
+                        );
+                      }
+                      // Other browser (Safari desktop, Edge without event, etc.)
+                      return (
+                        <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-3 mb-2">
+                          <p className="text-[11px] text-amber leading-relaxed">
+                            Look for the install icon in your address bar, or{" "}
+                            <a href="https://www.google.com/chrome/" target="_blank" rel="noopener noreferrer"
+                              className="underline font-medium">open in Chrome</a> for the best experience.
+                          </p>
+                        </div>
+                      );
+                    })()}
+
+                    <ol className="space-y-2.5 text-xs text-foreground">
+                      <li className="flex gap-2">
+                        <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">1</span>
+                        <span>Look for the <Download className="w-3.5 h-3.5 inline" /> install icon in your address bar, or use the browser menu → Install BION</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">2</span>
+                        <span>Click it and confirm <strong>"Install"</strong></span>
+                      </li>
+                      <li className="flex gap-2">
+                        <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">3</span>
+                        <span>BION opens in its own window — find it in your Start menu / Applications folder</span>
+                      </li>
+                    </ol>
+
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText("https://bionhealth.co.za");
+                        toast.success("Link copied — open in your browser to install");
+                      }}
+                      className="w-full py-2.5 rounded-xl border border-indigo/20 bg-indigo/5 text-xs font-medium text-indigo flex items-center justify-center gap-1.5 hover:bg-indigo/10 transition-colors"
+                    >
+                      <Copy className="w-3 h-3" />
+                      Copy BION link
+                    </button>
+                  </div>
+                )}
+
+                <div className="flex gap-2 mt-5">
+                  <button onClick={onDismiss}
+                    className="flex-1 py-2.5 rounded-2xl text-xs font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground">
+                    Don't show again
+                  </button>
+                  <button onClick={onClose}
+                    className="flex-1 py-2.5 rounded-2xl text-xs font-semibold text-white bg-gradient-to-r from-indigo to-violet">
+                    Got it
+                  </button>
+                </div>
+              </>
             )}
-
-            {device === "android" && (
-              <div className="space-y-3">
-                <p className="text-xs text-muted-foreground">Your download should start automatically. If it doesn't:</p>
-                <a
-                  href="https://github.com/OkoMac/bio-glass-ui/releases/download/v1.0.0-android/BION-debug.apk"
-                  download="BION.apk"
-                  className="block w-full py-3 rounded-xl text-xs font-semibold text-center text-white bg-gradient-to-r from-teal to-emerald"
-                >
-                  <Download className="w-3.5 h-3.5 inline mr-1.5" />
-                  Download BION App
-                </a>
-                <p className="text-[10px] text-muted-foreground">Once downloaded, tap the file to install. You may need to allow "Install from unknown sources" in your settings.</p>
-              </div>
-            )}
-
-            {device === "desktop" && (
-              <div className="space-y-3">
-                <p className="text-xs text-muted-foreground">Install BION as a desktop app:</p>
-
-                {!deferredPrompt && (() => {
-                  // Detect Brave — it supports PWA but blocks beforeinstallprompt
-                  const isBrave = (navigator as any).brave?.isBrave;
-                  // Detect Firefox — no PWA support at all
-                  const isFirefox = navigator.userAgent.includes("Firefox");
-                  if (isBrave) {
-                    return (
-                      <div className="rounded-xl border border-teal/20 bg-teal/5 p-3 mb-2">
-                        <p className="text-[11px] text-teal leading-relaxed">
-                          Brave supports app installation. Click the Brave menu (☰ top-right) → <strong>"Install BION…"</strong>
-                        </p>
-                      </div>
-                    );
-                  }
-                  if (isFirefox) {
-                    return (
-                      <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-3 mb-2">
-                        <p className="text-[11px] text-amber leading-relaxed">
-                          Firefox doesn't support app installation.{" "}
-                          <a href="https://www.google.com/chrome/" target="_blank" rel="noopener noreferrer"
-                            className="underline font-medium">Open in Chrome</a> to install.
-                        </p>
-                      </div>
-                    );
-                  }
-                  // Other browser (Safari desktop, Edge without event, etc.)
-                  return (
-                    <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-3 mb-2">
-                      <p className="text-[11px] text-amber leading-relaxed">
-                        Look for the install icon in your address bar, or{" "}
-                        <a href="https://www.google.com/chrome/" target="_blank" rel="noopener noreferrer"
-                          className="underline font-medium">open in Chrome</a> for the best experience.
-                      </p>
-                    </div>
-                  );
-                })()}
-
-                <ol className="space-y-2.5 text-xs text-foreground">
-                  <li className="flex gap-2">
-                    <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">1</span>
-                    <span>Look for the <Download className="w-3.5 h-3.5 inline" /> install icon in your address bar, or use the browser menu → Install BION</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">2</span>
-                    <span>Click it and confirm <strong>"Install"</strong></span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="w-5 h-5 rounded-full bg-teal/20 text-teal flex items-center justify-center text-[10px] font-bold shrink-0">3</span>
-                    <span>BION opens in its own window — find it in your Start menu / Applications folder</span>
-                  </li>
-                </ol>
-
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText("https://bionhealth.co.za");
-                    toast.success("Link copied — open in your browser to install");
-                  }}
-                  className="w-full py-2.5 rounded-xl border border-indigo/20 bg-indigo/5 text-xs font-medium text-indigo flex items-center justify-center gap-1.5 hover:bg-indigo/10 transition-colors"
-                >
-                  <Copy className="w-3 h-3" />
-                  Copy BION link
-                </button>
-              </div>
-            )}
-
-            <div className="flex gap-2 mt-5">
-              <button onClick={onDismiss}
-                className="flex-1 py-2.5 rounded-2xl text-xs font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground">
-                Don't show again
-              </button>
-              <button onClick={onClose}
-                className="flex-1 py-2.5 rounded-2xl text-xs font-semibold text-white bg-gradient-to-r from-indigo to-violet">
-                Got it
-              </button>
-            </div>
           </motion.div>
         </>
       )}
@@ -411,6 +463,8 @@ export default function InstallButton({ variant = "pill" }: { variant?: "card" |
     installApp,
     showInstructions,
     setShowInstructions,
+    showUpdateModal,
+    setShowUpdateModal,
     installed,
     device,
     dismissed,
@@ -479,11 +533,16 @@ export default function InstallButton({ variant = "pill" }: { variant?: "card" |
         </motion.div>
 
         <InstallModal
-          show={showInstructions}
-          onClose={() => setShowInstructions(false)}
+          show={showInstructions || showUpdateModal}
+          onClose={() => {
+            setShowInstructions(false);
+            setShowUpdateModal(false);
+          }}
           device={device}
           deferredPrompt={null}
           onDismiss={handleDismiss}
+          showUpdateModal={showUpdateModal}
+          handleUpdate={handleUpdate}
         />
       </>
     );
@@ -503,11 +562,16 @@ export default function InstallButton({ variant = "pill" }: { variant?: "card" |
       </motion.button>
 
       <InstallModal
-        show={showInstructions}
-        onClose={() => setShowInstructions(false)}
+        show={showInstructions || showUpdateModal}
+        onClose={() => {
+          setShowInstructions(false);
+          setShowUpdateModal(false);
+        }}
         device={device}
         deferredPrompt={null}
         onDismiss={handleDismiss}
+        showUpdateModal={showUpdateModal}
+        handleUpdate={handleUpdate}
       />
     </>
   );

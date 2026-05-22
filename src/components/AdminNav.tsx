@@ -14,6 +14,7 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import RoleSwitcher from "@/components/RoleSwitcher";
+import InstallButton from "@/components/InstallButton";
 
 const navItems = [
   { icon: Sparkles,        label: "Ops Inbox",    path: "/admin/b-inbox"        },
@@ -91,6 +92,7 @@ export default function AdminNav() {
               <p className="text-[10px] text-coral">Administrator</p>
             </div>
           </div>
+          <InstallButton />
           {/* Shared dropdown — gated to Oko + Lee inside RoleSwitcher. */}
           <RoleSwitcher inline />
           <button onClick={logout}
@@ -165,6 +167,7 @@ export default function AdminNav() {
                 ))}
               </nav>
               <div className="shrink-0 border-t border-white/5 px-3 py-3 space-y-2">
+                <InstallButton />
                 <RoleSwitcher inline />
                 <button onClick={logout}
                   aria-label="Sign out"
