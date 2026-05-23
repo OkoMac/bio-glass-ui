@@ -4,6 +4,22 @@ import type { Database } from './types';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+// Fail loud and early — but in a way that surfaces a usable diagnostic
+// instead of a TypeError from .split('//') at module load. A misconfigured
+// Vercel preview hitting this used to render a blank white page with one
+// cryptic console line; now the message tells you exactly what's missing.
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  const missing = [
+    !SUPABASE_URL && "VITE_SUPABASE_URL",
+    !SUPABASE_PUBLISHABLE_KEY && "VITE_SUPABASE_PUBLISHABLE_KEY",
+  ].filter(Boolean).join(", ");
+  throw new Error(
+    `[supabase] Missing required env var(s): ${missing}. ` +
+    `Set these in Vercel project settings (or your local .env) and redeploy.`
+  );
+}
+
 const AUTH_STORAGE_KEY = `sb-${SUPABASE_URL.split('//')[1].split('.')[0]}-auth-token`;
 
 /**
