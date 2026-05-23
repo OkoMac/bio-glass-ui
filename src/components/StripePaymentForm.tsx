@@ -9,15 +9,29 @@ import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { Button } from './ui/button';
 import { Loader2, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 
-// Load Stripe with publishable key
+// Load Stripe with publishable key.
+//
+// loadStripe() injects a <script src="js.stripe.com/..."> tag, which is
+// blocked by ad blockers / privacy extensions for a non-trivial slice of
+// users. The resulting rejection was bubbling up as an Unhandled Error
+// and auto-spawning support tickets (99 of them in one month). Wrap the
+// rejection so component-level UI shows a clean error instead of the
+// global error handler firing.
 let stripePromise: Promise<Stripe | null>;
 const getStripe = () => {
   if (!stripePromise) {
     const key = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
     if (!key) {
-      throw new Error('VITE_STRIPE_PUBLISHABLE_KEY environment variable is not set');
+      stripePromise = Promise.resolve(null);
+      return stripePromise;
     }
-    stripePromise = loadStripe(key);
+    stripePromise = loadStripe(key).catch((err) => {
+      // Most common cause: ad blocker blocked js.stripe.com.
+      // Returning null lets <Elements stripe={null}> render the
+      // fallback UI; the surrounding form handles the no-Stripe case.
+      console.warn('[stripe] loadStripe failed (likely ad blocker):', err?.message ?? err);
+      return null;
+    });
   }
   return stripePromise;
 };
