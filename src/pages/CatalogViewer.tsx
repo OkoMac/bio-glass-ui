@@ -59,7 +59,7 @@ export default function CatalogViewer() {
     };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [totalPages]);
 
   useEffect(() => {
@@ -177,7 +177,7 @@ export default function CatalogViewer() {
               <ChevronLeft className="w-6 h-6 text-white" />
             </button>
 
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            { }
             <HTMLFlipBook
               ref={bookRef}
               width={550}

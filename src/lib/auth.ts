@@ -62,6 +62,10 @@ export function removeUser(): void {
 /** Fetch profile + role from DB and return a BioUser */
 export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser | null> {
   try {
+    // `profile` is reassigned below in the backend-fallback branch; the other
+    // two are not, but prefer-const flags individual names in destructuring
+    // without seeing the shared `let`. Disable for this line.
+    // eslint-disable-next-line prefer-const
     let [{ data: profile }, { data: roleRows }, { data: authData }] = await Promise.all([
       supabase.from("profiles").select("id, full_name, email, avatar_url, cover_image_url, phone, location, bion_id" as any).eq("user_id", supabaseUserId).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", supabaseUserId),
@@ -133,7 +137,7 @@ export async function fetchUserProfile(supabaseUserId: string): Promise<BioUser 
     let profileName = profile?.full_name;
     let profileEmail = profile?.email;
     let profileAvatar = profile?.avatar_url;
-    let profileCover = (profile as any)?.cover_image_url ?? undefined;
+    const profileCover = (profile as any)?.cover_image_url ?? undefined;
 
     if (!profile && authData.user) {
       // Google/Apple OAuth provides full_name in user_metadata.

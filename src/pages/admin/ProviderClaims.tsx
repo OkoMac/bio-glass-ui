@@ -100,7 +100,7 @@ export default function AdminProviderClaims() {
     }
   };
 
-  useEffect(() => { if (token) load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [token]);
+  useEffect(() => { if (token) load();   }, [token]);
   useEffect(() => { loadProviders(); }, []);
 
   const filteredProviders = useMemo(() => {

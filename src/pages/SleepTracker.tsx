@@ -39,7 +39,7 @@ function saveEntries(entries: SleepEntry[]) {
 function calcDuration(bed: string, wake: string): number {
   const [bH, bM] = bed.split(":").map(Number);
   const [wH, wM] = wake.split(":").map(Number);
-  let bedMin = bH * 60 + bM;
+  const bedMin = bH * 60 + bM;
   let wakeMin = wH * 60 + wM;
   if (wakeMin <= bedMin) wakeMin += 24 * 60; // overnight
   return Math.round(((wakeMin - bedMin) / 60) * 10) / 10;

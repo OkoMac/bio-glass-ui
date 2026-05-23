@@ -324,6 +324,7 @@ export default function BiometricsDashboard({ compact = false }: { compact?: boo
           told to "install the BION app" they already had open, which
           read as "the app you're using doesn't exist". Re-enable when
           native ships. */}
+      {/* eslint-disable-next-line no-constant-binary-expression -- `false &&` is intentional dead-code gate; re-enable when native ships (see comment block above) */}
       {false && !native.isNative && !compact && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
           className="rounded-2xl border border-indigo/20 bg-indigo/5 p-4 flex items-center gap-3">

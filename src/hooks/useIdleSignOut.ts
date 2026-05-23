@@ -90,7 +90,7 @@ export function useIdleSignOut(opts: {
         return;
       }
       if (Date.now() - last > IDLE_MS) {
-        // eslint-disable-next-line no-console
+         
         console.info("[idle-signout] idle threshold exceeded, signing out");
         onIdle();
       }

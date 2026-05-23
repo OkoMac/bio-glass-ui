@@ -249,7 +249,7 @@ export default function ProfileCompletionGate({ children }: Props) {
       // output; show the user a concrete message rather than a generic
       // "network error" so they know whether to retry, refresh, or
       // contact support.
-      // eslint-disable-next-line no-console
+       
       console.error("[ProfileCompletionGate] save failed:", err);
       const reason =
         err?.name === "AbortError" ? "Request timed out after 15s. Please check your connection and try again." :

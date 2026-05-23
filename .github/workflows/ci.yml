@@ -1,0 +1,34 @@
+name: bio-glass-ui CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    name: Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      - name: TypeScript
+        run: npx tsc --noEmit
+
+      - name: Lint
+        # 0 errors, ~824 warnings today. Gate blocks new errors and caps
+        # warning count so the backlog can only go down. Drop --max-warnings
+        # as the as-any cleanup PR (audit P1 #6) lands.
+        run: npx eslint . --max-warnings=900
+
+      - name: Build
+        run: npm run build

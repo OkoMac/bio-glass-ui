@@ -53,7 +53,7 @@ function BookingDisputesAdmin({ token }: { token: string }) {
     }
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [token]);
+  useEffect(() => { load();   }, [token]);
 
   const visible = useMemo(() => {
     if (tab === "escalated") return rows.filter((r) => r.status === "escalated");

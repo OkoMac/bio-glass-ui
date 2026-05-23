@@ -79,7 +79,7 @@ const emptyResult = (): ProviderAnalyticsResult => ({
 
 function dev(msg: string, err: unknown) {
   if (import.meta.env?.DEV) {
-    // eslint-disable-next-line no-console
+     
     console.warn(`[useProviderAnalytics] ${msg}`, err);
   }
 }

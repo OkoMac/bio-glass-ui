@@ -39,7 +39,7 @@ export default function AdBanner({ slot, format = "auto", className = "" }: AdBa
     }
 
     try {
-      // @ts-ignore
+      // @ts-expect-error — adsbygoogle is injected by Google's loader, no type
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch (e: any) { console.warn('[AdBanner.tsx] silent catch:', e?.message ?? String(e)); }
 

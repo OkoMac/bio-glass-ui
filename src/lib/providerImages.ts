@@ -50,7 +50,10 @@ function hashString(str: string): number {
 
 function getInitials(name: string): string {
   // Strip emoji and non-ASCII symbols to avoid lone surrogates that break encodeURIComponent
-  const clean = name.replace(/[\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}]|[\u{FE00}-\u{FEFF}]|[\u200D\uFE0F]/gu, "").trim();
+  // ZWJ + variation selector handled as alternation, not a character class, so
+  // ESLint's no-misleading-character-class is happy (these are also part of
+  // multi-code-unit emoji sequences where class semantics are unintuitive).
+  const clean = name.replace(/[\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}]|[\u{FE00}-\u{FEFF}]|\u200D|\uFE0F/gu, "").trim();
   const parts = (clean || name).trim().split(/\s+/).filter(p => p.length > 0);
   if (parts.length >= 2) {
     const first = parts[0][0] ?? "?";

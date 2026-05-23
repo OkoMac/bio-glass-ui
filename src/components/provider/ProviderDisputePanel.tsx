@@ -46,7 +46,7 @@ function OrderDisputeView({ orderId, onResolved }: { orderId: string; onResolved
   };
   const [resolving, setResolving] = useState(false);
 
-  useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [orderId]);
+  useEffect(() => { refresh();   }, [orderId]);
 
   if (loading) return (
     <div className="glass-1 rounded-2xl p-4 flex items-center justify-center">

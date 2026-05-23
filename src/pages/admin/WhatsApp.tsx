@@ -153,7 +153,7 @@ export default function AdminWhatsApp() {
     fetchStats();
     const iv = setInterval(() => { fetchThreads(); fetchStats(); }, 30_000);
     return () => clearInterval(iv);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   useEffect(() => { if (selected) { fetchDetail(selected); } }, [selected]);

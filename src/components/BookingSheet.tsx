@@ -66,7 +66,8 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
   // so the lookup happens once per slug; both surfaces converge on
   // the same profileId for provider notifications, marketing wallet
   // credit, payouts, and points attribution.
-  const { profileId: registeredProviderId } = useRegisteredProvider(provider.id);
+  const { profile: registeredProviderProfile, isVerified: registeredProviderVerified } = useRegisteredProvider(provider.id);
+  const registeredProviderId = registeredProviderProfile?.id;
 
   const weekDates = getWeekDates();
   const [step, setStep]                   = useState(1);

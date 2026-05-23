@@ -150,7 +150,8 @@ export default function ProviderProfile() {
   // Bridge the scraped slug (cen_lynette) → BION profile UUID via the
   // Slug → BION profile UUID resolution via the shared hook (also used
   // by BookingSheet so a single resolve serves both surfaces).
-  const { profileId: registeredProfileId, isVerified } = useRegisteredProvider(id);
+  const { profile: registeredProfile, isVerified } = useRegisteredProvider(id);
+  const registeredProfileId = registeredProfile?.id;
   const isRegisteredOnBion = isVerified && Boolean(registeredProfileId);
 
   // ── Real BION services (registered providers only) ──────────────────────
@@ -603,9 +604,10 @@ export default function ProviderProfile() {
       const chosen = bookingServiceChoices[selectedService] ?? bookingServiceChoices[0];
       const serviceLabel = chosen?.label ?? provider.specialty;
       const servicePayload = chosen?.id ?? serviceLabel;
-      const amountRand = chosen?.priceRand
-        ?? Number(String(provider.price).replace(/[^0-9.]/g, ""))
-        ?? 0;
+      // Number(x) returns NaN, not null/undefined, so `?? 0` after it never
+      // fires. Use `|| 0` to fall back when the parse yields 0/NaN.
+      const parsedPrice = Number(String(provider.price).replace(/[^0-9.]/g, ""));
+      const amountRand = chosen?.priceRand ?? (parsedPrice || 0);
 
       trackEvent("booking_started", {
         category: ((provider as any).category ?? provider.specialty ?? "").toString().toLowerCase(),

@@ -116,8 +116,8 @@ function EmailVerifyBanner() {
 const ALL_HOME_PROVIDERS = realData.providers
   .slice()
   .sort((a, b) => {
-    const aLogo = !!(a as any).imageUrl ? 1 : 0;
-    const bLogo = !!(b as any).imageUrl ? 1 : 0;
+    const aLogo = (a as any).imageUrl ? 1 : 0;
+    const bLogo = (b as any).imageUrl ? 1 : 0;
     if (bLogo !== aLogo) return bLogo - aLogo;
     return (b.rating ?? 0) - (a.rating ?? 0);
   })

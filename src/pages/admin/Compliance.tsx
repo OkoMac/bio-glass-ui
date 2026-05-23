@@ -88,10 +88,10 @@ function AdminComplianceInner() {
     if (session?.access_token) h.Authorization = `Bearer ${session.access_token}`;
     return h;
   };
-  return _AdminComplianceBody({ mfaProtectedFetch, buildHeaders });
+  return AdminComplianceBody({ mfaProtectedFetch, buildHeaders });
 }
 
-function _AdminComplianceBody({ mfaProtectedFetch, buildHeaders }: { mfaProtectedFetch: (i: RequestInfo, init?: RequestInit) => Promise<Response>; buildHeaders: (t: string) => Promise<Record<string, string>> }) {
+function AdminComplianceBody({ mfaProtectedFetch, buildHeaders }: { mfaProtectedFetch: (i: RequestInfo, init?: RequestInit) => Promise<Response>; buildHeaders: (t: string) => Promise<Record<string, string>> }) {
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("fica");
   const [token, setToken] = useState(() => {
@@ -135,7 +135,7 @@ function _AdminComplianceBody({ mfaProtectedFetch, buildHeaders }: { mfaProtecte
     setLoading(false);
   };
 
-  useEffect(() => { if (token) load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [token]);
+  useEffect(() => { if (token) load();   }, [token]);
 
   // ═══ Audit log ═══
   const loadAudit = async (filter: AuditFilter = auditFilter) => {

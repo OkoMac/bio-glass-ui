@@ -269,7 +269,7 @@ export default function Notifications() {
       setNotifications(list);
       setLoading(false);
       } catch (err) {
-        // eslint-disable-next-line no-console
+         
         console.error("[notifications] build failed:", err);
         // Whatever we have is enough to render — partial > crash.
         setLoading(false);

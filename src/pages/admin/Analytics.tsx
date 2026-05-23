@@ -101,7 +101,7 @@ export default function AdminAnalytics() {
 
   const buildChartData = (bookings: any /* TODO(types) */[], selectedPeriod: Period) => {
     const now = new Date();
-    let buckets: { label: string; start: Date; end: Date }[] = [];
+    const buckets: { label: string; start: Date; end: Date }[] = [];
 
     if (selectedPeriod === "Week") {
       // Last 7 days

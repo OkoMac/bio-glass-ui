@@ -114,7 +114,7 @@ export default function AdminTickets() {
     }
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [tab, priorityFilter, sourceFilter, token]);
+  useEffect(() => { load();   }, [tab, priorityFilter, sourceFilter, token]);
 
   const counts = useMemo(() => {
     const c: Record<string, number> = { open: 0, in_progress: 0, awaiting_user: 0, resolved: 0, all: rows.length };
@@ -339,7 +339,7 @@ function TicketDetail({
     }
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [ticket.id]);
+  useEffect(() => { load();   }, [ticket.id]);
 
   // Load admin profile list once. Multi-role admins (post-Step-2) are
   // user_roles rows where role='admin'; we need their profile id, not

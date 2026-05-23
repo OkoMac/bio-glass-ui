@@ -89,7 +89,7 @@ export function setConsent(state: ConsentState): void {
   } catch (err) {
     // Quota exceeded / storage blocked — log but don't crash the app.
     // Private-browsing Safari throws on every localStorage.setItem.
-    // eslint-disable-next-line no-console
+     
     console.warn("[bion] cookie consent could not be persisted:", err);
   }
   try {

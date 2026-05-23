@@ -87,7 +87,7 @@ export default function IntakeForms() {
         loadForms(profile.id);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [user]);
 
   const loadForms = async (provId: string) => {

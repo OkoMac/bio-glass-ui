@@ -201,7 +201,7 @@ function TicketDetailView({ id }: { id: string }) {
     }
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [id]);
+  useEffect(() => { load();   }, [id]);
 
   const sendReply = async () => {
     if (!replyBody.trim()) return;

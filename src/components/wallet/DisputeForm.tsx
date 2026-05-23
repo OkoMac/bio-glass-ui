@@ -66,7 +66,7 @@ function OrderDisputeView({ orderId, onClose }: { orderId: string; onClose: () =
     }
   };
 
-  useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [orderId]);
+  useEffect(() => { refresh();   }, [orderId]);
 
   const handleSubmit = async () => {
     if (statement.trim().length < 10) {

@@ -101,7 +101,7 @@ export default function AdminBQueue() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchItems(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [tab]);
+  useEffect(() => { fetchItems();   }, [tab]);
 
   const handleAdminDecision = async (item: QueueItem, decision: "approve" | "reject") => {
     const newStatus = decision === "approve" ? "admin_approved" : "admin_rejected";
