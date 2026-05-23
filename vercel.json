@@ -91,7 +91,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' https://pagead2.googlesyndication.com https://fundingchoicesmessages.google.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; connect-src 'self' https://lybwhwsgduhjrwjsiqsh.supabase.co wss://lybwhwsgduhjrwjsiqsh.supabase.co https://bion-backend.onrender.com wss://bion-backend.onrender.com https://api.openai.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://*.ingest.us.sentry.io https://nominatim.openstreetmap.org; font-src 'self' data:; object-src 'none'; frame-src 'self' https://pagead2.googlesyndication.com; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+          "value": "default-src 'self'; script-src 'self' https://pagead2.googlesyndication.com https://fundingchoicesmessages.google.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; connect-src 'self' https://auth.bionhealth.co.za wss://auth.bionhealth.co.za https://lybwhwsgduhjrwjsiqsh.supabase.co wss://lybwhwsgduhjrwjsiqsh.supabase.co https://bion-backend.onrender.com wss://bion-backend.onrender.com https://api.openai.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://*.ingest.us.sentry.io https://nominatim.openstreetmap.org; font-src 'self' data:; object-src 'none'; frame-src 'self' https://pagead2.googlesyndication.com; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
         },
         {
           "key": "X-Content-Type-Options",
