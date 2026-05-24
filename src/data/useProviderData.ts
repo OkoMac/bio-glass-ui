@@ -14,7 +14,16 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 
+/**
+ * Full shape of a directory provider record as served by
+ * GET /api/directory/providers and the single-provider endpoint.
+ * Optional fields are present on the Google-Places-scraped subset of the
+ * directory and absent on the manually-entered subset. Pages that
+ * previously cast `(p as any).field` should reference these fields by
+ * name instead.
+ */
 export interface RawProvider {
+  // Core identity
   id: string;
   name: string;
   service: string;
@@ -23,10 +32,37 @@ export interface RawProvider {
   review_count?: number;
   location: string;
   price: string;
-  availability: string[];
+  availability: string | string[];
   enhanced_category?: string;
   category?: string;
-  [key: string]: any;
+  suburb?: string;
+  city?: string;
+  // Contact (scraped from Google Places where available)
+  phone?: string;
+  email?: string;
+  website?: string;
+  contact?: { email?: string; phone?: string; website?: string };
+  address?: string;
+  google_place_id?: string;
+  business_status?: string;
+  opening_hours?: string[];
+  // Geocode
+  lat?: number;
+  lng?: number;
+  // Profile detail
+  specialization?: string;
+  description?: string;
+  duration?: string;
+  experienceYears?: number;
+  qualifications?: string[];
+  languages?: string[];
+  servicesOffered?: string[];
+  imageUrl?: string;
+  min_price?: number;
+  // UI hint — featured on the home page above the fold
+  callout?: boolean;
+  // Catch-all so unknown fields don't break callers that index dynamically
+  [key: string]: unknown;
 }
 
 export interface ProviderDataState {

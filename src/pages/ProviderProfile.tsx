@@ -31,7 +31,7 @@ import { getProviderShareUrl, getBookingShareUrl, openWhatsApp } from "@/lib/wha
 import { trackEvent } from "@/lib/habits";
 import { usePageView } from "@/hooks/usePageView";
 import ProviderShopSection from "@/components/ProviderShopSection";
-import { useProviderData } from "@/data/useProviderData";
+import type { RawProvider } from "@/data/useProviderData";
 import { useProviderSlots, parseDuration } from "@/hooks/useProviderSlots";
 import { useAcquisitionVouchers } from "@/hooks/useAcquisitionVouchers";
 import { useProviderReviews } from "@/hooks/useReviews";
@@ -79,7 +79,7 @@ export default function ProviderProfile() {
   // page hydrated by loading both bundled JSONs (~4.4 MB combined) and calling
   // .find() — now it's one HTTP call that returns just this provider's record.
   // Bundled JHB JSON chunk is gone from this route entirely.
-  const [scrapedProvider, setScrapedProvider] = useState<any | null>(null);
+  const [scrapedProvider, setScrapedProvider] = useState<RawProvider | null>(null);
   const [providersLoading, setProvidersLoading] = useState(true);
   useEffect(() => {
     if (!id) { setProvidersLoading(false); return; }
@@ -109,31 +109,36 @@ export default function ProviderProfile() {
       id: p.id,
       name: p.name,
       specialty: p.service,
-      specialization: (p as any).specialization,
+      specialization: p.specialization,
       vertical: verticals[idx],
       rating: typeof p.rating === "string" ? parseFloat(p.rating) || 0 : p.rating,
       reviews: p.reviewCount,
       location: p.location,
-      address: (p as any).address,
-      experience: (p as any).experienceYears ? `${(p as any).experienceYears} years` : "Experienced",
+      address: p.address,
+      experience: p.experienceYears ? `${p.experienceYears} years` : "Experienced",
       image: getProviderImage(p.id, p.name),
       coverImage: getProviderCover(p.id),
-      bio: (p as any).description || `Professional ${p.service} provider based in ${p.location}.`,
+      bio: p.description || `Professional ${p.service} provider based in ${p.location}.`,
       price: p.price,
-      duration: (p as any).duration || "60 min",
+      duration: p.duration || "60 min",
       availability: p.availability,
-      qualifications: (p as any).qualifications || [],
-      languages: (p as any).languages || [],
-      servicesOffered: (p as any).servicesOffered || [p.service],
+      qualifications: p.qualifications || [],
+      languages: p.languages || [],
+      servicesOffered: p.servicesOffered || [p.service],
       contact: {
-        email: (p as any).email ?? (p as any).contact?.email,
-        phone: (p as any).phone ?? (p as any).contact?.phone,
-        website: (p as any).website ?? (p as any).contact?.website,
+        email: p.email ?? p.contact?.email,
+        phone: p.phone ?? p.contact?.phone,
+        website: p.website ?? p.contact?.website,
       },
-      openingHours: (p as any).opening_hours ?? [],
-      googlePlaceId: (p as any).google_place_id,
-      businessStatus: (p as any).business_status,
-      callout: !!(p as any).callout,
+      openingHours: p.opening_hours ?? [],
+      googlePlaceId: p.google_place_id,
+      businessStatus: p.business_status,
+      callout: !!p.callout,
+      // Carry-through fields used elsewhere in the page (analytics
+      // category, map links). Previously each access cast `as any`.
+      category: p.category,
+      lat: p.lat,
+      lng: p.lng,
     };
   }, [id, scrapedProvider]);
   const isSignedIn = !!user;
@@ -630,7 +635,7 @@ export default function ProviderProfile() {
       const amountRand = chosen?.priceRand ?? (parsedPrice || 0);
 
       trackEvent("booking_started", {
-        category: ((provider as any).category ?? provider.specialty ?? "").toString().toLowerCase(),
+        category: (provider.category ?? provider.specialty ?? "").toString().toLowerCase(),
         metadata: { provider_id: provider.id, service: serviceLabel, date: bookingDate, time: bookingTime },
       });
       const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
@@ -879,7 +884,7 @@ export default function ProviderProfile() {
     if (provider.id) trackView(provider.id);
     // Feed B_'s personalisation
     trackEvent("provider_view", {
-      category: ((provider as any).category ?? provider.vertical ?? provider.specialty ?? "").toString().toLowerCase(),
+      category: (provider.category ?? provider.vertical ?? provider.specialty ?? "").toString().toLowerCase(),
       metadata: { provider_id: provider.id, name: provider.name, specialty: provider.specialty, location: provider.location },
     });
     return () => { document.title = "BION — Commit to Yourself"; };
@@ -1394,13 +1399,13 @@ export default function ProviderProfile() {
                 const addr = String(provider.address || provider.location || "");
                 const mapsQuery = encodeURIComponent(addr);
                 // Use geo coordinates if available for more accurate pin
-                const hasCoords = (provider as any).lat && (provider as any).lng;
+                const hasCoords = provider.lat && provider.lng;
                 const mapsUrl = hasCoords
-                  ? `https://www.google.com/maps/search/?api=1&query=${(provider as any).lat},${(provider as any).lng}&query_place_id=${mapsQuery}`
+                  ? `https://www.google.com/maps/search/?api=1&query=${provider.lat},${provider.lng}&query_place_id=${mapsQuery}`
                   : `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
                 // Universal link that lets user choose their maps app
                 const directionsUrl = hasCoords
-                  ? `https://www.google.com/maps/dir/?api=1&destination=${(provider as any).lat},${(provider as any).lng}`
+                  ? `https://www.google.com/maps/dir/?api=1&destination=${provider.lat},${provider.lng}`
                   : `https://www.google.com/maps/dir/?api=1&destination=${mapsQuery}`;
 
                 const mapImgUrl = null; // Static map removed — was using billable Google API
