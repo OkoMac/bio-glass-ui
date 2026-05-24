@@ -75,22 +75,42 @@ export default function ProviderProfile() {
   const [recurringFrequency, setRecurringFrequency] = useState<"weekly" | "biweekly" | "monthly">("weekly");
   const [recurringSessions, setRecurringSessions] = useState<number>(4);
 
-  // Lazy-load all scraped providers (~3.8MB JHB + 0.6MB PTA chunks) instead of
-  // pulling them in via static imports. Page renders a skeleton while the
-  // provider JSON downloads on first visit; subsequent navigations are instant
-  // because useProviderData caches at module level.
-  const { providers: scrapedProviders, loading: providersLoading } = useProviderData("all");
+  // Fetch the single provider by ID via the directory API. Previously this
+  // page hydrated by loading both bundled JSONs (~4.4 MB combined) and calling
+  // .find() — now it's one HTTP call that returns just this provider's record.
+  // Bundled JHB JSON chunk is gone from this route entirely.
+  const [scrapedProvider, setScrapedProvider] = useState<any | null>(null);
+  const [providersLoading, setProvidersLoading] = useState(true);
+  useEffect(() => {
+    if (!id) { setProvidersLoading(false); return; }
+    let cancelled = false;
+    setProvidersLoading(true);
+    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+    fetch(`${API}/api/directory/providers/${encodeURIComponent(id)}`)
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
+      .then((json) => {
+        if (cancelled) return;
+        setScrapedProvider(json?.ok ? json.data : null);
+      })
+      .catch(() => { if (!cancelled) setScrapedProvider(null); })
+      .finally(() => { if (!cancelled) setProvidersLoading(false); });
+    return () => { cancelled = true; };
+  }, [id]);
+
   const provider = useMemo(() => {
-    if (!id) return undefined;
-    const p = scrapedProviders.find((sp) => sp.id === id);
-    if (!p) return undefined;
-    const idx = scrapedProviders.indexOf(p);
+    const p = scrapedProvider;
+    if (!p || !id) return undefined;
+    // Deterministic vertical pick from the id (was indexOf into the array,
+    // which required loading all providers just for this color cycle).
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) | 0;
+    const idx = Math.abs(hash) % verticals.length;
     return {
       id: p.id,
       name: p.name,
       specialty: p.service,
       specialization: (p as any).specialization,
-      vertical: verticals[idx % verticals.length],
+      vertical: verticals[idx],
       rating: typeof p.rating === "string" ? parseFloat(p.rating) || 0 : p.rating,
       reviews: p.reviewCount,
       location: p.location,
@@ -115,7 +135,7 @@ export default function ProviderProfile() {
       businessStatus: (p as any).business_status,
       callout: !!(p as any).callout,
     };
-  }, [id, scrapedProviders]);
+  }, [id, scrapedProvider]);
   const isSignedIn = !!user;
 
   // Ask the booking hook for only the slots that (a) fall inside the

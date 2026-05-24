@@ -248,10 +248,13 @@ export default function BionCalendar() {
   // Provider typeahead — resolves real BION providers as the user types
   // in the Provider field. Free-form is still allowed (user might book
   // a provider not on BION yet); picking from the list just fills the
-  // name verbatim. Lazy-loaded so the calendar doesn't pull the 3MB
-  // JHB JSON until the picker is opened.
+  // name verbatim. Now via the directory API (was loading the 5.5MB
+  // JHB + 547KB PTA bundled chunks just to filter by name).
   const [providerPickerOpen, setProviderPickerOpen] = useState(false);
-  const { providers: allProviders } = useProviderData(showAdd ? "all" : "pta");
+  const { providers: allProviders } = useProviderData(
+    showAdd ? "all" : "pta",
+    { useApi: true, all: true },
+  );
   const providerSuggestions = useMemo(() => {
     const q = (newEvent.provider ?? "").trim().toLowerCase();
     if (!q || q.length < 2) return [];
