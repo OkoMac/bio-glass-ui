@@ -137,7 +137,10 @@ export default function QuickBook() {
   const suggestedProviders = useMemo(() => {
     return ptaProviders
       .slice()
-      .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+      // Number(x) returns NaN for missing/garbage input, not nullish, so the
+      // earlier `?? 0` after Number() was dead code and a missing rating
+      // produced a non-deterministic sort. `|| 0` falls back on NaN.
+      .sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0))
       .slice(0, 6)
       .map(p => ({
         id: p.id,
@@ -392,7 +395,7 @@ export default function QuickBook() {
                       <p className="text-sm font-semibold text-foreground truncate">{p.name}</p>
                       <p className="text-[10px] text-muted-foreground truncate">{p.specialty}</p>
                     </div>
-                    <span className="text-xs font-data text-amber shrink-0">★ {p.rating.toFixed(1)}</span>
+                    <span className="text-xs font-data text-amber shrink-0">★ {Number(p.rating).toFixed(1)}</span>
                   </motion.button>
                 ))}
               </div>
