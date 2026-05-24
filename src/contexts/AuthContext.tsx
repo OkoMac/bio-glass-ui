@@ -452,7 +452,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         storeUser(fresh);
         setUser(fresh);
       }
-    } catch {/* swallow */}
+    } catch (err: any) {
+      // refetchUser is called from explicit user actions ("refresh profile",
+      // stale banner click). A silent swallow leaves the user staring at an
+      // unchanged page wondering if anything happened. Log so we can see it
+      // in Sentry; UI behaviour is unchanged.
+      console.warn('[AuthContext] refetchUser failed:', err?.message ?? String(err));
+    }
   }, []);
 
   return (
