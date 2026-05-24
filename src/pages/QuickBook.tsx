@@ -16,7 +16,7 @@ import { useBookings } from "@/contexts/BookingsContext";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { useUserPref } from "@/hooks/useUserPref";
-import realData from "@/data/bion_pretoria_data.json";
+import { useProviderData } from "@/data/useProviderData";
 import { getProviderImage } from "@/lib/providerImages";
 
 /* ── All available tools the user can pin ──────────── */
@@ -66,6 +66,12 @@ export default function QuickBook() {
   // tab clears.
   const [pinnedTools, setPinnedTools] = useUserPref<string[]>("hub_pinned_tools", DEFAULT_PINS, { lsKey: STORAGE_KEY });
 
+  // Was: static import of bion_pretoria_data.json (547KB chunk) used as
+  // ptaProviders in 6 useMemo bodies below. Now fetched from the
+  // directory API; first paint may have empty arrays until the request
+  // settles. Each consumer below already handles the empty case.
+  const { providers: ptaProviders } = useProviderData("pta", { all: true });
+
   /* ── Compute "Your Providers" from booking history + favorites ──
      Reported 2026-05-04 — Oko's home dashboard had a "Suggested for You"
      section with a confused empty state ("Book your first session to
@@ -86,7 +92,7 @@ export default function QuickBook() {
         existing.count++;
         if (b.date > existing.lastBooked) existing.lastBooked = b.date;
       } else {
-        const realProvider = realData.providers.find(p => p.name === name || p.id === id);
+        const realProvider = ptaProviders.find(p => p.name === name || p.id === id);
         providerMap.set(id, {
           id: realProvider?.id ?? id,
           name,
@@ -105,7 +111,7 @@ export default function QuickBook() {
         providerMap.get(favId)!.isFavorite = true;
         return;
       }
-      const realProvider = realData.providers.find(p => p.id === favId);
+      const realProvider = ptaProviders.find(p => p.id === favId);
       if (!realProvider) return;
       providerMap.set(favId, {
         id: favId,
@@ -125,11 +131,11 @@ export default function QuickBook() {
         return b.count - a.count;
       })
       .slice(0, 8);
-  }, [bookings, favorites, isFavorite]);
+  }, [bookings, favorites, isFavorite, ptaProviders]);
 
   /* ── Suggested providers (for users with no history) ── */
   const suggestedProviders = useMemo(() => {
-    return realData.providers
+    return ptaProviders
       .slice()
       .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
       .slice(0, 6)
@@ -140,12 +146,12 @@ export default function QuickBook() {
         specialty: p.service ?? (p as any).category ?? "",
         rating: p.rating ?? 0,
       }));
-  }, []);
+  }, [ptaProviders]);
 
   /* ── Favorite providers ── */
   const favoriteProviders = useMemo(() => {
     if (favorites.size === 0) return [];
-    return realData.providers
+    return ptaProviders
       .filter(p => favorites.has(p.id))
       .map(p => ({
         id: p.id,
@@ -154,12 +160,12 @@ export default function QuickBook() {
         specialty: p.service ?? (p as any).category ?? "",
         rating: p.rating ?? 0,
       }));
-  }, [favorites]);
+  }, [favorites, ptaProviders]);
 
   /* ── Recently viewed providers ── */
   const recentlyViewed = useMemo(() => {
     if (recentIds.length === 0) return [];
-    const byId = new Map(realData.providers.map(p => [p.id, p]));
+    const byId = new Map(ptaProviders.map(p => [p.id, p]));
     return recentIds
       .map(id => byId.get(id))
       .filter(Boolean)
@@ -171,7 +177,7 @@ export default function QuickBook() {
         specialty: p.service ?? p.category ?? "",
         rating: p.rating ?? 0,
       }));
-  }, [recentIds]);
+  }, [recentIds, ptaProviders]);
 
   // Tool definitions for pinned ones
   const visibleTools = pinnedTools

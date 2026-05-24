@@ -5,15 +5,18 @@ import { Heart, ArrowLeft, Star, MapPin } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import GlassCard from "@/components/GlassCard";
 import { useFavorites } from "@/hooks/useFavorites";
-import realData from "@/data/bion_pretoria_data.json";
+import { useProviderData } from "@/data/useProviderData";
 import { getProviderImage } from "@/lib/providerImages";
 
 export default function Favorites() {
   const navigate = useNavigate();
   const { favorites, toggle, count } = useFavorites();
+  // Was: static import of bion_pretoria_data.json (~547KB chunk). Now via
+  // the directory API with module-level dedupe across pages.
+  const { providers: rawProviders } = useProviderData("pta", { all: true });
 
   const providers = useMemo(() => {
-    return realData.providers
+    return rawProviders
       .filter(p => favorites.has(p.id))
       .map(p => ({
         id: p.id,
@@ -24,7 +27,7 @@ export default function Favorites() {
         location: (p as any).suburb ?? p.location ?? "",
         price: p.price ?? "",
       }));
-  }, [favorites]);
+  }, [favorites, rawProviders]);
 
   return (
     <div className="min-h-screen bg-obsidian pb-32">

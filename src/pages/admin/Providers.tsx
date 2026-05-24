@@ -11,7 +11,7 @@ import {
   UserPlus, ArrowLeft, Globe, ExternalLink,
 } from "lucide-react";
 
-import realData from "@/data/bion_pretoria_data.json";
+import { useProviderData } from "@/data/useProviderData";
 
 // ── Build provider list from ALL real scraped data ──
 function categorize(s: string, name?: string): string {
@@ -39,42 +39,20 @@ function categorize(s: string, name?: string): string {
   return "other";
 }
 
-const ALL_PROVIDERS = realData.providers.map((p: any) => ({
-  id: p.id,
-  name: p.name,
-  service: p.service,
-  specialization: p.specialization ?? p.service,
-  location: p.location,
-  address: p.address,
-  phone: (p as any).phone ?? p.contact?.phone ?? "",
-  email: (p as any).email ?? p.contact?.email ?? "",
-  website: (p as any).website ?? p.contact?.website ?? "",
-  googlePlaceId: (p as any).google_place_id ?? "",
-  openingHours: (p as any).opening_hours ?? [],
-  businessStatus: (p as any).business_status ?? "",
-  rating: typeof p.rating === "string" ? parseFloat(p.rating) || 0 : (p.rating ?? 0),
-  reviews: p.reviewCount ?? 0,
-  price: p.price ?? "Price on request",
-  availability: p.availability ?? "",
-  category: categorize(p.service, p.name),
-  image: (p as any).imageUrl || getProviderImage(p.id, p.name),
-  hasLogo: !!(p as any).imageUrl || hasCustomImage(p.id),
-  qualifications: p.qualifications ?? [],
-  languages: p.languages ?? ["English"],
-  experienceYears: p.experienceYears ?? 0,
-  status: "active" as const,
-})).sort((a, b) => (b.hasLogo ? 1 : 0) - (a.hasLogo ? 1 : 0));
-
-// Category counts
-const catCounts = ALL_PROVIDERS.reduce<Record<string, number>>((acc, p) => {
-  acc[p.category] = (acc[p.category] ?? 0) + 1;
-  return acc;
-}, {});
-
-const CATEGORIES_WITH_COUNTS = SERVICE_CATEGORIES.map((c) => ({
-  ...c,
-  count: catCounts[c.id] ?? 0,
-}));
+// Was: module-level ALL_PROVIDERS computed from a static
+// bion_pretoria_data.json import (547KB chunk). Now: returned by
+// useProviderData("pta", { all: true }) inside the component, mapped
+// once per render via useMemo. The catCounts + CATEGORIES_WITH_COUNTS
+// derivations also move inside.
+type AdminProvider = {
+  id: string; name: string; service: string; specialization: string;
+  location: string; address: string; phone: string; email: string; website: string;
+  googlePlaceId: string; openingHours: string[]; businessStatus: string;
+  rating: number; reviews: number; price: string; availability: string;
+  category: string; image: string; hasLogo: boolean;
+  qualifications: string[]; languages: string[]; experienceYears: number;
+  status: "active";
+};
 
 const FILTER_TABS = ["All", "Top Rated", "Recently Added", "Needs Review"];
 
@@ -84,7 +62,45 @@ export default function AdminProviders() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(20);
-  const [selectedProvider, setSelectedProvider] = useState<typeof ALL_PROVIDERS[0] | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<AdminProvider | null>(null);
+
+  const { providers: rawProviders } = useProviderData("pta", { all: true });
+
+  const ALL_PROVIDERS: AdminProvider[] = useMemo(() => rawProviders.map((p: any) => ({
+    id: p.id,
+    name: p.name,
+    service: p.service,
+    specialization: p.specialization ?? p.service,
+    location: p.location,
+    address: p.address,
+    phone: (p as any).phone ?? p.contact?.phone ?? "",
+    email: (p as any).email ?? p.contact?.email ?? "",
+    website: (p as any).website ?? p.contact?.website ?? "",
+    googlePlaceId: (p as any).google_place_id ?? "",
+    openingHours: (p as any).opening_hours ?? [],
+    businessStatus: (p as any).business_status ?? "",
+    rating: typeof p.rating === "string" ? parseFloat(p.rating) || 0 : (p.rating ?? 0),
+    reviews: p.reviewCount ?? 0,
+    price: p.price ?? "Price on request",
+    availability: p.availability ?? "",
+    category: categorize(p.service, p.name),
+    image: (p as any).imageUrl || getProviderImage(p.id, p.name),
+    hasLogo: !!(p as any).imageUrl || hasCustomImage(p.id),
+    qualifications: p.qualifications ?? [],
+    languages: p.languages ?? ["English"],
+    experienceYears: p.experienceYears ?? 0,
+    status: "active" as const,
+  })).sort((a, b) => (b.hasLogo ? 1 : 0) - (a.hasLogo ? 1 : 0)), [rawProviders]);
+
+  const catCounts = useMemo(() => ALL_PROVIDERS.reduce<Record<string, number>>((acc, p) => {
+    acc[p.category] = (acc[p.category] ?? 0) + 1;
+    return acc;
+  }, {}), [ALL_PROVIDERS]);
+
+  const CATEGORIES_WITH_COUNTS = useMemo(() => SERVICE_CATEGORIES.map((c) => ({
+    ...c,
+    count: catCounts[c.id] ?? 0,
+  })), [catCounts]);
 
   const filteredProviders = useMemo(() => {
     let list = selectedCategoryId
@@ -122,7 +138,7 @@ export default function AdminProviders() {
     }
 
     return list;
-  }, [selectedCategoryId, search, activeFilter]);
+  }, [selectedCategoryId, search, activeFilter, ALL_PROVIDERS]);
 
   const displayProviders = filteredProviders.slice(0, visibleCount);
   const hasMore = visibleCount < filteredProviders.length;

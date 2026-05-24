@@ -9,7 +9,7 @@ import { useBookings } from "@/contexts/BookingsContext";
 import { useRoutinesSync } from "@/hooks/useRoutinesSync";
 import { useMyPrograms } from "@/hooks/useMyPrograms";
 import { getProviderImage } from "@/lib/providerImages";
-import realData from "@/data/bion_pretoria_data.json";
+import { useProviderData, type RawProvider } from "@/data/useProviderData";
 import {
   ArrowLeft, ChevronRight, CheckCircle, Circle, Plus, X,
   Dumbbell, Apple, Stethoscope, Play, Eye, EyeOff, Shield, Pill, Heart, Activity,
@@ -40,43 +40,42 @@ interface Routine {
 }
 
 /* ── Real provider data for assignment & self-creation ──── */
-const FITNESS_PROVIDERS = realData.providers
-  .filter(p => /gym|fitness|train|yoga|pilates|crossfit/i.test(p.category ?? ""))
-  .slice(0, 12)
-  .map(p => ({
+// Was module-level constants from a static PTA JSON import (547KB chunk).
+// Now built inside the component from useProviderData; helpers below
+// take the data as input so they stay pure.
+type RoutineProvider = {
+  id: string; name: string; image: string;
+  services: string[]; availability: string; category: string;
+};
+
+function mapProvider(p: RawProvider): RoutineProvider {
+  return {
     id: p.id,
     name: p.name,
     image: getProviderImage(p.id, p.name),
     services: (p as any).servicesOffered ?? [],
-    availability: typeof p.availability === "string" ? p.availability : (Array.isArray(p.availability) ? p.availability.join(", ") : "Available"),
+    availability: typeof p.availability === "string"
+      ? p.availability
+      : (Array.isArray(p.availability) ? p.availability.join(", ") : "Available"),
     category: p.category ?? "",
-  }));
+  };
+}
 
-const MEDICAL_PROVIDERS = realData.providers
-  .filter(p => /physio|chiro|rehab|doctor|medical|dental/i.test(p.category ?? ""))
-  .slice(0, 6)
-  .map(p => ({
-    id: p.id,
-    name: p.name,
-    image: getProviderImage(p.id, p.name),
-    services: (p as any).servicesOffered ?? [],
-    availability: typeof p.availability === "string" ? p.availability : (Array.isArray(p.availability) ? p.availability.join(", ") : "Available"),
-    category: p.category ?? "",
-  }));
-
-const BEAUTY_PROVIDERS = realData.providers
-  .filter(p => /beauty|salon|spa|hair|nail|skin|aesthetic/i.test(p.category ?? ""))
-  .slice(0, 6)
-  .map(p => ({
-    id: p.id,
-    name: p.name,
-    image: getProviderImage(p.id, p.name),
-    services: (p as any).servicesOffered ?? [],
-    availability: typeof p.availability === "string" ? p.availability : (Array.isArray(p.availability) ? p.availability.join(", ") : "Available"),
-    category: p.category ?? "",
-  }));
-
-const ALL_PROVIDERS = [...FITNESS_PROVIDERS, ...MEDICAL_PROVIDERS, ...BEAUTY_PROVIDERS];
+function deriveProviderBuckets(raw: RawProvider[]) {
+  const fitness = raw
+    .filter(p => /gym|fitness|train|yoga|pilates|crossfit/i.test(p.category ?? ""))
+    .slice(0, 12)
+    .map(mapProvider);
+  const medical = raw
+    .filter(p => /physio|chiro|rehab|doctor|medical|dental/i.test(p.category ?? ""))
+    .slice(0, 6)
+    .map(mapProvider);
+  const beauty = raw
+    .filter(p => /beauty|salon|spa|hair|nail|skin|aesthetic/i.test(p.category ?? ""))
+    .slice(0, 6)
+    .map(mapProvider);
+  return { fitness, medical, beauty };
+}
 
 /* ── Template exercises by type ──── */
 const EXERCISE_TEMPLATES: Record<string, Exercise[]> = {
@@ -143,10 +142,12 @@ const EXERCISE_TEMPLATES: Record<string, Exercise[]> = {
 };
 
 /* ── Sample assigned routines (simulating provider assignments) ──── */
-function buildSampleRoutines(): Routine[] {
-  const fp = FITNESS_PROVIDERS[0];
-  const mp = MEDICAL_PROVIDERS[0];
-  const bp = BEAUTY_PROVIDERS[0];
+function buildSampleRoutines(buckets: {
+  fitness: RoutineProvider[]; medical: RoutineProvider[]; beauty: RoutineProvider[];
+}): Routine[] {
+  const fp = buckets.fitness[0];
+  const mp = buckets.medical[0];
+  const bp = buckets.beauty[0];
 
   const routines: Routine[] = [];
 
@@ -425,12 +426,17 @@ export default function Routines() {
     return [...fromAssigned, ...ownRoutines];
   }, [assignedPrograms, ownRoutines]);
 
-  // Seed demo accounts with sample data if no real or assigned routines
+  const { providers: ptaProviders } = useProviderData("pta", { all: true });
+  const providerBuckets = useMemo(() => deriveProviderBuckets(ptaProviders), [ptaProviders]);
+
+  // Seed demo accounts with sample data if no real or assigned routines.
+  // Waits until provider data has loaded so the sample routines reference
+  // a real provider; otherwise nothing seeds (next mount tries again).
   useEffect(() => {
-    if (isDemo && ownRoutines.length === 0 && assignedPrograms.length === 0) {
-      setRoutines(buildSampleRoutines());
+    if (isDemo && ownRoutines.length === 0 && assignedPrograms.length === 0 && ptaProviders.length > 0) {
+      setRoutines(buildSampleRoutines(providerBuckets));
     }
-  }, [isDemo, ownRoutines.length, assignedPrograms.length]);
+  }, [isDemo, ownRoutines.length, assignedPrograms.length, ptaProviders.length, providerBuckets]);
 
   const [expanded, setExpanded] = useState<string | null>(routines[0]?.id ?? null);
   const [checked, setChecked] = useState<Record<string, boolean>>({});

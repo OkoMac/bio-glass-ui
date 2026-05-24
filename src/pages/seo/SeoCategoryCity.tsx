@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, MapPin, Star, Check, ArrowLeft, Bell, Search } from "lucide-react";
-import realData from "@/data/bion_pretoria_data.json";
+import { useProviderData } from "@/data/useProviderData";
 import { findCity, findCategory, SEO_CITIES, SEO_CATEGORIES, SeoCity } from "@/data/seoCombinations";
 import { getProviderImage } from "@/lib/providerImages";
 import AdBanner from "@/components/AdBanner";
@@ -53,6 +53,12 @@ export default function SeoCategoryCity() {
     }
   }, [city, category, navigate]);
 
+  // Was: static rawProviders from the 547KB PTA JSON import. Now via
+  // API; the page still SSRs without it (server-side prerender of the SEO
+  // routes will get the empty state, but the moment JS executes the API
+  // call fires and the list populates).
+  const { providers: rawProviders } = useProviderData("pta", { all: true });
+
   // --- Local providers (exact city match) ---
   const providers = useMemo(() => {
     if (!city || !category) return [];
@@ -64,10 +70,10 @@ export default function SeoCategoryCity() {
       const hay = `${p.service ?? ""} ${p.specialization ?? ""} ${p.category ?? ""}`.toLowerCase();
       return category.keywords.some(k => hay.includes(k.toLowerCase()));
     };
-    return realData.providers
+    return rawProviders
       .filter((p: any) => cityMatch(p) && catMatch(p))
       .slice(0, 20);
-  }, [city, category]);
+  }, [city, category, rawProviders]);
 
   // --- Fallback: nearest city with providers of this category ---
   const fallback = useMemo(() => {
@@ -87,13 +93,13 @@ export default function SeoCategoryCity() {
         const hay = `${p.service ?? ""} ${p.specialization ?? ""} ${p.category ?? ""}`.toLowerCase();
         return category.keywords.some(k => hay.includes(k.toLowerCase()));
       };
-      const found = realData.providers.filter((p: any) => cityMatch(p) && catMatch(p)).slice(0, 10);
+      const found = rawProviders.filter((p: any) => cityMatch(p) && catMatch(p)).slice(0, 10);
       if (found.length > 0) {
         return { city: nearbyCity, providers: found };
       }
     }
     return null;
-  }, [city, category, providers]);
+  }, [city, category, providers, rawProviders]);
 
   // --- Notify-me email capture state ---
   const [notifyEmail, setNotifyEmail] = useState("");

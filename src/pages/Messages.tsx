@@ -12,7 +12,7 @@ import { useMessages } from "@/hooks/useMessages";
 import { useConversations } from "@/hooks/useMessaging";
 import { supabase } from "@/integrations/supabase/client";
 import { getProviderImage } from "@/lib/providerImages";
-import realData from "@/data/bion_pretoria_data.json";
+import { useProviderData } from "@/data/useProviderData";
 import { Send, Paperclip, Info, ChevronLeft, Check, CheckCheck, MessageSquare, Loader2, ArrowLeft } from "lucide-react";
 import { useImageUpload } from "@/hooks/useUpload";
 import { toast } from "sonner";
@@ -280,6 +280,9 @@ export default function Messages() {
   // active chat still appear, and unread counts stay accurate.
   const { conversations: liveConvs } = useConversations();
 
+  // Was: realData.providers from a 547KB static JSON import. Now via API.
+  const { providers: ptaProviders } = useProviderData("pta", { all: true });
+
   /* ── Build conversations list from booking history ────────────── */
   useEffect(() => {
     const loadConversations = async () => {
@@ -294,7 +297,7 @@ export default function Messages() {
         if (providerMap.has(providerId)) return;
 
         // Try to find provider in real Pretoria data
-        const realProvider = realData.providers.find(
+        const realProvider = ptaProviders.find(
           p => p.id === providerId || p.name === providerName
         );
 
@@ -384,7 +387,7 @@ export default function Messages() {
     };
 
     loadConversations();
-  }, [bookings, user?.id, isDemo]);
+  }, [bookings, user?.id, isDemo, ptaProviders]);
 
   // Merge server-side realtime conversations (unread counts + lastMessage).
   // Booking-derived rows stay, but live data wins where it exists. New

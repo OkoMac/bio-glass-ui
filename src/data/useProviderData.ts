@@ -59,6 +59,13 @@ interface ApiResponse {
 
 const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
 
+// Module-level promise cache for the "fetch all providers" case. Multiple
+// pages (Favorites, Index, Routines, etc) call useProviderData("pta", { all:
+// true }) — without this cache each mount would trigger its own ~744KB
+// gzipped fetch. The cache is keyed on the request URL so cities can be
+// requested independently.
+const _allFetchCache = new Map<string, Promise<ApiResponse>>();
+
 /**
  * React hook — returns directory providers from the API with loading state.
  * @param city "pta" | "jhb" | "all" (default "all")
@@ -89,7 +96,33 @@ export function useProviderData(
     });
     if (allMode) params.set("all", "1");
 
-    const res = await fetch(`${apiBaseUrl}/api/directory/providers?${params}`);
+    const url = `${apiBaseUrl}/api/directory/providers?${params}`;
+
+    // For the "all providers" first-page case, share the in-flight request
+    // across every mounted component that asks for the same URL. Browser
+    // HTTP caching helps repeat requests; this helps the first paint when
+    // 3 pages mount at once.
+    if (allMode && page === 1) {
+      let pending = _allFetchCache.get(url);
+      if (!pending) {
+        pending = (async () => {
+          const res = await fetch(url);
+          if (!res.ok) {
+            const text = await res.text().catch(() => "");
+            throw new Error(`Directory API error ${res.status}: ${text}`);
+          }
+          const json = (await res.json()) as ApiResponse;
+          if (!json.ok) throw new Error("Directory API returned not ok");
+          return json;
+        })();
+        _allFetchCache.set(url, pending);
+        // Drop from cache on failure so the next caller retries.
+        pending.catch(() => _allFetchCache.delete(url));
+      }
+      return pending;
+    }
+
+    const res = await fetch(url);
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       throw new Error(`Directory API error ${res.status}: ${text}`);

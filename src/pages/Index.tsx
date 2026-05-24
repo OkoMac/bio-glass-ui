@@ -28,7 +28,7 @@ import BiometricsDashboard from "@/components/BiometricsDashboard";
 import TodaySummaryCard from "@/components/TodaySummaryCard";
 import PendingRatingsBanner from "@/components/PendingRatingsBanner";
 import ExpenditureRewardsStrip from "@/components/ExpenditureRewardsStrip";
-import realData from "@/data/bion_pretoria_data.json";
+import { useProviderData } from "@/data/useProviderData";
 import { getProviderImage } from "@/lib/providerImages";
 import { getSastGreeting } from "@/lib/greeting";
 import CampaignBanner from "@/components/CampaignBanner";
@@ -113,30 +113,9 @@ function EmailVerifyBanner() {
   );
 }
 
-const ALL_HOME_PROVIDERS = realData.providers
-  .slice()
-  .sort((a, b) => {
-    const aLogo = (a as any).imageUrl ? 1 : 0;
-    const bLogo = (b as any).imageUrl ? 1 : 0;
-    if (bLogo !== aLogo) return bLogo - aLogo;
-    return (b.rating ?? 0) - (a.rating ?? 0);
-  })
-  .map(p => ({
-    id: p.id,
-    name: p.name,
-    specialty: p.service ?? p.category ?? "",
-    rating: p.rating ?? 0,
-    distance: p.suburb ?? p.location ?? "",
-    nextSlot: typeof p.availability === "string" ? p.availability : "Available",
-    avatar: (p as any).imageUrl || getProviderImage(p.id, p.name),
-    vertical: categoryToVertical(p.category ?? ""),
-    serviceCategory: categorizeService(p.service ?? ""),
-    price: p.price ?? "",
-    availability: typeof p.availability === "string" ? p.availability : "",
-    // Verified badge only for providers who completed document verification in Supabase
-    // (scraped data `verified` field is not sufficient — must have approved documents)
-    verified: false,
-  }));
+// Was: module-level ALL_HOME_PROVIDERS from a static PTA JSON import (547KB
+// chunk). Now built inside the component via useProviderData("pta") +
+// useMemo so the data comes from the API on demand.
 
 const Index = () => {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -144,6 +123,31 @@ const Index = () => {
   const [filterVersion, setFilterVersion] = useState(0); // bumped when filters change
   const { user, updateAvatar, updateCoverImage, refetchUser } = useAuth();
   const navigate = useNavigate();
+
+  const { providers: ptaProviders } = useProviderData("pta", { all: true });
+  const ALL_HOME_PROVIDERS = useMemo(() => ptaProviders
+    .slice()
+    .sort((a, b) => {
+      const aLogo = (a as any).imageUrl ? 1 : 0;
+      const bLogo = (b as any).imageUrl ? 1 : 0;
+      if (bLogo !== aLogo) return bLogo - aLogo;
+      return (Number(b.rating) || 0) - (Number(a.rating) || 0);
+    })
+    .map(p => ({
+      id: p.id,
+      name: p.name,
+      specialty: p.service ?? p.category ?? "",
+      rating: Number(p.rating) || 0,
+      distance: (p as any).suburb ?? p.location ?? "",
+      nextSlot: typeof p.availability === "string" ? p.availability : "Available",
+      avatar: (p as any).imageUrl || getProviderImage(p.id, p.name),
+      vertical: categoryToVertical(p.category ?? ""),
+      serviceCategory: categorizeService(p.service ?? ""),
+      price: p.price ?? "",
+      availability: typeof p.availability === "string" ? p.availability : "",
+      verified: false,
+    })),
+  [ptaProviders]);
 
   // Self-heal: if the cached user lands on /home with no name (the
   // "stale-cache wipe-out" Oko hit 2026-05-06), eagerly refetch from
