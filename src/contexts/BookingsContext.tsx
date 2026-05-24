@@ -156,29 +156,26 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [providers, setProviders] = useState<ServiceProvider[]>(REAL_PROVIDERS);
 
-  // Load scraped data lazily (replaces static import of 622KB JSON)
+  // Provider list comes from the directory API now (was a dynamic import of
+  // the 547KB bion_pretoria_data.json — the chunk Vite emitted for that
+  // single import was the only thing keeping data-pta-*.js in the build).
+  // Mock demo bookings were also removed: signed-out users now see an empty
+  // list, which is the truthful state — there were no real bookings to show.
   useEffect(() => {
-    import("@/data/bion_pretoria_data.json").then((mod) => {
-      const data = mod.default as any;
-      const mappedBookings: Booking[] = (data.bookings ?? []).map((booking: any /* TODO(types) */) => ({
-        id: booking.id,
-        clientId: booking.clientId,
-        clientName: booking.clientName,
-        clientImage: booking.clientImage,
-        providerName: booking.providerName,
-        service: booking.service,
-        date: booking.date,
-        time: booking.time,
-        duration: booking.duration,
-        price: booking.price,
-        status: booking.status as BookingStatus,
-        note: booking.note,
-      }));
-      setBookings((prev) => prev.length > 0 ? prev : mappedBookings);
-      const mapped = mapRawProviders(data.providers ?? []);
-      REAL_PROVIDERS = mapped;
-      setProviders(mapped);
-    });
+    let cancelled = false;
+    const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+    fetch(`${API}/api/directory/providers?city=pta&all=1`)
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
+      .then((json) => {
+        if (cancelled || !json?.ok) return;
+        const mapped = mapRawProviders(json.data ?? []);
+        REAL_PROVIDERS = mapped;
+        setProviders(mapped);
+      })
+      .catch((err) => {
+        console.warn('[BookingsContext] directory fetch failed:', err?.message ?? err);
+      });
+    return () => { cancelled = true; };
   }, []);
 
   // ── Fetch real bookings + subscribe to Realtime ────────────────

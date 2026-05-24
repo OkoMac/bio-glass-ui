@@ -43,21 +43,29 @@ export default function CommandPalette() {
 
   const pages = user?.role === "provider" ? PROVIDER_PAGES : CLIENT_PAGES;
 
-  // Lazy-load provider search index when palette first opens
+  // Load provider search index when palette first opens (via directory API
+  // rather than bundling the 547KB PTA JSON; first 100 records is enough for
+  // the suggestion list).
   useEffect(() => {
     if (open && providerResults.length === 0) {
-      import("@/data/bion_pretoria_data.json").then((mod) => {
-        const data = mod.default as any;
-        const results: SearchResult[] = (data.providers ?? []).slice(0, 100).map((p: any) => ({
-          id: p.id,
-          label: p.name,
-          sub: `${p.service} · ${p.suburb ?? p.location}`,
-          icon: MapPin,
-          path: `/provider/${p.id}`,
-          type: "provider" as const,
-        }));
-        setProviderResults(results);
-      });
+      const API = import.meta.env.VITE_API_URL ?? "https://bion-backend.onrender.com";
+      fetch(`${API}/api/directory/providers?city=pta&page=1&limit=100`)
+        .then((r) => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
+        .then((json) => {
+          if (!json?.ok) return;
+          const results: SearchResult[] = (json.data ?? []).map((p: any) => ({
+            id: p.id,
+            label: p.name,
+            sub: `${p.service} · ${p.suburb ?? p.location}`,
+            icon: MapPin,
+            path: `/provider/${p.id}`,
+            type: "provider" as const,
+          }));
+          setProviderResults(results);
+        })
+        .catch((err) => {
+          console.warn('[CommandPalette] directory fetch failed:', err?.message ?? err);
+        });
     }
   }, [open, providerResults.length]);
 
