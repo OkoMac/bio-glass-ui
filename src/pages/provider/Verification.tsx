@@ -43,6 +43,13 @@ export default function ProviderVerification() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [regNumber, setRegNumber] = useState("");
+  // Audit 2026-05-24 D3: previously the regulator body was hardcoded to
+  // "HPCSA" for every provider, so nurses (SANC), pharmacists (SAPC),
+  // alternative practitioners (AHPCSA), and everyone else failed
+  // auto-verification because the backend looked up their registration
+  // number against the wrong registry. Default to "OTHER" so admin
+  // reviews manually unless the prefix matches a known body.
+  const [regulatorBody, setRegulatorBody] = useState<string>("HPCSA");
 
   const isDemo = user?.id?.startsWith("demo_") ?? false;
   const supabaseId = !isDemo && user?.profileId ? user.profileId : null;
@@ -328,7 +335,7 @@ export default function ProviderVerification() {
         method: "POST",
         body: JSON.stringify({
           profileId: user.profileId,
-          regulator_body: regNumber ? "HPCSA" : "NONE",  // simplification: any non-empty reg number → HPCSA lookup
+          regulator_body: regNumber ? regulatorBody : "NONE",
           regulator_number: regNumber || null,
           id_document_path: findPath("sa_id"),
           proof_of_address_path: findPath("proof_address"),
@@ -447,10 +454,25 @@ export default function ProviderVerification() {
             <Award className="w-4 h-4 text-indigo" />
             <p className="text-sm font-semibold text-foreground">Professional Registration Number</p>
           </div>
+          {/* Audit D3: pick your regulator body — was hardcoded to HPCSA. */}
+          <div className="mb-2">
+            <label className="block text-xs text-muted-foreground mb-1">Regulator body</label>
+            <select value={regulatorBody}
+              onChange={e => setRegulatorBody(e.target.value)}
+              className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground outline-none border border-white/[0.08] focus:border-indigo/40 transition-colors">
+              <option value="HPCSA">HPCSA — Health Professions Council (doctors, dentists, physios, psychologists)</option>
+              <option value="SANC">SANC — Nursing Council</option>
+              <option value="SAPC">SAPC — Pharmacy Council</option>
+              <option value="AHPCSA">AHPCSA — Allied Health (chiropractors, homeopaths, alt. medicine)</option>
+              <option value="SACSSP">SACSSP — Social Service Professions (social workers)</option>
+              <option value="SAVC">SAVC — Veterinary Council</option>
+              <option value="OTHER">Other / no statutory regulator</option>
+            </select>
+          </div>
           <div className="flex gap-2">
             <input value={regNumber}
               onChange={e => setRegNumber(e.target.value)}
-              placeholder="e.g. MP 0123456 (HPCSA)"
+              placeholder={regulatorBody === "HPCSA" ? "e.g. MP 0123456" : regulatorBody === "SANC" ? "e.g. 1234567" : "Registration number"}
               className="flex-1 px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-indigo/40 transition-colors" />
             <button onClick={saveRegNumber}
               className="px-4 py-2.5 rounded-xl gradient-indigo text-white text-xs font-semibold">

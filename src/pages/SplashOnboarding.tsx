@@ -387,8 +387,13 @@ export default function SplashOnboarding() {
       // Attach the verified phone + DOB + country to the profile.
       // Server-side signup also writes DOB/country, but we run a defensive
       // update here in case the user later changes them in Settings.
+      // Audit 2026-05-24 D1: previously this catch swallowed every error.
+      // If phone_verified=true failed to land (RLS, network, anything),
+      // the booking flow at bookings-checkout.ts:93 blocked the user with
+      // no explanation. Surface failures so the user can re-trigger and
+      // Sentry can pick it up.
       try {
-        await supabase.from("profiles").update({
+        const { error: profileErr } = await supabase.from("profiles").update({
           phone: normPhone,
           phone_verified: true,
           phone_verified_at: new Date().toISOString(),
@@ -397,7 +402,17 @@ export default function SplashOnboarding() {
           age_verified: true,
           profile_completed_at: new Date().toISOString(),
         }).eq("user_id", user.id!);
-      } catch {/* non-fatal */}
+        if (profileErr) {
+          console.warn("[SplashOnboarding] phone_verified update failed:", profileErr.message);
+          // Don't fail the signup — but DO surface to the user that their
+          // phone-verified state may need a re-confirm. The booking gate
+          // explains what's wrong if they hit it later.
+          setError("Signup ok but your phone-verified flag didn't save. Bookings may prompt you to re-verify. Reach out to support if this persists.");
+        }
+      } catch (err: any) {
+        console.warn("[SplashOnboarding] phone profile update threw:", err?.message ?? String(err));
+        setError("Signup ok but your phone-verified flag didn't save. Bookings may prompt you to re-verify.");
+      }
 
       if (referralCode.trim() && user.profileId && selectedRole === "client") {
         recordReferralSignup(referralCode.trim().toUpperCase(), user.profileId).catch((err) => console.warn("[SplashOnboarding] recordReferralSignup failed:", err?.message));
