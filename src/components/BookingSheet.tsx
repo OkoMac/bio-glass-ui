@@ -6,7 +6,8 @@ import BioAvatar from "./BioAvatar";
 import { X, ChevronLeft, CreditCard, Shield, Check } from "lucide-react";
 import BookingCelebration from "./BookingCelebration";
 import { haptics } from "@/lib/haptics";
-import StripePaymentForm from "./StripePaymentForm";
+// StripePaymentForm removed 2026-05-24 — BION no longer uses Stripe.
+// Paystack + Stitch carry SA payments via StitchCheckoutButton.
 import StitchCheckoutButton from "./StitchCheckoutButton";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import { useBookings } from "@/contexts/BookingsContext";
@@ -53,8 +54,9 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
   const navigate    = useNavigate();
   const { addBooking } = useBookings();
   const { user }    = useAuth();
-  const { isEnabled } = useFeatureFlags();
-  const useStitch = isEnabled("stitchCheckoutEnabled");
+  // 2026-05-24: Stripe was removed; Stitch is now the only path. The
+  // stitchCheckoutEnabled feature flag is unused but kept on the
+  // FeatureFlags type until a follow-up purge.
   // Stitch needs a real booking UUID before initiating checkout
   // (the webhook reconciles on externalReference = bookingId).
   // Pre-create on entering the payment step. Worst case: user
@@ -88,8 +90,8 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
     fees: string;
     totalPaid: string;
   } | null>(null);
-  const [stripePaymentId, setStripePaymentId] = useState<string | null>(null);
-  const [stripeError, setStripeError] = useState<string | null>(null);
+  // Stripe state removed 2026-05-24.
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   // Pre-create the booking on entering step 3 if Stitch is enabled,
   // so StitchCheckoutButton has a UUID to bind the payment_request to.
@@ -200,69 +202,13 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
     setStep(3); // Go to payment step
   };
 
-  const handleStripePaymentSuccess = async (paymentIntentId: string) => {
-    if (selectedService === null || !selectedTime) return;
-
-    const svc = provider.services[selectedService];
-    const fees = calculateFees();
-
-    setPaymentDetails({
-      price: `R${fees.servicePrice.toFixed(0)}`,
-      fees: `R${fees.clientFee.toFixed(0)} (5%)`,
-      totalPaid: `R${fees.total.toFixed(0)}`,
-    });
-
-    // Create booking — addBooking now returns the inserted UUID so we
-    // can fire downstream calls (BIONPoints redemption) against the
-    // right booking row instead of the Stripe payment intent ref.
-    const insertedBookingId = await addBooking({
-      // Was user?.email — looks like an id but isn't one. Notifications
-      // FK on profiles.id (UUID); cancel/refund flows pass clientId in
-      // payloads. Email-as-id silently broke both. profileId is the
-      // canonical reference.
-      clientId:     user?.profileId ?? user?.email ?? "client",
-      clientName:   user?.name  ?? "Guest",
-      clientImage:  provider.image,
-      providerName: provider.name,
-      service:      svc.name,
-      date:         weekDates[selectedDay].fullLabel,
-      time:         selectedTime,
-      duration:     svc.duration,
-      price:        `R${fees.servicePrice.toFixed(0)}`,
-      fees:         `R${fees.clientFee.toFixed(0)} (5%)`,
-      totalPaid:    `R${fees.total.toFixed(0)}`,
-      providerEarns: `R${(fees.servicePrice - fees.businessFee).toFixed(0)}`,
-      note:         note || undefined,
-      paymentStatus: 'paid',
-      stripePaymentId: paymentIntentId,
-    });
-
-    // BIONPoints v2.0: fire /redeem-for-booking against the real
-    // inserted UUID. Server validates Class A balance + provider wallet
-    // + anti-self-dealing and writes the negative bionpoints row.
-    // If the wallet drained between checkout and now, the call 409s
-    // and the user keeps their points (Phase 4b will add a refund-
-    // to-wallet path for that edge).
-    if (insertedBookingId && pendingRedemption && pendingRedemption.points > 0) {
-      authFetch(`/api/bionpoints/redeem-for-booking`, {
-        method: "POST",
-        body: JSON.stringify({
-          points:    pendingRedemption.points,
-          bookingId: insertedBookingId,
-        }),
-      }).catch((e: unknown) => console.warn("[BookingSheet] redeem-for-booking:", e instanceof Error ? e.message : String(e)));
-    }
-
-    setStripePaymentId(paymentIntentId);
-    setShowCelebration(true);
-    haptics.success();
-  };
-
-  const handleStripePaymentError = (error: string) => {
-    setStripeError(error);
-    setIsProcessing(false);
-    haptics.error();
-  };
+  // handleStripePaymentSuccess + handleStripePaymentError removed
+  // 2026-05-24. They were the onSuccess/onError callbacks for the
+  // removed StripePaymentForm. The Stitch flow redirects on success
+  // and reconciles via webhook; no inline callback is needed here.
+  // BIONPoints redemption now fires from the Stitch webhook handler
+  // (see backend/src/routes/stitch.ts and bookings-checkout.ts wallet-
+  // topup branch for the equivalent pattern).
 
   const handleCelebrationClose = (goToSchedule: boolean) => {
     setShowCelebration(false);
@@ -528,7 +474,7 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
                         onApplied={(rand, points) => setPendingRedemption({ points, rand })}
                       />
 
-                      {/* Paid Service - Stripe Payment Integration */}
+                      {/* Paid Service - Stitch hosted checkout */}
                       <div className="glass-1 rounded-xl p-4">
                         <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
                           <CreditCard className="w-4 h-4" /> Secure Payment
@@ -540,34 +486,20 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
                           </div>
                         )}
 
-                        {stripeError && (
+                        {paymentError && (
                           <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
-                            {stripeError}
+                            {paymentError}
                           </div>
                         )}
 
-                        {useStitch ? (
-                          <StitchCheckoutButton
-                            bookingId={pendingBookingId ?? ""}
-                            amountRand={calculateFees().total}
-                            onError={setStripeError}
-                          />
-                        ) : (
-                          <StripePaymentForm
-                            amount={calculateFees().total}
-                            currency="zar"
-                            bookingDetails={{
-                              providerId: provider.id || provider.name,
-                              serviceId: selectedService?.toString() || "",
-                              date: weekDates[selectedDay].fullLabel,
-                              time: selectedTime || "",
-                              note: note || undefined,
-                            }}
-                            onSuccess={handleStripePaymentSuccess}
-                            onError={handleStripePaymentError}
-                            onCancel={() => setStep(2)}
-                          />
-                        )}
+                        {/* Stripe was removed 2026-05-24; Stitch is the
+                            only path. Success arrives via webhook + return
+                            URL — no onSuccess callback here. */}
+                        <StitchCheckoutButton
+                          bookingId={pendingBookingId ?? ""}
+                          amountRand={calculateFees().total}
+                          onError={setPaymentError}
+                        />
                       </div>
                       
                       {/* Note */}
@@ -588,7 +520,7 @@ export default function BookingSheet({ open, onClose, provider }: BookingSheetPr
                         </div>
                       </div>
                       
-                      {/* Payment processing handled by StripePaymentForm */}
+                      {/* Payment processing handled by StitchCheckoutButton above. */}
                     </>
                   )}
                   

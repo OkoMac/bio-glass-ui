@@ -1,6 +1,6 @@
 /**
- * StitchCheckoutButton — replaces StripePaymentForm when the
- * stitchCheckoutEnabled feature flag is on.
+ * StitchCheckoutButton — the only client-side checkout component.
+ * Stripe was removed 2026-05-24.
  *
  * Stitch's checkout is hosted (not embedded), so this is a single
  * "Pay R{X}" button that calls /api/stitch/checkout/create, gets a
@@ -47,7 +47,7 @@ export default function StitchCheckoutButton({
       const j = await res.json();
       if (!j.ok) {
         if (j.code === "stitch_sandbox") {
-          const msg = "Stitch payments aren't live yet — verification pending. Use the Stripe option below or come back soon.";
+          const msg = "Payments aren't live yet — Stitch verification is pending. Please come back soon, or reach out to support if this is urgent.";
           setLocalError(msg);
           onError?.(msg);
           return;

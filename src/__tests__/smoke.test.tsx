@@ -222,7 +222,7 @@ describe("Provider directory", () => {
 // ─── Payment Tests ────────────────────────────────────────────────────────
 
 describe("Payment processing", () => {
-  it("should validate Stripe payment amounts", () => {
+  it("should validate payment amounts (was Stripe; now Stitch)", () => {
     const isValidAmount = (amount: number): boolean => {
       return amount > 0 && amount <= 10000000 && Number.isInteger(amount);
     };
@@ -243,7 +243,7 @@ describe("Payment processing", () => {
     expect(formatAmount(150000)).toBe("R 1500.00");
   });
 
-  it("should calculate Stripe Connect fee split", () => {
+  it("should calculate platform fee split (10% take rate)", () => {
     const feeSplit = (total: number) => ({
       bionFee: Math.round(total * 0.1),
       providerPayout: Math.round(total * 0.9),

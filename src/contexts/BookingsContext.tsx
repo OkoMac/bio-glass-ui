@@ -29,7 +29,10 @@ export interface Booking {
   totalPaid?: string;
   providerEarns?: string;
   paymentStatus?: 'pending' | 'paid' | 'refunded' | 'failed';
-  stripePaymentId?: string;
+  // stripePaymentId removed 2026-05-24 — Stripe is no longer used.
+  // If a future payment processor needs a per-booking external ref, use
+  // a generic field name (e.g. paymentRef) bound to the provider via
+  // paymentProvider on the bookings table.
   // Telehealth fields
   telehealthUrl?: string;
   deliveryMode?: 'in_person' | 'telehealth' | 'both';
