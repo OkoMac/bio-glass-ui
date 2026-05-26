@@ -721,6 +721,14 @@ export default function Settings() {
   const initialTab = (params.get("tab") as Tab | null) ?? "notifications";
   const [tab, setTab]     = useState<Tab>(initialTab);
   const [saved, setSaved] = useState(false);
+  // 2026-05-26 (Oko rule): every action confirms outcome inline, not just
+  // a toast that mobile users miss when the screen changes.
+  const [saveStatus, setSaveStatus] = useState<
+    | { kind: "idle" }
+    | { kind: "saving" }
+    | { kind: "success"; message: string }
+    | { kind: "error";   message: string }
+  >({ kind: "idle" });
 
   // ?focus=phone|phone-verify|location|email — when arrived via the
   // "Complete your profile" checklist on /, scroll the target field
@@ -928,6 +936,7 @@ export default function Settings() {
   };
 
   const save = async () => {
+    setSaveStatus({ kind: "saving" });
     try {
       // Persist profile fields to the DB via AuthContext (writes to profiles
       // table via user.profileId). Previous implementation only flashed a
@@ -935,13 +944,16 @@ export default function Settings() {
       // not work" / "Saved my number" but the phone field stayed empty.
       await updateProfileFields({ phone, name, location });
       setSaved(true);
+      setSaveStatus({ kind: "success", message: "Saved" });
+      try { (await import("sonner")).toast.success("Settings saved"); } catch { /* */ }
       setTimeout(() => setSaved(false), 1800);
-    } catch (err) {
+      setTimeout(() => setSaveStatus({ kind: "idle" }), 3500);
+    } catch (err: any) {
+      const message = err?.message ?? "Your changes didn't reach the server. Please try again.";
       console.error("[settings] save failed:", err);
       setSaved(false);
-      // Use toast if available; fall back to native alert so the user knows
-      try { (await import("sonner")).toast.error("Couldn't save — try again"); }
-      catch { alert("Couldn't save your changes. Please try again."); }
+      setSaveStatus({ kind: "error", message });
+      try { (await import("sonner")).toast.error("Couldn't save settings", { description: message, duration: 6000 }); } catch { /* */ }
     }
   };
 
@@ -960,11 +972,30 @@ export default function Settings() {
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={save}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold gradient-indigo text-primary-foreground"
+            disabled={saveStatus.kind === "saving"}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold gradient-indigo text-primary-foreground disabled:opacity-60"
           >
-            {saved ? <><Check className="w-3.5 h-3.5" />Saved!</> : <><Save className="w-3.5 h-3.5" />Save</>}
+            {saveStatus.kind === "saving"
+              ? <><div className="w-3.5 h-3.5 rounded-full border-2 border-white/40 border-t-white animate-spin" />Saving…</>
+              : saved
+                ? <><Check className="w-3.5 h-3.5" />Saved!</>
+                : <><Save className="w-3.5 h-3.5" />Save</>}
           </motion.button>
         </div>
+
+        {/* Save status banner — every action confirms outcome inline */}
+        {saveStatus.kind === "success" && (
+          <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-xs text-emerald-300 flex items-center gap-2">
+            <span className="text-base">✓</span>
+            <span><strong>Saved.</strong> Your settings have been updated.</span>
+          </div>
+        )}
+        {saveStatus.kind === "error" && (
+          <div className="rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-xs text-red-300">
+            <p className="font-semibold mb-0.5">Couldn't save your settings.</p>
+            <p className="text-red-300/80">{saveStatus.message} — your typed values are still here; tap Save to try again.</p>
+          </div>
+        )}
 
         {/* Tab bar */}
         <div className="glass-1 rounded-pill p-0.5 flex gap-0.5">

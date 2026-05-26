@@ -41,7 +41,11 @@ export default function StitchCheckoutButton({
         body: JSON.stringify({
           bookingId,
           amount_rand: amountRand,
-          return_url:  returnUrl ?? `${window.location.origin}/schedule`,
+          // Default return lands on /schedule with ?paid=<bookingId> so the
+          // page can show an explicit "Payment received, awaiting provider
+          // confirmation" banner — otherwise the user lands on a list of
+          // bookings with no signal that their payment just landed.
+          return_url:  returnUrl ?? `${window.location.origin}/schedule?paid=${encodeURIComponent(bookingId)}`,
         }),
       });
       const j = await res.json();

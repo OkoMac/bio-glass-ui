@@ -444,7 +444,26 @@ export default function ProviderVerification() {
             </motion.button>
           )}
           {submittedFor && (
-            <p className="mt-3 text-xs text-muted-foreground">{submittedFor}</p>
+            <div className={`mt-4 rounded-xl px-4 py-3 text-xs flex items-start gap-2 border ${
+              providerStatus === "verified"
+                ? "border-teal/30 bg-teal/10 text-teal"
+                : "border-indigo/30 bg-indigo/10 text-indigo"
+            }`}>
+              <span className="text-base shrink-0 leading-none">
+                {providerStatus === "verified" ? "✓" : "⏱"}
+              </span>
+              <div className="space-y-0.5">
+                <p className="font-semibold">
+                  {providerStatus === "verified" ? "Verified — bookings enabled" : "Submitted for review"}
+                </p>
+                <p className="opacity-90 leading-relaxed">{submittedFor}</p>
+                {providerStatus !== "verified" && (
+                  <p className="opacity-70 text-[10px] mt-1">
+                    Need to update something? You can upload replacement documents anytime — the review timer resets when you do.
+                  </p>
+                )}
+              </div>
+            </div>
           )}
         </GlassCard>
 

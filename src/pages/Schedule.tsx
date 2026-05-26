@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getSASTDateKey } from "@/utils/sastDate";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import BioAvatar from "@/components/BioAvatar";
@@ -67,6 +67,24 @@ const Schedule = () => {
   const { getByStatus, cancel, reschedule } = useBookings();
   const weekDates = getWeekDates();
   const [selectedDay, setSelectedDay] = useState(0);
+
+  // Post-payment banner — when the user returns from Stitch checkout, the
+  // return URL includes ?paid=<bookingId>. Show an explicit confirmation
+  // so they know the payment landed and what to expect next. The webhook
+  // is what actually flips status to paid + provider-confirmed; this
+  // banner is the immediate UI acknowledgement.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const paidBookingId = searchParams.get("paid");
+  const [paymentBanner, setPaymentBanner] = useState<string | null>(null);
+  useEffect(() => {
+    if (paidBookingId) {
+      setPaymentBanner(paidBookingId);
+      // Strip the query param so refresh doesn't re-trigger the banner.
+      const next = new URLSearchParams(searchParams);
+      next.delete("paid");
+      setSearchParams(next, { replace: true });
+    }
+  }, [paidBookingId, searchParams, setSearchParams]);
   const [reviewBooking, setReviewBooking] = useState<{ id: string; providerName: string } | null>(null);
   // Booking IDs the user has already reviewed — drives whether the "Leave a review"
   // CTA still appears on completed bookings. We load this once on mount (and again
@@ -205,6 +223,36 @@ const Schedule = () => {
           </div>
           <Calendar className="w-5 h-5 text-muted-foreground" />
         </div>
+
+        {/* Post-payment confirmation banner — appears after Stitch checkout
+            redirects back here with ?paid=<bookingId>. Tells the user the
+            payment landed and what happens next (provider has to confirm
+            the slot before it's officially booked). */}
+        {paymentBanner && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl border border-emerald-400/30 bg-emerald-400/10 p-4 flex items-start gap-3"
+          >
+            <CheckCircle2 className="w-5 h-5 text-emerald-300 shrink-0 mt-0.5" />
+            <div className="flex-1 space-y-1">
+              <p className="text-sm font-semibold text-emerald-300">Payment received</p>
+              <p className="text-xs text-emerald-100/90 leading-relaxed">
+                Your booking is below as <strong>Pending</strong>. The provider has
+                up to 24 hours to confirm — you'll get a WhatsApp + in-app
+                notification the moment they do. If they decline or don't
+                respond in time, you'll be refunded automatically.
+              </p>
+            </div>
+            <button
+              onClick={() => setPaymentBanner(null)}
+              className="text-emerald-300/70 hover:text-emerald-300 shrink-0"
+              aria-label="Dismiss"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </motion.div>
+        )}
 
         {/* Week strip */}
         <div className="flex items-center gap-2">
