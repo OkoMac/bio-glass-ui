@@ -141,6 +141,35 @@ export function useInstallApp() {
     };
   }, []);
 
+  // Auto-show Android "Add to Home Screen" banner once Chrome has fired
+  // beforeinstallprompt. Mirrors the iOS auto-show flow — user gets a
+  // single, non-blocking nudge instead of having to dig into the browser
+  // menu. Dismissal is sticky for 14 days via localStorage.
+  const [androidBannerVisible, setAndroidBannerVisible] = useState(false);
+  useEffect(() => {
+    if (device !== "android" || installed || dismissed) return;
+    if (!deferredPrompt) return;
+    let snoozedUntil = 0;
+    try {
+      const v = localStorage.getItem("bion_android_install_snoozed_until");
+      snoozedUntil = v ? parseInt(v, 10) || 0 : 0;
+    } catch { /* */ }
+    if (Date.now() < snoozedUntil) return;
+    const t = setTimeout(() => setAndroidBannerVisible(true), 4000);
+    return () => clearTimeout(t);
+  }, [device, installed, dismissed, deferredPrompt]);
+
+  const snoozeAndroidBanner = useCallback(() => {
+    setAndroidBannerVisible(false);
+    try {
+      // Snooze for 14 days — long enough to not nag, short enough that the
+      // next visit re-prompts. Users who explicitly tap "Don't show again"
+      // hit handleDismiss instead which is permanent.
+      const until = Date.now() + 14 * 24 * 60 * 60 * 1000;
+      localStorage.setItem("bion_android_install_snoozed_until", String(until));
+    } catch { /* */ }
+  }, []);
+
   // Listen for service worker updates
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
@@ -217,7 +246,76 @@ export function useInstallApp() {
     handleUpdate,
     handleDismiss,
     APP_VERSION,
+    androidBannerVisible,
+    snoozeAndroidBanner,
   };
+}
+
+/* ── AndroidInstallBanner ─────────────────────────────────────
+ * Auto-shown non-blocking bottom banner on Android Chrome once the
+ * browser has fired beforeinstallprompt. Tap "Add to Home Screen" to
+ * trigger the native install prompt; tap "Not now" to snooze for 14 days.
+ * Mount once at the App.tsx root — it self-gates on device/installed/etc.
+ * via the useInstallApp hook.
+ */
+export function AndroidInstallBanner() {
+  const { androidBannerVisible, snoozeAndroidBanner, installApp, handleDismiss } = useInstallApp();
+
+  return (
+    <AnimatePresence>
+      {androidBannerVisible && (
+        <motion.div
+          initial={{ opacity: 0, y: 60 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 60 }}
+          transition={{ type: "spring", stiffness: 320, damping: 28 }}
+          className="fixed bottom-4 inset-x-4 z-[95] mx-auto max-w-sm rounded-2xl glass-2 border border-white/[0.08] p-4 shadow-2xl pb-safe-or-4"
+          role="dialog"
+          aria-label="Install BION to your home screen"
+        >
+          <div className="flex items-start gap-3">
+            <img src="/icon-192.png" alt="" className="w-10 h-10 rounded-xl shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground leading-tight">
+                Add BION to your Home Screen
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
+                Full-screen app, notifications, faster open. No extra download.
+              </p>
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={() => { installApp(); snoozeAndroidBanner(); }}
+                  className="px-4 py-2 rounded-pill text-[11px] font-semibold text-white bg-gradient-to-r from-indigo to-violet"
+                >
+                  Add to Home Screen
+                </button>
+                <button
+                  onClick={snoozeAndroidBanner}
+                  className="px-3 py-2 rounded-pill text-[11px] font-medium text-muted-foreground border border-white/[0.08] bg-white/[0.02]"
+                >
+                  Not now
+                </button>
+                <button
+                  onClick={() => { handleDismiss(); snoozeAndroidBanner(); }}
+                  className="px-2 py-2 text-[10px] text-muted-foreground/70 hover:text-muted-foreground"
+                  aria-label="Don't show again"
+                >
+                  Never
+                </button>
+              </div>
+            </div>
+            <button
+              onClick={snoozeAndroidBanner}
+              className="w-7 h-7 rounded-full bg-white/[0.04] flex items-center justify-center text-muted-foreground hover:text-foreground"
+              aria-label="Close banner"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 }
 
 /* ── Update Banner (shown inside InstallModal for update flow) ─ */

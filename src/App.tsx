@@ -157,6 +157,7 @@ import NotFound        from "./pages/NotFound";
 import NotificationBell from "./components/NotificationBell";
 import HabitTracker     from "./components/HabitTracker";
 // InstallButton removed — moved into BionAssistant quick actions and Index.tsx dashboard card
+import { AndroidInstallBanner } from "./components/InstallButton";
 import CalendarButton   from "./components/CalendarButton";
 import OfflineBanner    from "./components/OfflineBanner";
 import CookieConsent    from "./components/CookieConsent";
@@ -787,6 +788,11 @@ const App = () => (
                 <HabitTracker />
               </AuthGate>
               {/* InstallButton moved into BionAssistant quick actions and Index.tsx dashboard card */}
+              {/* Android "Add to Home Screen" auto-banner — only shows on
+                  Android Chrome after beforeinstallprompt fires, and only
+                  when not installed / not snoozed. iOS has its own auto-show
+                  modal via InstallModal. */}
+              <AndroidInstallBanner />
               {/* POPIA / GDPR cookie-consent banner. Renders only until the
                   user has made a first-time decision, then re-openable from
                   Settings → Privacy. Must load before any analytics / ad pixel. */}
