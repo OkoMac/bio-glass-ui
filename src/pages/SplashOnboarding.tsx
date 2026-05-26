@@ -731,6 +731,10 @@ export default function SplashOnboarding() {
             className="w-full rounded-pill py-4 text-base font-semibold gradient-indigo text-primary-foreground shadow-cta disabled:opacity-40">
             Continue →
           </motion.button>
+          {/* Demo shortcuts — DEV-ONLY. Hidden in production builds because a
+              real signup user (2026-05-26) tapped "Oko Mthembu" by mistake
+              and had their account replaced by the demo_client fixture. */}
+          {!import.meta.env.PROD && (
           <div>
             <p className="text-center text-[11px] text-muted-foreground mb-3">Or jump in with a demo account</p>
             <div className="flex gap-3 justify-center flex-wrap">
@@ -748,6 +752,7 @@ export default function SplashOnboarding() {
               ))}
             </div>
           </div>
+          )}
         </motion.div>
       </div>
     );
@@ -1256,7 +1261,8 @@ export default function SplashOnboarding() {
           Onboard via WhatsApp
         </a>
 
-        {/* Demo shortcuts */}
+        {/* Demo shortcuts — DEV-ONLY. Hidden in production builds. */}
+        {!import.meta.env.PROD && (
         <div className="pt-1">
           <p className="text-center text-[11px] text-muted-foreground mb-3">Quick demo access</p>
           <div className="flex gap-3 justify-center flex-wrap">
@@ -1274,6 +1280,7 @@ export default function SplashOnboarding() {
             ))}
           </div>
         </div>
+        )}
 
         <p className="text-center text-xs text-muted-foreground pb-1">
           POPIA compliant · Your data is protected · South Africa
