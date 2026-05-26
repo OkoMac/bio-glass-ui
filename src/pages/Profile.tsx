@@ -164,6 +164,16 @@ const Profile = () => {
     };
   });
   const [editOpen, setEditOpen] = useState(false);
+  // In-modal save status. The Sonner toast is easy to miss on mobile —
+  // especially when the modal closes the same moment the toast appears.
+  // This inline banner stays put until the modal explicitly closes so the
+  // user always sees confirmation that their save worked (or what failed).
+  const [saveStatus, setSaveStatus] = useState<
+    | { kind: "idle" }
+    | { kind: "saving" }
+    | { kind: "success"; message: string }
+    | { kind: "error";   message: string }
+  >({ kind: "idle" });
   const [editForm, setEditForm] = useState(profileData);
 
   // B1-5: bio/phone/location now read from AuthContext (which mirrors the
@@ -240,7 +250,12 @@ const Profile = () => {
     // overwrote the local cache with the still-old DB value, so the
     // field "reverted."
     //
+    // 2026-05-26 (Jaen-dre): even with the toast, mobile users miss the
+    // confirmation when the modal closes simultaneously. Added inline
+    // saveStatus banner so the outcome is visible in-modal regardless.
+    //
     // Now: await, surface the outcome, only close on success.
+    setSaveStatus({ kind: "saving" });
     try {
       await updateProfileFields({
         name: editForm.name,
@@ -250,13 +265,18 @@ const Profile = () => {
       });
       saveProfileData(editForm);  // hot-cache only after server confirmed
       toast.success("Profile saved");
-      setEditOpen(false);
+      setSaveStatus({ kind: "success", message: "Saved" });
+      // Let the inline banner sit for a beat before closing so the user
+      // sees the confirmation even if they didn't catch the toast.
+      setTimeout(() => {
+        setEditOpen(false);
+        setSaveStatus({ kind: "idle" });
+      }, 1200);
     } catch (err: any) {
+      const message = err?.message ?? "Try again or check your connection.";
       console.error("[Profile] save failed:", err);
-      toast.error("Couldn't save profile", {
-        description: err?.message ?? "Try again or check your connection.",
-        duration: 6000,
-      });
+      toast.error("Couldn't save profile", { description: message, duration: 6000 });
+      setSaveStatus({ kind: "error", message });
       // Don't close the modal — user can retry without retyping
     }
   };
@@ -787,8 +807,8 @@ const Profile = () => {
                         setEditForm((prev: any /* TODO(types) */) => ({ ...prev, phone: result.display! }));
                       }
                     }}
-                    placeholder="082 123 4567"
-                    className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-teal/40 transition-colors"
+                    placeholder="e.g. 082 123 4567"
+                    className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground/60 placeholder:italic outline-none border border-white/[0.08] focus:border-teal/40 transition-colors"
                   />
                   {editForm.phone && !validateSaPhone(editForm.phone).valid && (
                     <p className="text-[10px] text-red-400 mt-1">{validateSaPhone(editForm.phone).error}</p>
@@ -803,8 +823,8 @@ const Profile = () => {
                     <input
                       value={editForm.location}
                       onChange={e => setEditForm({ ...editForm, location: e.target.value })}
-                      placeholder="Pretoria, Centurion..."
-                      className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-teal/40 transition-colors"
+                      placeholder="e.g. Sandton, Johannesburg"
+                      className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground/60 placeholder:italic outline-none border border-white/[0.08] focus:border-teal/40 transition-colors"
                     />
                   </div>
                   <div>
@@ -815,8 +835,8 @@ const Profile = () => {
                       type="number"
                       value={editForm.age}
                       onChange={e => setEditForm({ ...editForm, age: e.target.value })}
-                      placeholder="28"
-                      className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/[0.08] focus:border-teal/40 transition-colors"
+                      placeholder="e.g. 28"
+                      className="w-full px-3 py-2.5 glass-1 rounded-xl text-sm text-foreground placeholder:text-muted-foreground/60 placeholder:italic outline-none border border-white/[0.08] focus:border-teal/40 transition-colors"
                     />
                   </div>
                 </div>
@@ -828,14 +848,41 @@ const Profile = () => {
                 </div>
               </div>
 
+              {saveStatus.kind !== "idle" && (
+                <div className="max-w-md mx-auto mt-4">
+                  {saveStatus.kind === "saving" && (
+                    <div className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-xs text-muted-foreground flex items-center gap-2">
+                      <div className="w-3.5 h-3.5 rounded-full border-2 border-teal/40 border-t-teal animate-spin" />
+                      Saving your changes…
+                    </div>
+                  )}
+                  {saveStatus.kind === "success" && (
+                    <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-xs text-emerald-300 flex items-center gap-2">
+                      <span className="text-base">✓</span>
+                      <span><strong>{saveStatus.message}.</strong> Your profile has been updated.</span>
+                    </div>
+                  )}
+                  {saveStatus.kind === "error" && (
+                    <div className="rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-xs text-red-300">
+                      <p className="font-semibold mb-0.5">Couldn't save your profile.</p>
+                      <p className="text-red-300/80">{saveStatus.message} — your typed values are still here; tap Save Changes to try again.</p>
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="flex gap-3 mt-5 max-w-md mx-auto">
-                <button onClick={() => setEditOpen(false)}
-                  className="flex-1 py-3 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground" title="Cancel" aria-label="Cancel">
+                <button
+                  onClick={() => { setEditOpen(false); setSaveStatus({ kind: "idle" }); }}
+                  disabled={saveStatus.kind === "saving"}
+                  className="flex-1 py-3 rounded-2xl text-sm font-medium border border-white/[0.08] bg-white/[0.02] text-muted-foreground disabled:opacity-40" title="Cancel" aria-label="Cancel">
                   Cancel
                 </button>
-                <button onClick={handleSaveProfile}
-                  className="flex-1 py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 flex items-center justify-center gap-1.5">
-                  <Save className="w-3.5 h-3.5" /> Save Changes
+                <button
+                  onClick={handleSaveProfile}
+                  disabled={saveStatus.kind === "saving"}
+                  className="flex-1 py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-teal to-emerald-400 flex items-center justify-center gap-1.5 disabled:opacity-60">
+                  <Save className="w-3.5 h-3.5" />
+                  {saveStatus.kind === "saving" ? "Saving…" : "Save Changes"}
                 </button>
               </div>
             </motion.div>
