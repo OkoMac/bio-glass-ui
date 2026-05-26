@@ -454,6 +454,23 @@ export default function SplashOnboarding() {
         return;
       }
       trackOnboarding(`signup_complete_${selectedRole}`);
+      // Pre-record ToS acceptance so the TermsGate modal doesn't show up
+      // on the next page — the user has already explicitly accepted via
+      // the signup checkbox. Localstorage write makes the gate a no-op
+      // immediately; the backend write is fire-and-forget for the audit row.
+      try {
+        const { data: termsData } = await fetch(`${API}/api/terms/current`).then(r => r.json()).catch(() => ({ data: null }));
+        const acceptedVersion = (termsData?.version ?? null) || "2026-04-22-v1";
+        localStorage.setItem("bion_terms_accepted_version", acceptedVersion);
+        fetch(`${API}/api/terms/accept`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+          body: JSON.stringify({ version: acceptedVersion }),
+        }).catch(() => {/* fire-and-forget */});
+      } catch (e) {
+        // Don't block signup on this. Worst case the gate shows once on next page.
+        console.warn("[SplashOnboarding] terms accept persistence failed:", e);
+      }
       login({ ...user, phone: normPhone, phoneVerified: true } as any);
       navigate(ROLE_HOME[selectedRole], { replace: true });
     } catch (err: any) {

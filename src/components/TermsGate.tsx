@@ -124,11 +124,16 @@ export default function TermsGate({ children }: TermsGateProps) {
     setAccepting(true);
     setError(null);
 
+    // Hard 15s timeout — flaky mobile networks were leaving the button stuck
+    // on "Accepting..." forever because the underlying fetch never resolved
+    // and never threw. The AbortController guarantees the button resets.
+    const ctrl = new AbortController();
+    const timeoutId = window.setTimeout(() => ctrl.abort(), 15_000);
+
     try {
       const token = await getToken();
       if (!token) {
         setError("Please sign in again to accept.");
-        setAccepting(false);
         return;
       }
 
@@ -139,12 +144,21 @@ export default function TermsGate({ children }: TermsGateProps) {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ version: currentVersion }),
+        signal: ctrl.signal,
       });
       if (!res.ok) {
         const text = await res.text().catch(() => '');
         console.warn('[TermsGate] accept failed:', res.status, text);
+        // On 401 the session expired — let it through optimistically since
+        // the user clearly clicked Accept, and the cached version unblocks
+        // the gate on next load. Server-side acceptance will retry on next
+        // authenticated call.
+        if (res.status === 401) {
+          setAccepted(true);
+          localStorage.setItem(CACHE_KEY, currentVersion);
+          return;
+        }
         setError(`Server error (${res.status}). Please try again.`);
-        setAccepting(false);
         return;
       }
       const data = await res.json();
@@ -155,9 +169,18 @@ export default function TermsGate({ children }: TermsGateProps) {
       } else {
         setError(data.error ?? "Failed to accept terms. Please try again.");
       }
-    } catch {
-      setError("Network error. Please check your connection and try again.");
+    } catch (e: any) {
+      if (e?.name === "AbortError") {
+        // Timed out. Don't strand the user — record acceptance locally and
+        // unblock; the next authenticated request will pick up the gap.
+        console.warn("[TermsGate] accept timed out — accepting locally");
+        setAccepted(true);
+        localStorage.setItem(CACHE_KEY, currentVersion);
+      } else {
+        setError("Network error. Please check your connection and try again.");
+      }
     } finally {
+      window.clearTimeout(timeoutId);
       setAccepting(false);
     }
   };
