@@ -30,6 +30,14 @@ export interface Lesson {
   video_url: string | null;
   duration_minutes: number;
   key_takeaways: string[];
+  // Video-tutorial fields (added 2026-05-28 migration). All nullable;
+  // the video player only renders when video_status === 'published'.
+  video_provider?: string | null;
+  video_id?: string | null;
+  video_duration_seconds?: number | null;
+  video_thumbnail_url?: string | null;
+  video_status?: "draft" | "published" | "archived" | null;
+  video_uploaded_at?: string | null;
 }
 
 export interface AssessmentQuestion {

@@ -246,6 +246,7 @@ const AdminClients      = lazy(() => import("./pages/admin/Clients"));
 const AdminAnalytics    = lazy(() => import("./pages/admin/Analytics"));
 const AdminSettings     = lazy(() => import("./pages/admin/Settings"));
 const AdminMarketingConstants = lazy(() => import("./pages/admin/MarketingConstants"));
+const AdminBicademyVideos = lazy(() => import("./pages/admin/BicademyVideos"));
 const AdminUsers        = lazy(() => import("./pages/admin/Users"));
 const AdminVerification = lazy(() => import("./pages/admin/Verification"));
 const AdminDisputes     = lazy(() => import("./pages/admin/Disputes"));
@@ -658,6 +659,7 @@ function AppRoutes() {
       <Route path="/admin/analytics" element={<RequireAuth allowedRoles={["admin"]}><AdminAnalytics /></RequireAuth>} />
       <Route path="/admin/settings"  element={<RequireAuth allowedRoles={["admin"]}><AdminSettings /></RequireAuth>} />
       <Route path="/admin/marketing-constants" element={<RequireAuth allowedRoles={["admin"]}><AdminMarketingConstants /></RequireAuth>} />
+      <Route path="/admin/bicademy-videos" element={<RequireAuth allowedRoles={["admin"]}><AdminBicademyVideos /></RequireAuth>} />
       <Route path="/admin/users"        element={<RequireAuth allowedRoles={["admin"]}><AdminUsers /></RequireAuth>} />
       <Route path="/admin/verification" element={<RequireAuth allowedRoles={["admin"]}><AdminVerification /></RequireAuth>} />
       <Route path="/admin/disputes"     element={<RequireAuth allowedRoles={["admin"]}><AdminDisputes /></RequireAuth>} />

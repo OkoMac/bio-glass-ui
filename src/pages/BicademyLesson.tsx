@@ -8,6 +8,7 @@ import {
 import { useCourseDetail, useEnrollments, useEnrollmentActions } from "@/hooks/useBicademy";
 import { toast } from "sonner";
 import { trackEvent } from "@/lib/habits";
+import BicademyVideoPlayer from "@/components/BicademyVideoPlayer";
 
 export default function BicademyLesson() {
   const { code, n } = useParams<{ code: string; n: string }>();
@@ -93,6 +94,23 @@ export default function BicademyLesson() {
             />
           </div>
         </div>
+
+        {/* Video tutorial (only renders when published) */}
+        {lesson.video_url && lesson.video_status === "published" && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+          >
+            <BicademyVideoPlayer
+              videoUrl={lesson.video_url}
+              videoId={lesson.video_id ?? null}
+              thumbnailUrl={lesson.video_thumbnail_url ?? null}
+              durationSeconds={lesson.video_duration_seconds ?? null}
+              provider={lesson.video_provider ?? null}
+              title={lesson.title}
+            />
+          </motion.div>
+        )}
 
         {/* Lesson content */}
         <motion.article
