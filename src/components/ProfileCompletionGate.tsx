@@ -91,6 +91,7 @@ export default function ProfileCompletionGate({ children }: Props) {
       ? `${dobYear}-${dobMonth.padStart(2, "0")}-${dobDay.padStart(2, "0")}`
       : "";
   const [country, setCountry]     = useState("ZA");
+  const [phone, setPhone]         = useState("");
 
   const getToken = useCallback(async (): Promise<string | null> => {
     try {
@@ -155,6 +156,8 @@ export default function ProfileCompletionGate({ children }: Props) {
       setFirstName(first ?? "");
       setLastName(rest.join(" "));
     }
+    const existingPhone = ((user as { phone?: string | null }).phone ?? "").trim();
+    if (existingPhone) setPhone(existingPhone);
   }, [user]);
 
   const skipPath = SKIP_PATHS.some(p => location.pathname.startsWith(p));
@@ -195,6 +198,13 @@ export default function ProfileCompletionGate({ children }: Props) {
       setError("Please pick a country.");
       return;
     }
+    // Phone: allow +27 / 0 / bare SA formats and any +CC international.
+    // Backend re-normalizes to E.164 and rejects invalid lengths.
+    const phoneDigits = phone.replace(/\D/g, "");
+    if (phoneDigits.length < 9) {
+      setError("Please enter a valid mobile number — we'll use this to recognise you on WhatsApp.");
+      return;
+    }
 
     setSubmitting(true);
     // 15s safety timeout — if the iOS Safari fetch silently hangs (a
@@ -225,6 +235,7 @@ export default function ProfileCompletionGate({ children }: Props) {
           lastName: ln,
           dateOfBirth: dob,
           country,
+          phone: phone.trim(),
         }),
         signal: ctrl.signal,
       });
@@ -289,7 +300,7 @@ export default function ProfileCompletionGate({ children }: Props) {
                 {hardBlock ? "Please complete your profile" : "Finish setting up your account"}
               </h2>
               <p className="text-sm text-muted-foreground">
-                BION needs your legal name, date of birth, and country to comply with KYC and POPIA.
+                BION needs your legal name, date of birth, mobile number, and country to comply with KYC and POPIA, and so B_ can recognise you on WhatsApp.
               </p>
               {!hardBlock && (
                 <p className="text-xs text-amber-400/90">
@@ -394,6 +405,22 @@ export default function ProfileCompletionGate({ children }: Props) {
                     <option key={c.code} value={c.code}>{c.name}</option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1" htmlFor="pcg-phone">Mobile number</label>
+                <input
+                  id="pcg-phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full glass-1 rounded-lg px-3 py-2 text-sm text-foreground border border-white/10 focus:border-indigo/50 outline-none"
+                  placeholder={country === "ZA" ? "082 123 4567 or +27 82 123 4567" : "+CC 123 456 7890"}
+                  autoComplete="tel"
+                  required
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  We use this to recognise you when you chat with B_ on WhatsApp.
+                </p>
               </div>
             </div>
 
