@@ -6,6 +6,7 @@ import {
   ShieldCheck, TrendingUp, Zap, ChevronDown, Check, ArrowRight,
 } from "lucide-react";
 import LandingHeader from "@/components/landing/LandingHeader";
+import HelpVideo from "@/components/HelpVideo";
 
 /**
  * Public marketing landing page targeting health, wellness & beauty
@@ -85,6 +86,9 @@ export default function ForProviders() {
         </motion.div>
 
         <div className="relative w-full max-w-6xl mx-auto px-4 md:px-8 pt-16 md:pt-24 pb-16 md:pb-24 text-center">
+          <div className="flex justify-center mb-4">
+            <HelpVideo lessonRef="PROVIDER:1" label="Watch 1-min intro" />
+          </div>
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}

@@ -9,6 +9,7 @@ import { usePageView } from "@/hooks/usePageView";
 import { useHealthLogs, useHealthProfile } from "@/hooks/useHealth";
 import { authFetchJson } from "@/lib/authFetch";
 import { ArrowLeft, Calculator, ChevronDown, ChevronUp, TrendingUp } from "lucide-react";
+import HelpVideo from "@/components/HelpVideo";
 
 const STORAGE_KEY = "bion_bmi_last";
 
@@ -150,8 +151,11 @@ export default function BmiCalculator() {
             className="w-9 h-9 glass-1 rounded-full flex items-center justify-center">
             <ArrowLeft className="w-4 h-4 text-foreground" />
           </motion.button>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Free BMI Calculator</h1>
+          <div className="flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <h1 className="text-2xl font-bold text-foreground">Free BMI Calculator</h1>
+              <HelpVideo lessonRef="TOOLS:1" />
+            </div>
             <p className="text-xs text-muted-foreground">
               Check your Body Mass Index — metric (kg/cm). Sign up free to save trends.
             </p>

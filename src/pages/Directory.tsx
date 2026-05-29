@@ -8,6 +8,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import ServiceCategoryBlock, { SERVICE_CATEGORIES, type ServiceCategory } from "@/components/ServiceCategoryBlock";
 import { useAuth } from "@/contexts/AuthContext";
 import AdBanner from "@/components/AdBanner";
+import HelpVideo from "@/components/HelpVideo";
 import CampaignBanner from "@/components/CampaignBanner";
 import SpotlightSection from "@/components/SpotlightSection";
 import BionTips from "@/components/BionTips";
@@ -667,6 +668,8 @@ export default function Directory() {
               <span className="hidden md:inline">Filters</span>
               {(selectedSuburb || selectedCity) && <span className="w-1.5 h-1.5 rounded-full bg-indigo" aria-hidden="true" />}
             </button>
+            <div className="w-px h-4 bg-foreground/10" aria-hidden="true" />
+            <HelpVideo lessonRef="ONBOARDING:1" label="Tutorial" />
           </div>
 
           {/* Filter panel */}
