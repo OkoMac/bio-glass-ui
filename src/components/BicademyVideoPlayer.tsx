@@ -29,7 +29,6 @@ export default function BicademyVideoPlayer({
   videoId,
   thumbnailUrl,
   durationSeconds,
-  provider,
   title,
 }: Props) {
   const [playing, setPlaying] = useState(false);
@@ -37,22 +36,32 @@ export default function BicademyVideoPlayer({
 
   const isCloudflareStream = (provider ?? "cloudflare_stream") === "cloudflare_stream";
 
-  // If videoUrl already looks like a full URL, use it. Otherwise treat it
-  // as a CF Stream uid and build the iframe URL. Customer subdomain comes
-  // from VITE_CF_STREAM_CUSTOMER_CODE so we don't hardcode it.
+  // Build the Cloudflare Stream iframe embed URL — that's what plays the
+  // video in a browser, NOT the raw HLS manifest URL. We try in order:
+  //   1) extract customer code + uid from videoUrl if it's a CF Stream URL
+  //   2) use the explicit videoId prop + VITE_CF_STREAM_CUSTOMER_CODE
+  //   3) fall back to the raw videoUrl as <video> source (mp4 / direct file)
   //
-  // videoUrl may be null/empty on legacy lesson rows where the column was
-  // backfilled before the recorder pipeline shipped — fall back to videoId
-  // if we have one, otherwise refuse to render.
-  const customerCode = import.meta.env.VITE_CF_STREAM_CUSTOMER_CODE as string | undefined;
-  const looksLikeUrl = typeof videoUrl === "string" && videoUrl.startsWith("http");
-  const iframeSrc = looksLikeUrl
-    ? videoUrl
-    : customerCode && videoId
-      ? `https://customer-${customerCode}.cloudflarestream.com/${videoId}/iframe?poster=${encodeURIComponent(thumbnailUrl ?? "")}`
-      : null;
+  // videoUrl may also be null on legacy rows — render a placeholder then.
+  const envCustomerCode = import.meta.env.VITE_CF_STREAM_CUSTOMER_CODE as string | undefined;
 
-  if (!iframeSrc && !looksLikeUrl) {
+  // Pattern: https://customer-<code>.cloudflarestream.com/<uid>/...
+  const cfMatch = typeof videoUrl === "string"
+    ? videoUrl.match(/^https:\/\/customer-([a-z0-9]+)\.cloudflarestream\.com\/([a-f0-9]+)\//i)
+    : null;
+  const customerCode = cfMatch?.[1] ?? envCustomerCode;
+  const uid = cfMatch?.[2] ?? videoId ?? null;
+  const isCfStream = !!(customerCode && uid);
+
+  const iframeSrc = isCfStream
+    ? `https://customer-${customerCode}.cloudflarestream.com/${uid}/iframe${thumbnailUrl ? `?poster=${encodeURIComponent(thumbnailUrl)}` : ""}`
+    : null;
+
+  const directVideoSrc = !isCfStream && typeof videoUrl === "string" && videoUrl.startsWith("http")
+    ? videoUrl
+    : null;
+
+  if (!iframeSrc && !directVideoSrc) {
     // Nothing playable. Render a small placeholder instead of crashing.
     return (
       <div className="rounded-2xl bg-black/40 border border-white/[0.08] aspect-video flex items-center justify-center">
@@ -98,7 +107,7 @@ export default function BicademyVideoPlayer({
             )}
           </div>
         </button>
-      ) : isCloudflareStream && iframeSrc ? (
+      ) : iframeSrc ? (
         <>
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center">
@@ -114,16 +123,16 @@ export default function BicademyVideoPlayer({
             onLoad={() => setLoading(false)}
           />
         </>
-      ) : (
+      ) : directVideoSrc ? (
         <video
-          src={videoUrl}
+          src={directVideoSrc}
           controls
           autoPlay
           playsInline
           poster={thumbnailUrl ?? undefined}
           className="absolute inset-0 w-full h-full object-contain bg-black"
         />
-      )}
+      ) : null}
     </div>
   );
 }
