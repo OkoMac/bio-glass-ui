@@ -34,8 +34,6 @@ export default function BicademyVideoPlayer({
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const isCloudflareStream = (provider ?? "cloudflare_stream") === "cloudflare_stream";
-
   // Build the Cloudflare Stream iframe embed URL — that's what plays the
   // video in a browser, NOT the raw HLS manifest URL. We try in order:
   //   1) extract customer code + uid from videoUrl if it's a CF Stream URL
