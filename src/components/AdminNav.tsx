@@ -5,7 +5,7 @@ import {
   Settings, ShieldCheck, LogOut, UserCog, FileCheck,
   AlertTriangle, Sparkles, BookOpen, MessageSquare, Shield, ShieldAlert, UserCheck,
   DollarSign, RotateCcw, LifeBuoy, Target, Megaphone, Radio, Send,
-  Menu, Mailbox, Workflow,
+  Menu, Mailbox, Workflow, Video,
 } from "lucide-react";
 import {
   Sheet,
@@ -35,6 +35,7 @@ const navItems = [
   // for those two were removed to avoid two nav layers competing.
   { icon: MessageSquare,   label: "WhatsApp CRM", path: "/admin/whatsapp"       },
   { icon: BookOpen,        label: "Catalogs",     path: "/admin/catalogs"       },
+  { icon: Video,           label: "Bicademy",     path: "/admin/bicademy-videos" },
   { icon: Target,          label: "Rangers CRM",  path: "/admin/rangers"        },
   { icon: Send,            label: "Outreach",     path: "/admin/outreach"       },
   { icon: Megaphone,       label: "Campaigns",    path: "/admin/campaigns"      },
