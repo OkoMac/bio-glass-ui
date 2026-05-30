@@ -84,22 +84,25 @@ export default function BicademyVideoPlayer({
           className="w-full h-full flex items-center justify-center relative group"
           aria-label={title ? `Play ${title}` : "Play tutorial"}
         >
-          {thumbnailUrl ? (
-            <img
-              src={thumbnailUrl}
-              alt={title ?? "Tutorial thumbnail"}
-              className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-              loading="lazy"
+          {/* Background: always render the gradient; layer the thumbnail
+             on top via CSS background-image so a failed load (Brave Shields
+             blocks cross-origin to cloudflarestream.com by default) doesn't
+             show the browser's broken-image icon. */}
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo/30 via-obsidian to-teal/20" aria-hidden="true" />
+          {thumbnailUrl && (
+            <div
+              className="absolute inset-0 bg-cover bg-center opacity-80 group-hover:opacity-100 transition-opacity"
+              style={{ backgroundImage: `url("${thumbnailUrl}")` }}
+              aria-hidden="true"
             />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo/20 via-black to-teal/10" />
           )}
-          <div className="relative z-10 flex flex-col items-center gap-2">
-            <div className="w-16 h-16 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+          {/* Play button overlay — always visible, z-index above the bg layers. */}
+          <div className="relative z-10 flex flex-col items-center gap-2 pointer-events-none">
+            <div className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center group-hover:scale-110 transition-transform">
               <Play className="w-7 h-7 text-black fill-black ml-1" />
             </div>
             {minutes != null && (
-              <span className="text-xs text-white/90 font-medium bg-black/40 px-2 py-0.5 rounded">
+              <span className="text-xs text-white font-medium bg-black/60 px-2 py-0.5 rounded">
                 {minutes} min
               </span>
             )}
