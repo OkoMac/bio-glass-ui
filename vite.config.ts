@@ -40,6 +40,12 @@ export default defineConfig(() => ({
     },
   },
   build: {
+    // Pin transpile target so older Safari (14+) parses the bundle.
+    // Vite's default (`'modules'` → essentially esnext) ships syntax
+    // like top-level await, class private fields, and Array.at() that
+    // some Safari versions can't parse — bundle fails to evaluate,
+    // React never mounts, user sees a blank page on bionhealth.co.za.
+    target: ["es2020", "safari14"],
     rollupOptions: {
       // 🚫 Capacitor native plugins can't run on Vercel's Node.js server.
       // The only Capacitor import in runtime code is a `await import(...)` in
