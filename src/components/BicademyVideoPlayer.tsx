@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Play, Loader2 } from "lucide-react";
 
 interface Props {
@@ -34,32 +34,77 @@ export default function BicademyVideoPlayer({
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Build the Cloudflare Stream iframe embed URL — that's what plays the
-  // video in a browser, NOT the raw HLS manifest URL. We try in order:
-  //   1) extract customer code + uid from videoUrl if it's a CF Stream URL
-  //   2) use the explicit videoId prop + VITE_CF_STREAM_CUSTOMER_CODE
-  //   3) fall back to the raw videoUrl as <video> source (mp4 / direct file)
+  // Prefer the HLS manifest URL with a native <video> element. Safari
+  // plays HLS natively (no library), Chrome/Brave/Firefox via the small
+  // hls.js polyfill we load lazily below. Going direct-HLS instead of
+  // the Cloudflare Stream iframe avoids three real problems we hit:
+  //   - Safari ITP blocks cookies the iframe relies on → blank white frame
+  //   - Brave Shields blocks third-party iframes from cloudflarestream.com
+  //   - The iframe ships ~250kB of UI we don't need
   //
-  // videoUrl may also be null on legacy rows — render a placeholder then.
+  // Source resolution:
+  //   1) videoUrl already an HLS .m3u8 → use directly
+  //   2) videoUrl is a CF Stream URL pattern → reconstruct the HLS URL from
+  //      the parsed code + uid
+  //   3) videoId + VITE_CF_STREAM_CUSTOMER_CODE → reconstruct
+  //   4) videoUrl is some other http URL → play as direct file (mp4)
+  //   5) nothing playable → render placeholder
   const envCustomerCode = import.meta.env.VITE_CF_STREAM_CUSTOMER_CODE as string | undefined;
-
-  // Pattern: https://customer-<code>.cloudflarestream.com/<uid>/...
   const cfMatch = typeof videoUrl === "string"
     ? videoUrl.match(/^https:\/\/customer-([a-z0-9]+)\.cloudflarestream\.com\/([a-f0-9]+)\//i)
     : null;
   const customerCode = cfMatch?.[1] ?? envCustomerCode;
   const uid = cfMatch?.[2] ?? videoId ?? null;
-  const isCfStream = !!(customerCode && uid);
 
-  const iframeSrc = isCfStream
-    ? `https://customer-${customerCode}.cloudflarestream.com/${uid}/iframe${thumbnailUrl ? `?poster=${encodeURIComponent(thumbnailUrl)}` : ""}`
-    : null;
+  let hlsSrc: string | null = null;
+  if (typeof videoUrl === "string" && /\.m3u8(?:[?#]|$)/i.test(videoUrl)) {
+    hlsSrc = videoUrl;
+  } else if (customerCode && uid) {
+    hlsSrc = `https://customer-${customerCode}.cloudflarestream.com/${uid}/manifest/video.m3u8`;
+  }
 
-  const directVideoSrc = !isCfStream && typeof videoUrl === "string" && videoUrl.startsWith("http")
+  const directVideoSrc = !hlsSrc && typeof videoUrl === "string" && videoUrl.startsWith("http")
     ? videoUrl
     : null;
 
-  if (!iframeSrc && !directVideoSrc) {
+  // hls.js for non-Safari browsers — lazy-loaded only after the user taps
+  // Play, so the chunk doesn't ship in the initial bundle.
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  useEffect(() => {
+    if (!playing || !hlsSrc) return;
+    const video = videoRef.current;
+    if (!video) return;
+    // Safari/iOS plays HLS natively — assign src and go.
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = hlsSrc;
+      setLoading(false);
+      return;
+    }
+    // Other browsers: dynamic-import hls.js
+    let hls: { destroy: () => void } | null = null;
+    (async () => {
+      try {
+        const Hls = (await import("hls.js")).default;
+        if (Hls.isSupported()) {
+          const inst = new Hls();
+          inst.loadSource(hlsSrc);
+          inst.attachMedia(video);
+          hls = inst as unknown as { destroy: () => void };
+          setLoading(false);
+        } else {
+          // Last-ditch: try src= anyway. If MediaSource isn't available it just won't play.
+          video.src = hlsSrc;
+          setLoading(false);
+        }
+      } catch {
+        // hls.js failed to load — surface as a play-state false.
+        setLoading(false);
+      }
+    })();
+    return () => { if (hls) hls.destroy(); };
+  }, [playing, hlsSrc]);
+
+  if (!hlsSrc && !directVideoSrc) {
     // Nothing playable. Render a small placeholder instead of crashing.
     return (
       <div className="rounded-2xl bg-black/40 border border-white/[0.08] aspect-video flex items-center justify-center">
@@ -108,20 +153,21 @@ export default function BicademyVideoPlayer({
             )}
           </div>
         </button>
-      ) : iframeSrc ? (
+      ) : hlsSrc ? (
         <>
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center">
               <Loader2 className="w-8 h-8 animate-spin text-white/70" />
             </div>
           )}
-          <iframe
-            src={iframeSrc}
-            title={title ?? "Tutorial video"}
-            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
-            allowFullScreen
-            className="absolute inset-0 w-full h-full"
-            onLoad={() => setLoading(false)}
+          <video
+            ref={videoRef}
+            controls
+            autoPlay
+            playsInline
+            poster={thumbnailUrl ?? undefined}
+            className="absolute inset-0 w-full h-full object-contain bg-black"
+            onCanPlay={() => setLoading(false)}
           />
         </>
       ) : directVideoSrc ? (
