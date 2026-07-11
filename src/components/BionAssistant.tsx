@@ -349,21 +349,35 @@ export default function BionAssistant() {
       // ticket is prioritised in the support queue.
       setHumanReason(`[CRISIS_KEYWORD] ${text}`);
       setShowHumanModal(true);
-      // Best-effort backend ping so the team is alerted even if the
-      // user closes the tab before submitting the modal.
-      fetch(`${API_URL}/api/support/tickets`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          source: "web_chat",
-          priority: "urgent",
-          subject: "🚨 Crisis keyword detected — web chat",
-          body: text,
-          submitter_name: user?.name ?? "anonymous",
-          submitter_email: user?.email ?? null,
-          tags: ["crisis_keyword"],
-        }),
-      }).catch((e: unknown) => console.warn("[BionAssistant] crisis alert:", e instanceof Error ? e.message : String(e)));
+      // Best-effort backend alert so the team is notified even if the
+      // user closes the tab before submitting the modal. Must match
+      // createTicketSchema (email + category required) or the request
+      // 400s and the alert is silently lost. Anonymous users have no
+      // email, so fall back to a real noreply+ subaddress that lands in
+      // the support inbox.
+      void (async () => {
+        try {
+          const headers: Record<string, string> = { "Content-Type": "application/json" };
+          try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.access_token) headers["Authorization"] = `Bearer ${session.access_token}`;
+          } catch { /* anon fallback */ }
+          await fetch(`${API_URL}/api/support/tickets`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              email: user?.email || "noreply+crisis-web@bionhealth.co.za",
+              name: user?.name ?? "anonymous",
+              category: "other",
+              priority: "urgent",
+              subject: "🚨 Crisis keyword detected — web chat",
+              body: `[crisis_keyword] User message:\n${text}`,
+            }),
+          });
+        } catch (e: unknown) {
+          console.warn("[BionAssistant] crisis alert:", e instanceof Error ? e.message : String(e));
+        }
+      })();
       return;
     }
 
